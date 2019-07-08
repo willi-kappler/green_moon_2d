@@ -1,5 +1,5 @@
 
-trait GM_Animation_T {
+pub trait GM_Animation_T {
     fn uptate(&mut self) {
 
     }
@@ -35,8 +35,16 @@ impl GM_Animation {
     }
 }
 
-struct GM_Animation_Once {
+pub struct GM_Animation_Once {
     inner: GM_Animation,
+}
+
+impl GM_Animation_Once {
+    pub fn new(frames: Vec<usize>) -> GM_Animation_Once {
+        GM_Animation_Once {
+            inner: GM_Animation::new(frames),
+        }
+    }
 }
 
 impl GM_Animation_T for GM_Animation_Once {
@@ -47,12 +55,12 @@ impl GM_Animation_T for GM_Animation_Once {
     }
 }
 
-struct GM_Animation_Cycle {
+pub struct GM_Animation_Cycle {
     inner: GM_Animation,
 }
 
 impl GM_Animation_Cycle {
-    fn new(frames: Vec<usize>) -> GM_Animation_Cycle {
+    pub fn new(frames: Vec<usize>) -> GM_Animation_Cycle {
         GM_Animation_Cycle {
             inner: GM_Animation::new(frames),
         }
@@ -64,41 +72,41 @@ impl GM_Animation_T for GM_Animation_Cycle {
         if !self.inner.at_end() {
             self.inner.inc();
         } else {
-            // Restart animantion again if finished
+            // Restart animation again if finished
             self.inner.current_index = 0;
         }
     }
 }
 
-struct GM_Animation_PingPong {
+pub struct GM_Animation_PingPong {
     inner: GM_Animation,
-    foreward: bool,
+    forward: bool,
 }
 
 impl GM_Animation_PingPong {
-    fn new(frames: Vec<usize>) -> GM_Animation_PingPong {
+    pub fn new(frames: Vec<usize>) -> GM_Animation_PingPong {
         GM_Animation_PingPong {
             inner: GM_Animation::new(frames),
-            foreward: true,
+            forward: true,
         }
     }
 }
 
 impl GM_Animation_T for GM_Animation_PingPong {
     fn update(&mut self) {
-        if self.foreward {
+        if self.forward {
             if !self.inner.at_end() {
                 self.inner.inc();
             } else {
                 // Play animation backwards
-                self.foreward = false;
+                self.forward = false;
             }
         } else {
             if !self.inner.at_start() {
                 self.inner.dec();
             } else {
-                // Play animation forewards
-                self.foreward = true;
+                // Play animation forwards
+                self.forward = true;
             }
         }
     }

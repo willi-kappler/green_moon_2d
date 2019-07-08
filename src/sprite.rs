@@ -5,4 +5,5 @@ struct GM_Sprite {
     velocity: GM_Velocity,
     collision: GM_Collision,
     animation_id: usize,
+    path_id; usize,
 }

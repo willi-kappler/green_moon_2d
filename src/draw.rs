@@ -1,6 +1,5 @@
 
 trait GM_Draw_T {
-    fn draw(&self, resources: &mut GM_Canvas) {
-
+    fn draw(&self, resources: &mut GM_Resources) {
     }
 }

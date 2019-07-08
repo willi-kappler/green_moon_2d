@@ -6,3 +6,8 @@ struct GM_BitmapFont {
     rows: u16,
     cols: u16,
 }
+
+impl GM_Draw_T for GM_BitmapFont {
+    fn draw(&self, resources: &mut GM_Canvas) {
+    }
+}
