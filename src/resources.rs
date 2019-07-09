@@ -10,6 +10,7 @@ struct GM_Resources {
     // Misc
     settings: GM_Settings,
     quit: bool,
+    time_elapsed: u16,
 }
 
 impl GM_Resources {
@@ -20,10 +21,19 @@ impl GM_Resources {
             music_pool: Vec::new(),
             settings: GM_Settings::new(),
             quit: false,
+            time_elapsed: 0,
         }
     }
 
     pub fn quit_game(&mut self) {
         self.quit = true;
+    }
+
+    fn update(&mut self) {
+        self.canvas.update(self.time_elapsed);
+    }
+
+    fn draw(&mut self) {
+        self.canvas.draw();
     }
 }

@@ -1,4 +1,5 @@
-
+use std::time::{Instant, Duration};
+use std::thread;
 
 pub trait GM_Game_T : GM_Process_T + GM_Update_T + GM_Draw_T {
     fn initialize(&mut self) {
@@ -21,12 +22,21 @@ impl<U> GreenMoon2D<U> {
     }
 
     pub fn run(&mut self) -> Result<(), GM_Game_Error> {
-        self.actual_game.initialize();
+        self.actual_game.initialize(&mut self.resources);
 
-        while ! self.resources.quit {
+        while !self.resources.quit {
+            let instant = Instant::now();
+
             self.process();
             self.update();
             self.draw();
+
+            let sleep_time = self.settings.frame_duration - (instant.elapsed().as_millis() as i16);
+            if sleep_time > 0 {
+                thread::sleep(Duration::from_millis(sleep_time as u64))
+            }
+
+            self.resources.time_elapsed = instant.elapsed().as_millis() as u16;
         }
     }
 
@@ -35,10 +45,12 @@ impl<U> GreenMoon2D<U> {
     }
 
     fn update(&mut self) {
+        self.resources.update();
         self.actual_game.update(&mut self.resources);
     }
 
     fn draw(&mut self) {
+        self.resources.draw();
         self.actual_game.draw(&mut self.resources);
     }
 }
