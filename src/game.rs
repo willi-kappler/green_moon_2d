@@ -66,7 +66,7 @@ impl<U: GM_Game_T> GreenMoon2D<U> {
 
     fn draw(&mut self) {
         self.resources.draw();
-        self.actual_game.draw(&mut self.resources);
+        self.actual_game.draw(&mut self.resources.canvas);
     }
 }
 

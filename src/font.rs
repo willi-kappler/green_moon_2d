@@ -2,7 +2,7 @@
 
 // Local modules
 use crate::draw::{GM_Draw_T};
-use crate::resources::{GM_Resources};
+use crate::canvas::{GM_Canvas};
 
 
 pub struct GM_BitmapFont {
@@ -14,6 +14,6 @@ pub struct GM_BitmapFont {
 }
 
 impl GM_Draw_T for GM_BitmapFont {
-    fn draw(&self, resources: &mut GM_Resources) {
+    fn draw(&self, canvas: &mut GM_Canvas) {
     }
 }
