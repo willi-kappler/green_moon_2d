@@ -1,8 +1,8 @@
 
 
 // Local modules
-use crate::draw::{GM_Draw_T};
 use crate::canvas::{GM_Canvas};
+use crate::draw::{GM_Draw_T};
 
 
 pub struct GM_BitmapFont {

@@ -1,15 +1,15 @@
 
 // Local modules
 
-use crate::position::{GM_Position, GM_Position_T};
-use crate::velocity::{GM_Velocity};
 use crate::acceleration::{GM_Acceleration};
-use crate::update::{GM_Update_Elapsed_T};
 use crate::active::{GM_Active_T};
-use crate::spritesheet::{GM_SpriteSheet};
-use crate::texture::{GM_Texture};
 use crate::animation::{GM_Animation_T};
 use crate::canvas::{GM_Canvas};
+use crate::position::{GM_Position, GM_Position_T};
+use crate::spritesheet::{GM_SpriteSheet};
+use crate::texture::{GM_Texture};
+use crate::update::{GM_Update_Elapsed_T};
+use crate::velocity::{GM_Velocity};
 
 pub trait GM_Sprite_T: GM_Update_Elapsed_T + GM_Active_T + GM_Position_T {
     fn draw(&self,

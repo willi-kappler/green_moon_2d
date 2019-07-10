@@ -2,6 +2,7 @@
 
 #![allow(non_camel_case_types)]
 
+// mod screen;
 mod acceleration;
 mod active;
 mod animation;
@@ -15,7 +16,6 @@ mod path;
 mod position;
 mod process;
 mod resources;
-// mod screen;
 mod settings;
 mod sound;
 mod sprite;

@@ -1,8 +1,7 @@
 
 // Local modules
-use crate::update::{GM_Update_Elapsed_T};
 use crate::active::{GM_Active_T};
-
+use crate::update::{GM_Update_Elapsed_T};
 
 
 pub trait GM_Animation_T: GM_Update_Elapsed_T + GM_Active_T {

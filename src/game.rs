@@ -1,16 +1,16 @@
 
 
 // Rust modules
-use std::time::{Instant, Duration};
 use std::thread;
+use std::time::{Instant, Duration};
 
 // Local modules
-use crate::resources::{GM_Resources};
-use crate::settings::{GM_Settings};
-use crate::process::{GM_Process_T};
-use crate::update::{GM_Update_Resource_T};
 use crate::draw::{GM_Draw_T};
 use crate::event::{GM_Event};
+use crate::process::{GM_Process_T};
+use crate::resources::{GM_Resources};
+use crate::settings::{GM_Settings};
+use crate::update::{GM_Update_Resource_T};
 
 
 pub trait GM_Game_T : GM_Process_T + GM_Update_Resource_T + GM_Draw_T {

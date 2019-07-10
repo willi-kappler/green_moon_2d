@@ -1,9 +1,9 @@
 
 
 // Local modules
-use crate::update::{GM_Update_Elapsed_T};
 use crate::active::{GM_Active_T};
 use crate::position::{GM_Position};
+use crate::update::{GM_Update_Elapsed_T};
 
 
 pub trait GM_Path_T: GM_Update_Elapsed_T + GM_Active_T {

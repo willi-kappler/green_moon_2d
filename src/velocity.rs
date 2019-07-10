@@ -2,8 +2,8 @@
 
 
 // Local modules
-use crate::vector::{GM_Vec2D};
 use crate::acceleration::{GM_Acceleration};
+use crate::vector::{GM_Vec2D};
 
 pub struct GM_Velocity {
     base: GM_Vec2D,

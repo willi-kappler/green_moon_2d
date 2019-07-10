@@ -1,16 +1,16 @@
 
 // Local modules
+use crate::animation::{GM_Animation_T};
 use crate::canvas::{GM_Canvas};
+use crate::font::{GM_BitmapFont};
+use crate::music::{GM_Music};
+use crate::path::{GM_Path_T};
 use crate::settings::{GM_Settings};
 use crate::sound::{GM_Sound};
-use crate::music::{GM_Music};
-use crate::font::{GM_BitmapFont};
-use crate::spritesheet::{GM_SpriteSheet};
-use crate::texture::{GM_Texture};
-use crate::animation::{GM_Animation_T};
-use crate::path::{GM_Path_T};
 use crate::sprite::{GM_Sprite_T};
+use crate::spritesheet::{GM_SpriteSheet};
 use crate::text::{GM_Text_T};
+use crate::texture::{GM_Texture};
 
 
 pub struct GM_Resources {
