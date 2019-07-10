@@ -3,13 +3,19 @@
 
 // Local modules
 use crate::position::{GM_Position};
-use crate::draw::{GM_Draw_T};
 use crate::update::{GM_Update_Elapsed_T};
 use crate::active::{GM_Active_T};
+use crate::font::{GM_BitmapFont};
+use crate::texture::{GM_Texture};
+use crate::canvas::{GM_Canvas};
 
 
-
-pub trait GM_Text_T : GM_Update_Elapsed_T + GM_Draw_T + GM_Active_T {
+pub trait GM_Text_T : GM_Update_Elapsed_T + GM_Active_T {
+    fn draw(&self,
+        font_pool: &Vec<GM_BitmapFont>,
+        texture_pool: &Vec<GM_Texture>,
+        canvas: &mut GM_Canvas
+    );
 }
 
 pub struct GM_Text {

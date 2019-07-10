@@ -86,13 +86,20 @@ impl GM_Resources {
     pub fn draw(&mut self) {
         for sprite in self.sprite_pool.iter() {
             if sprite.is_active() {
-                let sprite_sheet = &self.sprite_sheet_pool[sprite.get_sprite_sheet_id()];
-                let texture = &self.texture_pool[sprite_sheet.texture_id];
-                let animation = &self.animation_pool[sprite.get_animation_id()];
-                let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
-                let sx = sprite.get_x();
-                let sy = sprite.get_y();
-                self.canvas.draw_sub_texture(sx, sx, &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
+                sprite.draw(&self.sprite_sheet_pool,
+                    &self.texture_pool,
+                    &self.animation_pool,
+                    &mut self.canvas
+                );
+            }
+        }
+
+        for text in self.text_pool.iter() {
+            if text.is_active() {
+                text.draw(&self.font_pool,
+                    &self.texture_pool,
+                    &mut self.canvas
+                );
             }
         }
     }

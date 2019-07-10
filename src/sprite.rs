@@ -5,12 +5,19 @@ use crate::position::{GM_Position, GM_Position_T};
 use crate::velocity::{GM_Velocity};
 use crate::acceleration::{GM_Acceleration};
 use crate::update::{GM_Update_Elapsed_T};
-use crate::draw::{GM_Draw_T};
 use crate::active::{GM_Active_T};
+use crate::spritesheet::{GM_SpriteSheet};
+use crate::texture::{GM_Texture};
+use crate::animation::{GM_Animation_T};
+use crate::canvas::{GM_Canvas};
 
-pub trait GM_Sprite_T: GM_Update_Elapsed_T + GM_Draw_T + GM_Active_T + GM_Position_T {
-    fn get_sprite_sheet_id(&self) -> usize;
-    fn get_animation_id(&self) -> usize;
+pub trait GM_Sprite_T: GM_Update_Elapsed_T + GM_Active_T + GM_Position_T {
+    fn draw(&self,
+        sprite_sheet_pool: &Vec<GM_SpriteSheet>,
+        texture_pool: &Vec<GM_Texture>,
+        animation_pool: &Vec<Box<dyn GM_Animation_T>>,
+        canvas: &mut GM_Canvas
+    );
 }
 
 
@@ -22,6 +29,7 @@ pub struct GM_Sprite {
     acceleration: GM_Acceleration,
     collision_id: usize,
     animation_id: usize,
+    active: bool,
     // path_id: usize,
 }
 
@@ -34,6 +42,7 @@ impl GM_Sprite {
             acceleration: GM_Acceleration::new(),
             collision_id: 0,
             animation_id: 0,
+            active: false,
             // path_id: 0,
         }
     }
@@ -44,4 +53,41 @@ impl GM_Update_Elapsed_T for GM_Sprite {
         self.velocity.update(&self.acceleration, time_elapsed);
         self.position.update(&self.velocity, time_elapsed);
     }    
+}
+
+impl GM_Sprite_T for GM_Sprite {
+    fn draw(&self,
+        sprite_sheet_pool: &Vec<GM_SpriteSheet>,
+        texture_pool: &Vec<GM_Texture>,
+        animation_pool: &Vec<Box<dyn GM_Animation_T>>,
+        canvas: &mut GM_Canvas) {
+
+        let sprite_sheet = &sprite_sheet_pool[self.sprite_sheet_id];
+        let texture = &texture_pool[sprite_sheet.texture_id];
+        let animation = &animation_pool[self.animation_id];
+        let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
+        let sx = self.position.base.x;
+        let sy = self.position.base.y;
+        canvas.draw_sub_texture(self.get_x(), self.get_y(), &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
+    }
+}
+
+impl GM_Active_T for GM_Sprite {
+    fn is_active(&self) -> bool {
+        self.active
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active
+    }
+}
+
+impl GM_Position_T for GM_Sprite {
+    fn get_x(&self) -> u32 {
+        self.position.get_x()
+    }
+
+    fn get_y(&self) -> u32 {
+        self.position.get_y()
+    }
 }

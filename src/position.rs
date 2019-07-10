@@ -25,3 +25,13 @@ impl GM_Position {
     }
 
 }
+
+impl GM_Position_T for GM_Position {
+    fn get_x(&self) -> u32 {
+        self.base.x as u32
+    }
+
+    fn get_y(&self) -> u32 {
+        self.base.y as u32
+    }
+}
