@@ -1,18 +1,31 @@
  
+
+// Local modules
+use crate::texture::{GM_Texture};
+use crate::font::{GM_BitmapFont};
+use crate::spritesheet::{GM_SpriteSheet};
+use crate::animation::{GM_Animation_T};
+use crate::path::{GM_Path_T};
+use crate::sprite::{GM_Sprite_T};
+use crate::text::{GM_Text_T};
+
+
+
+
  pub struct GM_Canvas {
     texture_pool: Vec<GM_Texture>,
     font_pool: Vec<GM_BitmapFont>,
     sprite_sheet_pool: Vec<GM_SpriteSheet>,
-    animation_pool: Vec<dyn GM_Animation_T>,
-    path_pool: Vec<dyn GM_Path_T>,
-    sprite_pool: Vec<dyn GM_Sprite_T>,
-    text_pool: Vec<dyn GM_Text_T>,
+    animation_pool: Vec<Box<dyn GM_Animation_T>>,
+    path_pool: Vec<Box<dyn GM_Path_T>>,
+    sprite_pool: Vec<Box<dyn GM_Sprite_T>>,
+    text_pool: Vec<Box<dyn GM_Text_T>>,
     width: u32,
     height: u32,
  }
 
 impl GM_Canvas {
-   fn new() -> GM_Canvas {
+   pub fn new() -> GM_Canvas {
       GM_Canvas {
          texture_pool: Vec::new(),
          font_pool: Vec::new(),
@@ -26,7 +39,7 @@ impl GM_Canvas {
       }
    }
 
-   fn update(&mut self, time_elapsed: u16) {
+   pub fn update(&mut self, time_elapsed: u16) {
       for sprite in self.sprite_pool.iter_mut() {
          if sprite.is_active() {
             sprite.update(time_elapsed);
@@ -52,7 +65,7 @@ impl GM_Canvas {
       }
    }
 
-   fn draw(&mut self) {
+   pub fn draw(&mut self) {
 
    }
 

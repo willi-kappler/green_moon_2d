@@ -1,9 +1,18 @@
 
 
-trait GM_Text_T : GM_Update_T + GM_Draw_T {
+
+// Local modules
+use crate::position::{GM_Position};
+use crate::draw::{GM_Draw_T};
+use crate::update::{GM_Update_Elapsed_T};
+use crate::active::{GM_Active_T};
+
+
+
+pub trait GM_Text_T : GM_Update_Elapsed_T + GM_Draw_T + GM_Active_T {
 }
 
-struct GM_Text {
+pub struct GM_Text {
     font_id: usize,
     text: String,
     position: GM_Position,
@@ -19,7 +28,7 @@ impl GM_Text {
     }
 }
 
-impl GM_Update_T for GM_Text {
-    fn update(&mut self) {
+impl GM_Update_Elapsed_T for GM_Text {
+    fn update(&mut self, elapsed: u16) {
     }
 }

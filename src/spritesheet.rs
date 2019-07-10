@@ -1,5 +1,5 @@
 
-struct GM_SpriteSheet {
+pub struct GM_SpriteSheet {
     texture_id: usize,
     cell_width: u16,
     cell_height: u16,

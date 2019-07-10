@@ -1,5 +1,5 @@
 
-struct GM_Texture {
+pub struct GM_Texture {
     width: u32,
     height: u32,
     data: Vec<u32>,

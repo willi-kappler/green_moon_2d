@@ -1,4 +1,4 @@
 
-struct GM_Sound {
+pub struct GM_Sound {
     
 }

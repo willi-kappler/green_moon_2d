@@ -1,4 +1,4 @@
 
-struct GM_Music {
+pub struct GM_Music {
 
 }

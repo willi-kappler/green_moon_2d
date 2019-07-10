@@ -1,5 +1,12 @@
 
-struct GM_Resources {
+// Local modules
+use crate::canvas::{GM_Canvas};
+use crate::settings::{GM_Settings};
+use crate::sound::{GM_Sound};
+use crate::music::{GM_Music};
+
+
+pub struct GM_Resources {
     // GFX
     canvas: GM_Canvas,
 
@@ -9,12 +16,12 @@ struct GM_Resources {
 
     // Misc
     settings: GM_Settings,
-    quit: bool,
-    time_elapsed: u16,
+    pub quit: bool,
+    pub time_elapsed: u16,
 }
 
 impl GM_Resources {
-    fn new() -> GM_Resources {
+    pub fn new() -> GM_Resources {
         GM_Resources {
             canvas: GM_Canvas::new(),
             sound_pool: Vec::new(),
@@ -29,11 +36,11 @@ impl GM_Resources {
         self.quit = true;
     }
 
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         self.canvas.update(self.time_elapsed);
     }
 
-    fn draw(&mut self) {
+    pub fn draw(&mut self) {
         self.canvas.draw();
     }
 }

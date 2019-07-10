@@ -1,24 +1,36 @@
+
+
+// Rust modules
 use std::time::{Instant, Duration};
 use std::thread;
 
-pub trait GM_Game_T : GM_Process_T + GM_Update_T + GM_Draw_T {
-    fn initialize(&mut self) {
+// Local modules
+use crate::resources::{GM_Resources};
+use crate::settings::{GM_Settings};
+use crate::process::{GM_Process_T};
+use crate::update::{GM_Update_Resource_T};
+use crate::draw::{GM_Draw_T};
+use crate::event::{GM_Event};
+
+
+pub trait GM_Game_T : GM_Process_T + GM_Update_Resource_T + GM_Draw_T {
+    fn initialize(&mut self, resources: &mut GM_Resources) {
     }
 }
 
-struct GreenMoon2D<U> {
+pub struct GreenMoon2D<U> {
     resources: GM_Resources,
-    settinge: GM_Settings,
+    settings: GM_Settings,
     actual_game: U,
 }
 
-impl<U> GreenMoon2D<U> {
-    pub fn new<U: GM_Game_T>(actual_game: U) -> Result<GreenMoon2D, GM_Init_Error> {
-        GreenMoon2D {
+impl<U: GM_Game_T> GreenMoon2D<U> {
+    pub fn new(actual_game: U) -> Result<GreenMoon2D<U>, GM_Init_Error> {
+        Ok(GreenMoon2D {
             resources: GM_Resources::new(),
             settings: GM_Settings::new(),
             actual_game,
-        }
+        })
     }
 
     pub fn run(&mut self) -> Result<(), GM_Game_Error> {
@@ -26,8 +38,9 @@ impl<U> GreenMoon2D<U> {
 
         while !self.resources.quit {
             let instant = Instant::now();
+            let event = GM_Event::new();
 
-            self.process();
+            self.process(&event);
             self.update();
             self.draw();
 
@@ -38,9 +51,11 @@ impl<U> GreenMoon2D<U> {
 
             self.resources.time_elapsed = instant.elapsed().as_millis() as u16;
         }
+
+        Ok(())
     }
 
-    fn process(&mut self) {
+    fn process(&mut self, event: &GM_Event) {
         self.actual_game.process(event, &mut self.resources);
     }
 

@@ -1,20 +1,30 @@
 
-// mod animation;
-// mod canvas;
-// mod draw;
-// mod font;
+
+#![allow(non_camel_case_types)]
+
+mod acceleration;
+mod active;
+mod animation;
+mod canvas;
+mod draw;
+mod event;
+mod font;
 mod game;
-// mod music;
-// mod process;
-// mod resources;
+mod music;
+mod path;
+mod position;
+mod process;
+mod resources;
 // mod screen;
-// mod settings;
-// mod sound;
-// mod sprite;
-// mod spritesheet;
-// mod text;
-// mod texture;
-// mod update;
+mod settings;
+mod sound;
+mod sprite;
+mod spritesheet;
+mod text;
+mod texture;
+mod update;
+mod vector;
+mod velocity;
 
 // Rust trait objects:
 // https://tratt.net/laurie/blog/entries/a_quick_look_at_trait_objects_in_rust.html

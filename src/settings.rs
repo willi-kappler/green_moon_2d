@@ -1,10 +1,12 @@
 
-struct GM_Settings {
-    frame_duration: i16,
+pub struct GM_Settings {
+    pub frame_duration: i16,
 }
 
 impl GM_Settings {
-    fn new() -> GM_Settings {
-        frame_duration: 16,
+    pub fn new() -> GM_Settings {
+        GM_Settings {
+            frame_duration: 16,
+        }
     }
 }

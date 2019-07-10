@@ -1,8 +1,14 @@
 
-pub trait GM_Animation_T: GM_Update_T + GM_Active_T {
+// Local modules
+use crate::update::{GM_Update_Elapsed_T};
+use crate::active::{GM_Active_T};
+
+
+
+pub trait GM_Animation_T: GM_Update_Elapsed_T + GM_Active_T {
 }
 
-struct GM_Animation {
+pub struct GM_Animation {
     current_index: usize,
     frames: Vec<usize>,
     active: bool,
@@ -34,7 +40,11 @@ impl GM_Animation {
     }
 }
 
-impl GM_Animation_T for GM_Animation {
+impl GM_Animation_T for GM_Animation {}
+
+impl GM_Update_Elapsed_T for GM_Animation {}
+
+impl GM_Active_T for GM_Animation {
     fn is_active(&self) -> bool {
         self.active
     }
@@ -56,13 +66,17 @@ impl GM_Animation_Once {
     }
 }
 
-impl GM_Animation_T for GM_Animation_Once {
-    fn update(&mut self) {
+impl GM_Animation_T for GM_Animation_Once {}
+
+impl GM_Update_Elapsed_T for GM_Animation_Once {
+    fn update(&mut self, time_elapsed: u16) {
         if !self.base.at_end() {
             self.base.inc();
         }
     }
+}
 
+impl GM_Active_T for GM_Animation_Once {
     fn is_active(&self) -> bool {
         self.base.is_active()
     }
@@ -84,8 +98,10 @@ impl GM_Animation_Cycle {
     }
 }
 
-impl GM_Animation_T for GM_Animation_Cycle {
-    fn update(&mut self) {
+impl GM_Animation_T for GM_Animation_Cycle {}
+
+impl GM_Update_Elapsed_T for GM_Animation_Cycle {
+    fn update(&mut self, time_elapsed: u16) {
         if !self.base.at_end() {
             self.base.inc();
         } else {
@@ -93,7 +109,9 @@ impl GM_Animation_T for GM_Animation_Cycle {
             self.base.current_index = 0;
         }
     }
+}
 
+impl GM_Active_T for GM_Animation_Cycle {
     fn is_active(&self) -> bool {
         self.base.is_active()
     }
@@ -117,8 +135,10 @@ impl GM_Animation_PingPong {
     }
 }
 
-impl GM_Animation_T for GM_Animation_PingPong {
-    fn update(&mut self) {
+impl GM_Animation_T for GM_Animation_PingPong {}
+
+impl GM_Update_Elapsed_T for GM_Animation_PingPong {
+    fn update(&mut self, time_elapsed: u16) {
         if self.forward {
             if !self.base.at_end() {
                 self.base.inc();
@@ -135,7 +155,9 @@ impl GM_Animation_T for GM_Animation_PingPong {
             }
         }
     }
+}
 
+impl GM_Active_T for GM_Animation_PingPong {
     fn is_active(&self) -> bool {
         self.base.is_active()
     }
