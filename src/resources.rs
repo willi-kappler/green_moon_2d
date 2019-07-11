@@ -15,7 +15,7 @@ use crate::texture::{GM_Texture};
 
 pub struct GM_Resources {
     // GFX
-    pub (crate) canvas: GM_Canvas,
+    pub canvas: GM_Canvas,
     texture_pool: Vec<GM_Texture>,
     font_pool: Vec<GM_BitmapFont>,
     sprite_sheet_pool: Vec<GM_SpriteSheet>,
@@ -52,11 +52,14 @@ impl GM_Resources {
             time_elapsed: 0,
         }
     }
-/*
     pub fn quit_game(&mut self) {
         self.quit = true;
     }
-*/
+
+    pub fn game_still_running(&self) -> bool {
+        !self.quit
+    }
+
     pub fn update(&mut self) {
         for sprite in self.sprite_pool.iter_mut() {
             if sprite.is_active() {
@@ -89,8 +92,7 @@ impl GM_Resources {
                 sprite.draw(&self.sprite_sheet_pool,
                     &self.texture_pool,
                     &self.animation_pool,
-                    &mut self.canvas
-                );
+                    &mut self.canvas);
             }
         }
 
@@ -98,8 +100,7 @@ impl GM_Resources {
             if text.is_active() {
                 text.draw(&self.font_pool,
                     &self.texture_pool,
-                    &mut self.canvas
-                );
+                    &mut self.canvas);
             }
         }
     }

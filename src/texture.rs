@@ -6,7 +6,7 @@ pub struct GM_Texture {
 }
 
 impl GM_Texture {
-    fn new(width: u32, height: u32, data: Vec<u32>) -> GM_Texture {
+    pub fn new(width: u32, height: u32, data: Vec<u32>) -> GM_Texture {
         GM_Texture {
             width,
             height,

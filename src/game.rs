@@ -36,7 +36,7 @@ impl<U: GM_Game_T> GreenMoon2D<U> {
     pub fn run(&mut self) -> Result<(), GM_Game_Error> {
         self.actual_game.initialize(&mut self.resources);
 
-        while !self.resources.quit {
+        while self.game_still_running() {
             let instant = Instant::now();
             let event = GM_Event::new();
 
@@ -53,6 +53,10 @@ impl<U: GM_Game_T> GreenMoon2D<U> {
         }
 
         Ok(())
+    }
+
+    fn game_still_running(&self) -> bool {
+        self.resources.game_still_running()
     }
 
     fn process(&mut self, event: &GM_Event) {

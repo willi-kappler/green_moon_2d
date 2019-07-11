@@ -16,8 +16,7 @@ pub trait GM_Sprite_T: GM_Update_Elapsed_T + GM_Active_T + GM_Position_T {
         sprite_sheet_pool: &Vec<GM_SpriteSheet>,
         texture_pool: &Vec<GM_Texture>,
         animation_pool: &Vec<Box<dyn GM_Animation_T>>,
-        canvas: &mut GM_Canvas
-    );
+        canvas: &mut GM_Canvas);
 }
 
 
@@ -66,8 +65,6 @@ impl GM_Sprite_T for GM_Sprite {
         let texture = &texture_pool[sprite_sheet.texture_id];
         let animation = &animation_pool[self.animation_id];
         let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
-        let sx = self.position.base.x;
-        let sy = self.position.base.y;
         canvas.draw_sub_texture(self.get_x(), self.get_y(), &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
     }
 }
