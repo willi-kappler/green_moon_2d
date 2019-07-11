@@ -1,10 +1,10 @@
 
 // Local modules
 use crate::active::{GM_Active_T};
-use crate::update::{GM_Update_Elapsed_T};
+use crate::update::{GM_UpdateElapsed_T};
 
 
-pub trait GM_Animation_T: GM_Update_Elapsed_T + GM_Active_T {
+pub trait GM_Animation_T: GM_UpdateElapsed_T + GM_Active_T {
     fn current_frame(&self) -> usize;
 
     fn start(&mut self);
@@ -68,7 +68,7 @@ impl GM_Animation {
 /*
 impl GM_Animation_T for GM_Animation {}
 
-impl GM_Update_Elapsed_T for GM_Animation {}
+impl GM_UpdateElapsed_T for GM_Animation {}
 
 impl GM_Active_T for GM_Animation {
 }
@@ -96,7 +96,7 @@ impl GM_Animation_T for GM_Animation_Once {
     }
 }
 
-impl GM_Update_Elapsed_T for GM_Animation_Once {
+impl GM_UpdateElapsed_T for GM_Animation_Once {
     fn update(&mut self, time_elapsed: u16) {
         if !self.base.at_end() {
             self.base.inc();
@@ -136,7 +136,7 @@ impl GM_Animation_T for GM_Animation_Cycle {
     }
 }
 
-impl GM_Update_Elapsed_T for GM_Animation_Cycle {
+impl GM_UpdateElapsed_T for GM_Animation_Cycle {
     fn update(&mut self, time_elapsed: u16) {
         if !self.base.at_end() {
             self.base.inc();
@@ -181,7 +181,7 @@ impl GM_Animation_T for GM_Animation_PingPong {
     }
 }
 
-impl GM_Update_Elapsed_T for GM_Animation_PingPong {
+impl GM_UpdateElapsed_T for GM_Animation_PingPong {
     fn update(&mut self, time_elapsed: u16) {
         if self.forward {
             if !self.base.at_end() {

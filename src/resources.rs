@@ -1,5 +1,6 @@
 
 // Local modules
+use crate::active::GM_Active_T;
 use crate::animation::{GM_Animation_T};
 use crate::canvas::{GM_Canvas};
 use crate::font::{GM_BitmapFont};
@@ -9,7 +10,7 @@ use crate::settings::{GM_Settings};
 use crate::sound::{GM_Sound};
 use crate::sprite::{GM_Sprite_T};
 use crate::spritesheet::{GM_SpriteSheet};
-use crate::text::{GM_Text_T};
+use crate::text::{GM_Text, GM_TextEffect_T};
 use crate::texture::{GM_Texture};
 
 
@@ -22,7 +23,8 @@ pub struct GM_Resources {
     animation_pool: Vec<Box<dyn GM_Animation_T>>,
     path_pool: Vec<Box<dyn GM_Path_T>>,
     sprite_pool: Vec<Box<dyn GM_Sprite_T>>,
-    text_pool: Vec<Box<dyn GM_Text_T>>,
+    text_pool: Vec<GM_Text>,
+    text_effect_pool: Vec<Box<dyn GM_TextEffect_T>>,
 
     // SFX
     sound_pool: Vec<GM_Sound>,
@@ -45,6 +47,7 @@ impl GM_Resources {
             path_pool: Vec::new(),
             sprite_pool: Vec::new(),
             text_pool: Vec::new(),
+            text_effect_pool: Vec::new(),
             sound_pool: Vec::new(),
             music_pool: Vec::new(),
             settings: GM_Settings::new(),
@@ -69,7 +72,7 @@ impl GM_Resources {
 
         for text in self.text_pool.iter_mut() {
             if text.is_active() {
-                text.update(self.time_elapsed);
+                text.update(self.time_elapsed, &mut self.text_effect_pool);
             }
         }
 
@@ -100,6 +103,7 @@ impl GM_Resources {
             if text.is_active() {
                 text.draw(&self.font_pool,
                     &self.texture_pool,
+                    &self.text_effect_pool,
                     &mut self.canvas);
             }
         }

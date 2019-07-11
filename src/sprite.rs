@@ -8,10 +8,10 @@ use crate::canvas::{GM_Canvas};
 use crate::position::{GM_Position, GM_Position_T};
 use crate::spritesheet::{GM_SpriteSheet};
 use crate::texture::{GM_Texture};
-use crate::update::{GM_Update_Elapsed_T};
+use crate::update::{GM_UpdateElapsed_T};
 use crate::velocity::{GM_Velocity};
 
-pub trait GM_Sprite_T: GM_Update_Elapsed_T + GM_Active_T + GM_Position_T {
+pub trait GM_Sprite_T: GM_UpdateElapsed_T + GM_Active_T + GM_Position_T {
     fn draw(&self,
         sprite_sheet_pool: &Vec<GM_SpriteSheet>,
         texture_pool: &Vec<GM_Texture>,
@@ -47,7 +47,7 @@ impl GM_Sprite {
     }
 }
 
-impl GM_Update_Elapsed_T for GM_Sprite {
+impl GM_UpdateElapsed_T for GM_Sprite {
     fn update(&mut self, time_elapsed: u16) {
         self.velocity.update(&self.acceleration, time_elapsed);
         self.position.update(&self.velocity, time_elapsed);
