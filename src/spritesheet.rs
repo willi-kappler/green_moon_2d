@@ -32,7 +32,6 @@ impl GM_SpriteSheet {
     }
 
     pub fn draw(&self, x: u32, y: u32, current_frame: usize, texture_pool: &Vec<GM_Texture>, canvas: &mut GM_Canvas) {
-        // TODO move from GM_Sprite to here
         let texture = &texture_pool[self.texture_id];
         let (tx, ty) = self.frame_to_coordinates(current_frame);
 

@@ -65,10 +65,6 @@ impl GM_Sprite_T for GM_Sprite {
         let current_frame = animation.current_frame();
 
         sprite_sheet.draw(self.get_x(), self.get_y(), current_frame, texture_pool, canvas);
-
-        // let texture = &texture_pool[sprite_sheet.texture_id];
-        // let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
-        // canvas.draw_sub_texture(self.get_x(), self.get_y(), &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
     }
 }
 
