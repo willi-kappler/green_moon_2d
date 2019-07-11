@@ -6,16 +6,10 @@ use crate::active::{GM_Active_T};
 use crate::canvas::{GM_Canvas};
 use crate::font::{GM_BitmapFont};
 use crate::position::{GM_Position, GM_Position_T};
+use crate::texteffect::{GM_TextEffect_T};
 use crate::texture::{GM_Texture};
-use crate::update::{GM_UpdateElapsed_T};
 
 
-pub trait GM_TextEffect_T : GM_UpdateElapsed_T {
-    fn draw(&self, text: &str, x: u32, y: u32,
-        font_pool: &GM_BitmapFont,
-        texture_pool: &Vec<GM_Texture>,
-        canvas: &mut GM_Canvas);
-}
 
 pub struct GM_Text {
     font_id: usize,

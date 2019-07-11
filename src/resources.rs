@@ -10,7 +10,8 @@ use crate::settings::{GM_Settings};
 use crate::sound::{GM_Sound};
 use crate::sprite::{GM_Sprite_T};
 use crate::spritesheet::{GM_SpriteSheet};
-use crate::text::{GM_Text, GM_TextEffect_T};
+use crate::text::{GM_Text};
+use crate::texteffect::{GM_TextEffect_T};
 use crate::texture::{GM_Texture};
 
 

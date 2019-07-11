@@ -21,6 +21,7 @@ mod sound;
 mod sprite;
 mod spritesheet;
 mod text;
+mod texteffect;
 mod texture;
 mod update;
 mod vector;
