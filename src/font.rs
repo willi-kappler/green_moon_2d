@@ -13,7 +13,11 @@ pub struct GM_BitmapFont {
 }
 
 impl GM_BitmapFont {
-    fn draw_char(&self, c: u8, x: u32, y: u32, texture_pool: &Vec<GM_Texture>, canvas: &mut GM_Canvas) {
+    pub fn draw_char(&self, c: u8, x: u32, y: u32, texture_pool: &Vec<GM_Texture>, canvas: &mut GM_Canvas) {
 
+    }
+
+    pub fn get_char_width(&self) -> u16 {
+        self.char_width
     }
 }

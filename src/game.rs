@@ -13,7 +13,7 @@ use crate::settings::{GM_Settings};
 use crate::update::{GM_UpdateResource_T};
 
 
-pub trait GM_Game_T : GM_Process_T + GM_UpdateResource_T + GM_Draw_T {
+pub trait GM_Game_T: GM_Process_T + GM_UpdateResource_T + GM_Draw_T {
     fn initialize(&mut self, resources: &mut GM_Resources) {
     }
 }

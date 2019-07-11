@@ -1,6 +1,5 @@
 
 // Local modules
-
 use crate::acceleration::{GM_Acceleration};
 use crate::active::{GM_Active_T};
 use crate::animation::{GM_Animation_T};
@@ -62,10 +61,14 @@ impl GM_Sprite_T for GM_Sprite {
         canvas: &mut GM_Canvas) {
 
         let sprite_sheet = &sprite_sheet_pool[self.sprite_sheet_id];
-        let texture = &texture_pool[sprite_sheet.texture_id];
         let animation = &animation_pool[self.animation_id];
-        let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
-        canvas.draw_sub_texture(self.get_x(), self.get_y(), &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
+        let current_frame = animation.current_frame();
+
+        sprite_sheet.draw(self.get_x(), self.get_y(), current_frame, texture_pool, canvas);
+
+        // let texture = &texture_pool[sprite_sheet.texture_id];
+        // let (tx, ty) = sprite_sheet.frame_to_coordinates(animation.current_frame());
+        // canvas.draw_sub_texture(self.get_x(), self.get_y(), &texture, tx, ty, sprite_sheet.cell_width, sprite_sheet.cell_height);
     }
 }
 

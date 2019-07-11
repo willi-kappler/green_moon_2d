@@ -1,8 +1,13 @@
 
+// Local modules
+use crate::texture::{GM_Texture};
+use crate::canvas::{GM_Canvas};
+
+
 pub struct GM_SpriteSheet {
-    pub (crate) texture_id: usize,
-    pub (crate) cell_width: u32,
-    pub (crate) cell_height: u32,
+    texture_id: usize,
+    cell_width: u32,
+    cell_height: u32,
     rows: u32,
     cols: u32,
 }
@@ -26,4 +31,11 @@ impl GM_SpriteSheet {
         (col * self.cell_width, row * self.cell_height)
     }
 
+    pub fn draw(&self, x: u32, y: u32, current_frame: usize, texture_pool: &Vec<GM_Texture>, canvas: &mut GM_Canvas) {
+        // TODO move from GM_Sprite to here
+        let texture = &texture_pool[self.texture_id];
+        let (tx, ty) = self.frame_to_coordinates(current_frame);
+
+        canvas.draw_sub_texture(x, y, texture, tx, ty, self.cell_width, self.cell_height);
+    }
 }

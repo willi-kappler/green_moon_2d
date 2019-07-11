@@ -51,7 +51,6 @@ impl GM_Text {
     }
 }
 
-
 impl GM_Active_T for GM_Text {
     fn is_active(&self) -> bool {
         self.active
