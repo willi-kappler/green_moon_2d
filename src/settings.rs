@@ -1,6 +1,6 @@
 
 pub struct GM_Settings {
-    pub frame_duration: i16,
+    frame_duration: i16,
 }
 
 impl GM_Settings {
@@ -8,5 +8,9 @@ impl GM_Settings {
         GM_Settings {
             frame_duration: 16,
         }
+    }
+
+    pub fn frame_duration(&self) -> i16 {
+        self.frame_duration
     }
 }

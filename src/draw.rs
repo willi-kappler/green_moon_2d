@@ -1,9 +1,9 @@
 
 
 // Local modules
-use crate::canvas::{GM_Canvas};
+use crate::resources::{GM_Resources};
 
 pub trait GM_Draw_T {
-    fn draw(&self, canvas: &mut GM_Canvas) {
+    fn draw(&self, resources: &mut GM_Resources) {
     }
 }

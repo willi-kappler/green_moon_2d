@@ -17,7 +17,7 @@ use crate::texture::{GM_Texture};
 
 pub struct GM_Resources {
     // GFX
-    pub canvas: GM_Canvas,
+    canvas: GM_Canvas,
     texture_pool: Vec<GM_Texture>,
     font_pool: Vec<GM_BitmapFont>,
     sprite_sheet_pool: Vec<GM_SpriteSheet>,
@@ -33,8 +33,8 @@ pub struct GM_Resources {
 
     // Misc
     settings: GM_Settings,
-    pub quit: bool,
-    pub time_elapsed: u16,
+    quit: bool,
+    time_elapsed: u16,
 }
 
 impl GM_Resources {
@@ -62,6 +62,14 @@ impl GM_Resources {
 
     pub fn game_still_running(&self) -> bool {
         !self.quit
+    }
+
+    pub fn frame_duration(&self) -> i16 {
+        self.settings.frame_duration()
+    }
+
+    pub fn set_time_elapsed(&mut self, time_elapsed: u16) {
+        self.time_elapsed = time_elapsed;
     }
 
     pub fn update(&mut self) {

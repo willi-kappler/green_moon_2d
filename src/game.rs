@@ -9,7 +9,7 @@ use crate::draw::{GM_Draw_T};
 use crate::event::{GM_Event};
 use crate::process::{GM_Process_T};
 use crate::resources::{GM_Resources};
-use crate::settings::{GM_Settings};
+use crate::screen::{GM_Screen_T};
 use crate::update::{GM_UpdateResource_T};
 
 
@@ -20,16 +20,18 @@ pub trait GM_Game_T: GM_Process_T + GM_UpdateResource_T + GM_Draw_T {
 
 pub struct GreenMoon2D<U> {
     resources: GM_Resources,
-    settings: GM_Settings,
     actual_game: U,
+    screen_pool: Vec<Box<dyn GM_Screen_T>>,
+    active_screen: usize,
 }
 
 impl<U: GM_Game_T> GreenMoon2D<U> {
     pub fn new(actual_game: U) -> Result<GreenMoon2D<U>, GM_Init_Error> {
         Ok(GreenMoon2D {
             resources: GM_Resources::new(),
-            settings: GM_Settings::new(),
+            screen_pool: Vec::new(),
             actual_game,
+            active_screen: 0,
         })
     }
 
@@ -44,12 +46,12 @@ impl<U: GM_Game_T> GreenMoon2D<U> {
             self.update();
             self.draw();
 
-            let sleep_time = self.settings.frame_duration - (instant.elapsed().as_millis() as i16);
+            let sleep_time = self.resources.frame_duration() - (instant.elapsed().as_millis() as i16);
             if sleep_time > 0 {
                 thread::sleep(Duration::from_millis(sleep_time as u64))
             }
 
-            self.resources.time_elapsed = instant.elapsed().as_millis() as u16;
+            self.resources.set_time_elapsed(instant.elapsed().as_millis() as u16);
         }
 
         Ok(())
@@ -60,17 +62,26 @@ impl<U: GM_Game_T> GreenMoon2D<U> {
     }
 
     fn process(&mut self, event: &GM_Event) {
+        let active_screen = &mut self.screen_pool[self.active_screen];
+        active_screen.process(event, &mut self.resources);
+
         self.actual_game.process(event, &mut self.resources);
     }
 
     fn update(&mut self) {
         self.resources.update();
+        let active_screen = &mut self.screen_pool[self.active_screen];
+        active_screen.update(&mut self.resources);
+
         self.actual_game.update(&mut self.resources);
     }
 
     fn draw(&mut self) {
         self.resources.draw();
-        self.actual_game.draw(&mut self.resources.canvas);
+        let active_screen = &mut self.screen_pool[self.active_screen];
+        active_screen.draw(&mut self.resources);
+
+        self.actual_game.draw(&mut self.resources);
     }
 }
 

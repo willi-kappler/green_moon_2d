@@ -16,6 +16,7 @@ mod path;
 mod position;
 mod process;
 mod resources;
+mod screen;
 mod settings;
 mod sound;
 mod sprite;
