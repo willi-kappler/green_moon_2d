@@ -1,6 +1,5 @@
 
 // Local modules
-use crate::acceleration::{GM_Acceleration};
 use crate::active::{GM_Active_T};
 use crate::animation::{GM_Animation_T};
 use crate::canvas::{GM_Canvas};
@@ -8,7 +7,10 @@ use crate::position::{GM_Position, GM_Position_T};
 use crate::spritesheet::{GM_SpriteSheet};
 use crate::texture::{GM_Texture};
 use crate::update::{GM_UpdateElapsed_T};
-use crate::velocity::{GM_Velocity};
+
+// TODO:
+// - Add GM_Behaviour_T
+// - Add GM_SpriteEffect_T
 
 pub trait GM_Sprite_T: GM_UpdateElapsed_T + GM_Active_T + GM_Position_T {
     fn draw(&self,
@@ -23,12 +25,9 @@ pub trait GM_Sprite_T: GM_UpdateElapsed_T + GM_Active_T + GM_Position_T {
 pub struct GM_Sprite {
     sprite_sheet_id: usize,
     position: GM_Position,
-    velocity: GM_Velocity,
-    acceleration: GM_Acceleration,
     collision_id: usize,
     animation_id: usize,
     active: bool,
-    // path_id: usize,
 }
 
 impl GM_Sprite {
@@ -36,20 +35,15 @@ impl GM_Sprite {
         GM_Sprite {
             sprite_sheet_id: 0,
             position: GM_Position::new(),
-            velocity: GM_Velocity::new(),
-            acceleration: GM_Acceleration::new(),
             collision_id: 0,
             animation_id: 0,
             active: false,
-            // path_id: 0,
         }
     }
 }
 
 impl GM_UpdateElapsed_T for GM_Sprite {
     fn update(&mut self, time_elapsed: u16) {
-        self.velocity.update(&self.acceleration, time_elapsed);
-        self.position.update(&self.velocity, time_elapsed);
     }    
 }
 
