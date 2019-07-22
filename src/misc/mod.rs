@@ -1,5 +1,8 @@
 
 mod green_moon_2d;
+mod settings;
+mod runtime;
+mod event;
 
 pub trait GM_Process_T {
 
