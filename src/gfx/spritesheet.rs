@@ -1,31 +1,33 @@
 
 
+use super::texture::{GM_Texture};
+
 
 
 pub struct GM_SpriteSheet {
-    texture_id: usize,
-    cell_width: u32,
-    cell_height: u32,
-    rows: u32,
-    cols: u32,
+    texture: GM_Texture,
+    cell_width: u16,
+    cell_height: u16,
+    rows: u16,
+    cols: u16,
 }
 
 impl GM_SpriteSheet {
-    pub fn new() -> GM_SpriteSheet {
+    pub fn new(texture: GM_Texture, cell_width: u16, cell_height: u16,
+        rows: u16, cols: u16) -> GM_SpriteSheet {
         GM_SpriteSheet {
-            texture_id: 0,
-            cell_width: 0,
-            cell_height: 0,
-            rows: 0,
-            cols: 0,
+            texture,
+            cell_width,
+            cell_height,
+            rows,
+            cols,
         }
     }
 
-    pub fn frame_to_coordinates(&self, id: usize) -> (u32, u32) {
-        let id2 = id as u32;
-        let row = id2 / self.cols;
-        let col = id2 - (row * self.cols);
+    pub fn frame_to_coordinates(&self, id: u16) -> (u32, u32) {
+        let row = id / self.cols;
+        let col = id - (row * self.cols);
 
-        (col * self.cell_width, row * self.cell_height)
+        ((col * self.cell_width) as u32, (row * self.cell_height) as u32)
     }
 }

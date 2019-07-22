@@ -2,13 +2,15 @@
 
 // Local modules
 use crate::misc::position::{GM_Position};
+use crate::misc::collision::{GM_CollisionShape};
+use super::animation::{GM_Animation_T};
 
 pub struct GM_Sprite {
     sprite_sheet_id: usize,
     position: GM_Position,
-    collision_id: usize,
-    animation_id: usize,
-    active: bool,
+    collision: GM_CollisionShape,
+    animations: Vec<Box<dyn GM_Animation_T>>,
+    current_animation: usize,
 }
 
 impl GM_Sprite {
@@ -16,10 +18,16 @@ impl GM_Sprite {
         GM_Sprite {
             sprite_sheet_id: 0,
             position: GM_Position::new(),
-            collision_id: 0,
-            animation_id: 0,
-            active: false,
+            collision: GM_CollisionShape::GM_Empty,
+            animations: Vec::new(),
+            current_animation: 0,
         }
     }
+
+    // get_pos
+    // set_pos
+    // move_rel
+    // set_anim
+
 }
 
