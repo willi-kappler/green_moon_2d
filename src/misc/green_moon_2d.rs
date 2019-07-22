@@ -1,7 +1,16 @@
 
+// Rust modules
+use std::thread;
+use std::time::{Instant, Duration};
+
+
+
+
+// Local modules
 use crate::gfx::screen::{GM_Screen_T};
-use crate::misc::runtime::{GM_Runtime};
-use crate::misc::settings::{GM_Settings};
+use super::runtime::{GM_Runtime};
+use super::settings::{GM_Settings};
+use super::event::{GM_Event};
 
 pub struct GreenMoon2D {
     runtime: GM_Runtime,
@@ -34,6 +43,29 @@ impl GreenMoon2D {
     }
 
     pub fn run(&mut self) {
+        assert!(!self.screen_pool.is_empty(), "No screens found, use the add_screen(...) method!");
 
+        while self.runtime.game_still_running() {
+            let instant = Instant::now();
+            let event = GM_Event::new();
+            self.runtime.set_event(event);
+
+            let current_screen = self.runtime.get_current_screen();
+            self.screen_pool[current_screen].process(&mut self.runtime);
+            self.screen_pool[current_screen].update(&mut self.runtime);
+            self.screen_pool[current_screen].draw(&mut self.runtime);
+
+            let sleep_time = self.runtime.get_frame_duration() - (instant.elapsed().as_millis() as i16);
+            if sleep_time > 0 {
+                thread::sleep(Duration::from_millis(sleep_time as u64))
+            }
+
+            self.runtime.set_time_elapsed(instant.elapsed().as_millis() as u16);
+
+            if self.runtime.is_screen_switching() {
+                self.screen_pool[self.runtime.get_current_screen()].enter();
+                self.runtime.screen_switching_done();
+            }
+        }
     }
 }
