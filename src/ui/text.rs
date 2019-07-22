@@ -3,6 +3,9 @@
 // Local modules
 use crate::misc::position::{GM_Position};
 
+pub trait GM_Text_T {
+    
+}
 
 pub struct GM_Text {
     font_id: usize,

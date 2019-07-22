@@ -5,6 +5,10 @@ use crate::misc::position::{GM_Position};
 use crate::misc::collision::{GM_CollisionShape};
 use super::animation::{GM_Animation_T};
 
+pub trait GM_Sprite_T {
+
+}
+
 pub struct GM_Sprite {
     sprite_sheet_id: usize,
     position: GM_Position,
