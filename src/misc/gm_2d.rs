@@ -43,7 +43,7 @@ impl<'a> GreenMoon2D<'a> {
     }
 
     pub fn run(&mut self) {
-        assert!(!self.screen_pool.is_empty(), "No screens found, use the add_screen(...) method!");
+        assert!(!self.screen_pool.is_empty(), "GreenMoon2D::run() - No screens found, use the .add_screen(...) method!");
 
         while self.runtime.game_still_running() {
             let instant = Instant::now();

@@ -6,4 +6,6 @@ fn main() {
     let mut menu_example = GreenMoon2D::new();
 
     menu_example.set_settings(settings);
+
+    menu_example.run();
 }
