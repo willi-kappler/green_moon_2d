@@ -12,13 +12,13 @@ use super::runtime::{GM_Runtime};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};
 
-pub struct GreenMoon2D {
+pub struct GreenMoon2D<'a> {
     runtime: GM_Runtime,
-    screen_pool: Vec<Box<dyn GM_Screen_T>>,
+    screen_pool: Vec<&'a mut  dyn GM_Screen_T>,
 }
 
-impl GreenMoon2D {
-    pub fn new() -> GreenMoon2D {
+impl<'a> GreenMoon2D<'a> {
+    pub fn new() -> GreenMoon2D<'a> {
         GreenMoon2D {
             runtime: GM_Runtime::new(),
             screen_pool: Vec::new(),
@@ -38,7 +38,7 @@ impl GreenMoon2D {
         self.runtime.save_settings(path);
     }
 
-    pub fn add_screen(&mut self, new_screen: Box<dyn GM_Screen_T>) {
+    pub fn add_screen(&mut self, new_screen: &'a mut dyn GM_Screen_T) {
         self.screen_pool.push(new_screen);
     }
 

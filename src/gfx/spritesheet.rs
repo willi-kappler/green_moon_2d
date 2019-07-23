@@ -1,26 +1,29 @@
 
 
 use super::texture::{GM_Texture};
+use super::animation::{GM_Animation_T};
 
 
 
-pub struct GM_SpriteSheet {
+pub struct GM_SpriteSheet<'a> {
     texture: GM_Texture,
     cell_width: u16,
     cell_height: u16,
     rows: u16,
     cols: u16,
+    animations: Vec<&'a dyn GM_Animation_T>,
 }
 
-impl GM_SpriteSheet {
+impl<'a> GM_SpriteSheet<'a> {
     pub fn new(texture: GM_Texture, cell_width: u16, cell_height: u16,
-        rows: u16, cols: u16) -> GM_SpriteSheet {
+        rows: u16, cols: u16, animations: Vec<&dyn GM_Animation_T>) -> GM_SpriteSheet {
         GM_SpriteSheet {
             texture,
             cell_width,
             cell_height,
             rows,
             cols,
+            animations,
         }
     }
 
