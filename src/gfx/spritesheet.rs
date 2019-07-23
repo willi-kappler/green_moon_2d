@@ -5,26 +5,30 @@ use super::animation::{GM_Animation_T};
 
 
 
-pub struct GM_SpriteSheet<'a> {
+pub struct GM_SpriteSheet {
     texture: GM_Texture,
     cell_width: u16,
     cell_height: u16,
     rows: u16,
     cols: u16,
-    animations: Vec<&'a dyn GM_Animation_T>,
+    animations: Vec<Box<dyn GM_Animation_T>>,
 }
 
-impl<'a> GM_SpriteSheet<'a> {
+impl GM_SpriteSheet {
     pub fn new(texture: GM_Texture, cell_width: u16, cell_height: u16,
-        rows: u16, cols: u16, animations: Vec<&dyn GM_Animation_T>) -> GM_SpriteSheet {
+        rows: u16, cols: u16) -> GM_SpriteSheet {
         GM_SpriteSheet {
             texture,
             cell_width,
             cell_height,
             rows,
             cols,
-            animations,
+            animations: Vec::new(),
         }
+    }
+
+    pub fn add_animation<T: 'static + GM_Animation_T>(&mut self, animation: T) {
+        self.animations.push(Box::new(animation));
     }
 
     pub fn frame_to_coordinates(&self, id: u16) -> (u32, u32) {
