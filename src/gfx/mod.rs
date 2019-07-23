@@ -1,5 +1,6 @@
 
 
+pub mod animation;
 pub mod canvas;
 pub mod font;
 pub mod screen;

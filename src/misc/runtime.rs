@@ -2,10 +2,11 @@
 
 
 
+use crate::gfx::canvas::{GM_Canvas};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};
 
-#[derive(Debug)]
+
 pub struct GM_Runtime {
     settings: GM_Settings,
     current_screen: usize,
@@ -13,6 +14,7 @@ pub struct GM_Runtime {
     quit: bool,
     current_event: GM_Event,
     time_elapsed: u16,
+    canvas: GM_Canvas,
 }
 
 impl GM_Runtime {
@@ -24,6 +26,7 @@ impl GM_Runtime {
             quit: false,
             current_event: GM_Event::None,
             time_elapsed: 0,
+            canvas: GM_Canvas::new(),
         }
     }
 
