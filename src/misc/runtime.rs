@@ -50,8 +50,8 @@ impl GM_Runtime {
         self.settings.save(path);
     }
 
-    pub fn change_resolution(&mut self, width: u32, height: u32) {
-        self.settings.change_resolution(width, height);
+    pub fn set_resolution(&mut self, width: u32, height: u32) {
+        self.settings.set_resolution(width, height);
     }
 
     pub fn toggle_fullscreen(&mut self) {

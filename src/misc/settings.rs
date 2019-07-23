@@ -29,16 +29,32 @@ impl GM_Settings {
         unimplemented!("GM_Settings::save(...) not implemented yet!");
     }
 
-    pub fn change_resolution(&mut self, width: u32, height: u32) {
+    pub fn get_resolution(&self) -> (u32, u32) {
+        (self.screen_width, self.screen_height)
+    }
+
+    pub fn set_resolution(&mut self, width: u32, height: u32) {
         self.screen_width = width;
         self.screen_height = height;
     }
 
     pub fn toggle_fullscreen(&mut self) {
-        self.fullscreen = !self.fullscreen
+        self.fullscreen = !self.fullscreen;
+    }
+
+    pub fn get_fullscreen(&self) -> bool {
+        self.fullscreen
+    }
+
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+        self.fullscreen = fullscreen;
     }
 
     pub fn get_frame_duration(&self) -> i16 {
         self.frame_duration
+    }
+
+    pub fn set_frame_duration(&mut self, frame_duration: i16) {
+        self.frame_duration = frame_duration;
     }
 }
