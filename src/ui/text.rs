@@ -20,7 +20,7 @@ impl GM_Text {
             font_id: 0,
             text_effect_id: 0,
             text: "".to_string(),
-            position: GM_Position::new(),
+            position: GM_Position::new(0, 0),
         }
     }
 

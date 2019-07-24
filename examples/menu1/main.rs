@@ -7,12 +7,9 @@ use main_screen::{MainScreen};
 
 
 fn main() {
-    let settings = GM_Settings::new();
-    let mut menu_example = GreenMoon2D::new();
+    let settings = GM_Settings::load("assets/settings.toml");
+    let screens: Vec<Box<dyn GM_Screen_T>> = vec![Box::new(MainScreen::new(&settings))];
 
-    menu_example.set_settings(settings);
-
-    menu_example.add_screen(MainScreen::new());
-
+    let mut menu_example = GreenMoon2D::new(settings, screens);
     menu_example.run();
 }

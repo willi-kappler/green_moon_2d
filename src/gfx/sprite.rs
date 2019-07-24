@@ -19,7 +19,7 @@ impl GM_Sprite {
     pub fn new() -> GM_Sprite {
         GM_Sprite {
             sprite_sheet_id: 0,
-            position: GM_Position::new(),
+            position: GM_Position::new(0, 0),
             collision: GM_CollisionShape::GM_Empty,
             current_animation: 0,
         }

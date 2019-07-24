@@ -1,8 +1,10 @@
 
+
+use crate::gfx::screen::{GM_ScreenSize};
+
 #[derive(Debug)]
 pub struct GM_Settings {
-    screen_width: u32,
-    screen_height: u32,
+    screen_size: GM_ScreenSize,
     fullscreen: bool,
     music_volume: u8,
     sfx_volume: u8,
@@ -12,8 +14,7 @@ pub struct GM_Settings {
 impl GM_Settings {
     pub fn new() -> GM_Settings {
         GM_Settings {
-            screen_width: 1024,
-            screen_height: 768,
+            screen_size: GM_ScreenSize::new(1024, 758),
             fullscreen: false,
             music_volume: 128,
             sfx_volume: 128,
@@ -21,21 +22,22 @@ impl GM_Settings {
         }
     }
 
-    pub fn load(&mut self, path: String) {
-        unimplemented!("GM_Settings::load(...) not implemented yet!");
+    pub fn load(path: &str) -> GM_Settings {
+        // TODO: Load settings from file
+        // unimplemented!("GM_Settings::load(...) not implemented yet!");
+        GM_Settings::new()
     }
 
-    pub fn save(&self, path: String) {
+    pub fn save(&self, path: &str) {
         unimplemented!("GM_Settings::save(...) not implemented yet!");
     }
 
-    pub fn get_resolution(&self) -> (u32, u32) {
-        (self.screen_width, self.screen_height)
+    pub fn get_screen_size(&self) -> GM_ScreenSize {
+        self.screen_size.clone()
     }
 
-    pub fn set_resolution(&mut self, width: u32, height: u32) {
-        self.screen_width = width;
-        self.screen_height = height;
+    pub fn set_screen_size(&mut self, screen_size: GM_ScreenSize) {
+        self.screen_size = screen_size;
     }
 
     pub fn toggle_fullscreen(&mut self) {

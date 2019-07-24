@@ -18,10 +18,10 @@ pub struct GreenMoon2D {
 }
 
 impl GreenMoon2D {
-    pub fn new() -> GreenMoon2D {
+    pub fn new(settings: GM_Settings, screen_pool: Vec<Box<dyn GM_Screen_T>>) -> GreenMoon2D {
         GreenMoon2D {
-            runtime: GM_Runtime::new(),
-            screen_pool: Vec::new(),
+            runtime: GM_Runtime::new(settings),
+            screen_pool: screen_pool,
         }
     }
 
@@ -30,16 +30,16 @@ impl GreenMoon2D {
     }
 
     // TODO: change to AsRef
-    pub fn load_settings(&mut self, path: String) {
+    pub fn load_settings(&mut self, path: &str) {
         self.runtime.load_settings(path);
     }
 
-    pub fn save_settings(&self, path: String) {
+    pub fn save_settings(&self, path: &str) {
         self.runtime.save_settings(path);
     }
 
-    pub fn add_screen<T: 'static + GM_Screen_T>(&mut self, new_screen: T) {
-        self.screen_pool.push(Box::new(new_screen));
+    pub fn add_screen(&mut self, new_screen: Box<dyn GM_Screen_T>) {
+        self.screen_pool.push(new_screen);
     }
 
     pub fn run(&mut self) {

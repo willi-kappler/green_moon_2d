@@ -3,6 +3,7 @@
 
 
 use crate::gfx::canvas::{GM_Canvas};
+use crate::gfx::screen::{GM_ScreenSize};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};
 
@@ -18,13 +19,13 @@ pub struct GM_Runtime {
 }
 
 impl GM_Runtime {
-    pub fn new() -> GM_Runtime {
+    pub fn new(settings: GM_Settings) -> GM_Runtime {
         GM_Runtime {
-            settings: GM_Settings::new(),
+            settings,
             current_screen: 0,
             screen_switched: false,
             quit: false,
-            current_event: GM_Event::None,
+            current_event: GM_Event::GM_None,
             time_elapsed: 0,
             canvas: GM_Canvas::new(),
         }
@@ -42,16 +43,16 @@ impl GM_Runtime {
         self.settings = new_settings;
     }
 
-    pub fn load_settings(&mut self, path: String) {
-        self.settings.load(path);
+    pub fn load_settings(&mut self, path: &str) {
+        self.settings = GM_Settings::load(path);
     }
 
-    pub fn save_settings(&self, path: String) {
+    pub fn save_settings(&self, path: &str) {
         self.settings.save(path);
     }
 
-    pub fn set_resolution(&mut self, width: u32, height: u32) {
-        self.settings.set_resolution(width, height);
+    pub fn set_screen_size(&mut self, screen_size: GM_ScreenSize) {
+        self.settings.set_screen_size(screen_size);
     }
 
     pub fn toggle_fullscreen(&mut self) {
