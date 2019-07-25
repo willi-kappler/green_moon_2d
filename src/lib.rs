@@ -19,6 +19,6 @@ pub mod prelude {
     pub use crate::gfx::{GM_Canvas};
     pub use crate::gfx::{GM_BitmapFont};
 
-    pub use crate::ui::menu::{GM_Menu};
-    pub use crate::ui::text::{GM_StaticText, GM_WaveText, GM_SelectableText, GM_SelectableText_T};
+    pub use crate::ui::{GM_Menu};
+    pub use crate::ui::{GM_StaticText, GM_WaveText, GM_SelectableText, GM_SelectableText_T};
 }
