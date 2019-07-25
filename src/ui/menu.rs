@@ -15,10 +15,10 @@ pub struct GM_Menu {
 }
 
 impl GM_Menu {
-    pub fn new(title: Box<dyn GM_Text_T>) -> GM_Menu {
+    pub fn new(title: Box<dyn GM_Text_T>, items: Vec<Box<dyn GM_SelectableText_T>>) -> GM_Menu {
         GM_Menu {
             title,
-            items: Vec::new(), 
+            items, 
             position: GM_Position::new(0, 0),
             selected_item: 0,
         }

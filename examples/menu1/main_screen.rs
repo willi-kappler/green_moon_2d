@@ -24,13 +24,15 @@ impl MainScreen {
 
         let title = Box::new(GM_WaveText::new(&title_font, "MAIN MENU"));
         
-        let mut menu = GM_Menu::new(title);
+        let items: Vec<Box<dyn GM_SelectableText_T>> = vec![
+            Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "START")),
+            Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "OPTIONS")),
+            Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "HIGHSCORE")),
+            Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "CREDITS")),
+            Box::new(GM_SelectableText::new(&exit_unselected_font, &exit_selected_font, "EXIT")),
+        ];
 
-        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "START")));
-        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "OPTIONS")));
-        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "HIGHSCORE")));
-        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "CREDITS")));
-        menu.add_item(Box::new(GM_SelectableText::new(&exit_unselected_font, &exit_selected_font, "EXIT")));
+        let mut menu = GM_Menu::new(title, items);
 
         MainScreen {
             state: GM_ScreenState::GM_Enter,
