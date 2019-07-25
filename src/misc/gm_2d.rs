@@ -54,8 +54,8 @@ impl GreenMoon2D {
 
             let current_screen = self.runtime.get_current_screen();
             self.screen_pool[current_screen].process(&mut self.runtime);
-            self.screen_pool[current_screen].update(&mut self.runtime);
-            self.screen_pool[current_screen].draw(&mut self.runtime);
+            self.screen_pool[current_screen].update(&self.runtime);
+            self.screen_pool[current_screen].draw(&mut self.runtime.get_canvas());
 
             let sleep_time = self.runtime.get_frame_duration() - (instant.elapsed().as_millis() as i16);
             if sleep_time > 0 {

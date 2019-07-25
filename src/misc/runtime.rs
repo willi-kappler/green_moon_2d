@@ -3,9 +3,9 @@
 
 
 use crate::gfx::canvas::{GM_Canvas};
-use crate::gfx::screen::{GM_ScreenSize};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};
+use super::dimension::{GM_Dimension};
 
 
 pub struct GM_Runtime {
@@ -51,7 +51,7 @@ impl GM_Runtime {
         self.settings.save(path);
     }
 
-    pub fn set_screen_size(&mut self, screen_size: GM_ScreenSize) {
+    pub fn set_screen_size(&mut self, screen_size: GM_Dimension) {
         self.settings.set_screen_size(screen_size);
     }
 
@@ -98,4 +98,7 @@ impl GM_Runtime {
         self.time_elapsed
     }
 
+    pub fn get_canvas(&mut self) -> &mut GM_Canvas {
+        &mut self.canvas
+    }
 }

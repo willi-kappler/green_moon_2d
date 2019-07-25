@@ -6,42 +6,37 @@ const QUIT_ITEM: u8 = 4;
 pub struct MainScreen {
     state: GM_ScreenState,
     menu: GM_Menu,
-    screen_size: GM_ScreenSize,
+    screen_size: GM_Dimension,
     menu_pos: GM_Position,
     menu_y_speed: u32,
 }
 
 impl MainScreen {
     pub fn new(settings: &GM_Settings) -> MainScreen {
-        /*
-        let position = GM_Position::new(512, 128);
-
-        let title_font = GM_Font::load("assets/title_font.png");
-        let item_font = GM_Font::load("assets/item_font.png");
-        let exit_font = GM_Font::load("assets/item_font2.png");
-        let fonts = vec![title_font, item_font, exit_font];
-
-        let title = GM_Menu_Title::new("MAIN MENU", 0);
-
-        let items = vec![
-            GM_Menu_Item::new("START", 1),
-            GM_Menu_Item::new("OPTIONS", 1),
-            GM_Menu_Item::new("HIGH SCORE", 1),
-            GM_Menu_Item::new("CREDITS", 1),
-            GM_Menu_Item::new("EXIT", 2),
-        ];
-
-        let mut menu = GM_Menu::new( position, fonts, title, items );
-        */
-
-        let menu = GM_Menu::load("assets/main_menu.toml");
         let screen_size = settings.get_screen_size();
+        let menu_pos = GM_Position::new(screen_size.get_width() / 2, 128);
+
+        let title_font = GM_BitmapFont::load("assets/title_font.png");
+        let item_unselected_font = GM_BitmapFont::load("assets/item_unselected_font.png");
+        let item_selected_font = GM_BitmapFont::load("assets/item_selected_font.png");
+        let exit_unselected_font = GM_BitmapFont::load("assets/exit_unselected_font.png");
+        let exit_selected_font = GM_BitmapFont::load("assets/exit_selected_font.png");
+
+        let title = Box::new(GM_WaveText::new(&title_font, "MAIN MENU"));
+        
+        let mut menu = GM_Menu::new(title);
+
+        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "START")));
+        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "OPTIONS")));
+        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "HIGHSCORE")));
+        menu.add_item(Box::new(GM_SelectableText::new(&item_unselected_font, &item_selected_font, "CREDITS")));
+        menu.add_item(Box::new(GM_SelectableText::new(&exit_unselected_font, &exit_selected_font, "EXIT")));
 
         MainScreen {
             state: GM_ScreenState::GM_Enter,
             menu,
             screen_size: screen_size.clone(),
-            menu_pos: GM_Position::new(screen_size.get_width() / 2, 128),
+            menu_pos,
             menu_y_speed: 16,
         }
     }
@@ -78,7 +73,7 @@ impl GM_Screen_T for MainScreen {
         }
     }
 
-    fn update(&mut self, runtime: &mut GM_Runtime) {
+    fn update(&mut self, runtime: &GM_Runtime) {
         match self.state {
             GM_ScreenState::GM_Enter => {
                 if self.menu_pos.get_y() > 128 {
@@ -97,7 +92,7 @@ impl GM_Screen_T for MainScreen {
         self.menu.update(runtime);
     }
 
-    fn draw(&mut self, runtime: &mut GM_Runtime) {
+    fn draw(&self, canvas: &mut GM_Canvas) {
         match self.state {
             GM_ScreenState::GM_Enter => {
             }
@@ -106,7 +101,7 @@ impl GM_Screen_T for MainScreen {
             GM_ScreenState::GM_Leave => {
             }
         }
-        self.menu.draw(runtime);
+        self.menu.draw(canvas);
     }
 }
 

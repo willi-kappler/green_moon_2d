@@ -3,22 +3,29 @@
 // Local modules
 use crate::misc::runtime::{GM_Runtime};
 use crate::misc::position::{GM_Position};
+use crate::gfx::canvas::{GM_Canvas};
+use super::text::{GM_Text_T, GM_SelectableText_T};
+
 
 pub struct GM_Menu {
+    title: Box<dyn GM_Text_T>,
+    items: Vec<Box<dyn GM_SelectableText_T>>,
     position: GM_Position,
     selected_item: u8,
 }
 
 impl GM_Menu {
-    pub fn new() -> GM_Menu {
+    pub fn new(title: Box<dyn GM_Text_T>) -> GM_Menu {
         GM_Menu {
+            title,
+            items: Vec::new(), 
             position: GM_Position::new(0, 0),
             selected_item: 0,
         }
     }
 
-    pub fn load(path: &str) -> GM_Menu {
-        GM_Menu::new()
+    pub fn add_item(&mut self, item: Box<dyn GM_SelectableText_T>) {
+        self.items.push(item);
     }
 
     pub fn set_position(&mut self, position: &GM_Position) {
@@ -29,13 +36,13 @@ impl GM_Menu {
         self.selected_item
     }
 
-    pub fn process(&mut self, runtime: &mut GM_Runtime) {
+    pub fn process(&mut self, runtime: &GM_Runtime) {
     }
 
-    pub fn update(&mut self, runtime: &mut GM_Runtime) {
+    pub fn update(&mut self, runtime: &GM_Runtime) {
     }
 
-    pub fn draw(&mut self, runtime: &mut GM_Runtime) {
+    pub fn draw(&self, canvas: &mut GM_Canvas) {
     }
 
 }

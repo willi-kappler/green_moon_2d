@@ -13,8 +13,12 @@ pub mod prelude {
     pub use crate::misc::runtime::{GM_Runtime};
     pub use crate::misc::position::{GM_Position};
     pub use crate::misc::event::{GM_Event};
+    pub use crate::misc::dimension::{GM_Dimension};
 
-    pub use crate::gfx::screen::{GM_Screen_T, GM_ScreenState, GM_ScreenSize};
+    pub use crate::gfx::screen::{GM_Screen_T, GM_ScreenState};
+    pub use crate::gfx::canvas::{GM_Canvas};
+    pub use crate::gfx::font::{GM_BitmapFont};
 
     pub use crate::ui::menu::{GM_Menu};
+    pub use crate::ui::text::{GM_StaticText, GM_WaveText, GM_SelectableText, GM_SelectableText_T};
 }

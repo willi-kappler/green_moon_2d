@@ -6,3 +6,4 @@ pub mod gm_2d;
 pub mod position;
 pub mod runtime;
 pub mod settings;
+pub mod dimension;

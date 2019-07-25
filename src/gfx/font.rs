@@ -1,5 +1,10 @@
 
 
+// Rust modules
+use std::rc::Rc;
+
+
+// Local modules
 use super::texture::{GM_Texture};
 
 
@@ -22,5 +27,17 @@ impl GM_BitmapFont {
             rows,
             cols,
         }
+    }
+
+    pub fn load(path: &str) -> Rc<GM_BitmapFont> {
+        // TODO: implement it !
+
+        Rc::new(GM_BitmapFont {
+            texture: GM_Texture::new(0, 0, Vec::new()),
+            char_width: 0,
+            char_height: 0,
+            rows: 0,
+            cols: 0,
+        }) 
     }
 }

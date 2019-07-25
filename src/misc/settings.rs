@@ -1,10 +1,10 @@
 
 
-use crate::gfx::screen::{GM_ScreenSize};
+use super::dimension::{GM_Dimension};
 
 #[derive(Debug)]
 pub struct GM_Settings {
-    screen_size: GM_ScreenSize,
+    screen_size: GM_Dimension,
     fullscreen: bool,
     music_volume: u8,
     sfx_volume: u8,
@@ -14,7 +14,7 @@ pub struct GM_Settings {
 impl GM_Settings {
     pub fn new() -> GM_Settings {
         GM_Settings {
-            screen_size: GM_ScreenSize::new(1024, 758),
+            screen_size: GM_Dimension::new(1024, 758),
             fullscreen: false,
             music_volume: 128,
             sfx_volume: 128,
@@ -32,11 +32,11 @@ impl GM_Settings {
         unimplemented!("GM_Settings::save(...) not implemented yet!");
     }
 
-    pub fn get_screen_size(&self) -> GM_ScreenSize {
+    pub fn get_screen_size(&self) -> GM_Dimension {
         self.screen_size.clone()
     }
 
-    pub fn set_screen_size(&mut self, screen_size: GM_ScreenSize) {
+    pub fn set_screen_size(&mut self, screen_size: GM_Dimension) {
         self.screen_size = screen_size;
     }
 
