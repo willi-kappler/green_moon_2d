@@ -4,9 +4,9 @@
 use std::rc::Rc;
 
 // Local modules
-use crate::misc::position::{GM_Position};
-use crate::misc::runtime::{GM_Runtime};
-use crate::misc::dimension::{GM_Dimension};
+use crate::misc::{GM_Position};
+use crate::misc::{GM_Runtime};
+use crate::misc::{GM_Dimension};
 use crate::gfx::{GM_BitmapFont};
 use crate::gfx::{GM_Canvas};
 

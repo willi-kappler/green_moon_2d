@@ -8,12 +8,12 @@ pub mod ui;
 pub mod util;
 
 pub mod prelude {
-    pub use crate::misc::gm_2d::{GreenMoon2D};
-    pub use crate::misc::settings::{GM_Settings};
-    pub use crate::misc::runtime::{GM_Runtime};
-    pub use crate::misc::position::{GM_Position};
-    pub use crate::misc::event::{GM_Event};
-    pub use crate::misc::dimension::{GM_Dimension};
+    pub use crate::misc::{GreenMoon2D};
+    pub use crate::misc::{GM_Settings};
+    pub use crate::misc::{GM_Runtime};
+    pub use crate::misc::{GM_Position};
+    pub use crate::misc::{GM_Event};
+    pub use crate::misc::{GM_Dimension};
 
     pub use crate::gfx::{GM_Screen_T, GM_ScreenState};
     pub use crate::gfx::{GM_Canvas};

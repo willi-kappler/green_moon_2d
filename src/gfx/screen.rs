@@ -1,6 +1,6 @@
 
 
-use crate::misc::runtime::{GM_Runtime};
+use crate::misc::{GM_Runtime};
 use super::canvas::{GM_Canvas};
 
 pub enum GM_ScreenState {

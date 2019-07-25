@@ -1,8 +1,8 @@
 
 
 // Local modules
-use crate::misc::runtime::{GM_Runtime};
-use crate::misc::position::{GM_Position};
+use crate::misc::{GM_Runtime};
+use crate::misc::{GM_Position};
 use crate::gfx::{GM_Canvas};
 use super::text::{GM_Text_T, GM_SelectableText_T};
 

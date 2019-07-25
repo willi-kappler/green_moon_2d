@@ -1,8 +1,8 @@
 
 
 // Local modules
-use crate::misc::position::{GM_Position};
-use crate::misc::collision::{GM_CollisionShape};
+use crate::misc::{GM_Position};
+use crate::misc::{GM_CollisionShape};
 
 pub trait GM_Sprite_T {
 
