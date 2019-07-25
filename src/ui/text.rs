@@ -7,8 +7,8 @@ use std::rc::Rc;
 use crate::misc::position::{GM_Position};
 use crate::misc::runtime::{GM_Runtime};
 use crate::misc::dimension::{GM_Dimension};
-use crate::gfx::font::{GM_BitmapFont};
-use crate::gfx::canvas::{GM_Canvas};
+use crate::gfx::{GM_BitmapFont};
+use crate::gfx::{GM_Canvas};
 
 pub trait GM_Text_T {
     fn set_text(&mut self, text: &str);

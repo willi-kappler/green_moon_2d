@@ -7,7 +7,7 @@ use std::time::{Instant, Duration};
 
 
 // Local modules
-use crate::gfx::screen::{GM_Screen_T};
+use crate::gfx::{GM_Screen_T};
 use super::runtime::{GM_Runtime};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};

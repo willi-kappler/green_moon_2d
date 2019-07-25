@@ -2,7 +2,7 @@
 
 
 
-use crate::gfx::canvas::{GM_Canvas};
+use crate::gfx::{GM_Canvas};
 use super::settings::{GM_Settings};
 use super::event::{GM_Event};
 use super::dimension::{GM_Dimension};
