@@ -15,10 +15,9 @@ edition = "2018"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-
-[dev-dependencies]
 log = "0.4"
 log4rs = "0.8"
+miniquad = "0.2.55"
 
 [profile.release]
 lto = true
