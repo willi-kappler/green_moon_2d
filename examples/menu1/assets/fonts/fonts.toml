@@ -1,0 +1,27 @@
+[[fonts]]
+name = "main_menu"
+path = "assets/fonts/main_menu.png"
+type = "bitmap"
+sizex = 16
+sizey = 16
+
+[[fonts]]
+name = "config_menu"
+path = "assets/fonts/config_menu.png"
+type = "bitmap"
+sizex = 16
+sizey = 16
+
+[[fonts]]
+name = "highscore_menu"
+path = "assets/fonts/highscore_menu.png"
+type = "bitmap"
+sizex = 16
+sizey = 16
+
+[[fonts]]
+name = "credits_menu"
+path = "assets/fonts/credits_menu.png"
+type = "bitmap"
+sizex = 16
+sizey = 16

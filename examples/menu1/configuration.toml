@@ -1,32 +1,10 @@
-include = [
-    "assets/main_menu.toml",
-    "assets/config_menu.toml",
-    "assets/highscore_menu.toml",
-    "assets/credits_menu.toml",
-    "assets/fonts.toml"
-]
-
-
 [setup]
+scenes = [
+    "scenes/main_menu.toml",
+    "scenes/config_menu.toml",
+    "scenes/highscore_menu.toml",
+    "scenes/credits_menu.toml"
+]
 first_scene = "main_menu"
 exit_on_window_close = true
-
-[[fonts]]
-name = "main_menu"
-path = "assets/fonts/main_menu.png"
-type = "bitmap"
-
-[[fonts]]
-name = "config_menu"
-path = "assets/fonts/config_menu.png"
-type = "bitmap"
-
-[[fonts]]
-name = "highscore_menu"
-path = "assets/fonts/highscore_menu.png"
-type = "bitmap"
-
-[[fonts]]
-name = "credits_menu"
-path = "assets/fonts/credits_menu.png"
-type = "bitmap"
+fonts = "assets/fonts/fonts.toml"
