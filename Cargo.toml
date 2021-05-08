@@ -13,13 +13,14 @@ edition = "2018"
 
 [dependencies]
 thiserror = "1.0"
+#image = "0.23.14"
+#miniquad = "0.2.55"
 
 #serde = "1.0"
 #serde_derive = "1.0"
 #serde_json = "1.0"
 #log = "0.4"
 #log4rs = "0.8"
-#miniquad = "0.2.55"
 
 [profile.release]
 lto = true

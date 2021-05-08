@@ -1,3 +1,7 @@
+use crate::error::{GMError};
+use crate::font::{GMBitmapFont, GMFontManager};
+use crate::canvas::{GMCanvas};
+
 
 pub struct GMContext {
     screen_width: u32,
@@ -6,10 +10,12 @@ pub struct GMContext {
     window_height: u32,
     full_screen: bool,
     quit : bool,
+    font_manager: GMFontManager,
+    canvas: GMCanvas,
 }
 
 impl GMContext {
-    pub(crate) fn new() -> GMContext {
+    pub fn new() -> GMContext {
         GMContext {
             screen_width: 0,
             screen_height: 0,
@@ -17,10 +23,16 @@ impl GMContext {
             window_height: 0,
             full_screen: false,
             quit: false,
+            font_manager: GMFontManager::new(),
+            canvas: GMCanvas::new(),
         }
     }
 
-    pub(crate) fn exit_game(&self) -> bool {
+    pub fn exit_game(&self) -> bool {
         self.quit
+    }
+
+    pub fn get_font_by_name(&self, font_name: &str) -> Result<&GMBitmapFont, GMError> {
+        self.font_manager.get_font_by_name(font_name)
     }
 }

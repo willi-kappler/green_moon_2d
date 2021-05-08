@@ -66,7 +66,7 @@ impl GMSceneManager {
         Err(GMError::SceneNameNotFound(scene_name.to_string()))
     }
 
-    pub(crate) fn add_scene<T: 'static + GMScene>(&mut self, scene_name: &str, new_scene: T) -> Result<(), GMError>{
+    pub fn add_scene<T: 'static + GMScene>(&mut self, scene_name: &str, new_scene: T) -> Result<(), GMError>{
         if self.has_scene(scene_name) {
             return Err(GMError::SceneNameAlreadyInUse(scene_name.to_string()))
         }
@@ -76,29 +76,38 @@ impl GMSceneManager {
         Ok(())
     }
 
-    pub(crate) fn remove_scene(&mut self, scene_name: &str) -> Result<(), GMError> {
+    pub fn remove_scene(&mut self, scene_name: &str) -> Result<(), GMError> {
         let index = self.get_scene_index(scene_name)?;
+
+        if index == self.current_scene {
+            return Err(GMError::CantRemoveCurrentScene(scene_name.to_string()));
+        }
+
         self.scenes.remove(index);
+
+        if index < self.current_scene {
+            self.current_scene -= 1;
+        }
 
         Ok(())
     }
 
-    pub(crate) fn set_current_scene(&mut self, scene_name: &str) -> Result<(), GMError> {
+    pub fn set_current_scene(&mut self, scene_name: &str) -> Result<(), GMError> {
         let index = self.get_scene_index(scene_name)?;
         self.current_scene = index;
 
         Ok(())
     }
 
-    pub(crate) fn event(&mut self, context: &mut GMContext) {
+    pub fn event(&mut self, context: &mut GMContext) {
         self.scenes[self.current_scene].1.event(context);
     }
 
-    pub(crate) fn update(&mut self, context: &mut GMContext) {
+    pub fn update(&mut self, context: &mut GMContext) {
         self.scenes[self.current_scene].1.update(context);
     }
 
-    pub(crate) fn draw(&mut self, context: &mut GMContext) {
+    pub fn draw(&mut self, context: &mut GMContext) {
         self.scenes[self.current_scene].1.draw(context);
     }
 }

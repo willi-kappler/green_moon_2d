@@ -7,4 +7,8 @@ pub enum GMError {
     SceneNameAlreadyInUse(String),
     #[error("The scene {0} was not found")]
     SceneNameNotFound(String),
+    #[error("The current active scene can't be removed: {0}")]
+    CantRemoveCurrentScene(String),
+    #[error("The font {0} could not be found")]
+    FontNotFound(String),
 }
