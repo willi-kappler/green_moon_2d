@@ -7,8 +7,16 @@ pub struct GreenMoon2D {
 }
 
 impl GreenMoon2D {
-    pub fn run(&self) {
+    pub fn run(&mut self) {
+        loop {
+            if self.context.exit_game() {
+                break;
+            }
 
+            self.scene_manager.event(&mut self.context);
+            self.scene_manager.update(&mut self.context);
+            self.scene_manager.draw(&mut self.context);
+        }
     }
 }
 
