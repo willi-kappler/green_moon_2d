@@ -1,6 +1,6 @@
 
-use crate::error::{GMError};
-use crate::context::{GMContext};
+use crate::error::GMError;
+use crate::context::GMContext;
 
 pub enum GMSSceneState {
     Enter,
@@ -30,15 +30,40 @@ impl GMScene for GMEmptyScene {
 
 }
 
+struct GMSceneWrapper {
+    name: String,
+    scene: Box<dyn GMScene>,
+}
+
+impl GMSceneWrapper {
+    fn new<T: 'static + GMScene>(name: &str, scene: T) -> GMSceneWrapper {
+        GMSceneWrapper {
+            name: name.to_string(),
+            scene: Box::new(scene),
+        }
+    }
+
+    fn event(&mut self, context: &mut GMContext) {
+        self.scene.event(context)
+    }
+
+    fn update(&mut self, context: &mut GMContext) {
+        self.scene.update(context)
+    }
+
+    fn draw(&mut self, context: &mut GMContext) {
+        self.scene.draw(context)
+    }
+}
+
 pub struct GMSceneManager {
-    scenes: Vec<(String, Box<dyn GMScene>)>,
+    scenes: Vec<GMSceneWrapper>,
     current_scene: usize,
 }
 
 impl GMSceneManager {
     pub(crate) fn new() -> GMSceneManager {
-        let scene: Box<dyn GMScene> = Box::new(GMEmptyScene{});
-        let scenes = vec![("empty".to_string(), scene)];
+        let scenes = vec![GMSceneWrapper::new("empty", GMEmptyScene{})];
 
         GMSceneManager {
             scenes: scenes,
@@ -47,8 +72,8 @@ impl GMSceneManager {
     }
 
     fn has_scene(&self, scene_name: &str) -> bool {
-        for (name, _) in self.scenes.iter() {
-            if scene_name == name {
+        for scene in self.scenes.iter() {
+            if scene_name == scene.name {
                 return true
             }
         }
@@ -57,8 +82,8 @@ impl GMSceneManager {
     }
 
     fn get_scene_index(&self, scene_name: &str) -> Result<usize, GMError> {
-        for (i, (name, _)) in self.scenes.iter().enumerate() {
-            if scene_name == name {
+        for (i, scene) in self.scenes.iter().enumerate() {
+            if scene_name == scene.name {
                 return Ok(i)
             }
         }
@@ -71,7 +96,7 @@ impl GMSceneManager {
             return Err(GMError::SceneNameAlreadyInUse(scene_name.to_string()))
         }
 
-        self.scenes.push((scene_name.to_string(), Box::new(new_scene)));
+        self.scenes.push(GMSceneWrapper::new(scene_name, new_scene));
 
         Ok(())
     }
@@ -100,14 +125,14 @@ impl GMSceneManager {
     }
 
     pub fn event(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene].1.event(context);
+        self.scenes[self.current_scene].event(context);
     }
 
     pub fn update(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene].1.update(context);
+        self.scenes[self.current_scene].update(context);
     }
 
     pub fn draw(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene].1.draw(context);
+        self.scenes[self.current_scene].draw(context);
     }
 }
