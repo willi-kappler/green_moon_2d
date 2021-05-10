@@ -8,6 +8,7 @@ pub mod menu;
 pub mod text;
 pub mod object;
 pub mod bitmap;
+pub mod screen_buffer;
 
 
 // TODO::

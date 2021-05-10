@@ -11,4 +11,6 @@ pub enum GMError {
     CantRemoveCurrentScene(String),
     #[error("The font {0} could not be found")]
     FontNotFound(String),
+    #[error("")]
+    TextEffectNotFound(String),
 }
