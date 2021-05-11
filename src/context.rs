@@ -1,10 +1,8 @@
-use std::rc::Rc;
-
-use crate::{error::GMError, text::GMTextEffect};
-use crate::font::{GMBitmapFont, GMFontManager};
-use crate::bitmap::GMBitmap;
-use crate::text::{GMText, GMTextEffectManager};
+use crate::error::GMError;
+use crate::font::GMBitmapFont;
+use crate::text::{GMText, GMTextEffect, GMTextEffectWrapper};
 use crate::screen_buffer::GMScreenBuffer;
+use crate::resource_manager::GMResourceManager;
 
 pub struct GMContext {
     screen_width: u32,
@@ -14,8 +12,10 @@ pub struct GMContext {
     full_screen: bool,
     screen_buffer: GMScreenBuffer,
     quit : bool,
-    font_manager: GMFontManager,
-    text_effect_manager: GMTextEffectManager,
+    current_fps: f32,
+    expected_fps: f32,
+    font_manager: GMResourceManager<GMBitmapFont>,
+    text_effect_manager: GMResourceManager<GMTextEffectWrapper>,
 }
 
 impl GMContext {
@@ -28,23 +28,24 @@ impl GMContext {
             full_screen: false,
             screen_buffer: GMScreenBuffer::new(),
             quit: false,
-            font_manager: GMFontManager::new(),
-            text_effect_manager: GMTextEffectManager::new()
+            current_fps: 0.0,
+            expected_fps: 60.0,
+            font_manager: GMResourceManager::new("FontManager"),
+            text_effect_manager: GMResourceManager::new("TextEffectManager"),
         }
     }
 
     pub fn exit_game(&self) -> bool {
         self.quit
     }
-
+/*
     pub fn get_font_by_name(&self, font_name: &str) -> Result<Rc<GMBitmapFont>, GMError> {
         self.font_manager.get_font_by_name(font_name)
     }
-
+*/
     pub fn draw_text(&mut self, text: &GMText) -> Result<(), GMError> {
-        let font = self.get_font_by_name(text.get_font_name())?;
-        let text_effect = self.text_effect_manager.get_text_effect(text.get_text_effect())?;
-        text_effect.draw(&text.get_context(), font, &mut self.screen_buffer);
-        Ok(())
+        let text_effect = text.get_text_effect();
+
+        text_effect.draw(&text.text_context, &mut self.screen_buffer)
     }
 }

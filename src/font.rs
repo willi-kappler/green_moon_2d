@@ -1,39 +1,13 @@
-use std::rc::Rc;
-
-use crate::error::GMError;
 use crate::bitmap::GMBitmap;
-
-
-pub struct GMFontManager {
-    fonts: Vec<Rc<GMBitmapFont>>,
-}
-
-impl GMFontManager {
-    pub fn new() -> GMFontManager {
-        GMFontManager {
-            fonts: Vec::new(),
-        }
-    }
-
-    pub fn get_font_by_name(&self, font_name: &str) -> Result<Rc<GMBitmapFont>, GMError> {
-        for font in self.fonts.iter() {
-            if font_name == font.name {
-                return Ok(font.clone())
-            }
-        }
-
-        Err(GMError::FontNotFound(font_name.to_string()))
-    }
-}
-
+use crate::resource_manager::GMName;
 
 pub struct GMBitmapFont {
-    name: String,
-    width: u32,
-    height: u32,
-    char_width: u32,
-    char_height: u32,
-    data: Vec<GMBitmap>,
+    pub(crate) name: String,
+    pub(crate) width: u32,
+    pub(crate) height: u32,
+    pub(crate) char_width: u32,
+    pub(crate) char_height: u32,
+    pub(crate) data: Vec<GMBitmap>,
 }
 
 impl GMBitmapFont {
@@ -63,7 +37,26 @@ impl GMBitmapFont {
         self.char_width
     }
 
-    pub fn get_bitmap(&self, c: char) -> &GMBitmap {
+    pub fn get_bitmap(&self, c: u8) -> &GMBitmap {
+        // TODO: get index of correct bitmap
         &self.data[0]
+    }
+}
+
+impl GMName for GMBitmapFont {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
+    fn has_name(&self, name: &str) -> bool {
+        self.name == name
+    }
+
+    fn has_prefix(&self, name: &str) -> bool {
+        self.name.starts_with(name)
     }
 }

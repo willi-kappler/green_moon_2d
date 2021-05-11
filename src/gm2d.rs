@@ -1,9 +1,14 @@
-use crate::scene::GMSceneManager;
+use std::rc::Rc;
+use std::cell::RefCell;
+
+use crate::scene::{GMSceneWrapper, GMScene, GMEmptyScene};
 use crate::context::GMContext;
+use crate::resource_manager::GMResourceManager;
 
 pub struct GreenMoon2D {
     context: GMContext,
-    scene_manager: GMSceneManager,
+    scene_manager: GMResourceManager<GMSceneWrapper>,
+    current_scene: Rc<RefCell<GMSceneWrapper>>,
 }
 
 impl GreenMoon2D {
@@ -13,19 +18,24 @@ impl GreenMoon2D {
                 break;
             }
 
-            self.scene_manager.event(&mut self.context);
-            self.scene_manager.update(&mut self.context);
-            self.scene_manager.draw(&mut self.context);
+            let mut scene = self.current_scene.borrow_mut();
+
+            scene.event(&mut self.context);
+            scene.update(&mut self.context);
+            scene.draw(&mut self.context);
         }
     }
 }
 
 
 pub fn init(path_to_configuration: &str) -> GreenMoon2D {
-    todo!("Read in configuration and return a GM item");
+    // TODO: Read in configuration and return a GM item
 
-    GreenMoon2D{
+    let scene = GMSceneWrapper::new("Empty", GMEmptyScene{});
+
+    GreenMoon2D {
         context: GMContext::new(),
-        scene_manager: GMSceneManager::new(),
+        scene_manager: GMResourceManager::new("SceneManager"),
+        current_scene: Rc::new(RefCell::new(scene)),
     }
 }

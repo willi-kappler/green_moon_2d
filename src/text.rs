@@ -4,9 +4,10 @@ use crate::context::GMContext;
 use crate::font::GMBitmapFont;
 use crate::error::GMError;
 use crate::screen_buffer::GMScreenBuffer;
+use crate::resource_manager::GMName;
 
 pub trait GMTextEffect {
-    fn draw(&self, text_context: &GMTextContext, font: Rc<GMBitmapFont>, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
         Ok(())
     }
 
@@ -20,13 +21,14 @@ pub struct GMStaticTextH {
 }
 
 impl GMTextEffect for GMStaticTextH {
-    fn draw(&self, text_context: &GMTextContext, font: Rc<GMBitmapFont>, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError>{
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError>{
         let mut current_x = text_context.px;
         let current_y = text_context.py;
-        let char_width = font.get_char_width();
+        let char_width = text_context.font.char_width;
+        let font = text_context.get_font();
 
         for c in text_context.content.chars() {
-            let font_bitmap = font.get_bitmap(c);
+            let font_bitmap = font.get_bitmap(c as u8);
             screen_buffer.blit_bitmap(font_bitmap, current_x, current_y);
             current_x += char_width;
         }
@@ -36,8 +38,8 @@ impl GMTextEffect for GMStaticTextH {
 }
 
 pub struct GMTextEffectWrapper {
-    name: String,
-    effect: Box<dyn GMTextEffect>,
+    pub(crate) name: String,
+    pub(crate) effect: Box<dyn GMTextEffect>,
 }
 
 impl GMTextEffectWrapper {
@@ -50,8 +52,8 @@ impl GMTextEffectWrapper {
 }
 
 impl GMTextEffect for GMTextEffectWrapper {
-    fn draw(&self, text_context: &GMTextContext, font: Rc<GMBitmapFont>, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
-        self.effect.draw(text_context, font, screen_buffer)
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
+        self.effect.draw(text_context, screen_buffer)
     }
 
     fn update(&mut self, text_context: &GMTextContext, context: &GMContext) {
@@ -59,35 +61,29 @@ impl GMTextEffect for GMTextEffectWrapper {
     }
 }
 
-pub struct GMTextEffectManager {
-    effects: Vec<GMTextEffectWrapper>,
-}
-
-impl GMTextEffectManager {
-    pub fn new() -> GMTextEffectManager {
-        let static_text_h = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
-
-        GMTextEffectManager {
-            effects: vec![static_text_h]
-        }
+impl GMName for GMTextEffectWrapper {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 
-    pub fn get_text_effect(&self, name: &str) -> Result<&GMTextEffectWrapper, GMError> {
-        for effect in self.effects.iter() {
-            if name == effect.name {
-                return Ok(effect)
-            }
-        }
+    fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
 
-        Err(GMError::TextEffectNotFound(name.to_string()))
+    fn has_name(&self, name: &str) -> bool {
+        self.name == name
+    }
+
+    fn has_prefix(&self, name: &str) -> bool {
+        self.name.starts_with(name)
     }
 }
 
 pub struct GMTextContext {
-    content: String,
-    font: String,
-    px: u32,
-    py: u32,
+    pub(crate) content: String,
+    pub(crate) font: Rc<GMBitmapFont>,
+    pub(crate) px: u32,
+    pub(crate) py: u32,
 }
 
 impl GMTextContext {
@@ -100,49 +96,56 @@ impl GMTextContext {
         self.py = py;
     }
 
-    pub fn set_font_name(&mut self, font: &str) {
-        self.font = font.to_string();
+    pub fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.font = font;
+    }
+
+    pub fn get_font(&self) -> Rc<GMBitmapFont> {
+        self.font.clone()
     }
 }
 
 pub struct GMText {
-    text_context: GMTextContext,
-    text_effect: String,
+    pub(crate) text_context: GMTextContext,
+    pub(crate) text_effect: Rc<GMTextEffectWrapper>,
 }
 
 impl GMText {
-    pub fn new(content: &str, font: &str, px: u32, py: u32) -> GMText {
+    pub fn new(content: &str, font: Rc<GMBitmapFont>, px: u32, py: u32) -> GMText {
         let text_context = GMTextContext {
             content: content.to_string(),
-            font: font.to_string(),
+            font,
             px,
             py,
         };
 
+        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
+
         GMText {
             text_context,
-            text_effect: "static_h".to_string(),
+            text_effect: Rc::new(text_effect),
         }
     }
 
     pub fn set_text(&mut self, content: &str) {
-        self.text_context.set_text(content);
+        self.text_context.content = content.to_string();
     }
 
     pub fn set_position(&mut self, px: u32, py: u32) {
-        self.text_context.set_position(px, py);
+        self.text_context.px = px;
+        self.text_context.py = py;
     }
 
-    pub fn set_font_name(&mut self, font: &str) {
-        self.text_context.set_font_name(font);
+    pub fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.text_context.font = font;
     }
 
-    pub fn get_font_name(&self) -> &str {
-        &self.text_context.font
+    pub fn set_text_effect(&mut self, text_effect: Rc<GMTextEffectWrapper>) {
+        self.text_effect = text_effect;
     }
 
-    pub fn get_text_effect(&self) -> &str {
-        &self.text_effect
+    pub fn get_text_effect(&self) -> Rc<GMTextEffectWrapper> {
+        self.text_effect.clone()
     }
 
     pub fn get_context(&self) -> &GMTextContext {

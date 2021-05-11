@@ -3,14 +3,10 @@ use thiserror::Error;
 /// This data structure contains all error codes for the GreenMoon2D crate.
 #[derive(Error, Debug)]
 pub enum GMError {
-    #[error("The scene name is already used: {0}")]
-    SceneNameAlreadyInUse(String),
-    #[error("The scene {0} was not found")]
-    SceneNameNotFound(String),
-    #[error("The current active scene can't be removed: {0}")]
-    CantRemoveCurrentScene(String),
-    #[error("The font {0} could not be found")]
-    FontNotFound(String),
-    #[error("")]
-    TextEffectNotFound(String),
+    #[error("The item name is already used: {0} {1}")]
+    ItemNameAlreadyInUse(String, String),
+    #[error("The item was not found: {0} {1}")]
+    ItemNotFound(String, String),
+    #[error("No item with prefix found: {0} {1}")]
+    ItemPrefixNotFound(String, String)
 }

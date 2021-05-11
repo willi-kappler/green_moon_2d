@@ -9,6 +9,7 @@ pub mod text;
 pub mod object;
 pub mod bitmap;
 pub mod screen_buffer;
+pub mod resource_manager;
 
 
 // TODO::
@@ -38,3 +39,9 @@ pub mod screen_buffer;
 // https://github.com/tesselode/kira
 // https://github.com/udoprog/audio
 // https://github.com/RustAudio/rodio
+
+// Collision:
+// https://github.com/dimforge/rapier
+// https://github.com/rustgd/collision-rs
+// https://github.com/dimforge/parry
+// https://github.com/tiby312/broccoli
