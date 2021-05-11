@@ -81,7 +81,22 @@ impl<T: GMName> GMResourceManager<T> {
     }
 
     pub fn delete_with_prefix(&mut self, prefix: &str) -> Result<(), GMError> {
-        // TODO
-        Ok(())
+        let old_length = self.items.len();
+
+        self.items.retain(|item| {
+            !item.borrow().has_prefix(prefix)
+        });
+
+        let new_length = self.items.len();
+
+        if old_length == new_length {
+            Err(GMError::ItemPrefixNotFound(self.manager_name.clone(), prefix.to_string()))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.items.clear()
     }
 }

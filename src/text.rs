@@ -1,14 +1,14 @@
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::context::GMContext;
 use crate::font::GMBitmapFont;
-use crate::error::GMError;
 use crate::screen_buffer::GMScreenBuffer;
 use crate::resource_manager::GMName;
 
 pub trait GMTextEffect {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
-        Ok(())
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
+
     }
 
     fn update(&mut self, text_context: &GMTextContext, context: &GMContext) {
@@ -21,7 +21,7 @@ pub struct GMStaticTextH {
 }
 
 impl GMTextEffect for GMStaticTextH {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError>{
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
         let mut current_x = text_context.px;
         let current_y = text_context.py;
         let char_width = text_context.font.char_width;
@@ -32,8 +32,6 @@ impl GMTextEffect for GMStaticTextH {
             screen_buffer.blit_bitmap(font_bitmap, current_x, current_y);
             current_x += char_width;
         }
-
-        Ok(())
     }
 }
 
@@ -52,7 +50,7 @@ impl GMTextEffectWrapper {
 }
 
 impl GMTextEffect for GMTextEffectWrapper {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) -> Result<(), GMError> {
+    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
         self.effect.draw(text_context, screen_buffer)
     }
 
@@ -107,7 +105,7 @@ impl GMTextContext {
 
 pub struct GMText {
     pub(crate) text_context: GMTextContext,
-    pub(crate) text_effect: Rc<GMTextEffectWrapper>,
+    pub(crate) text_effect: Rc<RefCell<GMTextEffectWrapper>>,
 }
 
 impl GMText {
@@ -123,7 +121,7 @@ impl GMText {
 
         GMText {
             text_context,
-            text_effect: Rc::new(text_effect),
+            text_effect: Rc::new(RefCell::new(text_effect)),
         }
     }
 
@@ -140,15 +138,25 @@ impl GMText {
         self.text_context.font = font;
     }
 
-    pub fn set_text_effect(&mut self, text_effect: Rc<GMTextEffectWrapper>) {
+    pub fn set_text_effect(&mut self, text_effect: Rc<RefCell<GMTextEffectWrapper>>) {
         self.text_effect = text_effect;
     }
 
-    pub fn get_text_effect(&self) -> Rc<GMTextEffectWrapper> {
+    pub fn get_text_effect(&self) -> Rc<RefCell<GMTextEffectWrapper>> {
         self.text_effect.clone()
     }
 
     pub fn get_context(&self) -> &GMTextContext {
         &self.text_context
+    }
+
+    pub fn draw(&self, screen_buffer: &mut GMScreenBuffer) {
+        let text_effect = self.text_effect.borrow();
+        text_effect.draw(&self.text_context, screen_buffer);
+    }
+
+    pub fn update(&mut self, context: &GMContext) {
+        let mut text_effect = self.text_effect.borrow_mut();
+        text_effect.update(&self.text_context, context);
     }
 }

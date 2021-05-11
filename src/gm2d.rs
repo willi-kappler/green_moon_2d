@@ -1,41 +1,68 @@
-use std::rc::Rc;
-use std::cell::RefCell;
+use std::time::Duration;
+use std::thread;
 
-use crate::scene::{GMSceneWrapper, GMScene, GMEmptyScene};
+use crate::scene::{GMSceneWrapper, GMScene, GMEmptyScene, GMSceneState};
 use crate::context::GMContext;
 use crate::resource_manager::GMResourceManager;
+use crate::error::GMError;
 
 pub struct GreenMoon2D {
     context: GMContext,
     scene_manager: GMResourceManager<GMSceneWrapper>,
-    current_scene: Rc<RefCell<GMSceneWrapper>>,
 }
 
 impl GreenMoon2D {
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> Result<(), GMError> {
+        let mut current_scene = self.scene_manager.get_item("Empty")?;
+        let mut scene_state = GMSceneState::Switch("Empty".to_string());
+
         loop {
-            if self.context.exit_game() {
+            let first_tick = self.context.elapsed();
+
+            if self.context.quit {
                 break;
             }
 
-            let mut scene = self.current_scene.borrow_mut();
+            if let GMSceneState::Switch(new_scene) = scene_state {
+                current_scene = self.scene_manager.get_item(&new_scene)?;
+                let mut scene = current_scene.borrow_mut();
+                scene.enter(&mut self.context);
+            }
 
-            scene.event(&mut self.context);
-            scene.update(&mut self.context);
+            let mut scene = current_scene.borrow_mut();
+
+            scene.event(&mut self.context); // TODO: Pass event
+            scene_state = scene.update(&mut self.context);
             scene.draw(&mut self.context);
-        }
+
+            let second_tick = self.context.elapsed();
+
+            let duration = second_tick - first_tick;
+            self.context.current_fps = 1000.0 / duration;
+            let diff = self.context.expected_duration - duration;
+
+            if diff > 0.0 {
+                thread::sleep(Duration::from_millis(diff as u64));
+            }
+        };
+
+        Ok(())
     }
 }
 
 
-pub fn init(path_to_configuration: &str) -> GreenMoon2D {
+pub fn init(path_to_configuration: &str) -> Result<GreenMoon2D, GMError> {
     // TODO: Read in configuration and return a GM item
 
-    let scene = GMSceneWrapper::new("Empty", GMEmptyScene{});
+    let empty_scene = GMSceneWrapper::new("Empty", GMEmptyScene{});
 
-    GreenMoon2D {
+    let mut scene_manager = GMResourceManager::new("SceneManager");
+    scene_manager.add_item(empty_scene)?;
+
+    let gm = GreenMoon2D {
         context: GMContext::new(),
-        scene_manager: GMResourceManager::new("SceneManager"),
-        current_scene: Rc::new(RefCell::new(scene)),
-    }
+        scene_manager,
+    };
+
+    Ok(gm)
 }

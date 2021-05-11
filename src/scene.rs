@@ -2,7 +2,7 @@
 use crate::context::GMContext;
 use crate::resource_manager::GMName;
 
-pub enum GMSSceneState {
+pub enum GMSceneState {
     Stay,
     Switch(String),
 }
@@ -12,8 +12,8 @@ pub trait GMScene {
 
     }
 
-    fn update(&mut self, context: &mut GMContext) -> GMSSceneState {
-        GMSSceneState::Stay
+    fn update(&mut self, context: &mut GMContext) -> GMSceneState {
+        GMSceneState::Stay
     }
 
     fn draw(&self, context: &mut GMContext) {
@@ -74,7 +74,7 @@ impl GMScene for GMSceneWrapper {
         self.scene.event(context)
     }
 
-    fn update(&mut self, context: &mut GMContext) -> GMSSceneState {
+    fn update(&mut self, context: &mut GMContext) -> GMSceneState {
         self.scene.update(context)
     }
 
