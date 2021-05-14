@@ -12,8 +12,8 @@ pub trait GMName {
 }
 
 pub struct GMResourceManager<T> {
-    manager_name: String,
-    items: Vec<Rc<RefCell<T>>>,
+    pub(crate) manager_name: String,
+    pub(crate) items: Vec<Rc<RefCell<T>>>,
 }
 
 impl<T: GMName> GMResourceManager<T> {

@@ -104,12 +104,13 @@ impl GMTextContext {
 }
 
 pub struct GMText {
+    pub(crate) name: String,
     pub(crate) text_context: GMTextContext,
     pub(crate) text_effect: Rc<RefCell<GMTextEffectWrapper>>,
 }
 
 impl GMText {
-    pub fn new(content: &str, font: Rc<GMBitmapFont>, px: u32, py: u32) -> GMText {
+    pub fn new(name: &str, content: &str, font: Rc<GMBitmapFont>, px: u32, py: u32) -> GMText {
         let text_context = GMTextContext {
             content: content.to_string(),
             font,
@@ -120,6 +121,7 @@ impl GMText {
         let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
 
         GMText {
+            name: name.to_string(),
             text_context,
             text_effect: Rc::new(RefCell::new(text_effect)),
         }
@@ -158,5 +160,23 @@ impl GMText {
     pub fn update(&mut self, context: &GMContext) {
         let mut text_effect = self.text_effect.borrow_mut();
         text_effect.update(&self.text_context, context);
+    }
+}
+
+impl GMName for GMText {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: &str) {
+        self.name = name.to_string()
+    }
+
+    fn has_name(&self, name: &str) -> bool {
+        self.name == name
+    }
+
+    fn has_prefix(&self, name: &str) -> bool {
+        self.name.starts_with(name)
     }
 }

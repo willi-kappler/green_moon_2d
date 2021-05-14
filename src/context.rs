@@ -20,6 +20,7 @@ pub struct GMContext {
     pub(crate) expected_duration: f32,
     pub(crate) font_manager: GMResourceManager<GMBitmapFont>,
     pub(crate) text_effect_manager: GMResourceManager<GMTextEffectWrapper>,
+    pub(crate) text_manager: GMResourceManager<GMText>,
 }
 
 impl GMContext {
@@ -38,6 +39,7 @@ impl GMContext {
             expected_duration: 1000.0 / 60.0,
             font_manager: GMResourceManager::new("FontManager"),
             text_effect_manager: GMResourceManager::new("TextEffectManager"),
+            text_manager: GMResourceManager::new("TextManager"),
         }
     }
 
@@ -47,5 +49,27 @@ impl GMContext {
 
     pub fn exit_game(&self) -> bool {
         self.quit
+    }
+
+    pub fn draw(&mut self) {
+        self.draw_text()
+    }
+
+    pub fn draw_text(&mut self) {
+        for text in self.text_manager.items.iter() {
+            let text2 = text.borrow();
+            text2.draw(&mut self.screen_buffer);
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.update_text()
+    }
+
+    pub fn update_text(&mut self) {
+        for text in self.text_manager.items.iter() {
+            let mut text2 = text.borrow_mut();
+            text2.update(&self);
+        }
     }
 }

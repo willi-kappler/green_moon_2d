@@ -14,7 +14,7 @@ pub struct GreenMoon2D {
 impl GreenMoon2D {
     pub fn run(&mut self) -> Result<(), GMError> {
         let mut current_scene = self.scene_manager.get_item("Empty")?;
-        let mut scene_state = GMSceneState::Switch("Empty".to_string());
+        let mut scene_state = GMSceneState::Stay;
 
         loop {
             let first_tick = self.context.elapsed();
