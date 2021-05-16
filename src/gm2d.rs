@@ -48,6 +48,15 @@ impl GreenMoon2D {
 
         Ok(())
     }
+
+    pub fn add_scene<T: 'static + GMScene>(&mut self, name: &str, new_scene: T) -> Result<(), GMError> {
+        let new_scene2 = GMSceneWrapper::new(name, new_scene);
+        self.scene_manager.add_item(new_scene2)
+    }
+
+    pub fn delete_scene(&mut self, name: &str) -> Result<(), GMError> {
+        self.scene_manager.delete_item(name)
+    }
 }
 
 

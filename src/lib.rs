@@ -45,3 +45,13 @@ pub mod resource_manager;
 // https://github.com/rustgd/collision-rs
 // https://github.com/dimforge/parry
 // https://github.com/tiby312/broccoli
+
+
+
+
+// https://github.com/parasyte/pixels/issues
+// https://nyxtom.dev/2020/10/07/winit-rust/
+// https://github.com/parasyte/pixels/blob/master/src/lib.rs
+// https://github.com/parasyte/pixels/blob/master/examples/invaders/simple-invaders/src/sprites.rs
+
+// https://doc.rust-lang.org/std/primitive.slice.html#method.copy_from_slice
