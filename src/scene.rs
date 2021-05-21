@@ -1,5 +1,4 @@
 
-use crate::context::GMContext;
 use crate::resource_manager::GMName;
 
 pub enum GMSceneState {
@@ -8,19 +7,19 @@ pub enum GMSceneState {
 }
 
 pub trait GMScene {
-    fn enter(&mut self, context: &mut GMContext) {
+    fn enter(&mut self) {
 
     }
 
-    fn update(&mut self, context: &mut GMContext) -> GMSceneState {
+    fn update(&mut self) -> GMSceneState {
         GMSceneState::Stay
     }
 
-    fn draw(&self, context: &mut GMContext) {
+    fn draw(&self) {
 
     }
 
-    fn event(&mut self, context: &mut GMContext) {
+    fn event(&mut self) {
 
     }
 }
@@ -66,20 +65,19 @@ impl GMName for GMSceneWrapper {
 }
 
 impl GMScene for GMSceneWrapper {
-    fn enter(&mut self, context: &mut GMContext) {
-        self.scene.enter(context)
+    fn enter(&mut self) {
+        self.scene.enter()
     }
 
-    fn event(&mut self, context: &mut GMContext) {
-        self.scene.event(context)
+    fn event(&mut self) {
+        self.scene.event()
     }
 
-    fn update(&mut self, context: &mut GMContext) -> GMSceneState {
-        self.scene.update(context)
+    fn update(&mut self) -> GMSceneState {
+        self.scene.update()
     }
 
-    fn draw(&self, context: &mut GMContext) {
-        self.scene.draw(context)
+    fn draw(&self) {
+        self.scene.draw()
     }
 }
-

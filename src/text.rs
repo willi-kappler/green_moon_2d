@@ -1,17 +1,15 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::context::GMContext;
 use crate::font::GMBitmapFont;
-use crate::screen_buffer::GMScreenBuffer;
 use crate::resource_manager::GMName;
 
 pub trait GMTextEffect {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
+    fn draw(&self, text_context: &GMTextContext) {
 
     }
 
-    fn update(&mut self, text_context: &GMTextContext, context: &GMContext) {
+    fn update(&mut self, text_context: &GMTextContext) {
 
     }
 }
@@ -21,15 +19,13 @@ pub struct GMStaticTextH {
 }
 
 impl GMTextEffect for GMStaticTextH {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
+    fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
         let current_y = text_context.py;
-        let char_width = text_context.font.char_width;
         let font = text_context.get_font();
 
         for c in text_context.content.chars() {
-            let font_bitmap = font.get_bitmap(c as u8);
-            screen_buffer.blit_bitmap(font_bitmap, current_x, current_y);
+            let char_width = font.draw_char(c, current_x, current_y);
             current_x += char_width;
         }
     }
@@ -50,12 +46,12 @@ impl GMTextEffectWrapper {
 }
 
 impl GMTextEffect for GMTextEffectWrapper {
-    fn draw(&self, text_context: &GMTextContext, screen_buffer: &mut GMScreenBuffer) {
-        self.effect.draw(text_context, screen_buffer)
+    fn draw(&self, text_context: &GMTextContext) {
+        self.effect.draw(text_context)
     }
 
-    fn update(&mut self, text_context: &GMTextContext, context: &GMContext) {
-        self.effect.update(text_context, context)
+    fn update(&mut self, text_context: &GMTextContext) {
+        self.effect.update(text_context)
     }
 }
 
@@ -152,14 +148,14 @@ impl GMText {
         &self.text_context
     }
 
-    pub fn draw(&self, screen_buffer: &mut GMScreenBuffer) {
+    pub fn draw(&self) {
         let text_effect = self.text_effect.borrow();
-        text_effect.draw(&self.text_context, screen_buffer);
+        text_effect.draw(&self.text_context);
     }
 
-    pub fn update(&mut self, context: &GMContext) {
+    pub fn update(&mut self) {
         let mut text_effect = self.text_effect.borrow_mut();
-        text_effect.update(&self.text_context, context);
+        text_effect.update(&self.text_context);
     }
 }
 
