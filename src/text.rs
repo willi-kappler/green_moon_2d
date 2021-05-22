@@ -4,6 +4,11 @@ use std::cell::RefCell;
 use crate::font::GMBitmapFont;
 use crate::resource_manager::GMName;
 
+pub enum GMOrientation {
+    Horizontal,
+    Vertical,
+}
+
 pub trait GMTextEffect {
     fn draw(&self, text_context: &GMTextContext) {
 
@@ -21,13 +26,27 @@ pub struct GMStaticTextH {
 impl GMTextEffect for GMStaticTextH {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
-        let current_y = text_context.py;
+        let mut current_y = text_context.py;
         let font = text_context.get_font();
+        let orientation = &text_context.orientation;
 
-        for c in text_context.content.chars() {
-            let char_width = font.draw_char(c, current_x, current_y);
-            current_x += char_width;
+        match orientation {
+            GMOrientation::Horizontal => {
+                for c in text_context.content.chars() {
+                    let offset = font.draw_char(c, current_x, current_y, orientation);
+                    current_x += offset;
+                }
+
+            }
+            GMOrientation::Vertical => {
+                for c in text_context.content.chars() {
+                    let offset = font.draw_char(c, current_x, current_y, orientation);
+                    current_y += offset;
+                }
+
+            }
         }
+
     }
 }
 
@@ -76,8 +95,9 @@ impl GMName for GMTextEffectWrapper {
 pub struct GMTextContext {
     pub(crate) content: String,
     pub(crate) font: Rc<GMBitmapFont>,
-    pub(crate) px: u32,
-    pub(crate) py: u32,
+    pub(crate) px: f32,
+    pub(crate) py: f32,
+    pub(crate) orientation: GMOrientation,
 }
 
 impl GMTextContext {
@@ -85,7 +105,7 @@ impl GMTextContext {
         self.content = content.to_string();
     }
 
-    pub fn set_position(&mut self, px: u32, py: u32) {
+    pub fn set_position(&mut self, px: f32, py: f32) {
         self.px = px;
         self.py = py;
     }
@@ -106,12 +126,13 @@ pub struct GMText {
 }
 
 impl GMText {
-    pub fn new(name: &str, content: &str, font: Rc<GMBitmapFont>, px: u32, py: u32) -> GMText {
+    pub fn new(name: &str, content: &str, font: Rc<GMBitmapFont>, px: f32, py: f32) -> GMText {
         let text_context = GMTextContext {
             content: content.to_string(),
             font,
             px,
             py,
+            orientation: GMOrientation::Horizontal,
         };
 
         let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
@@ -127,7 +148,7 @@ impl GMText {
         self.text_context.content = content.to_string();
     }
 
-    pub fn set_position(&mut self, px: u32, py: u32) {
+    pub fn set_position(&mut self, px: f32, py: f32) {
         self.text_context.px = px;
         self.text_context.py = py;
     }
