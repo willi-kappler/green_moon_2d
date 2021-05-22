@@ -1,6 +1,5 @@
 use crate::resource_manager::GMName;
 use crate::error::GMError;
-use crate::text::GMOrientation;
 
 use std::{collections::HashMap, hash::BuildHasherDefault};
 
@@ -13,14 +12,14 @@ use fnv::{FnvHashMap, FnvHasher};
 
 pub struct GMBitmapFont {
     pub(crate) name: String,
-    pub(crate) x_offset: f32,
-    pub(crate) y_offset: f32,
+    pub(crate) offset_x: f32,
+    pub(crate) offset_y: f32,
     pub(crate) mapping: HashMap<char, Rect, BuildHasherDefault<FnvHasher>>,
     pub(crate) data: Texture2D,
 }
 
 impl GMBitmapFont {
-    pub async fn from_img_file(name: &str, x_offset: f32, y_offset: f32, char_mapping: Vec<(char, Rect)>, file_name: &str) -> Result<GMBitmapFont, GMError> {
+    pub async fn from_img_file(name: &str, offset_x: f32, offset_y: f32, char_mapping: Vec<(char, Rect)>, file_name: &str) -> Result<GMBitmapFont, GMError> {
         let data = load_texture(file_name).await?;
         let mut mapping = FnvHashMap::with_capacity_and_hasher(char_mapping.len(), Default::default());
 
@@ -30,8 +29,8 @@ impl GMBitmapFont {
 
         let font = GMBitmapFont {
             name: name.to_string(),
-            x_offset,
-            y_offset,
+            offset_x,
+            offset_y,
             mapping,
             data
         };
@@ -45,7 +44,7 @@ impl GMBitmapFont {
         todo!();
     }
 
-    pub fn draw_char(&self, c: char, x: f32, y: f32, orientation: &GMOrientation) -> f32 {
+    pub fn draw_char(&self, c: char, x: f32, y: f32) -> (f32, f32) {
         let rect = self.source_rect(c);
         let source = Some(rect);
         let params = DrawTextureParams {
@@ -53,14 +52,10 @@ impl GMBitmapFont {
         };
 
         draw_texture_ex(self.data, x, y, colors::BLANK, params);
-        match orientation {
-            GMOrientation::Horizontal => {
-                rect.w + self.x_offset
-            }
-            GMOrientation::Vertical => {
-                rect.h + self.y_offset
-            }
-        }
+
+        let offset_x = rect.w + self.offset_x;
+        let offset_y = rect.h + self.offset_y;
+        (offset_x, offset_y)
     }
 
     fn source_rect(&self, c: char) -> Rect {

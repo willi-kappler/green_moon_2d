@@ -9,89 +9,6 @@ pub enum GMOrientation {
     Vertical,
 }
 
-pub trait GMTextEffect {
-    fn draw(&self, text_context: &GMTextContext) {
-
-    }
-
-    fn update(&mut self, text_context: &GMTextContext) {
-
-    }
-}
-
-pub struct GMStaticTextH {
-
-}
-
-impl GMTextEffect for GMStaticTextH {
-    fn draw(&self, text_context: &GMTextContext) {
-        let mut current_x = text_context.px;
-        let mut current_y = text_context.py;
-        let font = text_context.get_font();
-        let orientation = &text_context.orientation;
-
-        match orientation {
-            GMOrientation::Horizontal => {
-                for c in text_context.content.chars() {
-                    let offset = font.draw_char(c, current_x, current_y, orientation);
-                    current_x += offset;
-                }
-
-            }
-            GMOrientation::Vertical => {
-                for c in text_context.content.chars() {
-                    let offset = font.draw_char(c, current_x, current_y, orientation);
-                    current_y += offset;
-                }
-
-            }
-        }
-
-    }
-}
-
-pub struct GMTextEffectWrapper {
-    pub(crate) name: String,
-    pub(crate) effect: Box<dyn GMTextEffect>,
-}
-
-impl GMTextEffectWrapper {
-    pub fn new<T: 'static + GMTextEffect>(name: &str, effect: T) -> GMTextEffectWrapper {
-        GMTextEffectWrapper {
-            name: name.to_string(),
-            effect: Box::new(effect),
-        }
-    }
-}
-
-impl GMTextEffect for GMTextEffectWrapper {
-    fn draw(&self, text_context: &GMTextContext) {
-        self.effect.draw(text_context)
-    }
-
-    fn update(&mut self, text_context: &GMTextContext) {
-        self.effect.update(text_context)
-    }
-}
-
-impl GMName for GMTextEffectWrapper {
-    fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
-    }
-
-    fn has_name(&self, name: &str) -> bool {
-        self.name == name
-    }
-
-    fn has_prefix(&self, name: &str) -> bool {
-        self.name.starts_with(name)
-    }
-}
-
 pub struct GMTextContext {
     pub(crate) content: String,
     pub(crate) font: Rc<GMBitmapFont>,
@@ -135,7 +52,7 @@ impl GMText {
             orientation: GMOrientation::Horizontal,
         };
 
-        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
+        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticText{});
 
         GMText {
             name: name.to_string(),
@@ -195,5 +112,87 @@ impl GMName for GMText {
 
     fn has_prefix(&self, name: &str) -> bool {
         self.name.starts_with(name)
+    }
+}
+
+pub trait GMTextEffect {
+    fn draw(&self, text_context: &GMTextContext) {
+
+    }
+
+    fn update(&mut self, text_context: &GMTextContext) {
+
+    }
+}
+
+
+pub struct GMTextEffectWrapper {
+    pub(crate) name: String,
+    pub(crate) effect: Box<dyn GMTextEffect>,
+}
+
+impl GMTextEffectWrapper {
+    pub fn new<T: 'static + GMTextEffect>(name: &str, effect: T) -> GMTextEffectWrapper {
+        GMTextEffectWrapper {
+            name: name.to_string(),
+            effect: Box::new(effect),
+        }
+    }
+}
+
+impl GMTextEffect for GMTextEffectWrapper {
+    fn draw(&self, text_context: &GMTextContext) {
+        self.effect.draw(text_context)
+    }
+
+    fn update(&mut self, text_context: &GMTextContext) {
+        self.effect.update(text_context)
+    }
+}
+
+impl GMName for GMTextEffectWrapper {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
+    fn has_name(&self, name: &str) -> bool {
+        self.name == name
+    }
+
+    fn has_prefix(&self, name: &str) -> bool {
+        self.name.starts_with(name)
+    }
+}
+
+pub struct GMStaticText {}
+
+impl GMTextEffect for GMStaticText {
+    fn draw(&self, text_context: &GMTextContext) {
+        let mut current_x = text_context.px;
+        let mut current_y = text_context.py;
+        let font = text_context.get_font();
+        let orientation = &text_context.orientation;
+
+        match orientation {
+            GMOrientation::Horizontal => {
+                for c in text_context.content.chars() {
+                    let (offset_x, _) = font.draw_char(c, current_x, current_y);
+                    current_x += offset_x;
+                }
+
+            }
+            GMOrientation::Vertical => {
+                for c in text_context.content.chars() {
+                    let (_, offset_y) = font.draw_char(c, current_x, current_y);
+                    current_y += offset_y;
+                }
+
+            }
+        }
+
     }
 }
