@@ -11,4 +11,6 @@ pub enum GMError {
     ItemPrefixNotFound(String, String),
     #[error("IO error while loading file")]
     FileError(#[from] FileError),
+    #[error("Error while parsing font config")]
+    ParseFont(String),
 }
