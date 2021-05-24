@@ -4,17 +4,11 @@ use std::cell::RefCell;
 use crate::font::GMBitmapFont;
 use crate::resource_manager::GMName;
 
-pub enum GMOrientation {
-    Horizontal,
-    Vertical,
-}
-
 pub struct GMTextContext {
     pub(crate) content: String,
     pub(crate) font: Rc<GMBitmapFont>,
     pub(crate) px: f32,
     pub(crate) py: f32,
-    pub(crate) orientation: GMOrientation,
 }
 
 impl GMTextContext {
@@ -49,7 +43,6 @@ impl GMText {
             font,
             px,
             py,
-            orientation: GMOrientation::Horizontal,
         };
 
         let text_effect = GMTextEffectWrapper::new("static_h", GMStaticText{});
@@ -168,31 +161,32 @@ impl GMName for GMTextEffectWrapper {
     }
 }
 
-pub struct GMStaticText {}
+pub struct GMStaticTextH {}
 
-impl GMTextEffect for GMStaticText {
+impl GMTextEffect for GMStaticTextH {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
         let mut current_y = text_context.py;
         let font = text_context.get_font();
-        let orientation = &text_context.orientation;
 
-        match orientation {
-            GMOrientation::Horizontal => {
-                for c in text_context.content.chars() {
-                    let (offset_x, _) = font.draw_char(c, current_x, current_y);
-                    current_x += offset_x;
-                }
-
-            }
-            GMOrientation::Vertical => {
-                for c in text_context.content.chars() {
-                    let (_, offset_y) = font.draw_char(c, current_x, current_y);
-                    current_y += offset_y;
-                }
-
-            }
+        for c in text_context.content.chars() {
+            let (offset_x, _) = font.draw_char(c, current_x, current_y);
+            current_x += offset_x;
         }
+    }
+}
 
+pub struct GMStaticTextV {}
+
+impl GMTextEffect for GMStaticTextV {
+    fn draw(&self, text_context: &GMTextContext) {
+        let mut current_x = text_context.px;
+        let mut current_y = text_context.py;
+        let font = text_context.get_font();
+
+        for c in text_context.content.chars() {
+            let (_, offset_y) = font.draw_char(c, current_x, current_y);
+            current_y += offset_y;
+        }
     }
 }
