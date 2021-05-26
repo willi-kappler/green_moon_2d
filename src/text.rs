@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::f32::consts;
 
 use crate::font::GMBitmapFont;
 use crate::resource_manager::GMName;
@@ -33,7 +34,7 @@ impl GMTextContext {
 pub struct GMText {
     pub(crate) name: String,
     pub(crate) text_context: GMTextContext,
-    pub(crate) text_effect: Rc<RefCell<GMTextEffectWrapper>>,
+    pub(crate) text_effect: GMTextEffectWrapper,
 }
 
 impl GMText {
@@ -45,12 +46,12 @@ impl GMText {
             py,
         };
 
-        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticText{});
+        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
 
         GMText {
             name: name.to_string(),
             text_context,
-            text_effect: Rc::new(RefCell::new(text_effect)),
+            text_effect: text_effect,
         }
     }
 
@@ -67,26 +68,28 @@ impl GMText {
         self.text_context.font = font;
     }
 
-    pub fn set_text_effect(&mut self, text_effect: Rc<RefCell<GMTextEffectWrapper>>) {
+    pub fn set_text_effect(&mut self, text_effect: GMTextEffectWrapper) {
         self.text_effect = text_effect;
     }
 
-    pub fn get_text_effect(&self) -> Rc<RefCell<GMTextEffectWrapper>> {
-        self.text_effect.clone()
+    pub fn get_text_effect(&self) -> &GMTextEffectWrapper {
+        &self.text_effect
     }
 
     pub fn get_context(&self) -> &GMTextContext {
         &self.text_context
     }
 
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.text_effect.get_extend(&self.text_context)
+    }
+
     pub fn draw(&self) {
-        let text_effect = self.text_effect.borrow();
-        text_effect.draw(&self.text_context);
+        self.text_effect.draw(&self.text_context);
     }
 
     pub fn update(&mut self) {
-        let mut text_effect = self.text_effect.borrow_mut();
-        text_effect.update(&self.text_context);
+        self.text_effect.update(&self.text_context);
     }
 }
 
@@ -116,8 +119,9 @@ pub trait GMTextEffect {
     fn update(&mut self, text_context: &GMTextContext) {
 
     }
-}
 
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32);
+}
 
 pub struct GMTextEffectWrapper {
     pub(crate) name: String,
@@ -140,6 +144,10 @@ impl GMTextEffect for GMTextEffectWrapper {
 
     fn update(&mut self, text_context: &GMTextContext) {
         self.effect.update(text_context)
+    }
+
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
+        self.effect.get_extend(text_context)
     }
 }
 
@@ -166,7 +174,7 @@ pub struct GMStaticTextH {}
 impl GMTextEffect for GMStaticTextH {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
-        let mut current_y = text_context.py;
+        let current_y = text_context.py;
         let font = text_context.get_font();
 
         for c in text_context.content.chars() {
@@ -174,13 +182,27 @@ impl GMTextEffect for GMStaticTextH {
             current_x += offset_x;
         }
     }
+
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
+        let font = text_context.get_font();
+        let mut max_width: f32 = 0.0;
+        let mut max_height: f32 = 0.0;
+
+        for c in text_context.content.chars() {
+            let (extend_x, extend_y) = font.get_extend(c);
+            max_width += extend_x;
+            max_height = max_height.max(extend_y);
+        }
+
+        (max_width, max_height)
+    }
 }
 
 pub struct GMStaticTextV {}
 
 impl GMTextEffect for GMStaticTextV {
     fn draw(&self, text_context: &GMTextContext) {
-        let mut current_x = text_context.px;
+        let current_x = text_context.px;
         let mut current_y = text_context.py;
         let font = text_context.get_font();
 
@@ -188,5 +210,73 @@ impl GMTextEffect for GMStaticTextV {
             let (_, offset_y) = font.draw_char(c, current_x, current_y);
             current_y += offset_y;
         }
+    }
+
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
+        let font = text_context.get_font();
+        let mut max_width: f32 = 0.0;
+        let mut max_height: f32 = 0.0;
+
+        for c in text_context.content.chars() {
+            let (extend_x, extend_y) = font.get_extend(c);
+            max_height += extend_y;
+            max_width = max_width.max(extend_x);
+        }
+
+        (max_width, max_height)
+    }
+}
+
+pub struct GMWaveH {
+    pub(crate) phase: f32,
+    pub(crate) amplitude: f32,
+    pub(crate) frequency: f32,
+}
+
+impl GMWaveH {
+    pub fn new(amplitude: f32, frequency: f32) -> GMWaveH {
+        GMWaveH {
+            phase: 0.0,
+            amplitude,
+            frequency,
+        }
+    }
+}
+
+impl GMTextEffect for GMWaveH {
+    fn draw(&self, text_context: &GMTextContext) {
+        let mut current_x = text_context.px;
+        let current_y = text_context.py + (self.phase.sin() * self.amplitude);
+        let font = text_context.get_font();
+
+        for c in text_context.content.chars() {
+            let (offset_x, _) = font.draw_char(c, current_x, current_y);
+            current_x += offset_x;
+        }
+    }
+
+    fn update(&mut self, _text_context: &GMTextContext) {
+        self.phase += self.frequency;
+
+        let limit = 2.0 * consts::PI;
+        if self.phase > limit {
+            self.phase -= limit;
+        }
+    }
+
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
+        let font = text_context.get_font();
+        let mut max_width: f32 = 0.0;
+        let mut max_height: f32 = 0.0;
+
+        for c in text_context.content.chars() {
+            let (extend_x, extend_y) = font.get_extend(c);
+            max_width += extend_x;
+            max_height = max_height.max(extend_y);
+        }
+
+        max_height += 2.0 * self.amplitude;
+
+        (max_width, max_height)
     }
 }

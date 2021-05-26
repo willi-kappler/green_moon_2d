@@ -170,6 +170,13 @@ impl GMBitmapFont {
         (spacing_x, spacing_y)
     }
 
+    pub fn get_extend(&self, c: char) -> (f32, f32) {
+        let rect = self.source_rect(c);
+        let spacing_x = rect.w + self.config.spacing_x;
+        let spacing_y = rect.h + self.config.spacing_y;
+        (spacing_x, spacing_y)
+    }
+
     fn source_rect(&self, c: char) -> Rect {
         match self.config.mapping.get(&c) {
             Some(rect) => {
