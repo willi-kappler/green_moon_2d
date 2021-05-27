@@ -246,10 +246,11 @@ impl GMWaveH {
 impl GMTextEffect for GMWaveH {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
-        let current_y = text_context.py + (self.phase.sin() * self.amplitude);
         let font = text_context.get_font();
 
-        for c in text_context.content.chars() {
+        for (c, i) in text_context.content.chars().zip(0..) {
+            let phase = self.phase + (i as f32 * self.frequency);
+            let current_y = text_context.py + (phase.sin() * self.amplitude);
             let (offset_x, _) = font.draw_char(c, current_x, current_y);
             current_x += offset_x;
         }
@@ -258,9 +259,9 @@ impl GMTextEffect for GMWaveH {
     fn update(&mut self, _text_context: &GMTextContext) {
         self.phase += self.frequency;
 
-        let limit = 2.0 * consts::PI;
-        if self.phase > limit {
-            self.phase -= limit;
+        const LIMIT: f32 = 2.0 * consts::PI;
+        if self.phase > LIMIT {
+            self.phase -= LIMIT;
         }
     }
 
