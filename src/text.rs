@@ -281,3 +281,70 @@ impl GMTextEffect for GMWaveH {
         (max_width, max_height)
     }
 }
+
+pub struct GMRotZH {
+    pub(crate) phase: f32,
+    pub(crate) amplitudes: Vec<f32>,
+    pub(crate) frequency: f32,
+}
+
+impl GMRotZH {
+    pub fn new(frequency: f32, text_context: &GMTextContext) -> GMRotZH {
+        let mut amplitudes = Vec::new();
+
+        let font = text_context.get_font();
+        let mut max_width: f32 = 0.0;
+
+        for c in text_context.content.chars() {
+            amplitudes.push(max_width);
+            let (extend_x, _) = font.get_extend(c);
+            max_width += extend_x;
+        }
+
+        let half_width = max_width / 2.0;
+        for v in amplitudes.iter_mut() {
+            *v -= half_width;
+        }
+
+        GMRotZH {
+            phase: 0.0,
+            amplitudes,
+            frequency,
+        }
+    }
+}
+
+impl GMTextEffect for GMRotZH {
+    fn draw(&self, text_context: &GMTextContext) {
+        let current_y = text_context.py;
+        let font = text_context.get_font();
+
+        for (c, amplitude) in text_context.content.chars().zip(&self.amplitudes) {
+            let current_x = text_context.px + (self.phase.sin() * amplitude);
+            let _ = font.draw_char(c, current_x, current_y);
+        }
+    }
+
+    fn update(&mut self, _text_context: &GMTextContext) {
+        self.phase += self.frequency;
+
+        const LIMIT: f32 = 2.0 * consts::PI;
+        if self.phase > LIMIT {
+            self.phase -= LIMIT;
+        }
+    }
+
+    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
+        let font = text_context.get_font();
+        let mut max_width: f32 = 0.0;
+        let mut max_height: f32 = 0.0;
+
+        for c in text_context.content.chars() {
+            let (extend_x, extend_y) = font.get_extend(c);
+            max_width += extend_x;
+            max_height = max_height.max(extend_y);
+        }
+
+        (max_width, max_height)
+    }
+}
