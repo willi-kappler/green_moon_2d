@@ -3,7 +3,7 @@ use crate::error::GMError;
 
 use std::{collections::HashMap, hash::BuildHasherDefault};
 
-use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTextureParams};
+use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTextureParams, Image};
 use macroquad::color::colors;
 use macroquad::math::Rect;
 use macroquad::file::load_string;
@@ -177,7 +177,7 @@ impl GMBitmapFont {
         (spacing_x, spacing_y)
     }
 
-    fn source_rect(&self, c: char) -> Rect {
+    pub fn source_rect(&self, c: char) -> Rect {
         match self.config.mapping.get(&c) {
             Some(rect) => {
                 *rect
@@ -186,6 +186,12 @@ impl GMBitmapFont {
                 self.config.unknown
             }
         }
+    }
+
+    fn get_image(&self, c: char) -> Image {
+        // Maybe return the char as image ?
+        // https://docs.rs/macroquad/0.3.4/macroquad/texture/struct.Image.html
+        todo!()
     }
 }
 
