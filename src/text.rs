@@ -1,15 +1,21 @@
 use std::rc::Rc;
-use std::cell::RefCell;
 use std::f32::consts;
 
 use crate::font::GMBitmapFont;
-use crate::resource_manager::GMName;
+
+pub enum GMTextAlignment {
+    LeftOrTop,
+    Center,
+    RightOrBottom,
+}
 
 pub struct GMTextContext {
     pub(crate) content: String,
     pub(crate) font: Rc<GMBitmapFont>,
     pub(crate) px: f32,
     pub(crate) py: f32,
+    pub(crate) horizontal: bool,
+    pub(crate) alignment: GMTextAlignment,
 }
 
 impl GMTextContext {
@@ -32,24 +38,24 @@ impl GMTextContext {
 }
 
 pub struct GMText {
-    pub(crate) name: String,
     pub(crate) text_context: GMTextContext,
     pub(crate) text_effect: GMTextEffectWrapper,
 }
 
 impl GMText {
-    pub fn new(name: &str, content: &str, font: Rc<GMBitmapFont>, px: f32, py: f32) -> GMText {
+    pub fn new(content: &str, font: Rc<GMBitmapFont>, px: f32, py: f32) -> GMText {
         let text_context = GMTextContext {
             content: content.to_string(),
             font,
             px,
             py,
+            horizontal: false, // TODO:
+            alignment: GMTextAlignment::LeftOrTop, // TODO:
         };
 
-        let text_effect = GMTextEffectWrapper::new("static_h", GMStaticTextH{});
+        let text_effect = GMTextEffectWrapper::new(GMStaticTextH{});
 
         GMText {
-            name: name.to_string(),
             text_context,
             text_effect: text_effect,
         }
@@ -93,30 +99,10 @@ impl GMText {
     }
 }
 
-impl GMName for GMText {
-    fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: &str) {
-        self.name = name.to_string()
-    }
-
-    fn has_name(&self, name: &str) -> bool {
-        self.name == name
-    }
-
-    fn has_prefix(&self, name: &str) -> bool {
-        self.name.starts_with(name)
-    }
-}
-
 pub trait GMTextEffect {
-    fn draw(&self, text_context: &GMTextContext) {
+    fn draw(&self, _text_context: &GMTextContext);
 
-    }
-
-    fn update(&mut self, text_context: &GMTextContext) {
+    fn update(&mut self, _text_context: &GMTextContext) {
 
     }
 
@@ -124,14 +110,12 @@ pub trait GMTextEffect {
 }
 
 pub struct GMTextEffectWrapper {
-    pub(crate) name: String,
     pub(crate) effect: Box<dyn GMTextEffect>,
 }
 
 impl GMTextEffectWrapper {
-    pub fn new<T: 'static + GMTextEffect>(name: &str, effect: T) -> GMTextEffectWrapper {
+    pub fn new<T: 'static + GMTextEffect>(effect: T) -> GMTextEffectWrapper {
         GMTextEffectWrapper {
-            name: name.to_string(),
             effect: Box::new(effect),
         }
     }
@@ -148,24 +132,6 @@ impl GMTextEffect for GMTextEffectWrapper {
 
     fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
         self.effect.get_extend(text_context)
-    }
-}
-
-impl GMName for GMTextEffectWrapper {
-    fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
-    }
-
-    fn has_name(&self, name: &str) -> bool {
-        self.name == name
-    }
-
-    fn has_prefix(&self, name: &str) -> bool {
-        self.name.starts_with(name)
     }
 }
 

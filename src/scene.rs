@@ -69,15 +69,15 @@ impl GMScene for GMSceneWrapper {
         self.scene.enter()
     }
 
-    fn event(&mut self) {
-        self.scene.event()
-    }
-
     fn update(&mut self) -> GMSceneState {
         self.scene.update()
     }
 
     fn draw(&self) {
         self.scene.draw()
+    }
+
+    fn event(&mut self) {
+        self.scene.event()
     }
 }

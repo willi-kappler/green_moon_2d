@@ -1,20 +1,18 @@
 use crate::resource_manager::GMName;
 use crate::error::GMError;
 
-use std::{collections::HashMap, hash::BuildHasherDefault};
+use std::{collections::HashMap};
 
 use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTextureParams, Image};
 use macroquad::color::colors;
 use macroquad::math::Rect;
 use macroquad::file::load_string;
 
-use fnv::{FnvHashMap, FnvHasher};
-
 pub struct GMBitmapFontConfig {
     pub(crate) name: String,
     pub(crate) spacing_x: f32,
     pub(crate) spacing_y: f32,
-    pub(crate) mapping: HashMap<char, Rect, BuildHasherDefault<FnvHasher>>,
+    pub(crate) mapping: HashMap<char, Rect>,
     pub(crate) unknown: Rect,
 }
 
@@ -59,8 +57,7 @@ impl GMBitmapFont {
         let mut unknown = Rect::new(0.0, 0.0, 0.0, 0.0);
 
         let mut mapping_mode = false;
-        let mut mapping: HashMap<char, Rect, BuildHasherDefault<FnvHasher>> = FnvHashMap::default();
-
+        let mut mapping: HashMap<char, Rect> = HashMap::new();
 
         for (line, line_no) in input.split('\n').zip(1..) {
             if mapping_mode {
