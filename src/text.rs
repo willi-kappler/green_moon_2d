@@ -53,11 +53,11 @@ impl GMText {
             alignment: GMTextAlignment::LeftOrTop, // TODO:
         };
 
-        let text_effect = GMTextEffectWrapper::new(GMStaticTextH{});
+        let text_effect = GMTextEffectWrapper::new(GMStaticText{});
 
         GMText {
             text_context,
-            text_effect: text_effect,
+            text_effect,
         }
     }
 
@@ -135,46 +135,21 @@ impl GMTextEffect for GMTextEffectWrapper {
     }
 }
 
-pub struct GMStaticTextH {}
+pub struct GMStaticText {}
 
-impl GMTextEffect for GMStaticTextH {
+impl GMTextEffect for GMStaticText {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
-        let current_y = text_context.py;
-        let font = text_context.get_font();
-
-        for c in text_context.content.chars() {
-            let (offset_x, _) = font.draw_char(c, current_x, current_y);
-            current_x += offset_x;
-        }
-    }
-
-    fn get_extend(&self, text_context: &GMTextContext) -> (f32, f32) {
-        let font = text_context.get_font();
-        let mut max_width: f32 = 0.0;
-        let mut max_height: f32 = 0.0;
-
-        for c in text_context.content.chars() {
-            let (extend_x, extend_y) = font.get_extend(c);
-            max_width += extend_x;
-            max_height = max_height.max(extend_y);
-        }
-
-        (max_width, max_height)
-    }
-}
-
-pub struct GMStaticTextV {}
-
-impl GMTextEffect for GMStaticTextV {
-    fn draw(&self, text_context: &GMTextContext) {
-        let current_x = text_context.px;
         let mut current_y = text_context.py;
         let font = text_context.get_font();
 
         for c in text_context.content.chars() {
-            let (_, offset_y) = font.draw_char(c, current_x, current_y);
-            current_y += offset_y;
+            let (offset_x, offset_y) = font.draw_char(c, current_x, current_y);
+            if text_context.horizontal {
+                current_x += offset_x;
+            } else {
+                current_y += offset_y;
+            }
         }
     }
 
@@ -185,23 +160,28 @@ impl GMTextEffect for GMStaticTextV {
 
         for c in text_context.content.chars() {
             let (extend_x, extend_y) = font.get_extend(c);
-            max_height += extend_y;
-            max_width = max_width.max(extend_x);
+            if text_context.horizontal {
+                max_width += extend_x;
+                max_height = max_height.max(extend_y);
+            } else {
+                max_height += extend_y;
+                max_width = max_width.max(extend_x);
+            }
         }
 
         (max_width, max_height)
     }
 }
 
-pub struct GMWaveH {
+pub struct GMWave {
     pub(crate) phase: f32,
     pub(crate) amplitude: f32,
     pub(crate) frequency: f32,
 }
 
-impl GMWaveH {
-    pub fn new(amplitude: f32, frequency: f32) -> GMWaveH {
-        GMWaveH {
+impl GMWave {
+    pub fn new(amplitude: f32, frequency: f32) -> GMWave {
+        GMWave {
             phase: 0.0,
             amplitude,
             frequency,
@@ -209,7 +189,7 @@ impl GMWaveH {
     }
 }
 
-impl GMTextEffect for GMWaveH {
+impl GMTextEffect for GMWave {
     fn draw(&self, text_context: &GMTextContext) {
         let mut current_x = text_context.px;
         let font = text_context.get_font();
@@ -248,14 +228,14 @@ impl GMTextEffect for GMWaveH {
     }
 }
 
-pub struct GMRotZH {
+pub struct GMRotZ {
     pub(crate) phase: f32,
     pub(crate) amplitudes: Vec<f32>,
     pub(crate) frequency: f32,
 }
 
-impl GMRotZH {
-    pub fn new(frequency: f32, text_context: &GMTextContext) -> GMRotZH {
+impl GMRotZ {
+    pub fn new(frequency: f32, text_context: &GMTextContext) -> GMRotZ {
         let mut amplitudes = Vec::new();
 
         let font = text_context.get_font();
@@ -272,7 +252,7 @@ impl GMRotZH {
             *v -= half_width;
         }
 
-        GMRotZH {
+        GMRotZ {
             phase: 0.0,
             amplitudes,
             frequency,
@@ -280,7 +260,7 @@ impl GMRotZH {
     }
 }
 
-impl GMTextEffect for GMRotZH {
+impl GMTextEffect for GMRotZ {
     fn draw(&self, text_context: &GMTextContext) {
         let current_y = text_context.py;
         let font = text_context.get_font();
