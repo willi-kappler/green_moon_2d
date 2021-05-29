@@ -7,7 +7,7 @@ pub type GMTextEffect = Box<dyn GMTextEffectT>;
 pub trait GMTextEffectT {
     fn draw(&self, text: &GMText, font: &GMBitmapFont);
 
-    fn update(&mut self, text: &GMText);
+    fn update(&mut self);
 
     fn get_extend(&self, text: &GMText, font: &GMBitmapFont) -> (f32, f32);
 }
@@ -35,7 +35,7 @@ impl GMTextEffectT for GMStaticText {
         }
     }
 
-    fn update(&mut self, _text: &GMText) {
+    fn update(&mut self) {
 
     }
 
@@ -86,7 +86,7 @@ impl GMTextEffectT for GMWave {
         }
     }
 
-    fn update(&mut self, text: &GMText) {
+    fn update(&mut self) {
         self.phase += self.frequency;
 
         const LIMIT: f32 = 2.0 * consts::PI;
@@ -152,7 +152,7 @@ impl GMTextEffectT for GMRotZ {
         }
     }
 
-    fn update(&mut self, text: &GMText) {
+    fn update(&mut self) {
         self.phase += self.frequency;
 
         const LIMIT: f32 = 2.0 * consts::PI;
@@ -190,7 +190,7 @@ impl GMTextEffectT for GMSelected1 {
         // TODO:
     }
 
-    fn update(&mut self, text: &GMText) {
+    fn update(&mut self) {
         // TODO:
     }
 
