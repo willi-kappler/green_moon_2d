@@ -3,7 +3,6 @@ use std::cell::RefCell;
 
 use crate::error::GMError;
 
-
 pub trait GMName {
     fn get_name(&self) -> &str;
     fn set_name(&mut self, name: &str);

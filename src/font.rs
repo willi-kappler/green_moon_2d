@@ -8,6 +8,7 @@ use macroquad::color::colors;
 use macroquad::math::Rect;
 use macroquad::file::load_string;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMBitmapFontConfig {
     pub(crate) name: String,
     pub(crate) spacing_x: f32,
@@ -16,6 +17,7 @@ pub struct GMBitmapFontConfig {
     pub(crate) unknown: Rect,
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMBitmapFont {
     pub(crate) config: GMBitmapFontConfig,
     pub(crate) data: Texture2D,

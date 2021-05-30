@@ -1,10 +1,12 @@
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum GMTextAlignment {
     LeftOrTop,
     Center,
     RightOrBottom,
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMText {
     pub(crate) content: String,
     pub(crate) px: f32,

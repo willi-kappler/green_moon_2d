@@ -5,6 +5,7 @@ use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTexturePa
 use macroquad::color::colors;
 use macroquad::math::Rect;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMSpriteSheet {
     name: String,
     data: Texture2D,

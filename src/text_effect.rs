@@ -12,6 +12,7 @@ pub trait GMTextEffectT {
     fn get_extend(&self, text: &GMText, font: &GMBitmapFont) -> (f32, f32);
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct GMStaticText {}
 
 impl GMStaticText {
@@ -58,6 +59,7 @@ impl GMTextEffectT for GMStaticText {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct GMWave {
     pub(crate) phase: f32,
     pub(crate) amplitude: f32,
@@ -111,6 +113,7 @@ impl GMTextEffectT for GMWave {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMRotZ {
     pub(crate) phase: f32,
     pub(crate) amplitudes: Vec<f32>,
@@ -175,6 +178,7 @@ impl GMTextEffectT for GMRotZ {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct GMSelected1 {
      // TODO:
 }

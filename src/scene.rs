@@ -1,6 +1,7 @@
 
 use crate::resource_manager::GMName;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GMSceneState {
     Stay,
     Switch(String),
