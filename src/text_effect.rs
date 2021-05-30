@@ -176,7 +176,7 @@ impl GMTextEffectT for GMRotZ {
 }
 
 pub struct GMSelected1 {
-    // TODO:
+     // TODO:
 }
 
 impl GMSelected1 {
