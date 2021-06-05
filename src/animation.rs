@@ -1,6 +1,7 @@
 use crate::resource_manager::GMName;
 
 use macroquad::math::Rect;
+use macroquad::time::get_time;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum GMAnimationDirection {
@@ -8,24 +9,29 @@ pub enum GMAnimationDirection {
     ForwardLoop,
     BackwardOnce,
     BackwardLoop,
-    PingPong,
+    PingPongForward,
+    PingPongBackward,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMAnimation {
     name: String,
-    frames: Vec<(Rect, u32)>,
+    frames: Vec<(Rect, f64)>,
     direction: GMAnimationDirection,
     current_frame: usize,
+    start_time: f64,
+    active: bool,
 }
 
 impl GMAnimation {
-    pub fn new(name: &str, frames: &[(Rect, u32)]) -> GMAnimation {
+    pub fn new(name: &str, frames: &[(Rect, f64)]) -> GMAnimation {
         GMAnimation {
             name: name.to_string(),
             frames: frames.to_vec(),
             direction: GMAnimationDirection::ForwardOnce,
             current_frame: 0,
+            start_time: 0.0,
+            active: false,
         }
     }
 
@@ -33,14 +39,29 @@ impl GMAnimation {
         self.direction = direction;
     }
 
-    pub fn reset(&mut self) {
+    pub fn start(&mut self) {
         self.current_frame = 0;
+        self.active = true;
+        self.start_time = get_time();
+    }
+
+    pub fn pause(&mut self) {
+        self.active = false;
+    }
+
+    pub fn resume(&mut self) {
+        self.active = true;
+        self.start_time = get_time();
     }
 
     pub fn next_frame(&mut self) {
         use GMAnimationDirection::*;
 
-        // TODO: Check time!
+        if get_time() - self.start_time < self.frames[self.current_frame].1 {
+            // Time for current frame has not elapsed yet, so nothing to do.
+            // (display the same image as before until the frame time has elapsed)
+            return
+        }
 
         match self.direction {
             ForwardOnce => {
@@ -56,15 +77,35 @@ impl GMAnimation {
                 }
             }
             BackwardOnce => {
-                // TODO:
+                if self.current_frame > 0 {
+                    self.current_frame -= 1;
+                }
             }
             BackwardLoop => {
-                // TODO:
+                if self.current_frame > 0 {
+                    self.current_frame -= 1;
+                } else {
+                    self.current_frame = self.frames.len() - 1;
+                }
             }
-            PingPong => {
-                // TODO:
+            PingPongForward => {
+                if self.current_frame < self.frames.len() - 1 {
+                    self.current_frame += 1;
+                } else {
+                    self.direction = PingPongBackward;
+                }
+            }
+            PingPongBackward => {
+                if self.current_frame > 0 {
+                    self.current_frame -= 1;
+                } else {
+                    self.direction = PingPongForward;
+                }
             }
         }
+
+        // Set time for the current animation frame
+        self.start_time = get_time();
     }
 
     pub fn get_rect(&self) -> Rect {
