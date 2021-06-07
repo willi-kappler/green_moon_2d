@@ -2,7 +2,7 @@
 use crate::text::{GMText};
 use crate::text_effect::{GMRotZ, GMSelected1, GMStaticText, GMTextEffect, GMTextEffectT};
 use crate::font::{GMBitmapFont};
-use crate::scene::{GMScene, GMSceneState};
+use crate::scene::{GMSceneT, GMSceneState};
 
 use macroquad::window::{screen_width};
 use macroquad::input::{is_key_pressed, KeyCode};

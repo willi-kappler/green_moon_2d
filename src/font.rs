@@ -1,4 +1,3 @@
-use crate::resource_manager::GMName;
 use crate::error::GMError;
 
 use std::{collections::HashMap};
@@ -8,9 +7,13 @@ use macroquad::color::colors;
 use macroquad::math::Rect;
 use macroquad::file::load_string;
 
+pub trait GMFontT {
+    fn draw_char(&self, c: char, x: f32, y: f32) -> (f32, f32);
+    fn get_extend(&self, c: char) -> (f32, f32);
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMBitmapFontConfig {
-    pub(crate) name: String,
     pub(crate) spacing_x: f32,
     pub(crate) spacing_y: f32,
     pub(crate) mapping: HashMap<char, Rect>,
@@ -20,7 +23,7 @@ pub struct GMBitmapFontConfig {
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMBitmapFont {
     pub(crate) config: GMBitmapFontConfig,
-    pub(crate) data: Texture2D,
+    pub(crate) data: Texture2D, // TODO: Maybe use GMSpriteSheet ?
 }
 
 impl GMBitmapFont {
@@ -40,7 +43,6 @@ impl GMBitmapFont {
 
     fn parse_config(input: &str) -> Result<(GMBitmapFontConfig, String), GMError> {
         // Format:
-        // font_name: font name
         // file_name: name of bitmap file (png, jpeg, ..)
         // spacing_x: spacing after each char in x direction
         // spacing_y: spacing after each char in y direction
@@ -52,7 +54,6 @@ impl GMBitmapFont {
         //     ...
         // end_mapping
 
-        let mut font_name = String::new();
         let mut file_name = String::new();
         let mut spacing_x: u32 = 0;
         let mut spacing_y: u32 = 0;
@@ -96,9 +97,7 @@ impl GMBitmapFont {
                     }
                 }
             } else {
-                if line.starts_with("font_name:") {
-                    font_name = line[10..].trim().to_string();
-                } else if line.starts_with("file_name:") {
+                if line.starts_with("file_name:") {
                     file_name = line[10..].trim().to_string();
                 } else if line.starts_with("spacing_x:") {
                     spacing_x = line[10..].trim().parse().map_err(|_| GMError::ParseFont(format!("Expected spacing_x as u32 , got: {} (line {})", line, line_no)))?;
@@ -123,10 +122,6 @@ impl GMBitmapFont {
             }
         }
 
-        if font_name.len() == 0 {
-            return Err(GMError::ParseFont("Font name is missing".to_string()))
-        }
-
         if file_name.len() == 0 {
             return Err(GMError::ParseFont("File name is missing".to_string()))
         }
@@ -144,7 +139,6 @@ impl GMBitmapFont {
         }
 
         let config = GMBitmapFontConfig{
-            name: font_name,
             spacing_x: spacing_x as f32,
             spacing_y: spacing_y as f32,
             mapping,
@@ -153,27 +147,6 @@ impl GMBitmapFont {
         };
 
         Ok((config, file_name))
-    }
-
-    pub fn draw_char(&self, c: char, x: f32, y: f32) -> (f32, f32) {
-        let rect = self.source_rect(c);
-        let source = Some(rect);
-        let params = DrawTextureParams {
-            source, .. Default::default()
-        };
-
-        draw_texture_ex(self.data, x, y, colors::BLANK, params);
-
-        let spacing_x = rect.w + self.config.spacing_x;
-        let spacing_y = rect.h + self.config.spacing_y;
-        (spacing_x, spacing_y)
-    }
-
-    pub fn get_extend(&self, c: char) -> (f32, f32) {
-        let rect = self.source_rect(c);
-        let spacing_x = rect.w + self.config.spacing_x;
-        let spacing_y = rect.h + self.config.spacing_y;
-        (spacing_x, spacing_y)
     }
 
     pub fn source_rect(&self, c: char) -> Rect {
@@ -187,27 +160,32 @@ impl GMBitmapFont {
         }
     }
 
-    fn get_image(&self, c: char) -> Image {
+    fn _get_image(&self, _c: char) -> Image {
         // Maybe return the char as image ?
         // https://docs.rs/macroquad/0.3.4/macroquad/texture/struct.Image.html
         todo!()
     }
 }
 
-impl GMName for GMBitmapFont {
-    fn get_name(&self) -> &str {
-        &self.config.name
+impl GMFontT for GMBitmapFont {
+    fn draw_char(&self, c: char, x: f32, y: f32) -> (f32, f32) {
+        let rect = self.source_rect(c);
+        let source = Some(rect);
+        let params = DrawTextureParams {
+            source, .. Default::default()
+        };
+
+        draw_texture_ex(self.data, x, y, colors::BLANK, params);
+
+        let spacing_x = rect.w + self.config.spacing_x;
+        let spacing_y = rect.h + self.config.spacing_y;
+        (spacing_x, spacing_y)
     }
 
-    fn set_name(&mut self, name: &str) {
-        self.config.name = name.to_string();
-    }
-
-    fn has_name(&self, name: &str) -> bool {
-        self.config.name == name
-    }
-
-    fn has_prefix(&self, name: &str) -> bool {
-        self.config.name.starts_with(name)
+    fn get_extend(&self, c: char) -> (f32, f32) {
+        let rect = self.source_rect(c);
+        let spacing_x = rect.w + self.config.spacing_x;
+        let spacing_y = rect.h + self.config.spacing_y;
+        (spacing_x, spacing_y)
     }
 }

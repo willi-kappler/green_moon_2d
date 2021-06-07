@@ -1,8 +1,15 @@
-use crate::resource_manager::GMName;
-
 use macroquad::math::Rect;
 use macroquad::time::get_time;
 
+pub trait GMAnimationT {
+    fn start(&mut self);
+    fn pause(&mut self);
+    fn resume(&mut self);
+    fn next_frame(&mut self);
+    fn get_rect(&self) -> Rect;
+}
+
+/*
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum GMAnimationDirection {
     ForwardOnce,
@@ -12,62 +19,90 @@ pub enum GMAnimationDirection {
     PingPongForward,
     PingPongBackward,
 }
+*/
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GMAnimation {
-    name: String,
-    frames: Vec<(Rect, f64)>,
-    direction: GMAnimationDirection,
-    current_frame: usize,
-    start_time: f64,
-    active: bool,
+pub struct GMAnimationBase {
+    pub(crate) frames: Vec<(Rect, f64)>,
+    pub(crate) current_frame: usize,
+    pub(crate) start_time: f64,
+    pub(crate) active: bool,
 }
 
-impl GMAnimation {
-    pub fn new(name: &str, frames: &[(Rect, f64)]) -> GMAnimation {
-        GMAnimation {
-            name: name.to_string(),
-            frames: frames.to_vec(),
-            direction: GMAnimationDirection::ForwardOnce,
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-        }
-    }
-
-    pub fn set_direction(&mut self, direction: GMAnimationDirection) {
-        self.direction = direction;
-    }
-
-    pub fn start(&mut self) {
+impl GMAnimationBase {
+    fn start(&mut self) {
         self.current_frame = 0;
         self.active = true;
         self.start_time = get_time();
     }
 
-    pub fn pause(&mut self) {
+    fn pause(&mut self) {
         self.active = false;
     }
 
-    pub fn resume(&mut self) {
+    fn resume(&mut self) {
         self.active = true;
         self.start_time = get_time();
     }
 
-    pub fn next_frame(&mut self) {
-        use GMAnimationDirection::*;
+    fn get_rect(&self) -> Rect {
+        self.frames[self.current_frame].0
+    }
+}
 
-        if get_time() - self.start_time < self.frames[self.current_frame].1 {
+#[derive(Clone, Debug, PartialEq)]
+pub struct GMAnimationForwardOnce {
+    pub(crate) base: GMAnimationBase,
+}
+
+impl GMAnimationForwardOnce {
+    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationForwardOnce {
+        let base = GMAnimationBase {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+
+        };
+
+        GMAnimationForwardOnce {
+            base
+        }
+    }
+
+}
+
+impl GMAnimationT for GMAnimationForwardOnce {
+    fn start(&mut self) {
+        self.base.start()
+    }
+
+    fn pause(&mut self) {
+        self.base.pause()
+    }
+
+    fn resume(&mut self) {
+        self.base.resume()
+    }
+
+    fn next_frame(&mut self) {
+        if !self.base.active {
+            return
+        }
+
+        if get_time() - self.base.start_time < self.base.frames[self.base.current_frame].1 {
             // Time for current frame has not elapsed yet, so nothing to do.
             // (display the same image as before until the frame time has elapsed)
             return
         }
 
+        if self.base.current_frame < self.base.frames.len() - 1 {
+            self.base.current_frame += 1;
+        }
+
+/*
         match self.direction {
             ForwardOnce => {
-                if self.current_frame < self.frames.len() - 1 {
-                    self.current_frame += 1;
-                }
             }
             ForwardLoop => {
                 if self.current_frame < self.frames.len() - 1 {
@@ -103,30 +138,15 @@ impl GMAnimation {
                 }
             }
         }
+*/
 
         // Set time for the current animation frame
-        self.start_time = get_time();
+        self.base.start_time = get_time();
     }
 
-    pub fn get_rect(&self) -> Rect {
-        self.frames[self.current_frame].0
+    fn get_rect(&self) -> Rect {
+        self.base.get_rect()
     }
 }
 
-impl GMName for GMAnimation {
-    fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
-    }
-
-    fn has_name(&self, name: &str) -> bool {
-        self.name == name
-    }
-
-    fn has_prefix(&self, name: &str) -> bool {
-        self.name.starts_with(name)
-    }
-}
+// TODO: Add other animation types

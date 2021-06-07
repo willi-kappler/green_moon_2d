@@ -1,4 +1,4 @@
-use crate::font::GMBitmapFont;
+use crate::font::{GMBitmapFont, GMFontT};
 use crate::text::GMText;
 
 use std::f32::consts;
