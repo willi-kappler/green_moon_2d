@@ -1,5 +1,6 @@
 
 use crate::text::GMTextT;
+use crate::value::GMValue;
 
 // use macroquad::window::{screen_width};
 use macroquad::input::{is_key_pressed, KeyCode};
@@ -10,6 +11,9 @@ pub trait GMMenuItemT {
     fn update(&mut self);
     fn set_active(&mut self, active: bool);
     fn event(&mut self) {
+    }
+    fn get_value(&self) -> GMValue {
+        GMValue::GMNone
     }
 }
 
@@ -46,7 +50,7 @@ impl GMMenuItemT for GMMenuItemStatic {
             self.active_text.draw();
         } else {
             self.inactive_text.draw();
-        }        
+        }
     }
     fn set_active(&mut self, active: bool) {
         self.active = active;
@@ -77,6 +81,11 @@ impl GMMenuItemNumeric {
             step,
         }
     }
+
+    pub fn update_text(&mut self) {
+        let text = format!("{}: {}", self.prefix, self.current_val);
+        self.base.set_text(&text);
+    }
 }
 
 impl GMMenuItemT for GMMenuItemNumeric {
@@ -102,16 +111,17 @@ impl GMMenuItemT for GMMenuItemNumeric {
             if self.current_val < self.min_val {
                 self.current_val = self.min_val
             }
-            let text = format!("{}: {}", self.prefix, self.current_val);
-            self.base.set_text(&text);
+            self.update_text();
         } else if is_key_pressed(KeyCode::Right) {
             self.current_val += self.step;
             if self.current_val > self.max_val {
                 self.current_val = self.max_val
             }
-            let text = format!("{}: {}", self.prefix, self.current_val);
-            self.base.set_text(&text);
+            self.update_text();
         }
+    }
+    fn get_value(&self) -> GMValue {
+        GMValue::GMF32(self.current_val)
     }
 }
 
@@ -120,8 +130,69 @@ pub struct GMMenuItemEnum {
     pub(crate) prefix: String,
     pub(crate) items: Vec<String>,
     pub(crate) current_item: usize,
+}
 
-    // TODO: implement
+impl GMMenuItemEnum {
+    pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: Vec<String>, current_item: usize) -> Self {
+        let mut base = GMMenuItemStatic::new(inactive_text, active_text);
+        let text = format!("{}: {}", prefix, items[current_item]);
+        base.set_text(&text);
+
+        Self {
+            base,
+            prefix: prefix.to_string(),
+            items,
+            current_item,
+        }
+    }
+
+    pub fn update_text(&mut self) {
+        let text = format!("{}: {}", self.prefix, self.items[self.current_item]);
+        self.base.set_text(&text);
+    }
+}
+
+impl GMMenuItemT for GMMenuItemEnum {
+    fn set_text(&mut self, text: &str) {
+        self.base.set_text(text);
+    }
+
+    fn draw(&self) {
+        self.base.draw();
+    }
+
+    fn update(&mut self) {
+        self.base.update();
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.base.set_active(active);
+    }
+
+    fn event(&mut self) {
+        let first = 0;
+        let last = self.items.len() - 1;
+
+        if is_key_pressed(KeyCode::Left) {
+            if self.current_item > first {
+                self.current_item -= 1;
+            } else {
+                self.current_item = last;
+            }
+            self.update_text();
+        } else if is_key_pressed(KeyCode::Right) {
+            if self.current_item < last {
+                self.current_item += 1;
+            } else {
+                self.current_item = first;
+            }
+            self.update_text();
+        }
+    }
+
+    fn get_value(&self) -> GMValue {
+        GMValue::GMUSize(self.current_item)
+    }
 }
 
 pub struct GMMenu {
@@ -170,7 +241,7 @@ impl GMMenu {
             if self.selected > first {
                 self.selected -= 1;
             } else {
-                self.selected = last;    
+                self.selected = last;
             }
 
             self.items[self.selected].set_active(true);
@@ -180,7 +251,7 @@ impl GMMenu {
             if self.selected < last {
                 self.selected += 1;
             } else {
-                self.selected = first;    
+                self.selected = first;
             }
 
             self.items[self.selected].set_active(true);
@@ -191,5 +262,9 @@ impl GMMenu {
         } else {
             None
         }
+    }
+
+    pub fn get_values(&self) -> Vec<GMValue> {
+        self.items.iter().map(|item| item.get_value()).collect::<Vec<GMValue>>()
     }
 }
