@@ -9,18 +9,6 @@ pub trait GMAnimationT {
     fn get_rect(&self) -> Rect;
 }
 
-/*
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum GMAnimationDirection {
-    ForwardOnce,
-    ForwardLoop,
-    BackwardOnce,
-    BackwardLoop,
-    PingPongForward,
-    PingPongBackward,
-}
-*/
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMAnimationBase {
     pub(crate) frames: Vec<(Rect, f64)>,
@@ -48,6 +36,23 @@ impl GMAnimationBase {
     fn get_rect(&self) -> Rect {
         self.frames[self.current_frame].0
     }
+
+    fn next_frame(&mut self) -> bool {
+        if !self.active {
+            return true
+        }
+
+        if get_time() - self.start_time < self.frames[self.current_frame].1 {
+            // Time for current frame has not elapsed yet, so nothing to do.
+            // (display the same image as before until the frame time has elapsed)
+            return true
+        }
+
+        // Set time for the current animation frame
+        self.start_time = get_time();
+
+        false
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -69,7 +74,6 @@ impl GMAnimationForwardOnce {
             base
         }
     }
-
 }
 
 impl GMAnimationT for GMAnimationForwardOnce {
@@ -86,62 +90,13 @@ impl GMAnimationT for GMAnimationForwardOnce {
     }
 
     fn next_frame(&mut self) {
-        if !self.base.active {
-            return
-        }
-
-        if get_time() - self.base.start_time < self.base.frames[self.base.current_frame].1 {
-            // Time for current frame has not elapsed yet, so nothing to do.
-            // (display the same image as before until the frame time has elapsed)
+        if self.base.next_frame() {
             return
         }
 
         if self.base.current_frame < self.base.frames.len() - 1 {
             self.base.current_frame += 1;
         }
-
-/*
-        match self.direction {
-            ForwardOnce => {
-            }
-            ForwardLoop => {
-                if self.current_frame < self.frames.len() - 1 {
-                    self.current_frame += 1;
-                } else {
-                    self.current_frame = 0;
-                }
-            }
-            BackwardOnce => {
-                if self.current_frame > 0 {
-                    self.current_frame -= 1;
-                }
-            }
-            BackwardLoop => {
-                if self.current_frame > 0 {
-                    self.current_frame -= 1;
-                } else {
-                    self.current_frame = self.frames.len() - 1;
-                }
-            }
-            PingPongForward => {
-                if self.current_frame < self.frames.len() - 1 {
-                    self.current_frame += 1;
-                } else {
-                    self.direction = PingPongBackward;
-                }
-            }
-            PingPongBackward => {
-                if self.current_frame > 0 {
-                    self.current_frame -= 1;
-                } else {
-                    self.direction = PingPongForward;
-                }
-            }
-        }
-*/
-
-        // Set time for the current animation frame
-        self.base.start_time = get_time();
     }
 
     fn get_rect(&self) -> Rect {
@@ -150,3 +105,216 @@ impl GMAnimationT for GMAnimationForwardOnce {
 }
 
 // TODO: Add other animation types
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GMAnimationForwardLoop {
+    pub(crate) base: GMAnimationBase,
+}
+
+impl GMAnimationForwardLoop {
+    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationForwardLoop {
+        let base = GMAnimationBase {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+
+        };
+
+        GMAnimationForwardLoop {
+            base
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationForwardLoop {
+    fn start(&mut self) {
+        self.base.start()
+    }
+
+    fn pause(&mut self) {
+        self.base.pause()
+    }
+
+    fn resume(&mut self) {
+        self.base.resume()
+    }
+
+    fn next_frame(&mut self) {
+        if self.base.next_frame() {
+            return
+        }
+
+        if self.base.current_frame < self.base.frames.len() - 1 {
+            self.base.current_frame += 1;
+        } else {
+            self.base.current_frame = 0;
+        }
+    }
+
+    fn get_rect(&self) -> Rect {
+        self.base.get_rect()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GMAnimationBackwardOnce {
+    pub(crate) base: GMAnimationBase,
+}
+
+impl GMAnimationBackwardOnce {
+    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationBackwardOnce {
+        let base = GMAnimationBase {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+
+        };
+
+        GMAnimationBackwardOnce {
+            base
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationBackwardOnce {
+    fn start(&mut self) {
+        self.base.start()
+    }
+
+    fn pause(&mut self) {
+        self.base.pause()
+    }
+
+    fn resume(&mut self) {
+        self.base.resume()
+    }
+
+    fn next_frame(&mut self) {
+        if self.base.next_frame() {
+            return
+        }
+
+        if self.base.current_frame > 0 {
+            self.base.current_frame -= 1;
+        }
+    }
+
+    fn get_rect(&self) -> Rect {
+        self.base.get_rect()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GMAnimationBackwardLoop {
+    pub(crate) base: GMAnimationBase,
+}
+
+impl GMAnimationBackwardLoop {
+    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationBackwardLoop {
+        let base = GMAnimationBase {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+
+        };
+
+        GMAnimationBackwardLoop {
+            base
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationBackwardLoop {
+    fn start(&mut self) {
+        self.base.start()
+    }
+
+    fn pause(&mut self) {
+        self.base.pause()
+    }
+
+    fn resume(&mut self) {
+        self.base.resume()
+    }
+
+    fn next_frame(&mut self) {
+        if self.base.next_frame() {
+            return
+        }
+
+        if self.base.current_frame > 0 {
+            self.base.current_frame -= 1;
+        } else {
+            self.base.current_frame = self.base.frames.len() - 1;
+        }
+    }
+
+    fn get_rect(&self) -> Rect {
+        self.base.get_rect()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GMAnimationPingPong {
+    pub(crate) base: GMAnimationBase,
+    pub(crate) forward: bool,
+}
+
+impl GMAnimationPingPong {
+    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationPingPong {
+        let base = GMAnimationBase {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+
+        };
+
+        GMAnimationPingPong {
+            base,
+            forward: true,
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationPingPong {
+    fn start(&mut self) {
+        self.base.start();
+        self.forward = true;
+    }
+
+    fn pause(&mut self) {
+        self.base.pause()
+    }
+
+    fn resume(&mut self) {
+        self.base.resume()
+    }
+
+    fn next_frame(&mut self) {
+        if self.base.next_frame() {
+            return
+        }
+
+        if self.forward {
+            if self.base.current_frame < self.base.frames.len() - 1 {
+                self.base.current_frame += 1;
+            } else {
+                self.forward = false;
+            }
+        } else {
+            if self.base.current_frame > 0 {
+                self.base.current_frame -= 1;
+            } else {
+                self.forward = true;
+            }
+        }
+    }
+
+    fn get_rect(&self) -> Rect {
+        self.base.get_rect()
+    }
+}
