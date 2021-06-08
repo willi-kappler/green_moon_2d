@@ -1,37 +1,66 @@
+use crate::font::{GMBitmapFont, GMFontT};
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum GMTextAlignment {
-    LeftOrTop,
-    Center,
-    RightOrBottom,
+use std::rc::Rc;
+
+pub trait GMTextT {
+    fn draw(&self);
+    fn update(&mut self) {
+    }
+    fn set_text(&mut self, text: &str);
+    fn set_x(&mut self, x: f32);
+    fn set_y(&mut self, y: f32);
+    fn set_font(&mut self, font: Rc<GMBitmapFont>);
+    fn from_other(&mut self, other: GMText);
 }
 
-#[derive(Clone, Debug, PartialEq)]
 pub struct GMText {
-    pub(crate) content: String,
-    pub(crate) px: f32,
-    pub(crate) py: f32,
-    pub(crate) horizontal: bool,
-    pub(crate) alignment: GMTextAlignment,
+    pub(crate) data: String,
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+    pub(crate) font: Rc<GMBitmapFont>,
 }
 
 impl GMText {
-    pub fn new(text: &str, px: f32, py: f32) -> GMText {
-        GMText {
-            content: text.to_string(),
-            px,
-            py,
-            horizontal: true,
-            alignment: GMTextAlignment::LeftOrTop,
+    pub fn new(text: &str, x: f32, y: f32, font: Rc<GMBitmapFont>) -> Self {
+        Self {
+            data: text.to_string(),
+            x,
+            y,
+            font,
+        }
+    }
+}
+
+impl GMTextT for GMText {
+    fn draw(&self) {
+        let mut current_x = self.x;
+
+        for c in self.data.chars() {
+            self.font.draw(c, current_x, self.y);
+            current_x += self.font.char_width;
         }
     }
 
-    pub fn set_text(&mut self, content: &str) {
-        self.content = content.to_string();
+    fn set_text(&mut self, text: &str) {
+        self.data = text.to_string();
     }
 
-    pub fn set_position(&mut self, px: f32, py: f32) {
-        self.px = px;
-        self.py = py;
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+
+    fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.font = font;
+    }
+
+    fn from_other(&mut self, other: GMText) {
+        self.data = other.data;
+        self.x = other.x;
+        self.y = other.y;
+        self.font = other.font;
     }
 }

@@ -37,7 +37,7 @@ impl GMAnimationBase {
         self.frames[self.current_frame].0
     }
 
-    fn next_frame(&mut self) -> bool {
+    fn check_frame(&mut self) -> bool {
         if !self.active {
             return true
         }
@@ -61,7 +61,7 @@ pub struct GMAnimationForwardOnce {
 }
 
 impl GMAnimationForwardOnce {
-    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationForwardOnce {
+    pub fn new(frames: &[(Rect, f64)]) -> Self {
         let base = GMAnimationBase {
             frames: frames.to_vec(),
             current_frame: 0,
@@ -70,7 +70,7 @@ impl GMAnimationForwardOnce {
 
         };
 
-        GMAnimationForwardOnce {
+        Self {
             base
         }
     }
@@ -90,7 +90,7 @@ impl GMAnimationT for GMAnimationForwardOnce {
     }
 
     fn next_frame(&mut self) {
-        if self.base.next_frame() {
+        if self.base.check_frame() {
             return
         }
 
@@ -112,7 +112,7 @@ pub struct GMAnimationForwardLoop {
 }
 
 impl GMAnimationForwardLoop {
-    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationForwardLoop {
+    pub fn new(frames: &[(Rect, f64)]) -> Self {
         let base = GMAnimationBase {
             frames: frames.to_vec(),
             current_frame: 0,
@@ -121,7 +121,7 @@ impl GMAnimationForwardLoop {
 
         };
 
-        GMAnimationForwardLoop {
+        Self {
             base
         }
     }
@@ -141,7 +141,7 @@ impl GMAnimationT for GMAnimationForwardLoop {
     }
 
     fn next_frame(&mut self) {
-        if self.base.next_frame() {
+        if self.base.check_frame() {
             return
         }
 
@@ -163,7 +163,7 @@ pub struct GMAnimationBackwardOnce {
 }
 
 impl GMAnimationBackwardOnce {
-    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationBackwardOnce {
+    pub fn new(frames: &[(Rect, f64)]) -> Self {
         let base = GMAnimationBase {
             frames: frames.to_vec(),
             current_frame: 0,
@@ -172,7 +172,7 @@ impl GMAnimationBackwardOnce {
 
         };
 
-        GMAnimationBackwardOnce {
+        Self {
             base
         }
     }
@@ -192,7 +192,7 @@ impl GMAnimationT for GMAnimationBackwardOnce {
     }
 
     fn next_frame(&mut self) {
-        if self.base.next_frame() {
+        if self.base.check_frame() {
             return
         }
 
@@ -212,7 +212,7 @@ pub struct GMAnimationBackwardLoop {
 }
 
 impl GMAnimationBackwardLoop {
-    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationBackwardLoop {
+    pub fn new(frames: &[(Rect, f64)]) -> Self {
         let base = GMAnimationBase {
             frames: frames.to_vec(),
             current_frame: 0,
@@ -221,7 +221,7 @@ impl GMAnimationBackwardLoop {
 
         };
 
-        GMAnimationBackwardLoop {
+        Self {
             base
         }
     }
@@ -241,7 +241,7 @@ impl GMAnimationT for GMAnimationBackwardLoop {
     }
 
     fn next_frame(&mut self) {
-        if self.base.next_frame() {
+        if self.base.check_frame() {
             return
         }
 
@@ -264,7 +264,7 @@ pub struct GMAnimationPingPong {
 }
 
 impl GMAnimationPingPong {
-    pub fn new(frames: &[(Rect, f64)]) -> GMAnimationPingPong {
+    pub fn new(frames: &[(Rect, f64)]) -> Self {
         let base = GMAnimationBase {
             frames: frames.to_vec(),
             current_frame: 0,
@@ -273,7 +273,7 @@ impl GMAnimationPingPong {
 
         };
 
-        GMAnimationPingPong {
+        Self {
             base,
             forward: true,
         }
@@ -295,7 +295,7 @@ impl GMAnimationT for GMAnimationPingPong {
     }
 
     fn next_frame(&mut self) {
-        if self.base.next_frame() {
+        if self.base.check_frame() {
             return
         }
 

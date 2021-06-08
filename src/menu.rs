@@ -1,101 +1,186 @@
 
-use crate::text::{GMText};
-use crate::text_effect::{GMRotZ, GMSelected1, GMStaticText, GMTextEffect, GMTextEffectT};
-use crate::font::{GMBitmapFont};
-use crate::scene::{GMSceneT, GMSceneState};
+use crate::text::GMTextT;
 
-use macroquad::window::{screen_width};
+// use macroquad::window::{screen_width};
 use macroquad::input::{is_key_pressed, KeyCode};
 
-use std::rc::Rc;
+pub trait GMMenuItemT {
+    fn set_text(&mut self, text: &str);
+    fn draw(&self);
+    fn update(&mut self);
+    fn set_active(&mut self, active: bool);
+    fn event(&mut self) {
+    }
+}
+
+pub struct GMMenuItemStatic {
+    pub(crate) inactive_text: Box<dyn GMTextT>,
+    pub(crate) active_text: Box<dyn GMTextT>,
+    pub(crate) active: bool,
+}
+
+impl GMMenuItemStatic {
+    pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>) -> Self {
+        Self {
+            inactive_text,
+            active_text,
+            active: false,
+        }
+    }
+}
+
+impl GMMenuItemT for GMMenuItemStatic {
+    fn set_text(&mut self, text: &str) {
+        self.inactive_text.set_text(text);
+        self.active_text.set_text(text);
+    }
+    fn draw(&self) {
+        if self.active {
+            self.active_text.draw();
+        } else {
+            self.inactive_text.draw();
+        }
+    }
+    fn update(&mut self) {
+        if self.active {
+            self.active_text.draw();
+        } else {
+            self.inactive_text.draw();
+        }        
+    }
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+}
+
+pub struct GMMenuItemNumeric {
+    pub(crate) base: GMMenuItemStatic,
+    pub(crate) prefix: String,
+    pub(crate) min_val: f32,
+    pub(crate) max_val: f32,
+    pub(crate) current_val: f32,
+    pub(crate) step: f32,
+}
+
+impl GMMenuItemNumeric {
+    pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Self {
+        let mut base = GMMenuItemStatic::new(inactive_text, active_text);
+        let text = format!("{}: {}", prefix, current_val);
+        base.set_text(&text);
+
+        Self {
+            base,
+            prefix: prefix.to_string(),
+            min_val,
+            max_val,
+            current_val,
+            step,
+        }
+    }
+}
+
+impl GMMenuItemT for GMMenuItemNumeric {
+    fn set_text(&mut self, text: &str) {
+        self.base.set_text(text);
+    }
+
+    fn draw(&self) {
+        self.base.draw();
+    }
+
+    fn update(&mut self) {
+        self.base.update();
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.base.set_active(active);
+    }
+
+    fn event(&mut self) {
+        if is_key_pressed(KeyCode::Left) {
+            self.current_val -= self.step;
+            if self.current_val < self.min_val {
+                self.current_val = self.min_val
+            }
+            let text = format!("{}: {}", self.prefix, self.current_val);
+            self.base.set_text(&text);
+        } else if is_key_pressed(KeyCode::Right) {
+            self.current_val += self.step;
+            if self.current_val > self.max_val {
+                self.current_val = self.max_val
+            }
+            let text = format!("{}: {}", self.prefix, self.current_val);
+            self.base.set_text(&text);
+        }
+    }
+}
 
 pub struct GMMenu {
-    pub(crate) title: GMText,
-    pub(crate) items: Vec<GMText>,
-    pub(crate) highlighted: usize,
-    pub(crate) effect_title: GMTextEffect,
-    pub(crate) effect_highlight: GMTextEffect,
-    pub(crate) effect_normal: GMTextEffect,
-    pub(crate) font: Rc<GMBitmapFont>,
+    pub(crate) title: Box<dyn GMTextT>,
+    pub(crate) items: Vec<Box<dyn GMMenuItemT>>,
+    pub(crate) selected: usize,
+    // TODO: Maybe fancy border ?
 }
 
 impl GMMenu {
-    pub fn new(title: &str, menu_items: &[&str], font: Rc<GMBitmapFont>, y: f32) -> GMMenu {
-        let mut ym = y;
+    pub fn new(title: Box<dyn GMTextT>, mut items: Vec<Box<dyn GMMenuItemT>>) -> Self {
+        items[0].set_active(true);
 
-        let center_x = screen_width() / 2.0;
-
-        let mut title = GMText::new(title, center_x, ym);
-        // TODO: title.set_alignment();
-
-        let effect_title = Box::new(GMRotZ::new(1.0, &title, &font));
-        let effect_normal = Box::new(GMStaticText::new());
-        let effect_highlight = Box::new(GMSelected1::new()); // TODO:
-
-        let (_, ye) = effect_title.get_extend(&title, &font);
-
-        ym += 2.0 * ye;
-
-        let mut items = Vec::new();
-
-        for item in menu_items.iter() {
-            let text = GMText::new(*item, 0.0, ym);
-            let (_, ye) = effect_normal.get_extend(&text, &font);
-            ym += ye;
-            items.push(text)
-        }
-
-        GMMenu {
+        Self {
             title,
             items,
-            highlighted: 0,
-            effect_title,
-            effect_highlight,
-            effect_normal,
-            font,
+            selected: 0,
         }
-    }
-
-    pub fn set_item(&mut self, i: usize, text: &str) {
-        self.items[i].set_text(text)
-    }
-
-    pub fn get_highlighted(&self) -> usize {
-        self.highlighted
-    }
-
-    pub fn update(&mut self) {
-        self.effect_title.update();
-        self.effect_normal.update();
-        self.effect_highlight.update();
     }
 
     pub fn draw(&self) {
-        self.effect_title.draw(&self.title, &self.font);
-
-        for i in 0..self.items.len() {
-            let item = &self.items[i];
-            if i == self.highlighted {
-                self.effect_highlight.draw(item, &self.font);
-            } else {
-                self.effect_normal.draw(item, &self.font);
-            }
+        self.title.draw();
+        for item in self.items.iter() {
+            item.draw();
         }
     }
 
-    pub fn event(&mut self) {
+    pub fn update(&mut self) {
+        self.title.update();
+        for item in self.items.iter_mut() {
+            item.update();
+        }
+    }
+
+    pub fn event(&mut self) -> Option<usize>{
+        for item in self.items.iter_mut() {
+            item.event();
+        }
+
+        let first: usize = 0;
+        let last: usize = self.items.len() - 1;
+
         if is_key_pressed(KeyCode::Up) {
-            if self.highlighted == 0 {
-                self.highlighted = self.items.len() - 1;
+            self.items[self.selected].set_active(false);
+
+            if self.selected > first {
+                self.selected -= 1;
             } else {
-                self.highlighted -= 1;
+                self.selected = last;    
             }
+
+            self.items[self.selected].set_active(true);
         } else if is_key_pressed(KeyCode::Down) {
-            if self.highlighted == self.items.len() - 1 {
-                self.highlighted = 0;
+            self.items[self.selected].set_active(false);
+
+            if self.selected < last {
+                self.selected += 1;
             } else {
-                self.highlighted += 1;
+                self.selected = first;    
             }
+
+            self.items[self.selected].set_active(true);
+        }
+
+        if is_key_pressed(KeyCode::Enter) {
+            Some(self.selected)
+        } else {
+            None
         }
     }
 }
