@@ -9,10 +9,10 @@ pub struct GMSpriteSheet {
 }
 
 impl GMSpriteSheet {
-    pub async fn new(file_name: &str) -> Result<GMSpriteSheet, GMError> {
+    pub async fn new(file_name: &str) -> Result<Self, GMError> {
         let data = load_texture(file_name).await?;
 
-        let sprite_sheet = GMSpriteSheet {
+        let sprite_sheet = Self {
             data,
         };
 

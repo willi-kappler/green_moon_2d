@@ -115,6 +115,15 @@ impl GMMenuItemT for GMMenuItemNumeric {
     }
 }
 
+pub struct GMMenuItemEnum {
+    pub(crate) base: GMMenuItemStatic,
+    pub(crate) prefix: String,
+    pub(crate) items: Vec<String>,
+    pub(crate) current_item: usize,
+
+    // TODO: implement
+}
+
 pub struct GMMenu {
     pub(crate) title: Box<dyn GMTextT>,
     pub(crate) items: Vec<Box<dyn GMMenuItemT>>,

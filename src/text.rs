@@ -64,3 +64,43 @@ impl GMTextT for GMText {
         self.font = other.font;
     }
 }
+
+pub struct GMArrowText {
+    base: GMText,
+}
+
+impl GMArrowText {
+    pub fn new(text: &str, x: f32, y: f32, font: Rc<GMBitmapFont>) -> Self {
+        let arrow_text = format!("-> {} <-", text);
+        Self {
+            base: GMText::new(&arrow_text, x, y, font),
+        }
+    }
+}
+
+impl GMTextT for GMArrowText {
+    fn draw(&self) {
+        self.base.draw();
+    }
+
+    fn set_text(&mut self, text: &str) {
+        let arrow_text = format!("-> {} <-", text);
+        self.base.set_text(&arrow_text);
+    }
+
+    fn set_x(&mut self, x: f32) {
+        self.base.set_x(x);
+    }
+
+    fn set_y(&mut self, y: f32) {
+        self.base.set_y(y);
+    }
+
+    fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.base.set_font(font);
+    }
+
+    fn from_other(&mut self, other: GMText) {
+        self.base.from_other(other);
+    }
+}
