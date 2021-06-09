@@ -40,7 +40,7 @@ impl GMSprite {
             self.sheet.draw(&rect, self.x, self.y);
         }
     }
-    pub fn update(&self) {
+    pub fn update(&mut self) {
         if self.active {
             self.animation.next_frame();
         }
