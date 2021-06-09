@@ -81,7 +81,6 @@ impl GMMenuItemNumeric {
             step,
         }
     }
-
     pub fn update_text(&mut self) {
         let text = format!("{}: {}", self.prefix, self.current_val);
         self.base.set_text(&text);
@@ -92,19 +91,15 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn set_text(&mut self, text: &str) {
         self.base.set_text(text);
     }
-
     fn draw(&self) {
         self.base.draw();
     }
-
     fn update(&mut self) {
         self.base.update();
     }
-
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
-
     fn event(&mut self) {
         if is_key_pressed(KeyCode::Left) {
             self.current_val -= self.step;
@@ -145,7 +140,6 @@ impl GMMenuItemEnum {
             current_item,
         }
     }
-
     pub fn update_text(&mut self) {
         let text = format!("{}: {}", self.prefix, self.items[self.current_item]);
         self.base.set_text(&text);
@@ -156,19 +150,15 @@ impl GMMenuItemT for GMMenuItemEnum {
     fn set_text(&mut self, text: &str) {
         self.base.set_text(text);
     }
-
     fn draw(&self) {
         self.base.draw();
     }
-
     fn update(&mut self) {
         self.base.update();
     }
-
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
-
     fn event(&mut self) {
         let first = 0;
         let last = self.items.len() - 1;
@@ -189,7 +179,6 @@ impl GMMenuItemT for GMMenuItemEnum {
             self.update_text();
         }
     }
-
     fn get_value(&self) -> GMValue {
         GMValue::GMUSize(self.current_item)
     }
@@ -212,21 +201,18 @@ impl GMMenu {
             selected: 0,
         }
     }
-
     pub fn draw(&self) {
         self.title.draw();
         for item in self.items.iter() {
             item.draw();
         }
     }
-
     pub fn update(&mut self) {
         self.title.update();
         for item in self.items.iter_mut() {
             item.update();
         }
     }
-
     pub fn event(&mut self) -> Option<usize>{
         for item in self.items.iter_mut() {
             item.event();
@@ -263,7 +249,6 @@ impl GMMenu {
             None
         }
     }
-
     pub fn get_values(&self) -> Vec<GMValue> {
         self.items.iter().map(|item| item.get_value()).collect::<Vec<GMValue>>()
     }
