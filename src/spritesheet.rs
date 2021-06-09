@@ -5,7 +5,7 @@ use macroquad::color::colors;
 use macroquad::math::Rect;
 
 pub struct GMSpriteSheet {
-    data: Texture2D,
+    pub(crate) data: Texture2D,
 }
 
 impl GMSpriteSheet {
@@ -18,7 +18,6 @@ impl GMSpriteSheet {
 
         Ok(sprite_sheet)
     }
-
     pub fn draw(&self, source: &Rect, x: f32, y: f32) {
         let params = DrawTextureParams {
             source: Some(*source),

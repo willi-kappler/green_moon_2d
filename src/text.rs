@@ -46,46 +46,36 @@ impl GMTextT for GMStaticText {
             current_x += self.font.char_width;
         }
     }
-
     fn set_text(&mut self, text: &str) {
         self.data = text.to_string();
     }
-
     fn get_text(&self) -> &str {
         &self.data
     }
-
     fn set_x(&mut self, x: f32) {
         self.x = x;
     }
-
     fn get_x(&self) -> f32 {
         self.x
     }
-
     fn set_y(&mut self, y: f32) {
         self.y = y;
     }
-
     fn get_y(&self) -> f32 {
         self.y
     }
-
     fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
         self.font = font.clone();
     }
-
     fn get_font(&self) -> &Rc<GMBitmapFont> {
         &self.font
     }
-
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
         self.data = other.get_text().to_string();
         self.x = other.get_x();
         self.y = other.get_y();
         self.font = other.get_font().clone();
     }
-
     fn get_extend(&self) -> (f32, f32) {
         let mut text_width: f32 = 0.0;
         let mut text_height: f32 = 0.0;
@@ -100,11 +90,11 @@ impl GMTextT for GMStaticText {
     }
 }
 
-struct GMArrow {
-    text: GMStaticText,
-    min_x: f32,
-    max_x: f32,
-    step: f32,
+pub(crate) struct GMArrow {
+    pub(crate) text: GMStaticText,
+    pub(crate) min_x: f32,
+    pub(crate) max_x: f32,
+    pub(crate) step: f32,
 }
 
 impl GMArrow {
@@ -125,11 +115,9 @@ impl GMArrow {
 
         result
     }
-
     fn set_y(&mut self, y: f32) {
         self.text.set_y(y);
     }
-
     fn set_x(&mut self, base: &Box<dyn GMTextT>) {
         let base_x = base.get_x();
 
@@ -153,17 +141,14 @@ impl GMArrow {
             }
         }
     }
-
     fn change_all(&mut self, base: &Box<dyn GMTextT>) {
         self.text.set_font(base.get_font());
         self.set_x(base);
         self.set_y(base.get_y());
     }
-
     fn draw(&self) {
         self.text.draw();
     }
-
     fn update(&mut self) {
         if self.step > 0.0 {
             self.text.x += self.step;
@@ -182,9 +167,9 @@ impl GMArrow {
 }
 
 pub struct GMArrowText {
-    base: Box<dyn GMTextT>,
-    left_arrow: GMArrow,
-    right_arrow: GMArrow,
+    pub(crate) base: Box<dyn GMTextT>,
+    pub(crate) left_arrow: GMArrow,
+    pub(crate) right_arrow: GMArrow,
 }
 
 impl GMArrowText {
@@ -206,67 +191,56 @@ impl GMTextT for GMArrowText {
         self.left_arrow.draw();
         self.right_arrow.draw();
     }
-
     fn update(&mut self) {
         self.base.update();
         self.left_arrow.update();
         self.right_arrow.update();
     }
-
     fn set_text(&mut self, text: &str) {
         self.base.set_text(&text);
         self.right_arrow.set_x(&self.base);
     }
-
     fn get_text(&self) -> &str {
         self.base.get_text()
     }
-
     fn set_x(&mut self, x: f32) {
         self.base.set_x(x);
         self.left_arrow.set_x(&self.base);
         self.right_arrow.set_x(&self.base);
     }
-
     fn get_x(&self) -> f32 {
         self.base.get_x()
     }
-
     fn set_y(&mut self, y: f32) {
         self.base.set_y(y);
         self.right_arrow.set_y(y);
         self.left_arrow.set_y(y);
     }
-
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-
     fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
         self.base.set_font(font);
         self.left_arrow.change_all(&self.base);
         self.right_arrow.change_all(&self.base);
     }
-
     fn get_font(&self) -> &Rc<GMBitmapFont> {
         self.base.get_font()
     }
-
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
         self.base.from_other(other);
         self.left_arrow.change_all(&self.base);
         self.right_arrow.change_all(&self.base);
     }
-
     fn get_extend(&self) -> (f32, f32) {
         self.base.get_extend()
     }
 }
 
 pub struct GMSpriteText {
-    base: Box<dyn GMTextT>,
-    left_sprite: GMSprite,
-    right_sprite: GMSprite,
+    pub(crate) base: Box<dyn GMTextT>,
+    pub(crate) left_sprite: GMSprite,
+    pub(crate) right_sprite: GMSprite,
 }
 
 impl GMSpriteText {
@@ -279,5 +253,18 @@ impl GMSpriteText {
             left_sprite,
             right_sprite,
         }
+    }
+}
+
+impl GMTextT for GMSpriteText {
+    fn draw(&self) {
+        self.base.draw();
+        self.left_sprite.draw();
+        self.right_sprite.draw();
+    }
+    fn update(&mut self) {
+        self.base.update();
+        self.left_sprite.update();
+        self.right_sprite.update();
     }
 }
