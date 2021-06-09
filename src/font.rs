@@ -8,6 +8,7 @@ use macroquad::math::Rect;
 
 pub trait GMFontT {
     fn draw(&self, c: char, x: f32, y: f32);
+    fn get_extend(&self, c: char) -> (f32, f32);
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -57,5 +58,9 @@ impl GMFontT for GMBitmapFont {
         };
 
         draw_texture_ex(self.data, x, y, colors::BLANK, params);
+    }
+
+    fn get_extend(&self, c: char) -> (f32, f32) {
+        (self.char_width, self.char_height)
     }
 }
