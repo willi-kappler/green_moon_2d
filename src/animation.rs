@@ -7,6 +7,7 @@ pub trait GMAnimationT {
     fn resume(&mut self);
     fn next_frame(&mut self);
     fn get_rect(&self) -> Rect;
+    fn clone_animation(&self) -> Box<dyn GMAnimationT>;
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -23,20 +24,16 @@ impl GMAnimationBase {
         self.active = true;
         self.start_time = get_time();
     }
-
     fn pause(&mut self) {
         self.active = false;
     }
-
     fn resume(&mut self) {
         self.active = true;
         self.start_time = get_time();
     }
-
     fn get_rect(&self) -> Rect {
         self.frames[self.current_frame].0
     }
-
     fn check_frame(&mut self) -> bool {
         if !self.active {
             return true
@@ -80,15 +77,12 @@ impl GMAnimationT for GMAnimationForwardOnce {
     fn start(&mut self) {
         self.base.start()
     }
-
     fn pause(&mut self) {
         self.base.pause()
     }
-
     fn resume(&mut self) {
         self.base.resume()
     }
-
     fn next_frame(&mut self) {
         if self.base.check_frame() {
             return
@@ -101,6 +95,9 @@ impl GMAnimationT for GMAnimationForwardOnce {
 
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
+    }
+    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
+         Box::new(self.clone())
     }
 }
 
@@ -131,15 +128,12 @@ impl GMAnimationT for GMAnimationForwardLoop {
     fn start(&mut self) {
         self.base.start()
     }
-
     fn pause(&mut self) {
         self.base.pause()
     }
-
     fn resume(&mut self) {
         self.base.resume()
     }
-
     fn next_frame(&mut self) {
         if self.base.check_frame() {
             return
@@ -151,10 +145,12 @@ impl GMAnimationT for GMAnimationForwardLoop {
             self.base.current_frame = 0;
         }
     }
-
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
+        Box::new(self.clone())
+   }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -182,15 +178,12 @@ impl GMAnimationT for GMAnimationBackwardOnce {
     fn start(&mut self) {
         self.base.start()
     }
-
     fn pause(&mut self) {
         self.base.pause()
     }
-
     fn resume(&mut self) {
         self.base.resume()
     }
-
     fn next_frame(&mut self) {
         if self.base.check_frame() {
             return
@@ -200,10 +193,12 @@ impl GMAnimationT for GMAnimationBackwardOnce {
             self.base.current_frame -= 1;
         }
     }
-
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
+        Box::new(self.clone())
+   }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -231,15 +226,12 @@ impl GMAnimationT for GMAnimationBackwardLoop {
     fn start(&mut self) {
         self.base.start()
     }
-
     fn pause(&mut self) {
         self.base.pause()
     }
-
     fn resume(&mut self) {
         self.base.resume()
     }
-
     fn next_frame(&mut self) {
         if self.base.check_frame() {
             return
@@ -251,10 +243,12 @@ impl GMAnimationT for GMAnimationBackwardLoop {
             self.base.current_frame = self.base.frames.len() - 1;
         }
     }
-
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
+        Box::new(self.clone())
+   }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -285,15 +279,12 @@ impl GMAnimationT for GMAnimationPingPong {
         self.base.start();
         self.forward = true;
     }
-
     fn pause(&mut self) {
         self.base.pause()
     }
-
     fn resume(&mut self) {
         self.base.resume()
     }
-
     fn next_frame(&mut self) {
         if self.base.check_frame() {
             return
@@ -313,8 +304,10 @@ impl GMAnimationT for GMAnimationPingPong {
             }
         }
     }
-
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
+        Box::new(self.clone())
+   }
 }
