@@ -1,4 +1,5 @@
 use crate::font::{GMBitmapFont, GMFontT};
+use crate::sprite::GMSprite;
 
 use std::rc::Rc;
 
@@ -259,5 +260,24 @@ impl GMTextT for GMArrowText {
 
     fn get_extend(&self) -> (f32, f32) {
         self.base.get_extend()
+    }
+}
+
+pub struct GMSpriteText {
+    base: Box<dyn GMTextT>,
+    left_sprite: GMSprite,
+    right_sprite: GMSprite,
+}
+
+impl GMSpriteText {
+    pub fn new(base: Box<dyn GMTextT>, sprite: GMSprite) -> Self {
+        let left_sprite = sprite.clone_sprite();
+        let right_sprite = sprite;
+
+        Self {
+            base,
+            left_sprite,
+            right_sprite,
+        }
     }
 }
