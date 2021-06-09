@@ -60,7 +60,7 @@ impl GMFontT for GMBitmapFont {
         draw_texture_ex(self.data, x, y, colors::BLANK, params);
     }
 
-    fn get_extend(&self, c: char) -> (f32, f32) {
+    fn get_extend(&self, _c: char) -> (f32, f32) {
         (self.char_width, self.char_height)
     }
 }
