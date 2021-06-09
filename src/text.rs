@@ -267,4 +267,39 @@ impl GMTextT for GMSpriteText {
         self.left_sprite.update();
         self.right_sprite.update();
     }
+
+    fn set_text(&mut self, text: &str) {
+        self.base.set_text(text);
+    }
+    fn get_text(&self) -> &str {
+        self.base.get_text()
+    }
+    fn set_x(&mut self, x: f32) {
+        self.base.set_x(x);
+        // TODO: update sprites
+    }
+    fn get_x(&self) -> f32 {
+        self.base.get_x()
+    }
+    fn set_y(&mut self, y: f32) {
+        self.base.set_y(y);
+        // TODO: update sprites
+    }
+    fn get_y(&self) -> f32 {
+        self.base.get_y()
+    }
+    fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+        self.base.set_font(font);
+        // TODO: update right sprite
+    }
+    fn get_font(&self) -> &Rc<GMBitmapFont> {
+        self.base.get_font()
+    }
+    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+        self.base.from_other(other);
+        // TODO: update sprites
+    }
+    fn get_extend(&self) -> (f32, f32) {
+        self.base.get_extend()
+    }
 }
