@@ -248,11 +248,31 @@ impl GMSpriteText {
         let left_sprite = sprite.clone_sprite();
         let right_sprite = sprite;
 
-        Self {
+        let mut result = Self {
             base,
             left_sprite,
             right_sprite,
-        }
+        };
+
+        result.change_x(result.base.get_x());
+        result.change_y(result.base.get_y());
+
+        result
+    }
+    fn change_x(&mut self, x: f32) {
+        let (text_width, _) = self.base.get_extend();
+        let (sprite_width, _) = self.left_sprite.get_extend();
+        let left_x = x - 10.0 - sprite_width;
+        let right_x = x + text_width + 10.0;
+        self.left_sprite.set_x(left_x);
+        self.right_sprite.set_x(right_x);
+    }
+    fn change_y(&mut self, y: f32) {
+        let (_, text_height) = self.base.get_extend();
+        let (_, sprite_height) = self.left_sprite.get_extend();
+        let new_y = y + (text_height / 2.0) - (sprite_height / 2.0);
+        self.left_sprite.set_y(new_y);
+        self.right_sprite.set_y(new_y);
     }
 }
 
@@ -270,34 +290,37 @@ impl GMTextT for GMSpriteText {
 
     fn set_text(&mut self, text: &str) {
         self.base.set_text(text);
+        self.change_x(self.base.get_x());
     }
     fn get_text(&self) -> &str {
         self.base.get_text()
     }
     fn set_x(&mut self, x: f32) {
         self.base.set_x(x);
-        // TODO: update sprites
+        self.change_x(x);
     }
     fn get_x(&self) -> f32 {
         self.base.get_x()
     }
     fn set_y(&mut self, y: f32) {
         self.base.set_y(y);
-        // TODO: update sprites
+        self.change_y(y);
     }
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
     fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
         self.base.set_font(font);
-        // TODO: update right sprite
+        self.change_x(self.base.get_x());
+        self.change_y(self.base.get_y());
     }
     fn get_font(&self) -> &Rc<GMBitmapFont> {
         self.base.get_font()
     }
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
         self.base.from_other(other);
-        // TODO: update sprites
+        self.change_x(self.base.get_x());
+        self.change_y(self.base.get_y());
     }
     fn get_extend(&self) -> (f32, f32) {
         self.base.get_extend()

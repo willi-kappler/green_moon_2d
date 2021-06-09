@@ -45,4 +45,14 @@ impl GMSprite {
             self.animation.next_frame();
         }
     }
+    pub fn get_extend(&self) -> (f32, f32) {
+        let rect = self.animation.get_rect();
+        (rect.w, rect.h)
+    }
+    pub fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    pub fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
 }
