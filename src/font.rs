@@ -1,6 +1,7 @@
 use crate::error::GMError;
 
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTextureParams};
 use macroquad::color::colors;
@@ -46,7 +47,9 @@ impl GMBitmapFont {
 
         Ok(font)
     }
-
+    pub async fn new_rc(file_name: &str, char_width: f32, char_height: f32, char_order: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+        Ok(Rc::new(Self::new(file_name, char_width, char_height, char_order).await?))
+    }
 }
 
 impl GMFontT for GMBitmapFont {

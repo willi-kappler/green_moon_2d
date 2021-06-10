@@ -1,9 +1,12 @@
 
-use crate::text::GMTextT;
+use crate::font::GMFontT;
+use crate::text::{GMTextT, GMStaticText, GMArrowText};
 use crate::value::GMValue;
 
 // use macroquad::window::{screen_width};
 use macroquad::input::{is_key_pressed, KeyCode};
+
+use std::rc::Rc;
 
 pub trait GMMenuItemT {
     fn set_text(&mut self, text: &str);
@@ -209,6 +212,27 @@ impl GMMenu {
             items,
             selected: 0,
         }
+    }
+    pub fn new_simple(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>) -> Self {
+        let mut current_y = y;
+
+        let title = GMStaticText::new_box(title, x, y, &font);
+        let mut menu_items = Vec::new();
+        let (_, font_height) = font.get_extend('A');
+        current_y += font_height * 2.0;
+
+        for item in items.iter() {
+            let inactive = GMStaticText::new_box(item, x, current_y, &font);
+            let active = GMStaticText::new_box(item, x, current_y, &font);
+            let active = GMArrowText::new_box(active);
+            let menu_item = GMMenuItemStatic::new_box(inactive, active);
+
+            menu_items.push(menu_item);
+
+            current_y += font_height + 4.0;
+        }
+
+        GMMenu::new(title, menu_items)
     }
     pub fn draw(&self) {
         self.title.draw();
