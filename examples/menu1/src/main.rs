@@ -7,7 +7,7 @@ use macroquad::prelude::*;
 
 use std::rc::Rc;
 
-fn make_menu(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<GMBitmapFont>) -> GMMenu {
+fn make_menu(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>) -> GMMenu {
     let mut current_y = y;
 
     let title = GMStaticText::new_box(title, x, y, &font);
@@ -32,7 +32,7 @@ fn make_menu(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<GMBitmapFont
 #[macroquad::main("Menu1")]
 async fn main() -> Result<(), GMError> {
     let font = GMBitmapFont::new("../assets/gfx/fonts/cuddly.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- ").await?;
-    let font = Rc::new(font);
+    let font: Rc<dyn GMFontT> = Rc::new(font);
 
     let items = ["START", "CONTROLS", "GFX OPTIONS", "SFX OPTIONS", "HIGH SCORE", "CREDITS", "EXIT"];
     let mut main_menu = make_menu(200.0, 100.0, "MAIN MENU", &items, &font);
