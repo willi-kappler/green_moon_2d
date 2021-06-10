@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Willi Kappler <grandor@gmx.de>"]
 license = "MIT"
 repository = "https://github.com/willi-kappler/green_moon_2d"
-description = "2D game engine"
+description = "2D game library"
 readme = "README.md"
 exclude = ["target"]
 keywords = ["2d", "Game", "Engine"]
@@ -13,6 +13,7 @@ edition = "2018"
 
 [dependencies]
 green_moon_2d = { path = "../../", version = "0.1.0" }
+macroquad = "0.3.4"
 
 [profile.release]
 lto = true
