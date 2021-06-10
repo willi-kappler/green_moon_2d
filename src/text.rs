@@ -1,4 +1,4 @@
-use crate::font::{GMBitmapFont, GMFontT};
+use crate::font::{GMFontT};
 use crate::sprite::GMSprite;
 
 use std::rc::Rc;
@@ -13,8 +13,8 @@ pub trait GMTextT {
     fn get_x(&self) -> f32;
     fn set_y(&mut self, y: f32);
     fn get_y(&self) -> f32;
-    fn set_font(&mut self, font: &Rc<GMBitmapFont>);
-    fn get_font(&self) -> &Rc<GMBitmapFont>;
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>);
+    fn get_font(&self) -> &Rc<dyn GMFontT>;
     fn from_other(&mut self, other: Box<dyn GMTextT>);
     fn get_extend(&self) -> (f32, f32);
 }
@@ -23,11 +23,11 @@ pub struct GMStaticText {
     pub(crate) data: String,
     pub(crate) x: f32,
     pub(crate) y: f32,
-    pub(crate) font: Rc<GMBitmapFont>,
+    pub(crate) font: Rc<dyn GMFontT>,
 }
 
 impl GMStaticText {
-    pub fn new(text: &str, x: f32, y: f32, font: &Rc<GMBitmapFont>) -> Self {
+    pub fn new(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Self {
         Self {
             data: text.to_string(),
             x,
@@ -35,7 +35,7 @@ impl GMStaticText {
             font: font.clone(),
         }
     }
-    pub fn new_box(text: &str, x: f32, y: f32, font: &Rc<GMBitmapFont>) -> Box<dyn GMTextT> {
+    pub fn new_box(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMTextT> {
         Box::new(Self::new(text, x, y, font))
     }
 }
@@ -46,7 +46,8 @@ impl GMTextT for GMStaticText {
 
         for c in self.data.chars() {
             self.font.draw(c, current_x, self.y);
-            current_x += self.font.char_width;
+            let (char_width, _) = self.font.get_extend(c);
+            current_x += char_width;
         }
     }
     fn set_text(&mut self, text: &str) {
@@ -67,10 +68,10 @@ impl GMTextT for GMStaticText {
     fn get_y(&self) -> f32 {
         self.y
     }
-    fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.font = font.clone();
     }
-    fn get_font(&self) -> &Rc<GMBitmapFont> {
+    fn get_font(&self) -> &Rc<dyn GMFontT> {
         &self.font
     }
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
@@ -225,12 +226,12 @@ impl GMTextT for GMArrowText {
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-    fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
         self.left_arrow.change_all(&self.base);
         self.right_arrow.change_all(&self.base);
     }
-    fn get_font(&self) -> &Rc<GMBitmapFont> {
+    fn get_font(&self) -> &Rc<dyn GMFontT> {
         self.base.get_font()
     }
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
@@ -318,12 +319,12 @@ impl GMTextT for GMSpriteText {
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-    fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
         self.change_x(self.base.get_x());
         self.change_y(self.base.get_y());
     }
-    fn get_font(&self) -> &Rc<GMBitmapFont> {
+    fn get_font(&self) -> &Rc<dyn GMFontT> {
         self.base.get_font()
     }
     fn from_other(&mut self, other: Box<dyn GMTextT>) {
