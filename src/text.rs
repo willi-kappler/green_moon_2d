@@ -35,6 +35,9 @@ impl GMStaticText {
             font: font.clone(),
         }
     }
+    pub fn new_box(text: &str, x: f32, y: f32, font: &Rc<GMBitmapFont>) -> Box<dyn GMTextT> {
+        Box::new(Self::new(text, x, y, font))
+    }
 }
 
 impl GMTextT for GMStaticText {
@@ -183,6 +186,9 @@ impl GMArrowText {
             right_arrow,
         }
     }
+    pub fn new_box(base: Box<dyn GMTextT>) -> Box<dyn GMTextT> {
+        Box::new(Self::new(base))
+    }
 }
 
 impl GMTextT for GMArrowText {
@@ -258,6 +264,9 @@ impl GMSpriteText {
         result.change_y(result.base.get_y());
 
         result
+    }
+    pub fn new_box(base: Box<dyn GMTextT>, sprite: GMSprite) -> Box<dyn GMTextT> {
+        Box::new(Self::new(base, sprite))
     }
     fn change_x(&mut self, x: f32) {
         let (text_width, _) = self.base.get_extend();

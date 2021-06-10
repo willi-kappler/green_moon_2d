@@ -31,6 +31,9 @@ impl GMMenuItemStatic {
             active: false,
         }
     }
+    pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>) -> Box<dyn GMMenuItemT> {
+        Box::new(Self::new(inactive_text, active_text))
+    }
 }
 
 impl GMMenuItemT for GMMenuItemStatic {
@@ -80,6 +83,9 @@ impl GMMenuItemNumeric {
             current_val,
             step,
         }
+    }
+    pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
+        Box::new(Self::new(inactive_text, active_text, prefix, min_val, max_val, current_val, step))
     }
     pub fn update_text(&mut self) {
         let text = format!("{}: {}", self.prefix, self.current_val);
@@ -139,6 +145,9 @@ impl GMMenuItemEnum {
             items,
             current_item,
         }
+    }
+    pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: Vec<String>, current_item: usize) -> Box<dyn GMMenuItemT> {
+        Box::new(Self::new(inactive_text, active_text, prefix, items, current_item))
     }
     pub fn update_text(&mut self) {
         let text = format!("{}: {}", self.prefix, self.items[self.current_item]);
