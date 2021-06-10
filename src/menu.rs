@@ -47,9 +47,9 @@ impl GMMenuItemT for GMMenuItemStatic {
     }
     fn update(&mut self) {
         if self.active {
-            self.active_text.draw();
+            self.active_text.update();
         } else {
-            self.inactive_text.draw();
+            self.inactive_text.update();
         }
     }
     fn set_active(&mut self, active: bool) {
