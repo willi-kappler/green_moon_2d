@@ -157,7 +157,7 @@ impl GMArrow {
                 self.step = -self.step;
             }
         } else {
-            self.text.x -= self.step;
+            self.text.x += self.step;
             if self.text.x < self.min_x {
                 self.text.x = self.min_x;
                 self.step = -self.step;
@@ -175,7 +175,7 @@ pub struct GMArrowText {
 impl GMArrowText {
     pub fn new(base: Box<dyn GMTextT>) -> Self {
         let left_arrow = GMArrow::new("->", &base);
-        let right_arrow = GMArrow::new("->", &base);
+        let right_arrow = GMArrow::new("<-", &base);
 
         Self {
             base,

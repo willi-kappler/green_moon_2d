@@ -31,7 +31,7 @@ impl GMBitmapFont {
             mapping.insert(c, Rect::new(current_x, current_y, char_width, char_height));
 
             current_x += char_width;
-            if current_x > data.width() {
+            if current_x >= data.width() {
                 current_x = 0.0;
                 current_y += char_height;
             }
@@ -57,7 +57,7 @@ impl GMFontT for GMBitmapFont {
             source, .. Default::default()
         };
 
-        draw_texture_ex(self.data, x, y, colors::BLANK, params);
+        draw_texture_ex(self.data, x, y, colors::WHITE, params);
     }
     fn get_extend(&self, _c: char) -> (f32, f32) {
         (self.char_width, self.char_height)

@@ -24,6 +24,6 @@ impl GMSpriteSheet {
             .. Default::default()
         };
 
-        draw_texture_ex(self.data, x, y, colors::BLANK, params);
+        draw_texture_ex(self.data, x, y, colors::WHITE, params);
     }
 }
