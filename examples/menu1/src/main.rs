@@ -10,20 +10,20 @@ use std::rc::Rc;
 fn make_menu(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<GMBitmapFont>) -> GMMenu {
     let mut current_y = y;
 
-    let title = Box::new(GMStaticText::new(title, x, y, &font));
+    let title = GMStaticText::new_box(title, x, y, &font);
     let mut menu_items = Vec::new();
     let (_, font_height) = font.get_extend('A');
     current_y += font_height * 2.0;
 
     for item in items.iter() {
-        let inactive = Box::new(GMStaticText::new(item, x, current_y, &font));
-        let active = Box::new(GMStaticText::new(item, x, current_y, &font));
-        let active = Box::new(GMArrowText::new(active));
-        let menu_item: Box<dyn GMMenuItemT> = Box::new(GMMenuItemStatic::new(inactive, active));
+        let inactive = GMStaticText::new_box(item, x, current_y, &font);
+        let active = GMStaticText::new_box(item, x, current_y, &font);
+        let active = GMArrowText::new_box(active);
+        let menu_item = GMMenuItemStatic::new_box(inactive, active);
 
         menu_items.push(menu_item);
 
-        current_y += font_height + 2.0;
+        current_y += font_height + 4.0;
     }
 
     GMMenu::new(title, menu_items)
