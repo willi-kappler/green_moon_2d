@@ -4,6 +4,7 @@ use crate::error::GMError;
 use macroquad::audio::{Sound, load_sound, play_sound, stop_sound, set_sound_volume, PlaySoundParams};
 
 use std::cell::Cell;
+use std::rc::Rc;
 
 pub struct GMSound {
     pub(crate) data: Sound,
@@ -20,6 +21,10 @@ impl GMSound {
             volume: Cell::new(1.0),
         };
         Ok(sound)
+    }
+    pub async fn new_rc(file_name: &str) -> Result<Rc<Self>, GMError> {
+        let sound = Self::new(file_name).await?;
+        Ok(Rc::new(sound))
     }
     pub fn play(&self) {
         let params = PlaySoundParams { looped: self.looped.get(), volume: self.volume.get() };
