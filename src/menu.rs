@@ -2,6 +2,7 @@
 use crate::font::GMFontT;
 use crate::text::{GMTextT, GMStaticText, GMArrowText};
 use crate::value::GMValue;
+use crate::sound::GMSound;
 
 // use macroquad::window::{screen_width};
 use macroquad::input::{is_key_pressed, KeyCode};
@@ -200,20 +201,24 @@ pub struct GMMenu {
     pub(crate) title: Box<dyn GMTextT>,
     pub(crate) items: Vec<Box<dyn GMMenuItemT>>,
     pub(crate) selected: usize,
+    pub(crate) change_sound: Rc<GMSound>,
+    pub(crate) enter_sound: Rc<GMSound>,
     // TODO: Maybe fancy border ?
 }
 
 impl GMMenu {
-    pub fn new(title: Box<dyn GMTextT>, mut items: Vec<Box<dyn GMMenuItemT>>) -> Self {
+    pub fn new(title: Box<dyn GMTextT>, mut items: Vec<Box<dyn GMMenuItemT>>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         items[0].set_active(true);
 
         Self {
             title,
             items,
             selected: 0,
+            change_sound: change_sound.clone(),
+            enter_sound: enter_sound.clone(),
         }
     }
-    pub fn new_simple(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>) -> Self {
+    pub fn new_simple(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
         let title = GMStaticText::new_box(title, x, y, &font);
@@ -232,7 +237,7 @@ impl GMMenu {
             current_y += font_height + 4.0;
         }
 
-        GMMenu::new(title, menu_items)
+        GMMenu::new(title, menu_items, change_sound, enter_sound)
     }
     pub fn draw(&self) {
         self.title.draw();
@@ -256,6 +261,8 @@ impl GMMenu {
 
         if is_key_pressed(KeyCode::Up) {
             self.items[self.selected].set_active(false);
+            self.change_sound.stop();
+            self.change_sound.play();
 
             if self.selected > first {
                 self.selected -= 1;
@@ -266,6 +273,8 @@ impl GMMenu {
             self.items[self.selected].set_active(true);
         } else if is_key_pressed(KeyCode::Down) {
             self.items[self.selected].set_active(false);
+            self.change_sound.stop();
+            self.change_sound.play();
 
             if self.selected < last {
                 self.selected += 1;
@@ -277,6 +286,8 @@ impl GMMenu {
         }
 
         if is_key_pressed(KeyCode::Enter) {
+            self.change_sound.stop();
+            self.enter_sound.play();
             Some(self.selected)
         } else {
             None
