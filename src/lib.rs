@@ -2,6 +2,7 @@ pub mod animation;
 pub mod error;
 pub mod font;
 pub mod menu;
+pub mod person;
 pub mod sound;
 pub mod sprite;
 pub mod spritesheet;
