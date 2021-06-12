@@ -1,16 +1,20 @@
 use green_moon_2d::menu::GMMenu;
-use green_moon_2d::font::GMBitmapFont;
+use green_moon_2d::font::{GMBitmapFont, GMFontT};
 use green_moon_2d::error::GMError;
 use green_moon_2d::sound::GMSound;
 
 use macroquad::prelude::*;
 
+use std::rc::Rc;
 use std::thread;
 use std::time::Duration;
 
 #[macroquad::main("Menu1")]
 async fn main() -> Result<(), GMError> {
-    let font = GMBitmapFont::new_rc("../assets/gfx/fonts/cuddly.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- ").await?;
+    let mut font = GMBitmapFont::new("../assets/gfx/fonts/cuddly.png").await?;
+    font.set_mapping_fixed(32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- ");
+    let font: Rc<dyn GMFontT> = Rc::new(font);
+
     let change_sound = GMSound::new_rc("../assets/sfx/change1.ogg").await?;
     let enter_sound = GMSound::new_rc("../assets/sfx/enter1.ogg").await?;
 
