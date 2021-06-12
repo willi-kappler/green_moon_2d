@@ -14,14 +14,14 @@ pub enum GMOffscreenMode {
 }
 
 pub struct GMBulletFactory {
-    pub(crate) sprite_sheet: Rc<GMSpriteSheet>,
-    pub(crate) animation: Box<dyn GMAnimationT>,
-    pub(crate) explosion: Box<dyn GMAnimationT>,
-    pub(crate) max_bullets: usize,
-    pub(crate) delay: f64,
-    pub(crate) prev_time: f64,
-    pub(crate) offscreen_mode: GMOffscreenMode,
-    pub(crate) bullets: Vec<GMSprite>,
+    sprite_sheet: Rc<GMSpriteSheet>,
+    animation: Box<dyn GMAnimationT>,
+    explosion: Box<dyn GMAnimationT>,
+    max_bullets: usize,
+    delay: f64,
+    prev_time: f64,
+    offscreen_mode: GMOffscreenMode,
+    bullets: Vec<GMSprite>,
 }
 
 impl GMBulletFactory {
@@ -69,7 +69,7 @@ impl GMBulletFactory {
         for bullet in self.bullets.iter_mut() {
             bullet.update();
 
-            if bullet.state_id == 0 {
+            if bullet.get_state_id() == 0 {
                 match self.offscreen_mode {
                     Keep => {
                         // Nothing to do, just keep moving the bullet...
@@ -90,13 +90,13 @@ impl GMBulletFactory {
             }
         }
 
-        self.bullets.retain(|bullet| bullet.active );
+        self.bullets.retain(|bullet| bullet.get_active() );
     }
     pub fn collides_single(&mut self, other: &GMSprite) -> bool {
         let mut result = false;
 
         for bullet in self.bullets.iter_mut() {
-            if bullet.state_id == 0 {
+            if bullet.get_state_id() == 0 {
                 if other.collides_with(bullet) {
                     result = true;
                     bullet.set_vx(0.0);

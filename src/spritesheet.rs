@@ -5,7 +5,7 @@ use macroquad::color::colors;
 use macroquad::math::Rect;
 
 pub struct GMSpriteSheet {
-    pub(crate) data: Texture2D,
+    data: Texture2D,
 }
 
 impl GMSpriteSheet {

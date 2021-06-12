@@ -21,15 +21,15 @@ pub fn in_rect(x1: f32, x2: f32, y1: f32, y2: f32, xp: f32, yp: f32) -> bool {
 }
 
 pub struct GMSprite {
-    pub(crate) sheet: Rc<GMSpriteSheet>,
-    pub(crate) animation: Box<dyn GMAnimationT>,
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-    pub(crate) vx: f32,
-    pub(crate) vy: f32,
-    pub(crate) active: bool,
-    pub(crate) collision_shape: GMCollisionShape,
-    pub(crate) state_id: u32,
+    sheet: Rc<GMSpriteSheet>,
+    animation: Box<dyn GMAnimationT>,
+    x: f32,
+    y: f32,
+    vx: f32,
+    vy: f32,
+    active: bool,
+    collision_shape: GMCollisionShape,
+    state_id: u32,
 }
 
 impl GMSprite {
@@ -78,6 +78,12 @@ impl GMSprite {
     pub fn get_extend(&self) -> (f32, f32) {
         let rect = self.animation.get_rect();
         (rect.w, rect.h)
+    }
+    pub fn get_state_id(&self) -> u32 {
+        self.state_id
+    }
+    pub fn get_active(&self) -> bool {
+        self.active
     }
     pub fn collides_with(&self, other: &GMSprite) -> bool {
         if !self.active {

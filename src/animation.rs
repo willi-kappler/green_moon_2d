@@ -13,10 +13,10 @@ pub trait GMAnimationT {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMAnimationBase {
-    pub(crate) frames: Vec<(Rect, f64)>,
-    pub(crate) current_frame: usize,
-    pub(crate) start_time: f64,
-    pub(crate) active: bool,
+    frames: Vec<(Rect, f64)>,
+    current_frame: usize,
+    start_time: f64,
+    active: bool,
 }
 
 impl GMAnimationBase {

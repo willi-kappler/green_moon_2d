@@ -8,8 +8,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 pub struct GMTileSet {
-    pub(crate) data: Texture2D,
-    pub(crate) mapping: HashMap<u32, Rect>,
+    data: Texture2D,
+    mapping: HashMap<u32, Rect>,
 }
 
 impl GMTileSet {

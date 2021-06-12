@@ -4,10 +4,10 @@ use crate::tileset::GMTileSet;
 use std::rc::Rc;
 
 pub struct GMTileMap {
-    pub(crate) tile_set: Rc<GMTileSet>,
-    pub(crate) map: Vec<u32>,
-    pub(crate) width: u32,
-    pub(crate) height: u32,
+    tile_set: Rc<GMTileSet>,
+    map: Vec<u32>,
+    width: u32,
+    height: u32,
 }
 
 impl GMTileMap {

@@ -20,10 +20,10 @@ pub trait GMTextT {
 }
 
 pub struct GMStaticText {
-    pub(crate) data: String,
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-    pub(crate) font: Rc<dyn GMFontT>,
+    data: String,
+    x: f32,
+    y: f32,
+    font: Rc<dyn GMFontT>,
 }
 
 impl GMStaticText {
@@ -95,10 +95,10 @@ impl GMTextT for GMStaticText {
 }
 
 pub(crate) struct GMArrow {
-    pub(crate) text: GMStaticText,
-    pub(crate) min_x: f32,
-    pub(crate) max_x: f32,
-    pub(crate) step: f32,
+    text: GMStaticText,
+    min_x: f32,
+    max_x: f32,
+    step: f32,
 }
 
 impl GMArrow {
@@ -171,9 +171,9 @@ impl GMArrow {
 }
 
 pub struct GMArrowText {
-    pub(crate) base: Box<dyn GMTextT>,
-    pub(crate) left_arrow: GMArrow,
-    pub(crate) right_arrow: GMArrow,
+    base: Box<dyn GMTextT>,
+    left_arrow: GMArrow,
+    right_arrow: GMArrow,
 }
 
 impl GMArrowText {
@@ -245,9 +245,9 @@ impl GMTextT for GMArrowText {
 }
 
 pub struct GMSpriteText {
-    pub(crate) base: Box<dyn GMTextT>,
-    pub(crate) left_sprite: GMSprite,
-    pub(crate) right_sprite: GMSprite,
+    base: Box<dyn GMTextT>,
+    left_sprite: GMSprite,
+    right_sprite: GMSprite,
 }
 
 impl GMSpriteText {

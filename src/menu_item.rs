@@ -18,9 +18,9 @@ pub trait GMMenuItemT {
 }
 
 pub struct GMMenuItemStatic {
-    pub(crate) inactive_text: Box<dyn GMTextT>,
-    pub(crate) active_text: Box<dyn GMTextT>,
-    pub(crate) active: bool,
+    inactive_text: Box<dyn GMTextT>,
+    active_text: Box<dyn GMTextT>,
+    active: bool,
 }
 
 impl GMMenuItemStatic {
@@ -61,12 +61,12 @@ impl GMMenuItemT for GMMenuItemStatic {
 }
 
 pub struct GMMenuItemNumeric {
-    pub(crate) base: GMMenuItemStatic,
-    pub(crate) prefix: String,
-    pub(crate) min_val: f32,
-    pub(crate) max_val: f32,
-    pub(crate) current_val: f32,
-    pub(crate) step: f32,
+    base: GMMenuItemStatic,
+    prefix: String,
+    min_val: f32,
+    max_val: f32,
+    current_val: f32,
+    step: f32,
 }
 
 impl GMMenuItemNumeric {
@@ -127,10 +127,10 @@ impl GMMenuItemT for GMMenuItemNumeric {
 }
 
 pub struct GMMenuItemEnum {
-    pub(crate) base: GMMenuItemStatic,
-    pub(crate) prefix: String,
-    pub(crate) items: Vec<String>,
-    pub(crate) current_item: usize,
+    base: GMMenuItemStatic,
+    prefix: String,
+    items: Vec<String>,
+    current_item: usize,
 }
 
 impl GMMenuItemEnum {

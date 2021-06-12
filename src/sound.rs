@@ -7,9 +7,9 @@ use std::cell::Cell;
 use std::rc::Rc;
 
 pub struct GMSound {
-    pub(crate) data: Sound,
-    pub(crate) looped: Cell<bool>,
-    pub(crate) volume: Cell<f32>,
+    data: Sound,
+    looped: Cell<bool>,
+    volume: Cell<f32>,
 }
 
 impl GMSound {

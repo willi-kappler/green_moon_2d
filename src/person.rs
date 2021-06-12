@@ -7,9 +7,9 @@ pub trait GMHealthBarT {
 }
 
 pub struct GMPerson {
-    pub(crate) sprite: GMSprite,
-    pub(crate) health: u32,
-    pub(crate) health_bar: Box<dyn GMHealthBarT>,
+    sprite: GMSprite,
+    health: u32,
+    health_bar: Box<dyn GMHealthBarT>,
 }
 
 impl GMPerson {

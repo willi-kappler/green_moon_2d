@@ -11,11 +11,11 @@ use macroquad::input::{is_key_pressed, KeyCode};
 use std::rc::Rc;
 
 pub struct GMMenu {
-    pub(crate) title: Box<dyn GMTextT>,
-    pub(crate) items: Vec<Box<dyn GMMenuItemT>>,
-    pub(crate) selected: usize,
-    pub(crate) change_sound: Rc<GMSound>,
-    pub(crate) enter_sound: Rc<GMSound>,
+    title: Box<dyn GMTextT>,
+    items: Vec<Box<dyn GMMenuItemT>>,
+    selected: usize,
+    change_sound: Rc<GMSound>,
+    enter_sound: Rc<GMSound>,
     // TODO: Maybe fancy border ?
 }
 

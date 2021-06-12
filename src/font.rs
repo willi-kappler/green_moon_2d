@@ -14,8 +14,8 @@ pub trait GMFontT {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMBitmapFont {
-    pub(crate) data: Texture2D,
-    pub(crate) mapping: HashMap<char, Rect>,
+    data: Texture2D,
+    mapping: HashMap<char, Rect>,
 }
 
 impl GMBitmapFont {
