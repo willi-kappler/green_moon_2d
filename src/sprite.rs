@@ -27,9 +27,9 @@ pub struct GMSprite {
     pub(crate) y: f32,
     pub(crate) vx: f32,
     pub(crate) vy: f32,
-    pub(crate) visible: bool,
     pub(crate) active: bool,
     pub(crate) collision_shape: GMCollisionShape,
+    pub(crate) state_id: u32,
 }
 
 impl GMSprite {
@@ -41,9 +41,9 @@ impl GMSprite {
             y,
             vx: 0.0,
             vy: 0.0,
-            visible: true,
             active: true,
             collision_shape: GMCollisionShape::GMRectangle,
+            state_id: 0,
         }
     }
     pub fn clone_sprite(&self) -> Self {
@@ -54,29 +54,35 @@ impl GMSprite {
             y: self.y,
             vx: self.vx,
             vy: self.vy,
-            visible: self.visible,
             active: self.active,
             collision_shape: self.collision_shape,
+            state_id: self.state_id,
         }
     }
     pub fn draw(&self) {
-        if self.visible {
-            let rect = self.animation.get_rect();
-            self.sheet.draw(&rect, self.x, self.y);
+        if !self.active {
+            return
         }
+        let rect = self.animation.get_rect();
+        self.sheet.draw(&rect, self.x, self.y);
     }
     pub fn update(&mut self) {
-        if self.active {
-            self.animation.next_frame();
-            self.x += self.vx;
-            self.y += self.vy;
-            }
-    }
+        if !self.active {
+            return
+        }
+
+        self.animation.next_frame();
+        self.x += self.vx;
+        self.y += self.vy;
+}
     pub fn get_extend(&self) -> (f32, f32) {
         let rect = self.animation.get_rect();
         (rect.w, rect.h)
     }
     pub fn collides_with(&self, other: &GMSprite) -> bool {
+        if !self.active {
+            return false
+        }
         let (self_width, self_height) = self.get_extend();
         let (other_width, other_height) = other.get_extend();
 
@@ -152,6 +158,9 @@ impl GMSprite {
     pub fn set_collision_shape(&mut self, collision_shape: GMCollisionShape) {
         self.collision_shape = collision_shape;
     }
+    pub fn set_state_id(&mut self, state_id: u32) {
+        self.state_id = state_id;
+    }
     pub fn is_offscreen(&self) -> bool {
         let (width, height) = self.get_extend();
 
@@ -183,5 +192,8 @@ impl GMSprite {
         } else if self.y > screen_h {
             self.y = self.y - y2;
         }
+    }
+    pub fn animation_finished(&self) -> bool {
+        self.animation.finished()
     }
 }

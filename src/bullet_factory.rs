@@ -16,6 +16,7 @@ pub enum GMOffscreenMode {
 pub struct GMBulletFactory {
     pub(crate) sprite_sheet: Rc<GMSpriteSheet>,
     pub(crate) animation: Box<dyn GMAnimationT>,
+    pub(crate) explosion: Box<dyn GMAnimationT>,
     pub(crate) max_bullets: usize,
     pub(crate) delay: f64,
     pub(crate) prev_time: f64,
@@ -24,10 +25,11 @@ pub struct GMBulletFactory {
 }
 
 impl GMBulletFactory {
-    pub fn new(sprite_sheet: &Rc<GMSpriteSheet>, animation: Box<dyn GMAnimationT>, max_bullets: usize) -> Self {
+    pub fn new(sprite_sheet: &Rc<GMSpriteSheet>, animation: Box<dyn GMAnimationT>, explosion: Box<dyn GMAnimationT>, max_bullets: usize) -> Self {
         Self {
             sprite_sheet: sprite_sheet.clone(),
             animation,
+            explosion,
             max_bullets,
             delay: 0.0,
             prev_time: 0.0,
@@ -67,17 +69,23 @@ impl GMBulletFactory {
         for bullet in self.bullets.iter_mut() {
             bullet.update();
 
-            match self.offscreen_mode {
-                Keep => {
-                    // Nothing to do, just keep moving the bullet...
-                }
-                Destroy => {
-                    if bullet.is_offscreen() {
-                        bullet.active = false;
+            if bullet.state_id == 0 {
+                match self.offscreen_mode {
+                    Keep => {
+                        // Nothing to do, just keep moving the bullet...
+                    }
+                    Destroy => {
+                        if bullet.is_offscreen() {
+                            bullet.set_active(false);
+                        }
+                    }
+                    WrapAround => {
+                        bullet.wrap_around();
                     }
                 }
-                WrapAround => {
-                    bullet.wrap_around();
+            } else {
+                if bullet.animation_finished() {
+                    bullet.set_active(false);
                 }
             }
         }
@@ -88,9 +96,14 @@ impl GMBulletFactory {
         let mut result = false;
 
         for bullet in self.bullets.iter_mut() {
-            if other.collides_with(bullet) {
-                result = true;
-                bullet.active = false;
+            if bullet.state_id == 0 {
+                if other.collides_with(bullet) {
+                    result = true;
+                    bullet.set_vx(0.0);
+                    bullet.set_vy(0.0);
+                    bullet.set_state_id(1);
+                    bullet.set_animation(self.explosion.clone_animation());
+                }
             }
         }
         result

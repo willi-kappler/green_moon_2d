@@ -7,6 +7,7 @@ pub trait GMAnimationT {
     fn resume(&mut self);
     fn next_frame(&mut self);
     fn get_rect(&self) -> Rect;
+    fn finished(&self) -> bool;
     fn clone_animation(&self) -> Box<dyn GMAnimationT>;
 }
 
@@ -96,6 +97,9 @@ impl GMAnimationT for GMAnimationForwardOnce {
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn finished(&self) -> bool {
+        self.base.current_frame == self.base.frames.len() - 1
+    }
     fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
          Box::new(self.clone())
     }
@@ -148,6 +152,9 @@ impl GMAnimationT for GMAnimationForwardLoop {
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
     }
+    fn finished(&self) -> bool {
+        false
+    }
     fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
         Box::new(self.clone())
    }
@@ -195,6 +202,9 @@ impl GMAnimationT for GMAnimationBackwardOnce {
     }
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
+    }
+    fn finished(&self) -> bool {
+        self.base.current_frame == 0
     }
     fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
         Box::new(self.clone())
@@ -245,6 +255,9 @@ impl GMAnimationT for GMAnimationBackwardLoop {
     }
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
+    }
+    fn finished(&self) -> bool {
+        false
     }
     fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
         Box::new(self.clone())
@@ -306,6 +319,9 @@ impl GMAnimationT for GMAnimationPingPong {
     }
     fn get_rect(&self) -> Rect {
         self.base.get_rect()
+    }
+    fn finished(&self) -> bool {
+        false
     }
     fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
         Box::new(self.clone())
