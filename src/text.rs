@@ -269,6 +269,13 @@ impl GMSpriteText {
     pub fn new_box(base: Box<dyn GMTextT>, sprite: GMSprite) -> Box<dyn GMTextT> {
         Box::new(Self::new(base, sprite))
     }
+    pub fn set_sprite(&mut self, sprite: GMSprite) {
+        self.left_sprite = sprite.clone_sprite();
+        self.right_sprite = sprite;
+
+        self.change_x(self.base.get_x());
+        self.change_y(self.base.get_y());
+    }
     fn change_x(&mut self, x: f32) {
         let (text_width, _) = self.base.get_extend();
         let (sprite_width, _) = self.left_sprite.get_extend();
@@ -333,6 +340,103 @@ impl GMTextT for GMSpriteText {
         self.change_y(self.base.get_y());
     }
     fn get_extend(&self) -> (f32, f32) {
+        self.base.get_extend()
+    }
+}
+
+pub struct GMWaveText {
+    base: GMStaticText,
+    amplitude: f32,
+    frequency: f32,
+    offset: f32,
+    time: f32,
+}
+
+impl GMWaveText {
+    pub fn new(base: GMStaticText, amplitude: f32, frequency: f32) -> Self {
+        Self {
+            base,
+            amplitude,
+            frequency,
+            offset: 1.0,
+            time: 0.0,
+        }
+    }
+    pub fn new_box(base: GMStaticText, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
+        let text = Self::new(base, amplitude, frequency);
+        Box::new(text)
+    }
+    pub fn set_amplitude(&mut self, amplitude: f32) {
+        self.amplitude = amplitude;
+    }
+    pub fn get_amplitude(&self) -> f32 {
+        self.amplitude
+    }
+    pub fn set_frequency(&mut self, frequency: f32) {
+        self.frequency = frequency;
+    }
+    pub fn get_frequency(&self) -> f32 {
+        self.frequency
+    }
+    pub fn set_offset(&mut self, offset: f32) {
+        self.offset = offset;
+    }
+    pub fn get_offset(&self) -> f32 {
+        self.offset
+    }
+}
+
+impl GMTextT for GMWaveText {
+    fn draw(&self) {
+        let mut current_x = self.base.x;
+        let mut current_y: f32;
+        let mut offset = 0.0;
+        let mut value: f32;
+
+        for c in self.base.data.chars() {
+            value = offset + (self.frequency * self.time);
+            current_y = self.base.y + (self.amplitude * value.sin());
+            self.base.font.draw(c, current_x, current_y);
+            let (char_width, _) = self.base.font.get_extend(c);
+            current_x += char_width;
+            offset += self.offset;
+        }
+    }
+    fn update(&mut self) {
+        self.time += 0.01;
+        if self.time > std::f32::consts::PI {
+            self.time -= std::f32::consts::PI;
+        }
+    }
+    fn set_text(&mut self, text: &str) {
+        self.base.set_text(text);
+    }
+    fn get_text(&self) -> &str {
+        self.base.get_text()
+    }
+    fn set_x(&mut self, x: f32) {
+        self.base.set_x(x);
+    }
+    fn get_x(&self) -> f32 {
+        self.base.get_x()
+    }
+    fn set_y(&mut self, y: f32) {
+        self.base.set_y(y);
+    }
+    fn get_y(&self) -> f32 {
+        self.base.get_y()
+    }
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+        self.base.set_font(font);
+    }
+    fn get_font(&self) -> &Rc<dyn GMFontT> {
+        self.base.get_font()
+    }
+    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+        self.base.from_other(other);
+    }
+    fn get_extend(&self) -> (f32, f32) {
+        // TODO:: Calculate extend for y (= height) with amplitude
         self.base.get_extend()
     }
 }
