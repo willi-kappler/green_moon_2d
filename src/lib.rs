@@ -1,7 +1,9 @@
 pub mod animation;
+pub mod bullet_factory;
 pub mod error;
 pub mod font;
 pub mod menu;
+pub mod menu_item;
 pub mod person;
 pub mod sound;
 pub mod sprite;
