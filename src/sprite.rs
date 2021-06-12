@@ -2,6 +2,8 @@
 use crate::animation::GMAnimationT;
 use crate::spritesheet::GMSpriteSheet;
 
+use macroquad::window::{screen_width, screen_height};
+
 use std::rc::Rc;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -143,5 +145,43 @@ impl GMSprite {
     }
     pub fn set_vy(&mut self, vy: f32) {
         self.vy = vy;
+    }
+    pub fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+    pub fn set_collision_shape(&mut self, collision_shape: GMCollisionShape) {
+        self.collision_shape = collision_shape;
+    }
+    pub fn is_offscreen(&self) -> bool {
+        let (width, height) = self.get_extend();
+
+        if self.x + width < 0.0 {
+            return true;
+        } else if self.x > screen_width() {
+            return true;
+        } else if self.y + height < 0.0 {
+            return true;
+        } else if self.y > screen_height() {
+            return true;
+        }
+
+        false
+    }
+    pub fn wrap_around(&mut self) {
+        let (width, height) = self.get_extend();
+        let screen_w = screen_width();
+        let screen_h = screen_height();
+        let x2 = self.x + width;
+        let y2 = self.y + height;
+
+        if x2 < 0.0 {
+            self.x = screen_w + x2;
+        } else if self.x > screen_w {
+            self.x = self.x - x2;
+        } else if y2 < 0.0 {
+            self.x = screen_h + y2;
+        } else if self.y > screen_h {
+            self.y = self.y - y2;
+        }
     }
 }
