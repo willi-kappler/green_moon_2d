@@ -7,4 +7,6 @@ pub mod sound;
 pub mod sprite;
 pub mod spritesheet;
 pub mod text;
+pub mod tilemap;
+pub mod tileset;
 pub mod value;
