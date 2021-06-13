@@ -10,7 +10,8 @@ pub trait GMMenuItemT {
     fn draw(&self);
     fn update(&mut self);
     fn set_active(&mut self, active: bool);
-    fn event(&mut self) {
+    fn event(&mut self) -> Option<GMValue> {
+        None
     }
     fn get_value(&self) -> GMValue {
         GMValue::GMNone
@@ -106,19 +107,23 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
-    fn event(&mut self) {
+    fn event(&mut self) -> Option<GMValue> {
         if is_key_pressed(KeyCode::Left) {
             self.current_val -= self.step;
             if self.current_val < self.min_val {
                 self.current_val = self.min_val
             }
             self.update_text();
+            Some(GMValue::GMF32(self.current_val))
         } else if is_key_pressed(KeyCode::Right) {
             self.current_val += self.step;
             if self.current_val > self.max_val {
                 self.current_val = self.max_val
             }
             self.update_text();
+            Some(GMValue::GMF32(self.current_val))
+        } else {
+            None
         }
     }
     fn get_value(&self) -> GMValue {
@@ -168,7 +173,7 @@ impl GMMenuItemT for GMMenuItemEnum {
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
-    fn event(&mut self) {
+    fn event(&mut self) -> Option<GMValue> {
         let first = 0;
         let last = self.items.len() - 1;
 
@@ -179,6 +184,7 @@ impl GMMenuItemT for GMMenuItemEnum {
                 self.current_item = last;
             }
             self.update_text();
+            Some(GMValue::GMUSize(self.current_item))
         } else if is_key_pressed(KeyCode::Right) {
             if self.current_item < last {
                 self.current_item += 1;
@@ -186,6 +192,9 @@ impl GMMenuItemT for GMMenuItemEnum {
                 self.current_item = first;
             }
             self.update_text();
+            Some(GMValue::GMUSize(self.current_item))
+        } else {
+            None
         }
     }
     fn get_value(&self) -> GMValue {
