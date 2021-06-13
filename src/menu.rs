@@ -10,13 +10,19 @@ use macroquad::input::{is_key_pressed, KeyCode};
 
 use std::rc::Rc;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum GMMenuEvent {
+    GMItemValue(GMValue),
+    GMSelectedItem(usize),
+}
+
 pub struct GMMenu {
     title: Box<dyn GMTextT>,
     items: Vec<Box<dyn GMMenuItemT>>,
     selected: usize,
     change_sound: Rc<GMSound>,
     enter_sound: Rc<GMSound>,
-    // TODO: Maybe fancy border ?
+    // TODO: Maybe add fancy border ?
 }
 
 impl GMMenu {
@@ -64,9 +70,13 @@ impl GMMenu {
             item.update();
         }
     }
-    pub fn event(&mut self) -> Option<usize>{
+    pub fn event(&mut self) -> Option<GMMenuEvent>{
         for item in self.items.iter_mut() {
-            item.event();
+            if item.get_active() {
+                if let Some(v) = item.event() {
+                    return Some(GMMenuEvent::GMItemValue(v))
+                }
+            }
         }
 
         let first: usize = 0;
@@ -101,12 +111,9 @@ impl GMMenu {
         if is_key_pressed(KeyCode::Enter) {
             self.change_sound.stop();
             self.enter_sound.play();
-            Some(self.selected)
+            Some(GMMenuEvent::GMSelectedItem(self.selected))
         } else {
             None
         }
-    }
-    pub fn get_values(&self) -> Vec<GMValue> {
-        self.items.iter().map(|item| item.get_value()).collect::<Vec<GMValue>>()
     }
 }

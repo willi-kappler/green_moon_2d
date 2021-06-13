@@ -10,11 +10,9 @@ pub trait GMMenuItemT {
     fn draw(&self);
     fn update(&mut self);
     fn set_active(&mut self, active: bool);
+    fn get_active(&self) -> bool;
     fn event(&mut self) -> Option<GMValue> {
         None
-    }
-    fn get_value(&self) -> GMValue {
-        GMValue::GMNone
     }
 }
 
@@ -58,6 +56,9 @@ impl GMMenuItemT for GMMenuItemStatic {
     }
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+    fn get_active(&self) -> bool {
+        self.active
     }
 }
 
@@ -107,6 +108,9 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
+    fn get_active(&self) -> bool {
+        self.base.get_active()
+    }
     fn event(&mut self) -> Option<GMValue> {
         if is_key_pressed(KeyCode::Left) {
             self.current_val -= self.step;
@@ -125,9 +129,6 @@ impl GMMenuItemT for GMMenuItemNumeric {
         } else {
             None
         }
-    }
-    fn get_value(&self) -> GMValue {
-        GMValue::GMF32(self.current_val)
     }
 }
 
@@ -173,6 +174,9 @@ impl GMMenuItemT for GMMenuItemEnum {
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
+    fn get_active(&self) -> bool {
+        self.base.get_active()
+    }
     fn event(&mut self) -> Option<GMValue> {
         let first = 0;
         let last = self.items.len() - 1;
@@ -196,8 +200,5 @@ impl GMMenuItemT for GMMenuItemEnum {
         } else {
             None
         }
-    }
-    fn get_value(&self) -> GMValue {
-        GMValue::GMUSize(self.current_item)
     }
 }
