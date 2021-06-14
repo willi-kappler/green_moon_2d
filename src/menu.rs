@@ -3,10 +3,9 @@ use crate::font::GMFontT;
 use crate::text::{GMTextT, GMStaticText, GMArrowText};
 use crate::value::GMValue;
 use crate::sound::GMSound;
-use crate::menu_item::{GMMenuItemT, GMMenuItemStatic};
+use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
 
 // use macroquad::window::{screen_width};
-use macroquad::input::{is_key_pressed, KeyCode};
 
 use std::rc::Rc;
 
@@ -19,7 +18,7 @@ pub enum GMMenuEvent {
 pub struct GMMenu {
     title: Box<dyn GMTextT>,
     items: Vec<Box<dyn GMMenuItemT>>,
-    selected: usize,
+    highlighted: usize,
     change_sound: Rc<GMSound>,
     enter_sound: Rc<GMSound>,
     // TODO: Maybe add fancy border ?
@@ -32,7 +31,7 @@ impl GMMenu {
         Self {
             title,
             items,
-            selected: 0,
+            highlighted: 0,
             change_sound: change_sound.clone(),
             enter_sound: enter_sound.clone(),
         }
@@ -70,50 +69,70 @@ impl GMMenu {
             item.update();
         }
     }
-    pub fn event(&mut self) -> Option<GMMenuEvent>{
-        for item in self.items.iter_mut() {
-            if item.get_active() {
-                if let Some(v) = item.event() {
-                    return Some(GMMenuEvent::GMItemValue(v))
+    pub fn event(&mut self) -> Option<GMMenuEvent> {
+        let first = 0;
+        let last = self.items.len() - 1;
+        let mut new_highlighted: Option<(usize, bool)> = None;
+
+        for (i, item) in self.items.iter_mut().enumerate() {
+            match item.event() {
+                Some(e) => {
+                    use GMMenuItemEvent::*;
+
+                    match e {
+                        GMSelectThisItem => {
+                            self.change_sound.stop();
+                            self.enter_sound.play();
+                            return Some(GMMenuEvent::GMSelectedItem(i))
+                        }
+                        GMHighlightPrevItem => {
+                            self.change_sound.stop();
+                            self.change_sound.play();
+
+                            if i == first {
+                                self.highlighted = last;
+                                new_highlighted = Some((last, true));
+                            } else {
+                                self.highlighted = i - 1;
+                                new_highlighted = Some((i - 1, true));
+                            }
+                        }
+                        GMHighlightThisItem => {
+                            self.change_sound.stop();
+                            self.change_sound.play();
+
+                            new_highlighted = Some((self.highlighted, false));
+                            self.highlighted = i;
+                        }
+                        GMHighlightNextItem => {
+                            self.change_sound.stop();
+                            self.change_sound.play();
+
+                            if i == last {
+                                self.highlighted = first;
+                                new_highlighted = Some((first, true));
+                            } else {
+                                self.highlighted = i + 1;
+                                new_highlighted = Some((i + 1, true));
+                            }
+                        }
+                        GMNewValue(v) => {
+                            self.change_sound.stop();
+                            self.change_sound.play();
+                            return Some(GMMenuEvent::GMItemValue(v))
+                        }
+                    }
+                }
+                None => {
+                    // Nothing to do...
                 }
             }
         }
 
-        let first: usize = 0;
-        let last: usize = self.items.len() - 1;
-
-        if is_key_pressed(KeyCode::Up) {
-            self.items[self.selected].set_active(false);
-            self.change_sound.stop();
-            self.change_sound.play();
-
-            if self.selected > first {
-                self.selected -= 1;
-            } else {
-                self.selected = last;
-            }
-
-            self.items[self.selected].set_active(true);
-        } else if is_key_pressed(KeyCode::Down) {
-            self.items[self.selected].set_active(false);
-            self.change_sound.stop();
-            self.change_sound.play();
-
-            if self.selected < last {
-                self.selected += 1;
-            } else {
-                self.selected = first;
-            }
-
-            self.items[self.selected].set_active(true);
+        if let Some((i, v)) = new_highlighted {
+            self.items[i].set_active(v);
         }
 
-        if is_key_pressed(KeyCode::Enter) {
-            self.change_sound.stop();
-            self.enter_sound.play();
-            Some(GMMenuEvent::GMSelectedItem(self.selected))
-        } else {
-            None
-        }
+        None
     }
 }

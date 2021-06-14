@@ -18,6 +18,8 @@ async fn main() -> Result<(), GMError> {
     let items = ["START", "CONTROLS", "GFX OPTIONS", "SFX OPTIONS", "HIGH SCORE", "CREDITS", "EXIT"];
     let mut main_menu = GMMenu::new_simple(240.0, 100.0, "MAIN MENU", &items, &font, &change_sound, &enter_sound);
 
+    show_mouse(true);
+
     loop {
         clear_background(BLACK);
 

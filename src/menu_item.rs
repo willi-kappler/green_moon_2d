@@ -1,9 +1,17 @@
 
 use crate::value::GMValue;
 use crate::text::{GMTextT};
+use crate::sprite::in_rect;
 
-use macroquad::input::{is_key_pressed, KeyCode};
+use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
 
+pub enum GMMenuItemEvent {
+    GMSelectThisItem,
+    GMHighlightPrevItem,
+    GMHighlightThisItem,
+    GMHighlightNextItem,
+    GMNewValue(GMValue),
+}
 
 pub trait GMMenuItemT {
     fn set_text(&mut self, text: &str);
@@ -11,9 +19,8 @@ pub trait GMMenuItemT {
     fn update(&mut self);
     fn set_active(&mut self, active: bool);
     fn get_active(&self) -> bool;
-    fn event(&mut self) -> Option<GMValue> {
-        None
-    }
+    fn event(&mut self) -> Option<GMMenuItemEvent>;
+    fn point_inside(&self, _x: f32, _y: f32) -> bool;
 }
 
 pub struct GMMenuItemStatic {
@@ -32,6 +39,15 @@ impl GMMenuItemStatic {
     }
     pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>) -> Box<dyn GMMenuItemT> {
         Box::new(Self::new(inactive_text, active_text))
+    }
+    pub fn get_x(&self) -> f32 {
+        self.inactive_text.get_x()
+    }
+    pub fn get_y(&self) -> f32 {
+        self.inactive_text.get_y()
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.inactive_text.get_extend()
     }
 }
 
@@ -59,6 +75,42 @@ impl GMMenuItemT for GMMenuItemStatic {
     }
     fn get_active(&self) -> bool {
         self.active
+    }
+    fn event(&mut self) -> Option<GMMenuItemEvent> {
+        use GMMenuItemEvent::*;
+
+        let (mousex, mousey) = mouse_position();
+        let point_inside = self.point_inside(mousex, mousey);
+
+        if self.active {
+            if is_key_pressed(KeyCode::Up) {
+                self.active = false;
+                Some(GMHighlightPrevItem)
+            } else if is_key_pressed(KeyCode::Down) {
+                self.active = false;
+                Some(GMHighlightNextItem)
+            } else if is_key_pressed(KeyCode::Enter) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
+                Some(GMSelectThisItem)
+            } else {
+                None
+            }
+        } else {
+            if point_inside {
+                self.active = true;
+                Some(GMHighlightThisItem)
+            } else {
+                None
+            }
+        }
+    }
+    fn point_inside(&self, x: f32, y: f32) -> bool {
+        let x1 = self.get_x();
+        let y1 = self.get_y();
+        let (w, h) = self.get_extend();
+        let x2 = x1 + w;
+        let y2 = y1 + h;
+
+        in_rect(x1, x2, y1, y2, x, y)
     }
 }
 
@@ -111,24 +163,53 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn get_active(&self) -> bool {
         self.base.get_active()
     }
-    fn event(&mut self) -> Option<GMValue> {
-        if is_key_pressed(KeyCode::Left) {
-            self.current_val -= self.step;
-            if self.current_val < self.min_val {
-                self.current_val = self.min_val
+    fn event(&mut self) -> Option<GMMenuItemEvent> {
+        use GMMenuItemEvent::*;
+
+        let (mousex, mousey) = mouse_position();
+        let point_inside = self.point_inside(mousex, mousey);
+
+        if self.base.get_active() {
+            if is_key_pressed(KeyCode::Up) {
+                self.base.set_active(false);
+                Some(GMHighlightPrevItem)
+            } else if is_key_pressed(KeyCode::Down) {
+                self.base.set_active(false);
+                Some(GMHighlightNextItem)
+            } else if is_key_pressed(KeyCode::Left) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
+                self.current_val -= self.step;
+                if self.current_val < self.min_val {
+                    self.current_val = self.min_val
+                }
+                self.update_text();
+                Some(GMNewValue(GMValue::GMF32(self.current_val)))
+            } else if is_key_pressed(KeyCode::Right) || (is_mouse_button_pressed(MouseButton::Right) && point_inside) {
+                self.current_val += self.step;
+                if self.current_val > self.max_val {
+                    self.current_val = self.max_val
+                }
+                self.update_text();
+                Some(GMNewValue(GMValue::GMF32(self.current_val)))
+            } else {
+                None
             }
-            self.update_text();
-            Some(GMValue::GMF32(self.current_val))
-        } else if is_key_pressed(KeyCode::Right) {
-            self.current_val += self.step;
-            if self.current_val > self.max_val {
-                self.current_val = self.max_val
-            }
-            self.update_text();
-            Some(GMValue::GMF32(self.current_val))
         } else {
-            None
+            if point_inside {
+                self.base.set_active(true);
+                Some(GMMenuItemEvent::GMHighlightThisItem)
+            } else {
+                None
+            }
         }
+    }
+    fn point_inside(&self, x: f32, y: f32) -> bool {
+        let x1 = self.base.get_x();
+        let y1 = self.base.get_x();
+        let (w, h) = self.base.get_extend();
+        let x2 = x1 + w;
+        let y2 = y1 + h;
+
+        in_rect(x1, x2, y1, y2, x, y)
     }
 }
 
@@ -177,28 +258,57 @@ impl GMMenuItemT for GMMenuItemEnum {
     fn get_active(&self) -> bool {
         self.base.get_active()
     }
-    fn event(&mut self) -> Option<GMValue> {
-        let first = 0;
-        let last = self.items.len() - 1;
+    fn event(&mut self) -> Option<GMMenuItemEvent> {
+        use GMMenuItemEvent::*;
 
-        if is_key_pressed(KeyCode::Left) {
-            if self.current_item > first {
-                self.current_item -= 1;
+        let (mousex, mousey) = mouse_position();
+        let point_inside = self.point_inside(mousex, mousey);
+
+        if self.base.get_active() {
+            let first = 0;
+            let last = self.items.len() - 1;
+
+            if is_key_pressed(KeyCode::Up) {
+                self.base.set_active(false);
+                Some(GMHighlightPrevItem)
+            } else if is_key_pressed(KeyCode::Down) {
+                self.base.set_active(false);
+                Some(GMHighlightNextItem)
+            } else if is_key_pressed(KeyCode::Left) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
+                if self.current_item > first {
+                    self.current_item -= 1;
+                } else {
+                    self.current_item = last;
+                }
+                self.update_text();
+                Some(GMNewValue(GMValue::GMUSize(self.current_item)))
+            } else if is_key_pressed(KeyCode::Right) || (is_mouse_button_pressed(MouseButton::Right) && point_inside) {
+                if self.current_item < last {
+                    self.current_item += 1;
+                } else {
+                    self.current_item = first;
+                }
+                self.update_text();
+                Some(GMNewValue(GMValue::GMUSize(self.current_item)))
             } else {
-                self.current_item = last;
+                None
             }
-            self.update_text();
-            Some(GMValue::GMUSize(self.current_item))
-        } else if is_key_pressed(KeyCode::Right) {
-            if self.current_item < last {
-                self.current_item += 1;
-            } else {
-                self.current_item = first;
-            }
-            self.update_text();
-            Some(GMValue::GMUSize(self.current_item))
         } else {
-            None
+            if point_inside {
+                self.base.set_active(true);
+                Some(GMMenuItemEvent::GMHighlightThisItem)
+            } else {
+                None
+            }
         }
+    }
+    fn point_inside(&self, x: f32, y: f32) -> bool {
+        let x1 = self.base.get_x();
+        let y1 = self.base.get_x();
+        let (w, h) = self.base.get_extend();
+        let x2 = x1 + w;
+        let y2 = y1 + h;
+
+        in_rect(x1, x2, y1, y2, x, y)
     }
 }
