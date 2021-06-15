@@ -1,4 +1,4 @@
-use green_moon_2d::menu::{GMMenu, GMMenuEvent};
+use green_moon_2d::menu::GMMenu;
 use green_moon_2d::font::GMBitmapFont;
 use green_moon_2d::error::GMError;
 use green_moon_2d::sound::GMSound;
@@ -26,7 +26,7 @@ async fn main() -> Result<(), GMError> {
         main_menu.draw();
         main_menu.update();
 
-        if let Some(GMMenuEvent::GMSelectedItem(i)) = main_menu.event() {
+        if let Some((i, _)) = main_menu.event() {
             println!("Use has selected item: {}", i);
 
             if i == 6 {

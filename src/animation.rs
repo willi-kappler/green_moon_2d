@@ -20,6 +20,14 @@ pub struct GMAnimationBase {
 }
 
 impl GMAnimationBase {
+    fn new(frames: &[(Rect, f64)]) -> Self {
+        Self {
+            frames: frames.to_vec(),
+            current_frame: 0,
+            start_time: 0.0,
+            active: false,
+        }
+    }
     fn start(&mut self) {
         self.current_frame = 0;
         self.active = true;
@@ -60,17 +68,13 @@ pub struct GMAnimationForwardOnce {
 
 impl GMAnimationForwardOnce {
     pub fn new(frames: &[(Rect, f64)]) -> Self {
-        let base = GMAnimationBase {
-            frames: frames.to_vec(),
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-
-        };
-
         Self {
-            base
+            base: GMAnimationBase::new(frames)
         }
+    }
+    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+        let animation = Self::new(frames);
+        Box::new(animation)
     }
 }
 
@@ -114,17 +118,13 @@ pub struct GMAnimationForwardLoop {
 
 impl GMAnimationForwardLoop {
     pub fn new(frames: &[(Rect, f64)]) -> Self {
-        let base = GMAnimationBase {
-            frames: frames.to_vec(),
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-
-        };
-
         Self {
-            base
+            base: GMAnimationBase::new(frames)
         }
+    }
+    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+        let animation = Self::new(frames);
+        Box::new(animation)
     }
 }
 
@@ -167,17 +167,13 @@ pub struct GMAnimationBackwardOnce {
 
 impl GMAnimationBackwardOnce {
     pub fn new(frames: &[(Rect, f64)]) -> Self {
-        let base = GMAnimationBase {
-            frames: frames.to_vec(),
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-
-        };
-
         Self {
-            base
+            base: GMAnimationBase::new(frames)
         }
+    }
+    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+        let animation = Self::new(frames);
+        Box::new(animation)
     }
 }
 
@@ -218,17 +214,13 @@ pub struct GMAnimationBackwardLoop {
 
 impl GMAnimationBackwardLoop {
     pub fn new(frames: &[(Rect, f64)]) -> Self {
-        let base = GMAnimationBase {
-            frames: frames.to_vec(),
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-
-        };
-
         Self {
-            base
+            base: GMAnimationBase::new(frames)
         }
+    }
+    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+        let animation = Self::new(frames);
+        Box::new(animation)
     }
 }
 
@@ -272,18 +264,14 @@ pub struct GMAnimationPingPong {
 
 impl GMAnimationPingPong {
     pub fn new(frames: &[(Rect, f64)]) -> Self {
-        let base = GMAnimationBase {
-            frames: frames.to_vec(),
-            current_frame: 0,
-            start_time: 0.0,
-            active: false,
-
-        };
-
         Self {
-            base,
+            base: GMAnimationBase::new(frames),
             forward: true,
         }
+    }
+    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+        let animation = Self::new(frames);
+        Box::new(animation)
     }
 }
 

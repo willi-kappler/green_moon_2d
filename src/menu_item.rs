@@ -1,9 +1,12 @@
 
+use crate::font::GMFontT;
 use crate::value::GMValue;
 use crate::text::{GMTextT};
 use crate::sprite::in_rect;
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
+
+use std::rc::Rc;
 
 pub enum GMMenuItemEvent {
     GMSelectThisItem,
@@ -20,7 +23,7 @@ pub trait GMMenuItemT {
     fn set_active(&mut self, active: bool);
     fn get_active(&self) -> bool;
     fn event(&mut self) -> Option<GMMenuItemEvent>;
-    fn point_inside(&self, _x: f32, _y: f32) -> bool;
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>);
 }
 
 pub struct GMMenuItemStatic {
@@ -48,6 +51,15 @@ impl GMMenuItemStatic {
     }
     pub fn get_extend(&self) -> (f32, f32) {
         self.inactive_text.get_extend()
+    }
+    fn point_inside(&self, x: f32, y: f32) -> bool {
+        let x1 = self.get_x();
+        let y1 = self.get_y();
+        let (w, h) = self.get_extend();
+        let x2 = x1 + w;
+        let y2 = y1 + h;
+
+        in_rect(x1, x2, y1, y2, x, y)
     }
 }
 
@@ -103,14 +115,9 @@ impl GMMenuItemT for GMMenuItemStatic {
             }
         }
     }
-    fn point_inside(&self, x: f32, y: f32) -> bool {
-        let x1 = self.get_x();
-        let y1 = self.get_y();
-        let (w, h) = self.get_extend();
-        let x2 = x1 + w;
-        let y2 = y1 + h;
-
-        in_rect(x1, x2, y1, y2, x, y)
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+        self.inactive_text.set_font(font);
+        self.active_text.set_font(font);
     }
 }
 
@@ -167,7 +174,7 @@ impl GMMenuItemT for GMMenuItemNumeric {
         use GMMenuItemEvent::*;
 
         let (mousex, mousey) = mouse_position();
-        let point_inside = self.point_inside(mousex, mousey);
+        let point_inside = self.base.point_inside(mousex, mousey);
 
         if self.base.get_active() {
             if is_key_pressed(KeyCode::Up) {
@@ -202,14 +209,8 @@ impl GMMenuItemT for GMMenuItemNumeric {
             }
         }
     }
-    fn point_inside(&self, x: f32, y: f32) -> bool {
-        let x1 = self.base.get_x();
-        let y1 = self.base.get_x();
-        let (w, h) = self.base.get_extend();
-        let x2 = x1 + w;
-        let y2 = y1 + h;
-
-        in_rect(x1, x2, y1, y2, x, y)
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+        self.base.set_font(font);
     }
 }
 
@@ -221,23 +222,28 @@ pub struct GMMenuItemEnum {
 }
 
 impl GMMenuItemEnum {
-    pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: Vec<String>, current_item: usize) -> Self {
+    pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: &[&str], current_item: usize) -> Self {
         let mut base = GMMenuItemStatic::new(inactive_text, active_text);
-        let text = format!("{}: {}", prefix, items[current_item]);
+        let text = format!("{}{}", prefix, items[current_item]);
         base.set_text(&text);
+
+        let mut string_items = Vec::new();
+        for item in items.iter() {
+            string_items.push(item.to_string());
+        }
 
         Self {
             base,
             prefix: prefix.to_string(),
-            items,
+            items: string_items,
             current_item,
         }
     }
-    pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: Vec<String>, current_item: usize) -> Box<dyn GMMenuItemT> {
+    pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
         Box::new(Self::new(inactive_text, active_text, prefix, items, current_item))
     }
     pub fn update_text(&mut self) {
-        let text = format!("{}: {}", self.prefix, self.items[self.current_item]);
+        let text = format!("{}{}", self.prefix, self.items[self.current_item]);
         self.base.set_text(&text);
     }
 }
@@ -262,7 +268,7 @@ impl GMMenuItemT for GMMenuItemEnum {
         use GMMenuItemEvent::*;
 
         let (mousex, mousey) = mouse_position();
-        let point_inside = self.point_inside(mousex, mousey);
+        let point_inside = self.base.point_inside(mousex, mousey);
 
         if self.base.get_active() {
             let first = 0;
@@ -302,13 +308,7 @@ impl GMMenuItemT for GMMenuItemEnum {
             }
         }
     }
-    fn point_inside(&self, x: f32, y: f32) -> bool {
-        let x1 = self.base.get_x();
-        let y1 = self.base.get_x();
-        let (w, h) = self.base.get_extend();
-        let x2 = x1 + w;
-        let y2 = y1 + h;
-
-        in_rect(x1, x2, y1, y2, x, y)
+    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+        self.base.set_font(font);
     }
 }

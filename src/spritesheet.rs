@@ -4,6 +4,8 @@ use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTexturePa
 use macroquad::color::colors;
 use macroquad::math::Rect;
 
+use std::rc::Rc;
+
 pub struct GMSpriteSheet {
     data: Texture2D,
 }
@@ -18,9 +20,18 @@ impl GMSpriteSheet {
 
         Ok(sprite_sheet)
     }
+    pub async fn new_rc(file_name: &str) -> Result<Rc<Self>, GMError> {
+        let sheet = Self::new(file_name).await?;
+        Ok(Rc::new(sheet))
+    }
     pub fn draw(&self, source: &Rect, x: f32, y: f32) {
+        self.draw_mirror(source, x, y, false, false)
+    }
+    pub fn draw_mirror(&self, source: &Rect, x: f32, y: f32, flip_x: bool, flip_y: bool) {
         let params = DrawTextureParams {
             source: Some(*source),
+            flip_x,
+            flip_y,
             .. Default::default()
         };
 

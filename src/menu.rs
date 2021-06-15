@@ -9,12 +9,6 @@ use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
 
 use std::rc::Rc;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum GMMenuEvent {
-    GMItemValue(GMValue),
-    GMSelectedItem(usize),
-}
-
 pub struct GMMenu {
     title: Box<dyn GMTextT>,
     items: Vec<Box<dyn GMMenuItemT>>,
@@ -46,8 +40,7 @@ impl GMMenu {
 
         for item in items.iter() {
             let inactive = GMStaticText::new_box(item, x, current_y, &font);
-            let active = GMStaticText::new_box(item, x, current_y, &font);
-            let active = GMArrowText::new_box(active);
+            let active = GMArrowText::new_static(item, x, current_y, &font);
             let menu_item = GMMenuItemStatic::new_box(inactive, active);
 
             menu_items.push(menu_item);
@@ -69,7 +62,7 @@ impl GMMenu {
             item.update();
         }
     }
-    pub fn event(&mut self) -> Option<GMMenuEvent> {
+    pub fn event(&mut self) -> Option<(usize, GMValue)> {
         let first = 0;
         let last = self.items.len() - 1;
         let mut new_highlighted: Option<(usize, bool)> = None;
@@ -78,12 +71,13 @@ impl GMMenu {
             match item.event() {
                 Some(e) => {
                     use GMMenuItemEvent::*;
+                    use GMValue::*;
 
                     match e {
                         GMSelectThisItem => {
                             self.change_sound.stop();
                             self.enter_sound.play();
-                            return Some(GMMenuEvent::GMSelectedItem(i))
+                            return Some((i, GMNone))
                         }
                         GMHighlightPrevItem => {
                             self.change_sound.stop();
@@ -119,7 +113,7 @@ impl GMMenu {
                         GMNewValue(v) => {
                             self.change_sound.stop();
                             self.change_sound.play();
-                            return Some(GMMenuEvent::GMItemValue(v))
+                            return Some((i, v))
                         }
                     }
                 }
@@ -134,5 +128,13 @@ impl GMMenu {
         }
 
         None
+    }
+    pub fn set_title_font(&mut self, font: &Rc<dyn GMFontT>) {
+        self.title.set_font(font);
+    }
+    pub fn set_item_font(&mut self, font: &Rc<dyn GMFontT>) {
+        for item in self.items.iter_mut() {
+            item.set_font(font);
+        }
     }
 }

@@ -190,6 +190,10 @@ impl GMArrowText {
     pub fn new_box(base: Box<dyn GMTextT>) -> Box<dyn GMTextT> {
         Box::new(Self::new(base))
     }
+    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMTextT> {
+        let base = GMStaticText::new_box(text, x, y, font);
+        Self::new_box(base)
+    }
 }
 
 impl GMTextT for GMArrowText {
@@ -253,7 +257,8 @@ pub struct GMSpriteText {
 impl GMSpriteText {
     pub fn new(base: Box<dyn GMTextT>, sprite: GMSprite) -> Self {
         let left_sprite = sprite.clone_sprite();
-        let right_sprite = sprite;
+        let mut right_sprite = sprite;
+        right_sprite.flipx(true);
 
         let mut result = Self {
             base,
@@ -268,6 +273,10 @@ impl GMSpriteText {
     }
     pub fn new_box(base: Box<dyn GMTextT>, sprite: GMSprite) -> Box<dyn GMTextT> {
         Box::new(Self::new(base, sprite))
+    }
+    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite) -> Box<dyn GMTextT> {
+        let base = GMStaticText::new_box(text, x, y, font);
+        Self::new_box(base, sprite)
     }
     pub fn set_sprite(&mut self, sprite: GMSprite) {
         self.left_sprite = sprite.clone_sprite();
@@ -366,6 +375,10 @@ impl GMWaveText {
         let text = Self::new(base, amplitude, frequency);
         Box::new(text)
     }
+    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
+        let base = GMStaticText::new(text, x, y, font);
+        Self::new_box(base, amplitude, frequency)
+    }
     pub fn set_amplitude(&mut self, amplitude: f32) {
         self.amplitude = amplitude;
     }
@@ -404,8 +417,8 @@ impl GMTextT for GMWaveText {
     }
     fn update(&mut self) {
         self.time += 0.01;
-        if self.time > std::f32::consts::PI {
-            self.time -= std::f32::consts::PI;
+        if self.time > 2.0 * std::f32::consts::PI {
+            self.time -= 2.0 * std::f32::consts::PI;
         }
     }
     fn set_text(&mut self, text: &str) {

@@ -30,6 +30,8 @@ pub struct GMSprite {
     active: bool,
     collision_shape: GMCollisionShape,
     state_id: u32,
+    flip_x: bool,
+    flip_y: bool,
 }
 
 impl GMSprite {
@@ -44,6 +46,8 @@ impl GMSprite {
             active: true,
             collision_shape: GMCollisionShape::GMRectangle,
             state_id: 0,
+            flip_x: false,
+            flip_y: false,
         }
     }
     pub fn clone_sprite(&self) -> Self {
@@ -57,6 +61,8 @@ impl GMSprite {
             active: self.active,
             collision_shape: self.collision_shape,
             state_id: self.state_id,
+            flip_x: self.flip_x,
+            flip_y: self.flip_y,
         }
     }
     pub fn draw(&self) {
@@ -64,7 +70,7 @@ impl GMSprite {
             return
         }
         let rect = self.animation.get_rect();
-        self.sheet.draw(&rect, self.x, self.y);
+        self.sheet.draw_mirror(&rect, self.x, self.y, self.flip_x, self.flip_y);
     }
     pub fn update(&mut self) {
         if !self.active {
@@ -201,5 +207,20 @@ impl GMSprite {
     }
     pub fn animation_finished(&self) -> bool {
         self.animation.finished()
+    }
+    pub fn flipx(&mut self, flip_x: bool) {
+        self.flip_x = flip_x;
+    }
+    pub fn flipy(&mut self, flip_y: bool) {
+        self.flip_y = flip_y;
+    }
+    pub fn start_animation(&mut self) {
+        self.animation.start();
+    }
+    pub fn pause_animation(&mut self) {
+        self.animation.pause();
+    }
+    pub fn resume_animation(&mut self) {
+        self.animation.resume();
     }
 }
