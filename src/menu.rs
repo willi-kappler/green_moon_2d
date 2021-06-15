@@ -8,6 +8,7 @@ use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
 // use macroquad::window::{screen_width};
 
 use std::rc::Rc;
+use std::any::Any;
 
 pub struct GMMenu {
     title: Box<dyn GMTextT>,
@@ -136,5 +137,16 @@ impl GMMenu {
         for item in self.items.iter_mut() {
             item.set_font(font);
         }
+    }
+    pub fn change_property_all(&mut self, name: &str, value: &Rc<dyn Any>) {
+        for item in self.items.iter_mut() {
+            item.set_property(name, value);
+        }
+    }
+    pub fn change_property_one(&mut self, i: usize, name: &str, value: &Rc<dyn Any>) {
+        self.items[i].set_property(name, value);
+    }
+    pub fn change_property_title(&mut self, name: &str, value: &Rc<dyn Any>) {
+        self.title.set_property(name, value);
     }
 }

@@ -6,6 +6,7 @@ use crate::sprite::in_rect;
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
 
+use std::any::Any;
 use std::rc::Rc;
 
 pub enum GMMenuItemEvent {
@@ -24,6 +25,7 @@ pub trait GMMenuItemT {
     fn get_active(&self) -> bool;
     fn event(&mut self) -> Option<GMMenuItemEvent>;
     fn set_font(&mut self, font: &Rc<dyn GMFontT>);
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>);
 }
 
 pub struct GMMenuItemStatic {
@@ -119,6 +121,10 @@ impl GMMenuItemT for GMMenuItemStatic {
         self.inactive_text.set_font(font);
         self.active_text.set_font(font);
     }
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
+        self.inactive_text.set_property(name, value);
+        self.active_text.set_property(name, value);
+    }
 }
 
 pub struct GMMenuItemNumeric {
@@ -133,7 +139,7 @@ pub struct GMMenuItemNumeric {
 impl GMMenuItemNumeric {
     pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Self {
         let mut base = GMMenuItemStatic::new(inactive_text, active_text);
-        let text = format!("{}: {}", prefix, current_val);
+        let text = format!("{}{}", prefix, current_val);
         base.set_text(&text);
 
         Self {
@@ -149,7 +155,7 @@ impl GMMenuItemNumeric {
         Box::new(Self::new(inactive_text, active_text, prefix, min_val, max_val, current_val, step))
     }
     pub fn update_text(&mut self) {
-        let text = format!("{}: {}", self.prefix, self.current_val);
+        let text = format!("{}{}", self.prefix, self.current_val);
         self.base.set_text(&text);
     }
 }
@@ -211,6 +217,9 @@ impl GMMenuItemT for GMMenuItemNumeric {
     }
     fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
+    }
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
+        self.base.set_property(name, value);
     }
 }
 
@@ -310,5 +319,8 @@ impl GMMenuItemT for GMMenuItemEnum {
     }
     fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
+    }
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
+        self.base.set_property(name, value);
     }
 }

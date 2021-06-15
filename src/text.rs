@@ -1,6 +1,7 @@
 use crate::font::{GMFontT};
 use crate::sprite::GMSprite;
 
+use std::any::Any;
 use std::rc::Rc;
 
 pub trait GMTextT {
@@ -17,6 +18,8 @@ pub trait GMTextT {
     fn get_font(&self) -> &Rc<dyn GMFontT>;
     fn from_other(&mut self, other: Box<dyn GMTextT>);
     fn get_extend(&self) -> (f32, f32);
+    fn set_property(&mut self, _name: &str, _value: &Rc<dyn Any>) {
+    }
 }
 
 pub struct GMStaticText {
@@ -257,14 +260,15 @@ pub struct GMSpriteText {
 impl GMSpriteText {
     pub fn new(base: Box<dyn GMTextT>, sprite: GMSprite) -> Self {
         let left_sprite = sprite.clone_sprite();
-        let mut right_sprite = sprite;
-        right_sprite.flipx(true);
+        let right_sprite = sprite;
 
         let mut result = Self {
             base,
             left_sprite,
             right_sprite,
         };
+
+        result.right_sprite.flipx(true);
 
         result.change_x(result.base.get_x());
         result.change_y(result.base.get_y());
@@ -281,6 +285,8 @@ impl GMSpriteText {
     pub fn set_sprite(&mut self, sprite: GMSprite) {
         self.left_sprite = sprite.clone_sprite();
         self.right_sprite = sprite;
+
+        self.right_sprite.flipx(true);
 
         self.change_x(self.base.get_x());
         self.change_y(self.base.get_y());
@@ -350,6 +356,20 @@ impl GMTextT for GMSpriteText {
     }
     fn get_extend(&self) -> (f32, f32) {
         self.base.get_extend()
+    }
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
+        if name == "sprite" {
+            match value.downcast_ref::<GMSprite>() {
+                Some(sprite) => {
+                    self.set_sprite(sprite.clone_sprite());
+                }
+                None => {
+                    eprintln!("GMSpriteText::set_property(), could not downcast value to GMSprite")
+                }
+            }
+        } else {
+            self.base.set_property(name, value)
+        }
     }
 }
 
@@ -451,5 +471,29 @@ impl GMTextT for GMWaveText {
     fn get_extend(&self) -> (f32, f32) {
         // TODO:: Calculate extend for y (= height) with amplitude
         self.base.get_extend()
+    }
+    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
+        if name == "amplitude" {
+            match value.downcast_ref::<f32>() {
+                Some(a) => {
+                    self.set_amplitude(*a);
+                }
+                None => {
+                    eprintln!("GMWaveText::set_property(), could not downcast value to f32")
+                }
+            }
+        }  else if name == "frequency" {
+            match value.downcast_ref::<f32>() {
+                Some(f) => {
+                    self.set_frequency(*f);
+                }
+                None => {
+                    eprintln!("GMWaveText::set_property(), could not downcast value to f32")
+                }
+            }
+        }
+        else {
+            self.base.set_property(name, value)
+        }
     }
 }

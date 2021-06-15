@@ -1,5 +1,5 @@
 use green_moon_2d::menu::GMMenu;
-use green_moon_2d::menu_item::{GMMenuItemT, GMMenuItemEnum, GMMenuItemStatic};
+use green_moon_2d::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
 use green_moon_2d::value::GMValue;
 use green_moon_2d::spritesheet::{GMSpriteSheet};
 use green_moon_2d::sprite::GMSprite;
@@ -14,12 +14,16 @@ use macroquad::prelude::*;
 
 use std::thread;
 use std::time::Duration;
+use std::rc::Rc;
+use std::any::Any;
 
 #[macroquad::main("Menu2")]
 async fn main() -> Result<(), GMError> {
     let font1 = GMBitmapFont::new_rc("../assets/gfx/fonts/cuddly.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- ").await?;
     let font2 = GMBitmapFont::new_rc("../assets/gfx/fonts/bbc1.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789?<> ").await?;
     let font3 = GMBitmapFont::new_rc("../assets/gfx/fonts/blagger.png", 32.0, 30.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()': 0123456789").await?;
+
+    let fonts = [&font1, &font2, &font3];
 
     let sheet1 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/bat1.png").await?;
     let sheet2 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/cat1.png").await?;
@@ -38,9 +42,11 @@ async fn main() -> Result<(), GMError> {
     ]);
     animation3.start();
 
-    let mut sprite1 = GMSprite::new(&sheet1, animation1, 0.0, 0.0);
-    let mut sprite2 = GMSprite::new(&sheet2, animation2, 0.0, 0.0);
-    let mut sprite3 = GMSprite::new(&sheet3, animation3, 0.0, 0.0);
+    let sprite1 = GMSprite::new(&sheet1, animation1, 0.0, 0.0);
+    let sprite2 = GMSprite::new(&sheet2, animation2, 0.0, 0.0);
+    let sprite3 = GMSprite::new(&sheet3, animation3, 0.0, 0.0);
+
+    let sprites = [&sprite1, &sprite2, &sprite3];
 
     let mut item_y = 100.0;
     let item_x = 100.0;
@@ -49,14 +55,36 @@ async fn main() -> Result<(), GMError> {
     let inactive = GMStaticText::new_box("TITLE FONT ", item_x, item_y, &font1);
     let active = GMSpriteText::new_static("TITLE FONT ", item_x, item_y, &font1, sprite1.clone_sprite());
     let item = GMMenuItemEnum::new_box(inactive, active, "TITLE FONT ", &["CUDDLY", "BBC1", "BLAGGER"], 0);
+    menu_items.push(item);
 
+    item_y += 40.0;
+    let inactive = GMStaticText::new_box("ITEM FONT ", item_x, item_y, &font1);
+    let active = GMSpriteText::new_static("ITEM FONT ", item_x, item_y, &font1, sprite1.clone_sprite());
+    let item = GMMenuItemEnum::new_box(inactive, active, "ITEM FONT ", &["CUDDLY", "BBC1", "BLAGGER"], 0);
+    menu_items.push(item);
+
+    item_y += 40.0;
+    let inactive = GMStaticText::new_box("SPRITE ", item_x, item_y, &font1);
+    let active = GMSpriteText::new_static("SPRITE ", item_x, item_y, &font1, sprite1.clone_sprite());
+    let item = GMMenuItemEnum::new_box(inactive, active, "SPRITE ", &["BAT", "CAT", "GHOST"], 0);
+    menu_items.push(item);
+
+    item_y += 40.0;
+    let inactive = GMStaticText::new_box("AMPLITUDE ", item_x, item_y, &font1);
+    let active = GMSpriteText::new_static("AMPLITUDE ", item_x, item_y, &font1, sprite1.clone_sprite());
+    let item = GMMenuItemNumeric::new_box(inactive, active, "AMPLITUDE ", 1.0, 10.0, 8.0, 1.0);
+    menu_items.push(item);
+
+    item_y += 40.0;
+    let inactive = GMStaticText::new_box("FREQUENCY ", item_x, item_y, &font1);
+    let active = GMSpriteText::new_static("FREQUENCY ", item_x, item_y, &font1, sprite1.clone_sprite());
+    let item = GMMenuItemNumeric::new_box(inactive, active, "FREQUENCY ", 1.0, 20.0, 10.0, 0.5);
     menu_items.push(item);
 
     item_y += 40.0;
     let inactive = GMStaticText::new_box("EXIT", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("EXIT", item_x, item_y, &font1, sprite3.clone_sprite());
+    let active = GMSpriteText::new_static("EXIT", item_x, item_y, &font1, sprite1.clone_sprite());
     let item = GMMenuItemStatic::new_box(inactive, active);
-
     menu_items.push(item);
 
     let change_sound = GMSound::new_rc("../assets/sfx/change1.ogg").await?;
@@ -69,9 +97,6 @@ async fn main() -> Result<(), GMError> {
     loop {
         clear_background(BLACK);
 
-        // sprite3.draw();
-        // sprite3.update();
-
         main_menu.draw();
         main_menu.update();
 
@@ -81,29 +106,34 @@ async fn main() -> Result<(), GMError> {
             }
             Some((i, v)) => {
                 use GMValue::*;
-                println!("Use has selected item: {}", i);
+                println!("User has selected item: {}", i);
 
                 match v {
                     GMNone => {
-                        if i == 1 {
+                        if i == 5 {
                             break;
                         }
                     }
                     GMUSize(j) => {
-                        println!("New value: {}", j);
-                        match j {
-                            0 => {
-                                main_menu.set_title_font(&font1);
-                            }
-                            1 => {
-                                main_menu.set_title_font(&font2);
-                            }
-                            2 => {
-                                main_menu.set_title_font(&font3);
-                            }
-                            _ => {
-                                unreachable!("Font not possible");
-                            }
+                        println!("New usize value: {}", j);
+
+                        if i == 0 {
+                            main_menu.set_title_font(fonts[j]);
+                        } else if i == 1 {
+                            main_menu.set_item_font(fonts[j]);
+                        } else if i == 2 {
+                            let sprite: Rc<dyn Any> = Rc::new(sprites[j].clone_sprite());
+                            main_menu.change_property_all("sprite", &sprite);
+                        }
+                    }
+                    GMF32(f) => {
+                        println!("New f32 value: {}", f);
+                        let value: Rc<dyn Any> = Rc::new(f);
+
+                        if i == 3 {
+                            main_menu.change_property_title("amplitude", &value);
+                        } else if i == 4 {
+                            main_menu.change_property_title("frequency", &value);
                         }
                     }
                     _ => {
