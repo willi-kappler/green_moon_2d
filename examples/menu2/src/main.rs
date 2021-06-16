@@ -29,18 +29,15 @@ async fn main() -> Result<(), GMError> {
     let sheet2 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/cat1.png").await?;
     let sheet3 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/ghost1.png").await?;
 
-    let mut animation1 = GMAnimationPingPong::new_box(&[
+    let animation1 = GMAnimationPingPong::new_box(&[
         (Rect::new(0.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(16.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(32.0, 0.0, 16.0, 20.0), 0.100)
     ]);
-    animation1.start();
-    let mut animation2 = GMAnimationPingPong::new_box(&[
+    let animation2 = GMAnimationPingPong::new_box(&[
         (Rect::new(0.0, 0.0, 28.0, 23.0), 0.100), (Rect::new(28.0, 0.0, 28.0, 23.0), 0.100), (Rect::new(56.0, 0.0, 28.0, 23.0), 0.100)
     ]);
-    animation2.start();
-    let mut animation3 = GMAnimationPingPong::new_box(&[
+    let animation3 = GMAnimationPingPong::new_box(&[
         (Rect::new(0.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(40.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(80.0, 0.0, 40.0, 41.0), 0.100)
     ]);
-    animation3.start();
 
     let sprite1 = GMSprite::new(&sheet1, animation1, 0.0, 0.0);
     let sprite2 = GMSprite::new(&sheet2, animation2, 0.0, 0.0);
@@ -72,13 +69,19 @@ async fn main() -> Result<(), GMError> {
     item_y += 40.0;
     let inactive = GMStaticText::new_box("AMPLITUDE ", item_x, item_y, &font1);
     let active = GMSpriteText::new_static("AMPLITUDE ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemNumeric::new_box(inactive, active, "AMPLITUDE ", 1.0, 10.0, 8.0, 1.0);
+    let item = GMMenuItemNumeric::new_box(inactive, active, "AMPLITUDE ", 1.0, 20.0, 8.0, 1.0);
     menu_items.push(item);
 
     item_y += 40.0;
     let inactive = GMStaticText::new_box("FREQUENCY ", item_x, item_y, &font1);
     let active = GMSpriteText::new_static("FREQUENCY ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemNumeric::new_box(inactive, active, "FREQUENCY ", 1.0, 20.0, 10.0, 0.5);
+    let item = GMMenuItemNumeric::new_box(inactive, active, "FREQUENCY ", 1.0, 30.0, 10.0, 0.5);
+    menu_items.push(item);
+
+    item_y += 40.0;
+    let inactive = GMStaticText::new_box("OFFSET ", item_x, item_y, &font1);
+    let active = GMSpriteText::new_static("OFFSET ", item_x, item_y, &font1, sprite1.clone_sprite());
+    let item = GMMenuItemNumeric::new_box(inactive, active, "OFFSET ", 0.0, 3.1, 1.0, 0.1);
     menu_items.push(item);
 
     item_y += 40.0;
@@ -110,7 +113,7 @@ async fn main() -> Result<(), GMError> {
 
                 match v {
                     GMNone => {
-                        if i == 5 {
+                        if i == 6 {
                             break;
                         }
                     }
@@ -134,6 +137,8 @@ async fn main() -> Result<(), GMError> {
                             main_menu.change_property_title("amplitude", &value);
                         } else if i == 4 {
                             main_menu.change_property_title("frequency", &value);
+                        } else if i == 5 {
+                            main_menu.change_property_title("offset", &value);
                         }
                     }
                     _ => {

@@ -273,6 +273,9 @@ impl GMSpriteText {
         result.change_x(result.base.get_x());
         result.change_y(result.base.get_y());
 
+        result.left_sprite.start_animation();
+        result.right_sprite.start_animation();
+
         result
     }
     pub fn new_box(base: Box<dyn GMTextT>, sprite: GMSprite) -> Box<dyn GMTextT> {
@@ -287,6 +290,9 @@ impl GMSpriteText {
         self.right_sprite = sprite;
 
         self.right_sprite.flipx(true);
+
+        self.left_sprite.start_animation();
+        self.right_sprite.start_animation();
 
         self.change_x(self.base.get_x());
         self.change_y(self.base.get_y());
@@ -479,16 +485,25 @@ impl GMTextT for GMWaveText {
                     self.set_amplitude(*a);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), could not downcast value to f32")
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
                 }
             }
-        }  else if name == "frequency" {
+        } else if name == "frequency" {
             match value.downcast_ref::<f32>() {
                 Some(f) => {
                     self.set_frequency(*f);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), could not downcast value to f32")
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
+                }
+            }
+        } else if  name == "offset" {
+            match value.downcast_ref::<f32>() {
+                Some(f) => {
+                    self.set_offset(*f);
+                }
+                None => {
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
                 }
             }
         }

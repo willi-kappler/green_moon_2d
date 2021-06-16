@@ -139,7 +139,7 @@ pub struct GMMenuItemNumeric {
 impl GMMenuItemNumeric {
     pub fn new(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Self {
         let mut base = GMMenuItemStatic::new(inactive_text, active_text);
-        let text = format!("{}{}", prefix, current_val);
+        let text = format!("{}{:.2}", prefix, current_val);
         base.set_text(&text);
 
         Self {
@@ -155,7 +155,7 @@ impl GMMenuItemNumeric {
         Box::new(Self::new(inactive_text, active_text, prefix, min_val, max_val, current_val, step))
     }
     pub fn update_text(&mut self) {
-        let text = format!("{}{}", self.prefix, self.current_val);
+        let text = format!("{}{:.2}", self.prefix, self.current_val);
         self.base.set_text(&text);
     }
 }

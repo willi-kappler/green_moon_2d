@@ -8,6 +8,7 @@ pub trait GMAnimationT {
     fn next_frame(&mut self);
     fn get_rect(&self) -> Rect;
     fn finished(&self) -> bool;
+    // Clone is not possible because of object safety
     fn clone_animation(&self) -> Box<dyn GMAnimationT>;
 }
 
