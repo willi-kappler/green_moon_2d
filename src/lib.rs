@@ -5,6 +5,7 @@ pub mod font;
 pub mod menu;
 pub mod menu_item;
 pub mod person;
+pub mod resource_manager;
 pub mod sound;
 pub mod sprite;
 pub mod spritesheet;
