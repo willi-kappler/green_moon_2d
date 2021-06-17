@@ -223,6 +223,9 @@ impl GMMenuItemT for GMMenuItemNumeric {
     }
 }
 
+// TODO: Slider with sprites
+
+
 pub struct GMMenuItemEnum {
     base: GMMenuItemStatic,
     prefix: String,
