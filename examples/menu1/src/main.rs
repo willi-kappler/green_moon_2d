@@ -16,7 +16,7 @@ async fn main() -> Result<(), GMError> {
     let enter_sound = GMSound::new_rc("../assets/sfx/enter1.ogg").await?;
 
     let items = ["START", "CONTROLS", "GFX OPTIONS", "SFX OPTIONS", "HIGH SCORE", "CREDITS", "EXIT"];
-    let mut main_menu = GMMenu::new_simple(240.0, 100.0, "MAIN MENU", &items, &font, &change_sound, &enter_sound);
+    let mut main_menu = GMMenu::new_static_arrow(240.0, 100.0, "MAIN MENU", &items, &font, &change_sound, &enter_sound);
 
     show_mouse(true);
 

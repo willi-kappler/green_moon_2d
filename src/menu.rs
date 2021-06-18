@@ -1,6 +1,7 @@
 
 use crate::font::GMFontT;
 use crate::text::{GMTextT, GMStaticText, GMArrowText};
+use crate::sprite::GMSprite;
 use crate::value::GMValue;
 use crate::sound::GMSound;
 use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
@@ -16,12 +17,14 @@ pub struct GMMenu {
     highlighted: usize,
     change_sound: Rc<GMSound>,
     enter_sound: Rc<GMSound>,
-    // TODO: Maybe add fancy border ?
+    // TODO: Maybe add fancy border and background?
 }
 
 impl GMMenu {
     pub fn new(title: Box<dyn GMTextT>, mut items: Vec<Box<dyn GMMenuItemT>>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
-        items[0].set_active(true);
+        if items.len() > 0 {
+            items[0].set_active(true);
+        }
 
         Self {
             title,
@@ -31,18 +34,19 @@ impl GMMenu {
             enter_sound: enter_sound.clone(),
         }
     }
-    pub fn new_simple(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
+    pub fn new_empty(title: Box<dyn GMTextT>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
+        Self::new(title, Vec::new(), change_sound, enter_sound)
+    }
+    pub fn new_static_arrow(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
-        let title = GMStaticText::new_box(title, x, y, &font);
+        let title = GMStaticText::new_box(title, x, y, font);
         let mut menu_items = Vec::new();
         let (_, font_height) = font.get_extend('A');
         current_y += font_height * 2.0;
 
         for item in items.iter() {
-            let inactive = GMStaticText::new_box(item, x, current_y, &font);
-            let active = GMArrowText::new_static(item, x, current_y, &font);
-            let menu_item = GMMenuItemStatic::new_box(inactive, active);
+            let menu_item = GMMenuItemStatic::new_static_arrow(item, x, current_y, font);
 
             menu_items.push(menu_item);
 
@@ -50,6 +54,37 @@ impl GMMenu {
         }
 
         GMMenu::new(title, menu_items, change_sound, enter_sound)
+    }
+    pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, sprite: GMSprite, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
+        let mut current_y = y;
+
+        let title = GMStaticText::new_box(title, x, y, font);
+        let mut menu_items = Vec::new();
+        let (_, font_height) = font.get_extend('A');
+        current_y += font_height * 2.0;
+
+        for item in items.iter() {
+            let menu_item = GMMenuItemStatic::new_static_sprite(item, x, current_y, font, sprite.clone_sprite());
+
+            menu_items.push(menu_item);
+
+            current_y += font_height + 4.0;
+        }
+
+        GMMenu::new(title, menu_items, change_sound, enter_sound)
+    }
+    pub fn add_item(&mut self, mut item: Box<dyn GMMenuItemT>, dx: f32, dy: f32) {
+        if self.items.is_empty() {
+            item.set_active(true);
+            self.items.push(item);
+        } else {
+            let last = self.items.len() - 1;
+            let px = self.items[last].get_x();
+            let py = self.items[last].get_y();
+            item.set_x(px + dx);
+            item.set_y(py + dy);
+            self.items.push(item);
+        }
     }
     pub fn draw(&self) {
         self.title.draw();

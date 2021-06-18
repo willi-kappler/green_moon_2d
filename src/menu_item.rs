@@ -1,8 +1,8 @@
 
 use crate::font::GMFontT;
 use crate::value::GMValue;
-use crate::text::{GMTextT};
-use crate::sprite::in_rect;
+use crate::text::{GMTextT, GMStaticText, GMArrowText, GMSpriteText};
+use crate::sprite::{GMSprite, in_rect};
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
 
@@ -23,6 +23,10 @@ pub trait GMMenuItemT {
     fn update(&mut self);
     fn set_active(&mut self, active: bool);
     fn get_active(&self) -> bool;
+    fn set_x(&mut self, x: f32);
+    fn get_x(&self) -> f32;
+    fn set_y(&mut self, y: f32);
+    fn get_y(&self) -> f32;
     fn event(&mut self) -> Option<GMMenuItemEvent>;
     fn set_font(&mut self, font: &Rc<dyn GMFontT>);
     fn set_property(&mut self, name: &str, value: &Rc<dyn Any>);
@@ -45,11 +49,15 @@ impl GMMenuItemStatic {
     pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>) -> Box<dyn GMMenuItemT> {
         Box::new(Self::new(inactive_text, active_text))
     }
-    pub fn get_x(&self) -> f32 {
-        self.inactive_text.get_x()
+    pub fn new_static_arrow(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(text, x, y, font);
+        let active_text = GMArrowText::new_static(text, x, y, font);
+        Self::new_box(inactive_text, active_text)
     }
-    pub fn get_y(&self) -> f32 {
-        self.inactive_text.get_y()
+    pub fn new_static_sprite(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(text, x, y, font);
+        let active_text = GMSpriteText::new_static(text, x, y, font, sprite);
+        Self::new_box(inactive_text, active_text)
     }
     pub fn get_extend(&self) -> (f32, f32) {
         self.inactive_text.get_extend()
@@ -125,6 +133,21 @@ impl GMMenuItemT for GMMenuItemStatic {
         self.inactive_text.set_property(name, value);
         self.active_text.set_property(name, value);
     }
+
+    fn set_x(&mut self, x: f32) {
+        self.inactive_text.set_x(x);
+        self.active_text.set_x(x);
+    }
+    fn get_x(&self) -> f32 {
+        self.inactive_text.get_x()
+    }
+    fn set_y(&mut self, y: f32) {
+        self.inactive_text.set_y(y);
+        self.active_text.set_y(y);
+    }
+    fn get_y(&self) -> f32 {
+        self.inactive_text.get_y()
+    }
 }
 
 pub struct GMMenuItemNumeric {
@@ -153,6 +176,16 @@ impl GMMenuItemNumeric {
     }
     pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
         Box::new(Self::new(inactive_text, active_text, prefix, min_val, max_val, current_val, step))
+    }
+    pub fn new_static_arrow(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
+        let active_text = GMArrowText::new_static(prefix, x, y, font);
+        Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
+    }
+    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
+        let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
+        Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
     }
     pub fn update_text(&mut self) {
         let text = format!("{}{:.2}", self.prefix, self.current_val);
@@ -221,6 +254,18 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
         self.base.set_property(name, value);
     }
+    fn set_x(&mut self, x: f32) {
+        self.base.set_x(x);
+    }
+    fn get_x(&self) -> f32 {
+        self.base.get_x()
+    }
+    fn set_y(&mut self, y: f32) {
+        self.base.set_y(y);
+    }
+    fn get_y(&self) -> f32 {
+        self.base.get_y()
+    }
 }
 
 // TODO: Slider with sprites
@@ -253,6 +298,16 @@ impl GMMenuItemEnum {
     }
     pub fn new_box(inactive_text: Box<dyn GMTextT>, active_text: Box<dyn GMTextT>, prefix: &str, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
         Box::new(Self::new(inactive_text, active_text, prefix, items, current_item))
+    }
+    pub fn new_static_arrow(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
+        let active_text = GMArrowText::new_static(prefix, x, y, font);
+        Self::new_box(inactive_text, active_text, prefix, items, current_item)
+    }
+    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
+        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
+        let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
+        Self::new_box(inactive_text, active_text, prefix, items, current_item)
     }
     pub fn update_text(&mut self) {
         let text = format!("{}{}", self.prefix, self.items[self.current_item]);
@@ -325,5 +380,17 @@ impl GMMenuItemT for GMMenuItemEnum {
     }
     fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
         self.base.set_property(name, value);
+    }
+    fn set_x(&mut self, x: f32) {
+        self.base.set_x(x);
+    }
+    fn get_x(&self) -> f32 {
+        self.base.get_x()
+    }
+    fn set_y(&mut self, y: f32) {
+        self.base.set_y(y);
+    }
+    fn get_y(&self) -> f32 {
+        self.base.get_y()
     }
 }

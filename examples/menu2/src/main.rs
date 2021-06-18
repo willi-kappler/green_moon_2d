@@ -1,5 +1,5 @@
 use green_moon_2d::menu::GMMenu;
-use green_moon_2d::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
+use green_moon_2d::menu_item::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
 use green_moon_2d::value::GMValue;
 use green_moon_2d::spritesheet::{GMSpriteSheet};
 use green_moon_2d::sprite::GMSprite;
@@ -45,57 +45,32 @@ async fn main() -> Result<(), GMError> {
 
     let sprites = [&sprite1, &sprite2, &sprite3];
 
-    let mut item_y = 100.0;
-    let item_x = 100.0;
-    let mut menu_items: Vec<Box<dyn GMMenuItemT>> = Vec::new();
-
-    let inactive = GMStaticText::new_box("TITLE FONT ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("TITLE FONT ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemEnum::new_box(inactive, active, "TITLE FONT ", &["CUDDLY", "BBC1", "BLAGGER"], 0);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("ITEM FONT ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("ITEM FONT ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemEnum::new_box(inactive, active, "ITEM FONT ", &["CUDDLY", "BBC1", "BLAGGER"], 0);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("SPRITE ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("SPRITE ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemEnum::new_box(inactive, active, "SPRITE ", &["BAT", "CAT", "GHOST"], 0);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("AMPLITUDE ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("AMPLITUDE ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemNumeric::new_box(inactive, active, "AMPLITUDE ", 1.0, 20.0, 8.0, 1.0);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("FREQUENCY ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("FREQUENCY ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemNumeric::new_box(inactive, active, "FREQUENCY ", 1.0, 30.0, 10.0, 0.5);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("OFFSET ", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("OFFSET ", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemNumeric::new_box(inactive, active, "OFFSET ", 0.0, 3.1, 1.0, 0.1);
-    menu_items.push(item);
-
-    item_y += 40.0;
-    let inactive = GMStaticText::new_box("EXIT", item_x, item_y, &font1);
-    let active = GMSpriteText::new_static("EXIT", item_x, item_y, &font1, sprite1.clone_sprite());
-    let item = GMMenuItemStatic::new_box(inactive, active);
-    menu_items.push(item);
-
     let change_sound = GMSound::new_rc("../assets/sfx/change1.ogg").await?;
     let enter_sound = GMSound::new_rc("../assets/sfx/enter1.ogg").await?;
 
-    let menu_title = GMWaveText::new_static("MAIN MENU", item_x, 40.0, &font1, 8.0, 10.0);
+    let menu_title = GMWaveText::new_static("MAIN MENU", 100.0, 40.0, &font1, 8.0, 10.0);
 
-    let mut main_menu = GMMenu::new(menu_title, menu_items, &change_sound, &enter_sound);
+    let mut main_menu = GMMenu::new_empty(menu_title, &change_sound, &enter_sound);
+
+    main_menu.add_item(GMMenuItemEnum::new_static_sprite("TITLE FONT ", 100.0, 100.0,
+        &font1, sprite1.clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 0.0);
+
+    main_menu.add_item(GMMenuItemEnum::new_static_sprite("ITEM FONT ", 0.0, 0.0,
+        &font1, sprite1.clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 40.0);
+
+    main_menu.add_item(GMMenuItemEnum::new_static_sprite("SPRITE ", 0.0, 0.0,
+        &font1, sprite1.clone_sprite(), &["BAT", "CAT", "GHOST"], 0), 0.0, 40.0);
+
+    main_menu.add_item(GMMenuItemNumeric::new_static_sprite("AMPLITUDE ", 0.0, 0.0,
+        &font1, sprite1.clone_sprite(), 1.0, 20.0, 8.0, 1.0), 0.0, 40.0);
+
+    main_menu.add_item(GMMenuItemNumeric::new_static_sprite("FREQUENCY ", 0.0, 0.0,
+        &font1, sprite1.clone_sprite(), 1.0, 30.0, 10.0, 0.5), 0.0, 40.0);
+
+    main_menu.add_item(GMMenuItemNumeric::new_static_sprite("OFFSET ", 0.0, 0.0,
+        &font1, sprite1.clone_sprite(), 1.0, 3.1, 1.0, 0.1), 0.0, 40.0);
+
+    main_menu.add_item(GMMenuItemStatic::new_static_sprite("EXIT", 0.0, 0.0, &font1, sprite1.clone_sprite()), 0.0, 40.0);
 
     loop {
         clear_background(BLACK);
