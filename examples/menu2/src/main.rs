@@ -117,7 +117,7 @@ async fn main() -> Result<(), GMError> {
                         }
                     }
                     _ => {
-                        unreachable!("Should not happen:m unexpected menu value");
+                        unreachable!("Should not happen: unexpected menu value");
                     }
                 }
             }
