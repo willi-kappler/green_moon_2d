@@ -10,6 +10,8 @@ use macroquad::file::load_string;
 use macroquad::math::Rect;
 use nanoserde::DeJson;
 
+use log::{debug, info};
+
 use std::collections::HashMap;
 use std::rc::Rc;
 
@@ -17,8 +19,8 @@ use std::rc::Rc;
 pub struct GMResourceFormat {
     font_file: Option<String>,
     sprite_sheet_file: Option<String>,
-    sounds_file: Option<String>,
-    animations_file: Option<String>,
+    sound_file: Option<String>,
+    animation_file: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
@@ -104,31 +106,37 @@ impl GMResourceManager {
         }
     }
     pub async fn new_from_file(file_name: &str) -> Result<Self, GMError> {
+        info!("Loading resource file: '{}'", file_name);
         let json = load_string(file_name).await?;
         let result: GMResourceFormat = DeJson::deserialize_json(&json)?;
         let mut resource = Self::new();
+
         if let Some(font_file) = result.font_file {
             resource.fonts_from_file(&font_file).await?;
         }
         if let Some(sprite_sheet_file) = result.sprite_sheet_file {
             resource.sprite_sheets_from_file(&&sprite_sheet_file).await?;
         }
-        if let Some(sounds_file) = result.sounds_file {
-            resource.sounds_from_file(&&sounds_file).await?;
+        if let Some(sound_file) = result.sound_file {
+            resource.sounds_from_file(&&sound_file).await?;
         }
-        if let Some(animations_file) = result.animations_file {
-            resource.animations_from_file(&&animations_file).await?;
+        if let Some(animation_file) = result.animation_file {
+            resource.animations_from_file(&&animation_file).await?;
         }
+
         Ok(resource)
     }
     pub fn add_font<T: 'static + GMFontT>(&mut self, name: &str, font: T) {
         self.fonts.insert(name.to_string(), Rc::new(font));
     }
     pub async fn fonts_from_file(&mut self, file_name: &str) -> Result<(), GMError>{
+        info!("Loading font file: '{}'", file_name);
         let json = load_string(file_name).await?;
         let result: GMFontFormatMultiple = DeJson::deserialize_json(&json)?;
+        debug!("Processing fonts...");
 
         for item in result.fonts {
+            debug!("Font name: '{}', width: {}, height: {}", item.name, item.char_width, item.char_height);
             let font = GMBitmapFont::new_rc(&item.image_file,
                 item.char_width, item.char_height, &item.char_order).await?;
             self.fonts.insert(item.name, font);
@@ -143,10 +151,13 @@ impl GMResourceManager {
         self.sprite_sheets.insert(name.to_string(), Rc::new(sprite_sheet));
     }
     pub async fn sprite_sheets_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
+        info!("Loading spritesheet file: '{}'", file_name);
         let json = load_string(file_name).await?;
         let result: GMSpriteSheetFormatMultiple = DeJson::deserialize_json(&json)?;
+        debug!("Processing sprite sheets...");
 
         for item in result.sprite_sheets {
+            debug!("Spritesheet name: '{}'", item.name);
             let sprite_sheet = GMSpriteSheet::new_rc(&item.image_file).await?;
             self.sprite_sheets.insert(item.name, sprite_sheet);
         }
@@ -160,10 +171,13 @@ impl GMResourceManager {
         self.animations.insert(name.to_string(), Box::new(animation));
     }
     pub async fn animations_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
+        info!("Loading animation file: '{}'", file_name);
         let json = load_string(file_name).await?;
         let result: GMAnimationFormatMultiple = DeJson::deserialize_json(&json)?;
+        debug!("Processing animations...");
 
         for item in result.animations {
+            debug!("Animation name: '{}', type: {:?}", item.name, item.animation_type);
             let frames: Vec<(Rect, f64)> = item.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
             use GMAnimationType::*;
             let animation = match item.animation_type {
@@ -195,10 +209,13 @@ impl GMResourceManager {
         self.sounds.insert(name.to_string(), Rc::new(sound));
     }
     pub async fn sounds_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
+        info!("Loading sound file: '{}'", file_name);
         let json = load_string(file_name).await?;
         let result: GMSoundFormatMultiple = DeJson::deserialize_json(&json)?;
+        debug!("Processing sounds...");
 
         for item in result.sounds {
+            debug!("Sound name: '{}'", item.name);
             let sound = GMSound::new_rc(&item.sound_file).await?;
             self.sounds.insert(item.name, sound);
         }
