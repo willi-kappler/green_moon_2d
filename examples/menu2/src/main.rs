@@ -27,19 +27,6 @@ async fn main() -> Result<(), GMError> {
         &resources.get_font("blagger").unwrap(),
     ];
 
-    /*
-
-    let animation1 = GMAnimationPingPong::new_box(&[
-        (Rect::new(0.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(16.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(32.0, 0.0, 16.0, 20.0), 0.100)
-    ]);
-    let animation2 = GMAnimationPingPong::new_box(&[
-        (Rect::new(0.0, 0.0, 28.0, 23.0), 0.100), (Rect::new(28.0, 0.0, 28.0, 23.0), 0.100), (Rect::new(56.0, 0.0, 28.0, 23.0), 0.100)
-    ]);
-    let animation3 = GMAnimationPingPong::new_box(&[
-        (Rect::new(0.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(40.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(80.0, 0.0, 40.0, 41.0), 0.100)
-    ]);
-    */
-
     let sprite1 = GMSprite::new(
         &resources.get_sprite_sheet("bat").unwrap(),
         resources.get_animation("bat").unwrap(), 0.0, 0.0);
