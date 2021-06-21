@@ -1,6 +1,6 @@
 
 use crate::font::GMFontT;
-use crate::text::{GMTextT, GMStaticText, GMArrowText};
+use crate::text::{GMTextT, GMStaticText};
 use crate::sprite::GMSprite;
 use crate::value::GMValue;
 use crate::sound::GMSound;
