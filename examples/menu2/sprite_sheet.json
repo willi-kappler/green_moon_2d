@@ -1,0 +1,17 @@
+{
+    "sprite_sheets":
+    [
+        {
+            "name": "bat",
+            "image_file": "../assets/gfx/sprite_sheets/bat1.png"
+        },
+        {
+            "name": "cat",
+            "image_file": "../assets/gfx/sprite_sheets/cat1.png"
+        },
+        {
+            "name": "ghost",
+            "image_file": "../assets/gfx/sprite_sheets/ghost1.png"
+        }
+    ]
+}

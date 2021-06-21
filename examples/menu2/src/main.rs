@@ -1,16 +1,14 @@
 use green_moon_2d::menu::GMMenu;
 use green_moon_2d::menu_item::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
 use green_moon_2d::value::GMValue;
-use green_moon_2d::spritesheet::{GMSpriteSheet};
 use green_moon_2d::sprite::GMSprite;
-use green_moon_2d::text::{GMStaticText, GMSpriteText, GMWaveText};
-use green_moon_2d::font::GMBitmapFont;
+use green_moon_2d::text::GMWaveText;
 use green_moon_2d::error::GMError;
-use green_moon_2d::sound::GMSound;
-
-use green_moon_2d::animation::GMAnimationPingPong;
+use green_moon_2d::resource_manager::GMResourceManager;
 
 use macroquad::prelude::*;
+
+use log4rs;
 
 use std::thread;
 use std::time::Duration;
@@ -19,15 +17,17 @@ use std::any::Any;
 
 #[macroquad::main("Menu2")]
 async fn main() -> Result<(), GMError> {
-    let font1 = GMBitmapFont::new_rc("../assets/gfx/fonts/cuddly.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- ").await?;
-    let font2 = GMBitmapFont::new_rc("../assets/gfx/fonts/bbc1.png", 32.0, 32.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789?<> ").await?;
-    let font3 = GMBitmapFont::new_rc("../assets/gfx/fonts/blagger.png", 32.0, 30.0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()': 0123456789").await?;
+    log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
 
-    let fonts = [&font1, &font2, &font3];
+    let resources = GMResourceManager::new_from_file("resources.json").await?;
 
-    let sheet1 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/bat1.png").await?;
-    let sheet2 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/cat1.png").await?;
-    let sheet3 = GMSpriteSheet::new_rc("../assets/gfx/sprite_sheets/ghost1.png").await?;
+    let fonts = [
+        &resources.get_font("cuddly").unwrap(),
+        &resources.get_font("bbc1").unwrap(),
+        &resources.get_font("blagger").unwrap(),
+    ];
+
+    /*
 
     let animation1 = GMAnimationPingPong::new_box(&[
         (Rect::new(0.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(16.0, 0.0, 16.0, 20.0), 0.100), (Rect::new(32.0, 0.0, 16.0, 20.0), 0.100)
@@ -38,39 +38,47 @@ async fn main() -> Result<(), GMError> {
     let animation3 = GMAnimationPingPong::new_box(&[
         (Rect::new(0.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(40.0, 0.0, 40.0, 41.0), 0.100), (Rect::new(80.0, 0.0, 40.0, 41.0), 0.100)
     ]);
+    */
 
-    let sprite1 = GMSprite::new(&sheet1, animation1, 0.0, 0.0);
-    let sprite2 = GMSprite::new(&sheet2, animation2, 0.0, 0.0);
-    let sprite3 = GMSprite::new(&sheet3, animation3, 0.0, 0.0);
+    let sprite1 = GMSprite::new(
+        &resources.get_sprite_sheet("bat").unwrap(),
+        resources.get_animation("bat").unwrap(), 0.0, 0.0);
+    let sprite2 = GMSprite::new(
+        &resources.get_sprite_sheet("cat").unwrap(),
+        resources.get_animation("cat").unwrap(), 0.0, 0.0);
+    let sprite3 = GMSprite::new(
+        &resources.get_sprite_sheet("ghost").unwrap(),
+        resources.get_animation("ghost").unwrap(), 0.0, 0.0);
 
     let sprites = [&sprite1, &sprite2, &sprite3];
 
-    let change_sound = GMSound::new_rc("../assets/sfx/change1.ogg").await?;
-    let enter_sound = GMSound::new_rc("../assets/sfx/enter1.ogg").await?;
+    let menu_title = GMWaveText::new_static("MAIN MENU", 100.0, 40.0, &fonts[0], 8.0, 10.0);
 
-    let menu_title = GMWaveText::new_static("MAIN MENU", 100.0, 40.0, &font1, 8.0, 10.0);
-
-    let mut main_menu = GMMenu::new_empty(menu_title, &change_sound, &enter_sound);
+    let mut main_menu = GMMenu::new_empty(menu_title,
+        &resources.get_sound("change").unwrap(),
+        &resources.get_sound("enter").unwrap()
+    );
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("TITLE FONT ", 100.0, 100.0,
-        &font1, sprite1.clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 0.0);
+        &fonts[0], sprites[0].clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 0.0);
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("ITEM FONT ", 0.0, 0.0,
-        &font1, sprite1.clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 40.0);
+        &fonts[0], sprites[0].clone_sprite(), &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("SPRITE ", 0.0, 0.0,
-        &font1, sprite1.clone_sprite(), &["BAT", "CAT", "GHOST"], 0), 0.0, 40.0);
+        &fonts[0], sprites[0].clone_sprite(), &["BAT", "CAT", "GHOST"], 0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("AMPLITUDE ", 0.0, 0.0,
-        &font1, sprite1.clone_sprite(), 1.0, 20.0, 8.0, 1.0), 0.0, 40.0);
+        &fonts[0], sprites[0].clone_sprite(), 1.0, 20.0, 8.0, 1.0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("FREQUENCY ", 0.0, 0.0,
-        &font1, sprite1.clone_sprite(), 1.0, 30.0, 10.0, 0.5), 0.0, 40.0);
+        &fonts[0], sprites[0].clone_sprite(), 1.0, 30.0, 10.0, 0.5), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("OFFSET ", 0.0, 0.0,
-        &font1, sprite1.clone_sprite(), 1.0, 3.1, 1.0, 0.1), 0.0, 40.0);
+        &fonts[0], sprites[0].clone_sprite(), 1.0, 3.1, 1.0, 0.1), 0.0, 40.0);
 
-    main_menu.add_item(GMMenuItemStatic::new_static_sprite("EXIT", 0.0, 0.0, &font1, sprite1.clone_sprite()), 0.0, 40.0);
+    main_menu.add_item(GMMenuItemStatic::new_static_sprite("EXIT", 0.0, 0.0,
+        &fonts[0], sprites[0].clone_sprite()), 0.0, 40.0);
 
     loop {
         clear_background(BLACK);
