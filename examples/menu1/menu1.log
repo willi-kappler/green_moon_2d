@@ -1,9 +1,0 @@
-2021-06-21T11:39:16.176199777+02:00 INFO - Loading resource file: 'resources.json'
-2021-06-21T11:44:29.304341641+02:00 INFO - Loading resource file: 'resources.json'
-2021-06-21T11:44:29.304425711+02:00 INFO - Loading font file: 'fonts.json'
-2021-06-21T11:44:29.311240458+02:00 DEBUG - Processing fonts...
-2021-06-21T11:44:29.311288296+02:00 DEBUG - Font name: 'cuddly', width: 32, height: 32
-2021-06-21T11:44:29.325303026+02:00 INFO - Loading sound file: 'sounds.json'
-2021-06-21T11:44:29.340582150+02:00 DEBUG - Processing sounds...
-2021-06-21T11:44:29.340604898+02:00 DEBUG - Sound name: 'change'
-2021-06-21T11:44:29.362812056+02:00 DEBUG - Sound name: 'enter'
