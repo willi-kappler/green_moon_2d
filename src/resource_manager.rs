@@ -31,9 +31,19 @@ pub struct GMFontFormat{
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
+pub struct GMFontFormatMultiple {
+    fonts: Vec<GMFontFormat>,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
 pub struct GMSpriteSheetFormat {
     name: String,
     image_file: String,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMSpriteSheetFormatMultiple {
+    sprite_sheets: Vec<GMSpriteSheetFormat>,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
@@ -61,10 +71,20 @@ pub struct GMAnimationFormat {
     frames: Vec<GMFrameFormat>,
 }
 
+#[derive(Clone, Debug, DeJson)]
+pub struct GMAnimationFormatMultiple {
+    animations: Vec<GMAnimationFormat>,
+}
+
 #[derive(Clone, Debug, Default, DeJson)]
 pub struct GMSoundFormat {
     name: String,
     sound_file: String,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMSoundFormatMultiple {
+    sounds: Vec<GMSoundFormat>,
 }
 
 pub struct GMResourceManager {
@@ -84,7 +104,6 @@ impl GMResourceManager {
         }
     }
     pub async fn new_from_file(file_name: &str) -> Result<Self, GMError> {
-        // TODO: read resources from file
         let json = load_string(file_name).await?;
         let result: GMResourceFormat = DeJson::deserialize_json(&json)?;
         let mut resource = Self::new();
@@ -107,11 +126,14 @@ impl GMResourceManager {
     }
     pub async fn fonts_from_file(&mut self, file_name: &str) -> Result<(), GMError>{
         let json = load_string(file_name).await?;
-        // TODO: Load multiple
-        let result: GMFontFormat = DeJson::deserialize_json(&json)?;
-        let font = GMBitmapFont::new_rc(&result.image_file,
-            result.char_width, result.char_height, &result.char_order).await?;
-        self.fonts.insert(result.name, font);
+        let result: GMFontFormatMultiple = DeJson::deserialize_json(&json)?;
+
+        for item in result.fonts {
+            let font = GMBitmapFont::new_rc(&item.image_file,
+                item.char_width, item.char_height, &item.char_order).await?;
+            self.fonts.insert(item.name, font);
+        }
+
         Ok(())
     }
     pub fn get_font(&self, name: &str) -> Option<Rc<dyn GMFontT>> {
@@ -121,12 +143,14 @@ impl GMResourceManager {
         self.sprite_sheets.insert(name.to_string(), Rc::new(sprite_sheet));
     }
     pub async fn sprite_sheets_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
-        // TODO: read multiple sprite sheets from file
         let json = load_string(file_name).await?;
-        // TODO: Load multiple
-        let result: GMSpriteSheetFormat = DeJson::deserialize_json(&json)?;
-        let sprite_sheet = GMSpriteSheet::new_rc(&result.image_file).await?;
-        self.sprite_sheets.insert(result.name, sprite_sheet);
+        let result: GMSpriteSheetFormatMultiple = DeJson::deserialize_json(&json)?;
+
+        for item in result.sprite_sheets {
+            let sprite_sheet = GMSpriteSheet::new_rc(&item.image_file).await?;
+            self.sprite_sheets.insert(item.name, sprite_sheet);
+        }
+
         Ok(())
     }
     pub fn get_sprite_sheet(&self, name: &str) -> Option<Rc<GMSpriteSheet>> {
@@ -136,30 +160,32 @@ impl GMResourceManager {
         self.animations.insert(name.to_string(), Box::new(animation));
     }
     pub async fn animations_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
-        // TODO: read in animations from file
         let json = load_string(file_name).await?;
-        // TODO: Load multiple
-        let result: GMAnimationFormat = DeJson::deserialize_json(&json)?;
-        let frames: Vec<(Rect, f64)> = result.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
-        use GMAnimationType::*;
-        let animation = match result.animation_type {
-            ForeWardOnce => {
-                GMAnimationForwardOnce::new_box(&frames)
-            }
-            ForeWardLoop => {
-                GMAnimationForwardLoop::new_box(&frames)
-            }
-            BackwardOnce => {
-                GMAnimationBackwardOnce::new_box(&frames)
-            }
-            BackwardLoop => {
-                GMAnimationBackwardLoop::new_box(&frames)
-            }
-            PingPong => {
-                GMAnimationPingPong::new_box(&frames)
-            }
-        };
-        self.animations.insert(result.name, animation);
+        let result: GMAnimationFormatMultiple = DeJson::deserialize_json(&json)?;
+
+        for item in result.animations {
+            let frames: Vec<(Rect, f64)> = item.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
+            use GMAnimationType::*;
+            let animation = match item.animation_type {
+                ForeWardOnce => {
+                    GMAnimationForwardOnce::new_box(&frames)
+                }
+                ForeWardLoop => {
+                    GMAnimationForwardLoop::new_box(&frames)
+                }
+                BackwardOnce => {
+                    GMAnimationBackwardOnce::new_box(&frames)
+                }
+                BackwardLoop => {
+                    GMAnimationBackwardLoop::new_box(&frames)
+                }
+                PingPong => {
+                    GMAnimationPingPong::new_box(&frames)
+                }
+            };
+            self.animations.insert(item.name, animation);
+        }
+
         Ok(())
     }
     pub fn get_animation(&self, name: &str) -> Option<Box<dyn GMAnimationT>> {
@@ -169,14 +195,15 @@ impl GMResourceManager {
         self.sounds.insert(name.to_string(), Rc::new(sound));
     }
     pub async fn sounds_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
-        // TODO: read in sound file
         let json = load_string(file_name).await?;
-        // TODO: Load multiple
-        let result: GMSoundFormat = DeJson::deserialize_json(&json)?;
-        let sound = GMSound::new_rc(&result.sound_file).await?;
-        self.sounds.insert(result.name, sound);
-        Ok(())
+        let result: GMSoundFormatMultiple = DeJson::deserialize_json(&json)?;
 
+        for item in result.sounds {
+            let sound = GMSound::new_rc(&item.sound_file).await?;
+            self.sounds.insert(item.name, sound);
+        }
+
+        Ok(())
     }
     pub fn get_sound(&self, name: &str) -> Option<Rc<GMSound>> {
         self.sounds.get(name).map(|v| v.clone())
