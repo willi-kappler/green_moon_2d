@@ -1,7 +1,7 @@
 use crate::font::{GMFontT};
 use crate::sprite::GMSprite;
+use crate::behavior::GMKeyValue;
 
-use std::any::Any;
 use std::rc::Rc;
 
 pub trait GMTextT {
@@ -18,7 +18,7 @@ pub trait GMTextT {
     fn get_font(&self) -> &Rc<dyn GMFontT>;
     fn from_other(&mut self, other: Box<dyn GMTextT>);
     fn get_extend(&self) -> (f32, f32);
-    fn set_property(&mut self, _name: &str, _value: &Rc<dyn Any>) {
+    fn set_property(&mut self, _data: &GMKeyValue) {
     }
 }
 
@@ -363,9 +363,9 @@ impl GMTextT for GMSpriteText {
     fn get_extend(&self) -> (f32, f32) {
         self.base.get_extend()
     }
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
-        if name == "sprite" {
-            match value.downcast_ref::<GMSprite>() {
+    fn set_property(&mut self, data: &GMKeyValue) {
+        if data.key == "sprite" {
+            match data.value.downcast_ref::<GMSprite>() {
                 Some(sprite) => {
                     self.set_sprite(sprite.clone_sprite());
                 }
@@ -374,7 +374,7 @@ impl GMTextT for GMSpriteText {
                 }
             }
         } else {
-            self.base.set_property(name, value)
+            self.base.set_property(data)
         }
     }
 }
@@ -478,37 +478,39 @@ impl GMTextT for GMWaveText {
         // TODO:: Calculate extend for y (= height) with amplitude
         self.base.get_extend()
     }
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
-        if name == "amplitude" {
-            match value.downcast_ref::<f32>() {
+    fn set_property(&mut self, data: &GMKeyValue) {
+        if data.key == "amplitude" {
+            match data.value.downcast_ref::<f32>() {
                 Some(a) => {
                     self.set_amplitude(*a);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
-        } else if name == "frequency" {
-            match value.downcast_ref::<f32>() {
+        } else if data.key == "frequency" {
+            match data.value.downcast_ref::<f32>() {
                 Some(f) => {
                     self.set_frequency(*f);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
-        } else if  name == "offset" {
-            match value.downcast_ref::<f32>() {
+        } else if data.key == "offset" {
+            match data.value.downcast_ref::<f32>() {
                 Some(f) => {
                     self.set_offset(*f);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", name)
+                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         }
         else {
-            self.base.set_property(name, value)
+            self.base.set_property(data)
         }
     }
 }
+
+// TODO: Text with sprite / tile border

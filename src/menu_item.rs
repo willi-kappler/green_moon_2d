@@ -3,10 +3,10 @@ use crate::font::GMFontT;
 use crate::value::GMValue;
 use crate::text::{GMTextT, GMStaticText, GMArrowText, GMSpriteText};
 use crate::sprite::{GMSprite, in_rect};
+use crate::behavior::GMKeyValue;
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
 
-use std::any::Any;
 use std::rc::Rc;
 
 pub enum GMMenuItemEvent {
@@ -29,7 +29,7 @@ pub trait GMMenuItemT {
     fn get_y(&self) -> f32;
     fn event(&mut self) -> Option<GMMenuItemEvent>;
     fn set_font(&mut self, font: &Rc<dyn GMFontT>);
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>);
+    fn set_property(&mut self, data: &GMKeyValue);
 }
 
 pub struct GMMenuItemStatic {
@@ -129,9 +129,9 @@ impl GMMenuItemT for GMMenuItemStatic {
         self.inactive_text.set_font(font);
         self.active_text.set_font(font);
     }
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
-        self.inactive_text.set_property(name, value);
-        self.active_text.set_property(name, value);
+    fn set_property(&mut self, data: &GMKeyValue) {
+        self.inactive_text.set_property(data);
+        self.active_text.set_property(data);
     }
 
     fn set_x(&mut self, x: f32) {
@@ -251,8 +251,8 @@ impl GMMenuItemT for GMMenuItemNumeric {
     fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
     }
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
-        self.base.set_property(name, value);
+    fn set_property(&mut self, data: &GMKeyValue) {
+        self.base.set_property(data);
     }
     fn set_x(&mut self, x: f32) {
         self.base.set_x(x);
@@ -378,8 +378,8 @@ impl GMMenuItemT for GMMenuItemEnum {
     fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
         self.base.set_font(font);
     }
-    fn set_property(&mut self, name: &str, value: &Rc<dyn Any>) {
-        self.base.set_property(name, value);
+    fn set_property(&mut self, data: &GMKeyValue) {
+        self.base.set_property(data);
     }
     fn set_x(&mut self, x: f32) {
         self.base.set_x(x);

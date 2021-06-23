@@ -5,6 +5,7 @@ use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::text::GMWaveText;
 use green_moon_2d::error::GMError;
 use green_moon_2d::resource_manager::GMResourceManager;
+use green_moon_2d::behavior::GMKeyValue;
 
 use macroquad::prelude::*;
 
@@ -12,7 +13,6 @@ use log4rs;
 
 use std::thread;
 use std::time::Duration;
-use std::rc::Rc;
 use std::any::Any;
 
 #[macroquad::main("Menu2")]
@@ -95,20 +95,19 @@ async fn main() -> Result<(), GMError> {
                         } else if i == 1 {
                             main_menu.set_item_font(fonts[j]);
                         } else if i == 2 {
-                            let sprite: Rc<dyn Any> = Rc::new(sprites[j].clone_sprite());
-                            main_menu.change_property_all("sprite", &sprite);
+                            main_menu.change_property_all(&GMKeyValue::new("sprite", Box::new(sprites[j].clone_sprite())));
                         }
                     }
                     GMF32(f) => {
                         println!("New f32 value: {}", f);
-                        let value: Rc<dyn Any> = Rc::new(f);
+                        let value: Box<dyn Any> = Box::new(f);
 
                         if i == 3 {
-                            main_menu.change_property_title("amplitude", &value);
+                            main_menu.change_property_title(&GMKeyValue::new("amplitude", value));
                         } else if i == 4 {
-                            main_menu.change_property_title("frequency", &value);
+                            main_menu.change_property_title(&GMKeyValue::new("frequency", value));
                         } else if i == 5 {
-                            main_menu.change_property_title("offset", &value);
+                            main_menu.change_property_title(&GMKeyValue::new("offset", value));
                         }
                     }
                     _ => {

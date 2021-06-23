@@ -5,11 +5,11 @@ use crate::sprite::GMSprite;
 use crate::value::GMValue;
 use crate::sound::GMSound;
 use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
+use crate::behavior::GMKeyValue;
 
 // use macroquad::window::{screen_width};
 
 use std::rc::Rc;
-use std::any::Any;
 
 pub struct GMMenu {
     title: Box<dyn GMTextT>,
@@ -173,15 +173,15 @@ impl GMMenu {
             item.set_font(font);
         }
     }
-    pub fn change_property_all(&mut self, name: &str, value: &Rc<dyn Any>) {
+    pub fn change_property_all(&mut self, data: &GMKeyValue) {
         for item in self.items.iter_mut() {
-            item.set_property(name, value);
+            item.set_property(data);
         }
     }
-    pub fn change_property_one(&mut self, i: usize, name: &str, value: &Rc<dyn Any>) {
-        self.items[i].set_property(name, value);
+    pub fn change_property_one(&mut self, i: usize, data: &GMKeyValue) {
+        self.items[i].set_property(data);
     }
-    pub fn change_property_title(&mut self, name: &str, value: &Rc<dyn Any>) {
-        self.title.set_property(name, value);
+    pub fn change_property_title(&mut self, data: &GMKeyValue) {
+        self.title.set_property(data);
     }
 }
