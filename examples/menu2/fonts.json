@@ -19,7 +19,7 @@
             "name": "blagger",
             "image_file": "../assets/gfx/fonts/blagger.png",
             "char_width": 32.0,
-            "char_height": 32.0,
+            "char_height": 30.0,
             "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()': 0123456789"
         }
     ]
