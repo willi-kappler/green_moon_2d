@@ -147,6 +147,9 @@ impl GMResourceManager {
     pub fn get_font(&self, name: &str) -> Option<Rc<dyn GMFontT>> {
         self.fonts.get(name).map(|v| v.clone())
     }
+    pub fn remove_font(&mut self, name: &str) {
+        self.fonts.remove(name);
+    }
     pub fn add_sprite_sheet(&mut self, name: &str, sprite_sheet: GMSpriteSheet) {
         self.sprite_sheets.insert(name.to_string(), Rc::new(sprite_sheet));
     }
@@ -166,6 +169,9 @@ impl GMResourceManager {
     }
     pub fn get_sprite_sheet(&self, name: &str) -> Option<Rc<GMSpriteSheet>> {
         self.sprite_sheets.get(name).map(|v| v.clone())
+    }
+    pub fn remove_sprite_sheet(&mut self, name: &str) {
+        self.sprite_sheets.remove(name);
     }
     pub fn add_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
         self.animations.insert(name.to_string(), Box::new(animation));
@@ -205,6 +211,9 @@ impl GMResourceManager {
     pub fn get_animation(&self, name: &str) -> Option<Box<dyn GMAnimationT>> {
         self.animations.get(name).map(|v| v.clone_animation())
     }
+    pub fn remove_animation(&mut self, name: &str) {
+        self.animations.remove(name);
+    }
     pub fn add_sound(&mut self, name: &str, sound: GMSound) {
         self.sounds.insert(name.to_string(), Rc::new(sound));
     }
@@ -224,5 +233,8 @@ impl GMResourceManager {
     }
     pub fn get_sound(&self, name: &str) -> Option<Rc<GMSound>> {
         self.sounds.get(name).map(|v| v.clone())
+    }
+    pub fn remove_sound(&mut self, name: &str) {
+        self.sounds.remove(name);
     }
 }
