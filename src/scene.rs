@@ -22,6 +22,10 @@ impl GMSceneManager {
 
     pub fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
         self.scenes.push((name.to_string(), scene));
+
+        if self.scenes.len() == 1 {
+            self.scenes[0].1.init();
+        }
     }
 
     pub fn remove_scene(&mut self, name: &str) {
