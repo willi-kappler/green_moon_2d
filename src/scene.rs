@@ -1,10 +1,17 @@
 
 use macroquad::window::next_frame;
+
+pub enum GMSceneResult {
+    GMKeepScene,
+    GMChangeScene(String),
+    GMExit,
+}
+
 pub trait GMSceneT {
     fn init(&mut self);
     fn draw(&self);
     fn update(&mut self);
-    fn event(&mut self) -> Option<String>;
+    fn event(&mut self) -> GMSceneResult;
 }
 
 pub struct GMSceneManager {
@@ -46,27 +53,33 @@ impl GMSceneManager {
     pub fn event(&mut self) -> bool {
         let result = self.scenes[self.current_scene].1.event();
 
-        if let Some(new_scene) = result {
-            if new_scene == "#exit#" {
-                return true
+        use GMSceneResult::*;
+
+        match result {
+            GMKeepScene => {
+                false
             }
+            GMChangeScene(new_scene) => {
+                let mut change_scene = false;
 
-            let mut change_scene = false;
-
-            for i in 0..self.scenes.len() {
-                if self.scenes[i].0 == new_scene {
-                    self.current_scene = i;
-                    change_scene = true;
-                    break;
+                for i in 0..self.scenes.len() {
+                    if self.scenes[i].0 == new_scene {
+                        self.current_scene = i;
+                        change_scene = true;
+                        break;
+                    }
                 }
-            }
 
-            if change_scene {
-                self.scenes[0].1.init();
+                if change_scene {
+                    self.scenes[self.current_scene].1.init();
+                }
+
+                false
+            }
+            GMExit => {
+                true
             }
         }
-
-        false
     }
 
     pub async fn start_loop(&mut self) {
