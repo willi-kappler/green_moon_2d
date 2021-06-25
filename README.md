@@ -1,3 +1,9 @@
 # green_moon_2d
 
-Green Moon 2D - a collection of utility functions to be used with Macroquad.
+Green Moon 2D - a collection of useful data structures and functions for game development.
+
+TODO:
+- GMParticleEmitter, GMParticle
+- GMHighScore, GMScore
+- GMOptions
+
