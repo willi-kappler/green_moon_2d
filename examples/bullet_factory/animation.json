@@ -1,0 +1,35 @@
+{
+    "animations":
+    [
+        {
+            "name": "bat",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
+                {"x": 16.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
+                {"x": 32.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100}
+            ]
+        },
+        {
+            "name": "cat",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
+                {"x": 28.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
+                {"x": 56.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100}
+            ]
+        },
+        {
+            "name": "ghost",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
+                {"x": 40.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
+                {"x": 80.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100}
+            ]
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "sounds":
+    [
+        {
+            "name": "change",
+            "sound_file": "../assets/sfx/change1.ogg"
+        },
+        {
+            "name": "enter",
+            "sound_file": "../assets/sfx/enter1.ogg"
+        }
+    ]
+}
