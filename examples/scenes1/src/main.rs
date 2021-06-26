@@ -8,8 +8,10 @@ use log4rs;
 
 use std::rc::Rc;
 
-mod scenes;
-use scenes::{Scene1, Scene2, Scene3, Scene4};
+mod scene1;
+mod scene2;
+mod scene3;
+mod scene4;
 
 #[macroquad::main("Scenes1")]
 async fn main() -> Result<(), GMError> {
@@ -19,15 +21,15 @@ async fn main() -> Result<(), GMError> {
 
     let mut scenes_manager = GMSceneManager::new();
 
-    let scene1 = Scene1::new(&resources);
-    let scene2 = Scene2::new(&resources);
-    let scene3 = Scene3::new(&resources);
-    let scene4 = Scene4::new(&resources);
+    let sc1 = scene1::Scene1::new(&resources);
+    let sc2 = scene2::Scene2::new(&resources);
+    let sc3 = scene3::Scene3::new(&resources);
+    let sc4 = scene4::Scene4::new(&resources);
 
-    scenes_manager.add_scene("scene1", scene1);
-    scenes_manager.add_scene("scene2", scene2);
-    scenes_manager.add_scene("scene3", scene3);
-    scenes_manager.add_scene("scene4", scene4);
+    scenes_manager.add_scene("scene1", sc1);
+    scenes_manager.add_scene("scene2", sc2);
+    scenes_manager.add_scene("scene3", sc3);
+    scenes_manager.add_scene("scene4", sc4);
 
     scenes_manager.start_loop().await;
 
