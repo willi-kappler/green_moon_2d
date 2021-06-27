@@ -1,0 +1,26 @@
+{
+    "fonts":
+    [
+        {
+            "name": "cuddly",
+            "image_file": "../assets/gfx/fonts/cuddly.png",
+            "char_width": 32.0,
+            "char_height": 32.0,
+            "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- "
+        },
+        {
+            "name": "bbc1",
+            "image_file": "../assets/gfx/fonts/bbc1.png",
+            "char_width": 32.0,
+            "char_height": 32.0,
+            "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789?<> "
+        },
+        {
+            "name": "blagger",
+            "image_file": "../assets/gfx/fonts/blagger.png",
+            "char_width": 32.0,
+            "char_height": 30.0,
+            "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()': 0123456789"
+        }
+    ]
+}

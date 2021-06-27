@@ -7,6 +7,8 @@ use macroquad::prelude::*;
 use log4rs;
 
 use std::rc::Rc;
+use std::thread;
+use std::time::Duration;
 
 mod scene1;
 mod scene2;
@@ -16,6 +18,8 @@ mod scene4;
 #[macroquad::main("Scenes1")]
 async fn main() -> Result<(), GMError> {
     log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
+
+    show_mouse(true);
 
     let resources = Rc::new(GMResourceManager::new_from_file("resources.json").await?);
 
@@ -34,5 +38,7 @@ async fn main() -> Result<(), GMError> {
     scenes_manager.start_loop().await;
 
     println!("Good bye!");
+    thread::sleep(Duration::from_millis(500));
+
     Ok(())
 }
