@@ -1,0 +1,11 @@
+appenders:
+  file_logger:
+    kind: file
+    path: "particle1.log"
+    encoder:
+      pattern: "{d} {l} - {m}{n}"
+
+root:
+  level: debug
+  appenders:
+    - file_logger

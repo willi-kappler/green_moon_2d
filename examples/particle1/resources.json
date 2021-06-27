@@ -1,0 +1,12 @@
+{
+    "sprite_sheets": [
+        {
+            "name": "particle1",
+            "file": "../assets/gfx/sprite_sheets/particle1.png"
+        }
+    ],
+    "animation_files": [
+        "../assets/gfx/sprite_sheets/particle1_animation.json"
+    ]
+
+}
