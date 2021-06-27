@@ -6,7 +6,6 @@ use macroquad::prelude::*;
 
 use log4rs;
 
-use std::rc::Rc;
 use std::thread;
 use std::time::Duration;
 
@@ -21,7 +20,7 @@ async fn main() -> Result<(), GMError> {
 
     show_mouse(true);
 
-    let resources = Rc::new(GMResourceManager::new_from_file("resources.json").await?);
+    let resources = GMResourceManager::new_from_file("resources.json").await?;
 
     let mut scenes_manager = GMSceneManager::new();
 

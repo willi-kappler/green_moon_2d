@@ -4,15 +4,12 @@ use green_moon_2d::resource_manager::GMResourceManager;
 
 use macroquad::prelude::*;
 
-use std::rc::Rc;
-
 pub struct Scene3 {
-    resources: Rc<GMResourceManager>,
     menu: GMMenu,
 }
 
 impl Scene3 {
-    pub fn new(resources: &Rc<GMResourceManager>) -> Box<dyn GMSceneT> {
+    pub fn new(resources: &GMResourceManager) -> Box<dyn GMSceneT> {
         let items = ["SCENE 1", "SCENE 2", "SCENE 4", "EXIT"];
         let menu = GMMenu::new_static_arrow(240.0, 100.0, "SCENE 3", &items,
             &resources.get_font("cuddly").unwrap(),
@@ -20,7 +17,6 @@ impl Scene3 {
             &resources.get_sound("enter").unwrap());
 
         let result = Self {
-            resources: resources.clone(),
             menu,
         };
         Box::new(result)
