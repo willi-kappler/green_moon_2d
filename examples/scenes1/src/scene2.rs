@@ -14,8 +14,8 @@ impl Scene2 {
         let items = ["SCENE 1", "SCENE 3", "SCENE 4", "EXIT"];
         let menu = GMMenu::new_static_arrow(240.0, 100.0, "SCENE 2", &items,
             &resources.get_font("bbc1").unwrap(),
-            &resources.get_sound("change").unwrap(),
-            &resources.get_sound("enter").unwrap());
+            &resources.get_sound("change1").unwrap(),
+            &resources.get_sound("enter1").unwrap());
 
         let result = Self {
             menu

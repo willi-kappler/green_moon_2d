@@ -28,13 +28,13 @@ async fn main() -> Result<(), GMError> {
     ];
 
     let sprite1 = GMSprite::new(
-        &resources.get_sprite_sheet("bat").unwrap(),
+        &resources.get_sprite_sheet("bat1").unwrap(),
         resources.get_animation("bat").unwrap(), 0.0, 0.0);
     let sprite2 = GMSprite::new(
-        &resources.get_sprite_sheet("cat").unwrap(),
+        &resources.get_sprite_sheet("cat1").unwrap(),
         resources.get_animation("cat").unwrap(), 0.0, 0.0);
     let sprite3 = GMSprite::new(
-        &resources.get_sprite_sheet("ghost").unwrap(),
+        &resources.get_sprite_sheet("ghost1").unwrap(),
         resources.get_animation("ghost").unwrap(), 0.0, 0.0);
 
     let sprites = [&sprite1, &sprite2, &sprite3];
@@ -42,8 +42,8 @@ async fn main() -> Result<(), GMError> {
     let menu_title = GMWaveText::new_static("MAIN MENU", 100.0, 40.0, &fonts[0], 8.0, 10.0);
 
     let mut main_menu = GMMenu::new_empty(menu_title,
-        &resources.get_sound("change").unwrap(),
-        &resources.get_sound("enter").unwrap()
+        &resources.get_sound("change1").unwrap(),
+        &resources.get_sound("enter1").unwrap()
     );
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("TITLE FONT ", 100.0, 100.0,

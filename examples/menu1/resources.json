@@ -1,4 +1,15 @@
 {
-    "font_file": "fonts.json",
-    "sound_file": "sounds.json"
+    "font_files": [
+        "../assets/gfx/fonts/cuddly.json"
+    ],
+    "sounds": [
+        {
+            "name": "change1",
+            "file": "../assets/sfx/change1.ogg"
+        },
+        {
+            "name": "enter1",
+            "file": "../assets/sfx/enter1.ogg"
+        }
+    ]
 }

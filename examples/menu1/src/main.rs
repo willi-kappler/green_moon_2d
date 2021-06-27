@@ -18,8 +18,8 @@ async fn main() -> Result<(), GMError> {
     let items = ["START", "CONTROLS", "GFX OPTIONS", "SFX OPTIONS", "HIGH SCORE", "CREDITS", "EXIT"];
     let mut main_menu = GMMenu::new_static_arrow(240.0, 100.0, "MAIN MENU", &items,
         &resources.get_font("cuddly").unwrap(),
-        &resources.get_sound("change").unwrap(),
-        &resources.get_sound("enter").unwrap());
+        &resources.get_sound("change1").unwrap(),
+        &resources.get_sound("enter1").unwrap());
 
     show_mouse(true);
 
