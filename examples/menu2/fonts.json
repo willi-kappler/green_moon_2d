@@ -13,7 +13,7 @@
             "image_file": "../assets/gfx/fonts/bbc1.png",
             "char_width": 32.0,
             "char_height": 32.0,
-            "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789?<> "
+            "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789<> "
         },
         {
             "name": "blagger",
