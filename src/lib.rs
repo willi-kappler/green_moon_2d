@@ -5,6 +5,8 @@ pub mod error;
 pub mod font;
 pub mod menu;
 pub mod menu_item;
+pub mod option;
+pub mod particle;
 pub mod person;
 pub mod resource_manager;
 pub mod scene;

@@ -1,6 +1,5 @@
 use macroquad::math::Rect;
 use macroquad::time::get_time;
-
 pub trait GMAnimationT {
     fn start(&mut self);
     fn pause(&mut self);

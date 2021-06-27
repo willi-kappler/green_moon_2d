@@ -3,6 +3,7 @@ use crate::sprite::GMSprite;
 use crate::behavior::GMKeyValue;
 
 use std::rc::Rc;
+use std::f32::consts;
 
 pub trait GMTextT {
     fn draw(&self);
@@ -443,8 +444,8 @@ impl GMTextT for GMWaveText {
     }
     fn update(&mut self) {
         self.time += 0.01;
-        if self.time > 2.0 * std::f32::consts::PI {
-            self.time -= 2.0 * std::f32::consts::PI;
+        if self.time > consts::TAU {
+            self.time -= consts::TAU;
         }
     }
     fn set_text(&mut self, text: &str) {

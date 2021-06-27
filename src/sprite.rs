@@ -5,6 +5,7 @@ use crate::spritesheet::GMSpriteSheet;
 use macroquad::window::{screen_width, screen_height};
 
 use std::rc::Rc;
+use std::f32::consts;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum GMCollisionShape {
@@ -32,6 +33,8 @@ pub struct GMSprite {
     state_id: u32,
     flip_x: bool,
     flip_y: bool,
+    rotation: f32,
+    rot_speed: f32,
 }
 
 impl GMSprite {
@@ -48,6 +51,8 @@ impl GMSprite {
             state_id: 0,
             flip_x: false,
             flip_y: false,
+            rotation: 0.0,
+            rot_speed: 0.0,
         }
     }
     pub fn clone_sprite(&self) -> Self {
@@ -63,6 +68,8 @@ impl GMSprite {
             state_id: self.state_id,
             flip_x: self.flip_x,
             flip_y: self.flip_y,
+            rotation: self.rotation,
+            rot_speed: self.rot_speed,
         }
     }
     pub fn draw(&self) {
@@ -70,7 +77,7 @@ impl GMSprite {
             return
         }
         let rect = self.animation.get_rect();
-        self.sheet.draw_mirror(&rect, self.x, self.y, self.flip_x, self.flip_y);
+        self.sheet.draw_ex(&rect, self.x, self.y, self.flip_x, self.flip_y, self.rotation);
     }
     pub fn update(&mut self) {
         if !self.active {
@@ -80,6 +87,12 @@ impl GMSprite {
         self.animation.next_frame();
         self.x += self.vx;
         self.y += self.vy;
+        self.rotation += self.rot_speed;
+        if self.rotation > consts::TAU {
+            self.rotation -= consts::TAU;
+        } else if self.rotation < consts::TAU {
+            self.rotation += consts::TAU;
+        }
 }
     pub fn get_extend(&self) -> (f32, f32) {
         let rect = self.animation.get_rect();
@@ -172,6 +185,12 @@ impl GMSprite {
     }
     pub fn set_state_id(&mut self, state_id: u32) {
         self.state_id = state_id;
+    }
+    pub fn set_rotation(&mut self, rotation: f32) {
+        self.rotation = rotation;
+    }
+    pub fn set_rot_speed(&mut self, rot_speed: f32) {
+        self.rot_speed = rot_speed;
     }
     pub fn is_offscreen(&self) -> bool {
         let (width, height) = self.get_extend();

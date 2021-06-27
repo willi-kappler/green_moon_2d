@@ -25,13 +25,14 @@ impl GMSpriteSheet {
         Ok(Rc::new(sheet))
     }
     pub fn draw(&self, source: &Rect, x: f32, y: f32) {
-        self.draw_mirror(source, x, y, false, false)
+        self.draw_ex(source, x, y, false, false, 0.0)
     }
-    pub fn draw_mirror(&self, source: &Rect, x: f32, y: f32, flip_x: bool, flip_y: bool) {
+    pub fn draw_ex(&self, source: &Rect, x: f32, y: f32, flip_x: bool, flip_y: bool, rotation: f32) {
         let params = DrawTextureParams {
             source: Some(*source),
             flip_x,
             flip_y,
+            rotation,
             .. Default::default()
         };
 
