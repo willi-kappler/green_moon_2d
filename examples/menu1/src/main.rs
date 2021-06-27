@@ -30,7 +30,7 @@ async fn main() -> Result<(), GMError> {
         main_menu.update();
 
         if let Some((i, _)) = main_menu.event() {
-            println!("Use has selected item: {}", i);
+            println!("User has selected item: {}", i);
 
             if i == 6 {
                 break;
