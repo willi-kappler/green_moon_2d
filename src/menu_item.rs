@@ -10,11 +10,11 @@ use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_
 use std::rc::Rc;
 
 pub enum GMMenuItemEvent {
-    GMSelectThisItem,
-    GMHighlightPrevItem,
-    GMHighlightThisItem,
-    GMHighlightNextItem,
-    GMNewValue(GMValue),
+    SelectThisItem,
+    HighlightPrevItem,
+    HighlightThisItem,
+    HighlightNextItem,
+    NewValue(GMValue),
 }
 
 pub trait GMMenuItemT {
@@ -107,19 +107,19 @@ impl GMMenuItemT for GMMenuItemStatic {
         if self.active {
             if is_key_pressed(KeyCode::Up) {
                 self.active = false;
-                Some(GMHighlightPrevItem)
+                Some(HighlightPrevItem)
             } else if is_key_pressed(KeyCode::Down) {
                 self.active = false;
-                Some(GMHighlightNextItem)
+                Some(HighlightNextItem)
             } else if is_key_pressed(KeyCode::Enter) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
-                Some(GMSelectThisItem)
+                Some(SelectThisItem)
             } else {
                 None
             }
         } else {
             if point_inside {
                 self.active = true;
-                Some(GMHighlightThisItem)
+                Some(HighlightThisItem)
             } else {
                 None
             }
@@ -218,31 +218,31 @@ impl GMMenuItemT for GMMenuItemNumeric {
         if self.base.get_active() {
             if is_key_pressed(KeyCode::Up) {
                 self.base.set_active(false);
-                Some(GMHighlightPrevItem)
+                Some(HighlightPrevItem)
             } else if is_key_pressed(KeyCode::Down) {
                 self.base.set_active(false);
-                Some(GMHighlightNextItem)
+                Some(HighlightNextItem)
             } else if is_key_pressed(KeyCode::Left) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
                 self.current_val -= self.step;
                 if self.current_val < self.min_val {
                     self.current_val = self.min_val
                 }
                 self.update_text();
-                Some(GMNewValue(GMValue::GMF32(self.current_val)))
+                Some(NewValue(GMValue::F32(self.current_val)))
             } else if is_key_pressed(KeyCode::Right) || (is_mouse_button_pressed(MouseButton::Right) && point_inside) {
                 self.current_val += self.step;
                 if self.current_val > self.max_val {
                     self.current_val = self.max_val
                 }
                 self.update_text();
-                Some(GMNewValue(GMValue::GMF32(self.current_val)))
+                Some(NewValue(GMValue::F32(self.current_val)))
             } else {
                 None
             }
         } else {
             if point_inside {
                 self.base.set_active(true);
-                Some(GMMenuItemEvent::GMHighlightThisItem)
+                Some(GMMenuItemEvent::HighlightThisItem)
             } else {
                 None
             }
@@ -343,10 +343,10 @@ impl GMMenuItemT for GMMenuItemEnum {
 
             if is_key_pressed(KeyCode::Up) {
                 self.base.set_active(false);
-                Some(GMHighlightPrevItem)
+                Some(HighlightPrevItem)
             } else if is_key_pressed(KeyCode::Down) {
                 self.base.set_active(false);
-                Some(GMHighlightNextItem)
+                Some(HighlightNextItem)
             } else if is_key_pressed(KeyCode::Left) || (is_mouse_button_pressed(MouseButton::Left) && point_inside) {
                 if self.current_item > first {
                     self.current_item -= 1;
@@ -354,7 +354,7 @@ impl GMMenuItemT for GMMenuItemEnum {
                     self.current_item = last;
                 }
                 self.update_text();
-                Some(GMNewValue(GMValue::GMUSize(self.current_item)))
+                Some(NewValue(GMValue::USize(self.current_item)))
             } else if is_key_pressed(KeyCode::Right) || (is_mouse_button_pressed(MouseButton::Right) && point_inside) {
                 if self.current_item < last {
                     self.current_item += 1;
@@ -362,14 +362,14 @@ impl GMMenuItemT for GMMenuItemEnum {
                     self.current_item = first;
                 }
                 self.update_text();
-                Some(GMNewValue(GMValue::GMUSize(self.current_item)))
+                Some(NewValue(GMValue::USize(self.current_item)))
             } else {
                 None
             }
         } else {
             if point_inside {
                 self.base.set_active(true);
-                Some(GMMenuItemEvent::GMHighlightThisItem)
+                Some(GMMenuItemEvent::HighlightThisItem)
             } else {
                 None
             }

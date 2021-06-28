@@ -1,10 +1,8 @@
 use crate::animation::GMAnimationT;
 use crate::sprite::GMSprite;
-use crate::spritesheet::GMSpriteSheet;
 
 use macroquad::time::get_time;
 
-use std::rc::Rc;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum GMOffscreenMode {
@@ -13,9 +11,13 @@ pub enum GMOffscreenMode {
     WrapAround,
 }
 
+pub enum GMBulletState {
+    Moving,
+    Exploding,
+}
+
 pub struct GMBulletFactory {
-    sprite_sheet: Rc<GMSpriteSheet>,
-    animation: Box<dyn GMAnimationT>,
+    base_sprite: GMSprite,
     explosion: Box<dyn GMAnimationT>,
     max_bullets: usize,
     delay: f64,
@@ -25,13 +27,12 @@ pub struct GMBulletFactory {
 }
 
 impl GMBulletFactory {
-    pub fn new(sprite_sheet: &Rc<GMSpriteSheet>, animation: Box<dyn GMAnimationT>, explosion: Box<dyn GMAnimationT>, max_bullets: usize) -> Self {
+    pub fn new(sprite: &GMSprite, explosion: Box<dyn GMAnimationT>, max_bullets: usize) -> Self {
         Self {
-            sprite_sheet: sprite_sheet.clone(),
-            animation,
+            base_sprite: sprite.clone_sprite(),
             explosion,
             max_bullets,
-            delay: 0.0,
+            delay: 0.5,
             prev_time: 0.0,
             offscreen_mode: GMOffscreenMode::Destroy,
             bullets: Vec::new(),
@@ -52,7 +53,9 @@ impl GMBulletFactory {
         }
 
         if self.bullets.len() < self.max_bullets {
-            let mut sprite = GMSprite::new(&self.sprite_sheet, self.animation.clone_animation(), x, y);
+            let mut sprite = self.base_sprite.clone_sprite();
+            sprite.set_x(x);
+            sprite.set_y(y);
             sprite.set_vx(vx);
             sprite.set_vy(vy);
             self.bullets.push(sprite);

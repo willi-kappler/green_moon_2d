@@ -110,12 +110,12 @@ impl GMMenu {
                     use GMValue::*;
 
                     match e {
-                        GMSelectThisItem => {
+                        SelectThisItem => {
                             self.change_sound.stop();
                             self.enter_sound.play();
-                            return Some((i, GMNone))
+                            return Some((i, None))
                         }
-                        GMHighlightPrevItem => {
+                        HighlightPrevItem => {
                             self.change_sound.stop();
                             self.change_sound.play();
 
@@ -127,14 +127,14 @@ impl GMMenu {
                                 new_highlighted = Some((i - 1, true));
                             }
                         }
-                        GMHighlightThisItem => {
+                        HighlightThisItem => {
                             self.change_sound.stop();
                             self.change_sound.play();
 
                             new_highlighted = Some((self.highlighted, false));
                             self.highlighted = i;
                         }
-                        GMHighlightNextItem => {
+                        HighlightNextItem => {
                             self.change_sound.stop();
                             self.change_sound.play();
 
@@ -146,7 +146,7 @@ impl GMMenu {
                                 new_highlighted = Some((i + 1, true));
                             }
                         }
-                        GMNewValue(v) => {
+                        NewValue(v) => {
                             self.change_sound.stop();
                             self.change_sound.play();
                             return Some((i, v))

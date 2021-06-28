@@ -78,16 +78,15 @@ async fn main() -> Result<(), GMError> {
                 // Nothing to do...
             }
             Some((i, v)) => {
-                use GMValue::*;
                 println!("User has selected item: {}", i);
 
                 match v {
-                    GMNone => {
+                    GMValue::None => {
                         if i == 6 {
                             break;
                         }
                     }
-                    GMUSize(j) => {
+                    GMValue::USize(j) => {
                         println!("New usize value: {}", j);
 
                         if i == 0 {
@@ -98,7 +97,7 @@ async fn main() -> Result<(), GMError> {
                             main_menu.change_property_all(&GMKeyValue::new("sprite", Box::new(sprites[j].clone_sprite())));
                         }
                     }
-                    GMF32(f) => {
+                    GMValue::F32(f) => {
                         println!("New f32 value: {}", f);
                         let value: Box<dyn Any> = Box::new(f);
 

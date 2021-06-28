@@ -1,9 +1,9 @@
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GMValue {
-    GMNone,
-    GMBool(bool),
-    GMF32(f32),
-    GMUSize(usize),
-    GMString(String),
+    None,
+    Bool(bool),
+    F32(f32),
+    USize(usize),
+    String(String),
 }

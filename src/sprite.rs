@@ -9,8 +9,8 @@ use std::f32::consts;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum GMCollisionShape {
-    GMRectangle,
-    GMCircle,
+    Rectangle,
+    Circle,
 }
 
 pub fn between(a: f32, b: f32, c: f32) -> bool {
@@ -47,7 +47,7 @@ impl GMSprite {
             vx: 0.0,
             vy: 0.0,
             active: true,
-            collision_shape: GMCollisionShape::GMRectangle,
+            collision_shape: GMCollisionShape::Rectangle,
             state_id: 0,
             flip_x: false,
             flip_y: false,
@@ -124,7 +124,7 @@ impl GMSprite {
         use GMCollisionShape::*;
 
         match (self.collision_shape, other.collision_shape) {
-            (GMRectangle, GMRectangle) => {
+            (Rectangle, Rectangle) => {
                 if in_rect(sx1, sx2, sy1, sy2, ox1, oy1) {
                     return true
                 } else if in_rect(sx1, sx2, sy1, sy2, ox1, oy2) {
@@ -135,13 +135,13 @@ impl GMSprite {
                     return true
                 }
             }
-            (GMRectangle, GMCircle) => {
+            (Rectangle, Circle) => {
                 todo!();
             }
-            (GMCircle, GMRectangle) => {
+            (Circle, Rectangle) => {
                 todo!();
             }
-            (GMCircle, GMCircle) => {
+            (Circle, Circle) => {
                 let sr = self_width / 2.0;
                 let or = other_width / 2.0;
 

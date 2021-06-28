@@ -2,9 +2,9 @@
 use macroquad::window::next_frame;
 
 pub enum GMSceneResult {
-    GMKeepScene,
-    GMChangeScene(String),
-    GMExit,
+    KeepScene,
+    ChangeScene(String),
+    Exit,
 }
 
 pub trait GMSceneT {
@@ -56,10 +56,10 @@ impl GMSceneManager {
         use GMSceneResult::*;
 
         match result {
-            GMKeepScene => {
+            KeepScene => {
                 false
             }
-            GMChangeScene(new_scene) => {
+            ChangeScene(new_scene) => {
                 let mut change_scene = false;
 
                 for i in 0..self.scenes.len() {
@@ -76,7 +76,7 @@ impl GMSceneManager {
 
                 false
             }
-            GMExit => {
+            Exit => {
                 true
             }
         }

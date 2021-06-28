@@ -5,12 +5,12 @@
             "file": "../assets/gfx/sprite_sheets/particle1.png"
         },
         {
-            "name": "heads",
-            "file": "../assets/gfx/sprite_sheets/heads.png"
+            "name": "head1",
+            "file": "../assets/gfx/sprite_sheets/head1.png"
         }
     ],
     "animation_files": [
         "../assets/gfx/sprite_sheets/particle1_animation.json",
-        "../assets/gfx/sprite_sheets/heads_animation.json"
+        "../assets/gfx/sprite_sheets/head1_animation.json"
     ]
 }

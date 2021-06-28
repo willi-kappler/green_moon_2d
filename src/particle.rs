@@ -1,3 +1,4 @@
+use crate::resource_manager::GMResourceManager;
 use crate::sprite::GMSprite;
 
 use macroquad::time::get_time;
@@ -47,6 +48,27 @@ impl GMParticleEmitter {
     pub fn new(sprite: &GMSprite, x: f32, y: f32) -> Self {
         Self {
             sprite: sprite.clone_sprite(),
+            x,
+            y,
+            active: false,
+            speed_min: 1.0,
+            speed_max: 5.0,
+            rotation_speed_min: 0.0,
+            rotation_speed_max: 0.0,
+            duration: 5.0,
+            delay: 0.1,
+            delay_t: 0.0,
+            particles: Vec::new(),
+        }
+    }
+    pub fn new_from_resource(resources: &GMResourceManager, sprite_sheet_name: &str, animation_name: &str, x: f32, y: f32) -> Self {
+        let mut sprite = GMSprite::new(
+            &resources.get_sprite_sheet(sprite_sheet_name).unwrap(),
+            resources.get_animation(animation_name).unwrap(), 0.0, 0.0);
+        sprite.start_animation();
+
+        Self {
+            sprite,
             x,
             y,
             active: false,
