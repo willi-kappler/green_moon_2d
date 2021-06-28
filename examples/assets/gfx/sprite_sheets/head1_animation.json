@@ -1,10 +1,14 @@
 {
-    "name": "head1",
-    "animation_type": { "ForwardLoop": [] },
-    "frames":
-    [
-        {"x": 0.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200},
-        {"x": 44.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200},
-        {"x": 88.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200}
+    "animations": [
+        {
+            "name": "head1",
+            "animation_type": { "ForwardLoop": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200},
+                {"x": 44.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200},
+                {"x": 88.0, "y": 0.0, "w": 44.0, "h": 64.0, "duration": 0.200}
+            ]
+        }
     ]
 }

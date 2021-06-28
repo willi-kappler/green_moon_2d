@@ -1,10 +1,14 @@
 {
-    "name": "cat1",
-    "animation_type": { "PingPong": [] },
-    "frames":
-    [
-        {"x": 0.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
-        {"x": 28.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
-        {"x": 56.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100}
+    "animations": [
+        {
+            "name": "cat1",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
+                {"x": 28.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100},
+                {"x": 56.0, "y": 0.0, "w": 28.0, "h": 23.0, "duration": 0.100}
+            ]
+        }
     ]
 }

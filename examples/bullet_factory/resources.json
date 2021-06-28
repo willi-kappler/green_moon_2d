@@ -1,6 +1,38 @@
 {
-    "font_file": "fonts.json",
-    "sprite_sheet_file": "sprite_sheet.json",
-    "sound_file": "sounds.json",
-    "animation_file": "animation.json"
+    "sprite_sheets": [
+        {
+            "name": "knight1",
+            "file": "../assets/gfx/sprite_sheets/knight1.png"
+        },
+        {
+            "name": "bullet1",
+            "file": "../assets/gfx/sprite_sheets/bullet1.png"
+        },
+        {
+            "name": "monster1",
+            "file": "../assets/gfx/sprite_sheets/monster1.png"
+        }
+    ],
+    "animation_files": [
+        "../assets/gfx/sprite_sheets/knight1_animation.json",
+        "../assets/gfx/sprite_sheets/bullet1_animation.json",
+        "../assets/gfx/sprite_sheets/monster1_animation.json"
+    ],
+    "sprites": [
+        {
+            "name": "knight1",
+            "sprite_sheet": "knight1",
+            "animation": "knight1"
+        },
+        {
+            "name": "bullet1",
+            "sprite_sheet": "bullet1",
+            "animation": "bullet1"
+        },
+        {
+            "name": "monster1",
+            "sprite_sheet": "monster1",
+            "animation": "monster1"
+        }
+    ]
 }

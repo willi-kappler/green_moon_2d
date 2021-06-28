@@ -22,8 +22,8 @@ async fn main() -> Result<(), GMError> {
     emitter2.set_active(true);
     emitter2.set_speed_max(2.0);
     emitter2.set_duration(2.0);
-    emitter2.set_delay(0.2);
-    emitter2.set_rot_speed_max(0.05);
+    emitter2.set_delay(0.05);
+    emitter2.set_rot_speed_max(0.2);
 
     loop {
         clear_background(BLACK);

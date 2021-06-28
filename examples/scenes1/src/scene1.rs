@@ -35,28 +35,26 @@ impl GMSceneT for Scene1 {
         self.menu.update();
     }
     fn event(&mut self) -> GMSceneResult {
-        use GMSceneResult::*;
-
         if let Some((i, _)) = self.menu.event() {
             println!("Scene 1, user has selected item: {}", i);
 
             match i {
                 0 => {
-                    GMChangeScene("scene2".to_string())
+                    GMSceneResult::ChangeScene("scene2".to_string())
                 }
                 1 => {
-                    GMChangeScene("scene3".to_string())
+                    GMSceneResult::ChangeScene("scene3".to_string())
                 }
                 2 => {
-                    GMChangeScene("scene4".to_string())
+                    GMSceneResult::ChangeScene("scene4".to_string())
                 }
                 _ => {
-                    GMExit
+                    GMSceneResult::Exit
                 }
             }
 
         } else {
-            GMKeepScene
+            GMSceneResult::KeepScene
         }
     }
 }

@@ -3,6 +3,5 @@
 Green Moon 2D - a collection of useful data structures and functions for game development.
 
 TODO:
-- GMParticleEmitter, GMParticle
 - GMHighScore, GMScore
 

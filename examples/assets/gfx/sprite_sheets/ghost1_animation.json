@@ -1,10 +1,14 @@
 {
-    "name": "ghost1",
-    "animation_type": { "PingPong": [] },
-    "frames":
-    [
-        {"x": 0.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
-        {"x": 40.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
-        {"x": 80.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100}
+    "animations": [
+        {
+            "name": "ghost1",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
+                {"x": 40.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100},
+                {"x": 80.0, "y": 0.0, "w": 40.0, "h": 41.0, "duration": 0.100}
+            ]
+        }
     ]
 }

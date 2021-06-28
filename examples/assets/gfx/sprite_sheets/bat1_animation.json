@@ -1,10 +1,14 @@
 {
-    "name": "bat1",
-    "animation_type": { "PingPong": [] },
-    "frames":
-    [
-        {"x": 0.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
-        {"x": 16.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
-        {"x": 32.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100}
+    "animations": [
+        {
+            "name": "bat1",
+            "animation_type": { "PingPong": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
+                {"x": 16.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100},
+                {"x": 32.0, "y": 0.0, "w": 16.0, "h": 20.0, "duration": 0.100}
+            ]
+        }
     ]
 }

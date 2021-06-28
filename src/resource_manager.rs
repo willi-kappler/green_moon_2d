@@ -73,6 +73,11 @@ pub struct GMAnimationFormat {
     frames: Vec<GMFrameFormat>,
 }
 
+#[derive(Clone, Debug, DeJson)]
+pub struct GMAnimationFormatMultiple {
+    animations: Vec<GMAnimationFormat>,
+}
+
 #[derive(Clone, Debug, Default, DeJson)]
 pub struct GMSoundFormat {
     name: String,
@@ -199,34 +204,36 @@ impl GMResourceManager {
     pub async fn animations_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
         info!("Loading animation file: '{}'", file_name);
         let json = load_string(file_name).await?;
-        let item: GMAnimationFormat = DeJson::deserialize_json(&json)?;
+        let result: GMAnimationFormatMultiple = DeJson::deserialize_json(&json)?;
 
-        debug!("Processing animations...");
-        debug!("Animation name: '{}', type: {:?}", item.name, item.animation_type);
+        for item in result.animations.into_iter() {
+            debug!("Processing animations...");
+            debug!("Animation name: '{}', type: {:?}", item.name, item.animation_type);
 
-        let frames: Vec<(Rect, f64)> = item.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
+            let frames: Vec<(Rect, f64)> = item.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
 
-        use GMAnimationType::*;
+            use GMAnimationType::*;
 
-        let animation = match item.animation_type {
-            ForwardOnce => {
-                GMAnimationForwardOnce::new_box(&frames)
-            }
-            ForwardLoop => {
-                GMAnimationForwardLoop::new_box(&frames)
-            }
-            BackwardOnce => {
-                GMAnimationBackwardOnce::new_box(&frames)
-            }
-            BackwardLoop => {
-                GMAnimationBackwardLoop::new_box(&frames)
-            }
-            PingPong => {
-                GMAnimationPingPong::new_box(&frames)
-            }
-        };
+            let animation = match item.animation_type {
+                ForwardOnce => {
+                    GMAnimationForwardOnce::new_box(&frames)
+                }
+                ForwardLoop => {
+                    GMAnimationForwardLoop::new_box(&frames)
+                }
+                BackwardOnce => {
+                    GMAnimationBackwardOnce::new_box(&frames)
+                }
+                BackwardLoop => {
+                    GMAnimationBackwardLoop::new_box(&frames)
+                }
+                PingPong => {
+                    GMAnimationPingPong::new_box(&frames)
+                }
+            };
 
-        self.animations.insert(item.name, animation);
+            self.animations.insert(item.name, animation);
+        }
 
         Ok(())
     }
