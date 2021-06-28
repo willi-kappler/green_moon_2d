@@ -40,6 +40,9 @@ pub struct GMParticleEmitter {
     particles: Vec<GMParticle>,
 }
 
+// TODO: Set maximum number of particles
+// Instead of deleting a particle, reuse it.
+
 impl GMParticleEmitter {
     pub fn new(sprite: &GMSprite, x: f32, y: f32) -> Self {
         Self {
