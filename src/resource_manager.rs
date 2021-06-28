@@ -50,8 +50,8 @@ pub struct GMFrameFormat {
 
 #[derive(Clone, Debug, DeJson)]
 pub enum GMAnimationType {
-    ForeWardOnce,
-    ForeWardLoop,
+    ForwardOnce,
+    ForwardLoop,
     BackwardOnce,
     BackwardLoop,
     PingPong,
@@ -179,10 +179,10 @@ impl GMResourceManager {
         use GMAnimationType::*;
 
         let animation = match item.animation_type {
-            ForeWardOnce => {
+            ForwardOnce => {
                 GMAnimationForwardOnce::new_box(&frames)
             }
-            ForeWardLoop => {
+            ForwardLoop => {
                 GMAnimationForwardLoop::new_box(&frames)
             }
             BackwardOnce => {
