@@ -1,4 +1,5 @@
 use crate::animation::GMAnimationT;
+use crate::resource_manager::GMResourceManager;
 use crate::sprite::GMSprite;
 
 use macroquad::time::get_time;
@@ -38,6 +39,12 @@ impl GMBulletFactory {
             bullets: Vec::new(),
         }
     }
+    pub fn new_from_resource(resources: &GMResourceManager, sprite_name: &str, explosion_name: &str, max_bullets: usize) -> Self {
+        let sprite = resources.get_sprite(sprite_name).unwrap();
+        let explosion = resources.get_animation(explosion_name).unwrap().clone_animation();
+
+        Self::new(sprite, explosion, max_bullets)
+    }
     pub fn set_delay(&mut self, delay: f64) {
         self.delay = delay;
     }
@@ -58,6 +65,7 @@ impl GMBulletFactory {
             sprite.set_y(y);
             sprite.set_vx(vx);
             sprite.set_vy(vy);
+            sprite.start_animation();
             self.bullets.push(sprite);
         }
     }

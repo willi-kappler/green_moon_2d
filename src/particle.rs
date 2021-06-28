@@ -61,26 +61,9 @@ impl GMParticleEmitter {
             particles: Vec::new(),
         }
     }
-    pub fn new_from_resource(resources: &GMResourceManager, sprite_sheet_name: &str, animation_name: &str, x: f32, y: f32) -> Self {
-        let mut sprite = GMSprite::new(
-            &resources.get_sprite_sheet(sprite_sheet_name).unwrap(),
-            resources.get_animation(animation_name).unwrap(), 0.0, 0.0);
-        sprite.start_animation();
-
-        Self {
-            sprite,
-            x,
-            y,
-            active: false,
-            speed_min: 1.0,
-            speed_max: 5.0,
-            rotation_speed_min: 0.0,
-            rotation_speed_max: 0.0,
-            duration: 5.0,
-            delay: 0.1,
-            delay_t: 0.0,
-            particles: Vec::new(),
-        }
+    pub fn new_from_resource(resources: &GMResourceManager, sprite_name: &str, x: f32, y: f32) -> Self {
+        let sprite = resources.get_sprite(sprite_name).unwrap();
+        Self::new(sprite, x, y)
     }
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
@@ -134,6 +117,7 @@ impl GMParticleEmitter {
                 new_sprite.set_x(self.x);
                 new_sprite.set_y(self.y);
                 new_sprite.set_active(true);
+                new_sprite.start_animation();
 
                 let move_speed = gen_range(self.speed_min, self.speed_max);
                 let direction = gen_range(0.0, consts::TAU);

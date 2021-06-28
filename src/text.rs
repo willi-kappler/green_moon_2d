@@ -1,4 +1,5 @@
 use crate::font::{GMFontT};
+use crate::resource_manager::GMResourceManager;
 use crate::sprite::GMSprite;
 use crate::behavior::GMKeyValue;
 
@@ -259,9 +260,9 @@ pub struct GMSpriteText {
 }
 
 impl GMSpriteText {
-    pub fn new(base: Box<dyn GMTextT>, sprite: GMSprite) -> Self {
+    pub fn new(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Self {
         let left_sprite = sprite.clone_sprite();
-        let right_sprite = sprite;
+        let right_sprite = sprite.clone_sprite();
 
         let mut result = Self {
             base,
@@ -279,16 +280,22 @@ impl GMSpriteText {
 
         result
     }
-    pub fn new_box(base: Box<dyn GMTextT>, sprite: GMSprite) -> Box<dyn GMTextT> {
+    pub fn new_box(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Box<dyn GMTextT> {
         Box::new(Self::new(base, sprite))
     }
-    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite) -> Box<dyn GMTextT> {
+    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite) -> Box<dyn GMTextT> {
         let base = GMStaticText::new_box(text, x, y, font);
         Self::new_box(base, sprite)
     }
-    pub fn set_sprite(&mut self, sprite: GMSprite) {
+    pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> Box<dyn GMTextT> {
+        let font = resources.get_font(font_name).unwrap();
+        let sprite = resources.get_sprite(sprite_name).unwrap();
+
+        Self::new_static(text, x, y, &font, sprite)
+    }
+    pub fn set_sprite(&mut self, sprite: &GMSprite) {
         self.left_sprite = sprite.clone_sprite();
-        self.right_sprite = sprite;
+        self.right_sprite = sprite.clone_sprite();
 
         self.right_sprite.flipx(true);
 
@@ -368,7 +375,7 @@ impl GMTextT for GMSpriteText {
         if data.key == "sprite" {
             match data.value.downcast_ref::<GMSprite>() {
                 Some(sprite) => {
-                    self.set_sprite(sprite.clone_sprite());
+                    self.set_sprite(&sprite);
                 }
                 None => {
                     eprintln!("GMSpriteText::set_property(), could not downcast value to GMSprite")

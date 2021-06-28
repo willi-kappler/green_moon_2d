@@ -3,6 +3,7 @@
 use crate::error::GMError;
 use crate::font::{GMBitmapFont, GMFontT};
 use crate::spritesheet::GMSpriteSheet;
+use crate::sprite::GMSprite;
 use crate::sound::GMSound;
 use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimationT};
 
@@ -20,6 +21,7 @@ use std::path::Path;
 pub struct GMResourceFormat {
     font_files: Option<Vec<String>>,
     sprite_sheets: Option<Vec<GMSpriteSheetFormat>>,
+    sprites: Option<Vec<GMSpriteFormat>>,
     sounds: Option<Vec<GMSoundFormat>>,
     animation_files: Option<Vec<String>>,
 }
@@ -37,6 +39,13 @@ pub struct GMFontFormat{
 pub struct GMSpriteSheetFormat {
     name: String,
     file: String,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMSpriteFormat {
+    name: String,
+    sprite_sheet: String,
+    animation: String,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
@@ -73,6 +82,7 @@ pub struct GMSoundFormat {
 pub struct GMResourceManager {
     fonts: HashMap<String, Rc<dyn GMFontT>>,
     sprite_sheets: HashMap<String, Rc<GMSpriteSheet>>,
+    sprites: HashMap<String, GMSprite>,
     sounds: HashMap<String, Rc<GMSound>>,
     animations: HashMap<String, Box<dyn GMAnimationT>>,
 }
@@ -82,6 +92,7 @@ impl GMResourceManager {
         Self {
             fonts: HashMap::new(),
             sprite_sheets: HashMap::new(),
+            sprites: HashMap::new(),
             sounds: HashMap::new(),
             animations: HashMap::new(),
         }
@@ -116,6 +127,16 @@ impl GMResourceManager {
         if let Some(animation_files) = result.animation_files {
             for file_name in animation_files.iter() {
                 resource.animations_from_file(file_name).await?;
+            }
+        }
+        if let Some(sprites) = result.sprites {
+            for item in sprites.into_iter() {
+                debug!("Sprite name: '{}', sprite sheet: '{}', animation: '{}'", item.name, item.sprite_sheet, item.animation);
+
+                let sprite = GMSprite::new(
+                    &resource.get_sprite_sheet(&item.sprite_sheet).unwrap(),
+                    resource.get_animation(&item.animation).unwrap(), 0.0, 0.0);
+                resource.sprites.insert(item.name, sprite);
             }
         }
 
@@ -162,6 +183,15 @@ impl GMResourceManager {
     }
     pub fn remove_sprite_sheet(&mut self, name: &str) {
         self.sprite_sheets.remove(name);
+    }
+    pub fn add_sprite(&mut self, name: &str, sprite: &GMSprite) {
+        self.sprites.insert(name.to_string(), sprite.clone_sprite());
+    }
+    pub fn get_sprite(&self, name: &str) -> Option<&GMSprite> {
+        self.sprites.get(name)
+    }
+    pub fn remove_sprite(&mut self, name: &str) {
+        self.sprites.remove(name);
     }
     pub fn add_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
         self.animations.insert(name.to_string(), Box::new(animation));

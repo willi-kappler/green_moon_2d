@@ -55,7 +55,7 @@ impl GMMenu {
 
         GMMenu::new(title, menu_items, change_sound, enter_sound)
     }
-    pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, sprite: GMSprite, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
+    pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, sprite: &GMSprite, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
         let title = GMStaticText::new_box(title, x, y, font);
@@ -64,7 +64,7 @@ impl GMMenu {
         current_y += font_height * 2.0;
 
         for item in items.iter() {
-            let menu_item = GMMenuItemStatic::new_static_sprite(item, x, current_y, font, sprite.clone_sprite());
+            let menu_item = GMMenuItemStatic::new_static_sprite(item, x, current_y, font, sprite);
 
             menu_items.push(menu_item);
 

@@ -32,5 +32,22 @@
         "../assets/gfx/sprite_sheets/bat1_animation.json",
         "../assets/gfx/sprite_sheets/cat1_animation.json",
         "../assets/gfx/sprite_sheets/ghost1_animation.json"
+    ],
+    "sprites": [
+        {
+            "name": "bat1",
+            "sprite_sheet": "bat1",
+            "animation": "bat1"
+        },
+        {
+            "name": "cat1",
+            "sprite_sheet": "cat1",
+            "animation": "cat1"
+        },
+        {
+            "name": "ghost1",
+            "sprite_sheet": "ghost1",
+            "animation": "ghost1"
+        }
     ]
 }

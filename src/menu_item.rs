@@ -3,6 +3,7 @@ use crate::font::GMFontT;
 use crate::value::GMValue;
 use crate::text::{GMTextT, GMStaticText, GMArrowText, GMSpriteText};
 use crate::sprite::{GMSprite, in_rect};
+use crate::resource_manager::GMResourceManager;
 use crate::behavior::GMKeyValue;
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
@@ -54,10 +55,15 @@ impl GMMenuItemStatic {
         let active_text = GMArrowText::new_static(text, x, y, font);
         Self::new_box(inactive_text, active_text)
     }
-    pub fn new_static_sprite(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite) -> Box<dyn GMMenuItemT> {
+    pub fn new_static_sprite(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite) -> Box<dyn GMMenuItemT> {
         let inactive_text = GMStaticText::new_box(text, x, y, font);
         let active_text = GMSpriteText::new_static(text, x, y, font, sprite);
         Self::new_box(inactive_text, active_text)
+    }
+    pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> Box<dyn GMMenuItemT> {
+        let font = resources.get_font(font_name).unwrap();
+        let sprite = resources.get_sprite(sprite_name).unwrap();
+        Self::new_static_sprite(text, x, y, &font, sprite)
     }
     pub fn get_extend(&self) -> (f32, f32) {
         self.inactive_text.get_extend()
@@ -182,7 +188,7 @@ impl GMMenuItemNumeric {
         let active_text = GMArrowText::new_static(prefix, x, y, font);
         Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
     }
-    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
+    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
         let inactive_text = GMStaticText::new_box(prefix, x, y, font);
         let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
         Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
@@ -304,7 +310,7 @@ impl GMMenuItemEnum {
         let active_text = GMArrowText::new_static(prefix, x, y, font);
         Self::new_box(inactive_text, active_text, prefix, items, current_item)
     }
-    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: GMSprite, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
+    pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
         let inactive_text = GMStaticText::new_box(prefix, x, y, font);
         let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
         Self::new_box(inactive_text, active_text, prefix, items, current_item)
