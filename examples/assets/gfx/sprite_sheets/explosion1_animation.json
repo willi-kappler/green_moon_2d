@@ -1,0 +1,15 @@
+{
+    "animations": [
+        {
+            "name": "explosion1",
+            "animation_type": { "ForwardOnce": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 36.0, "h": 30.0, "duration": 0.050},
+                {"x": 36.0, "y": 0.0, "w": 36.0, "h": 30.0, "duration": 0.050},
+                {"x": 72.0, "y": 0.0, "w": 36.0, "h": 30.0, "duration": 0.050},
+                {"x": 108.0, "y": 0.0, "w": 36.0, "h": 30.0, "duration": 0.050}
+            ]
+        }
+    ]
+}

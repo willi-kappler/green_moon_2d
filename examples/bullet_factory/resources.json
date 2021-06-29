@@ -11,12 +11,17 @@
         {
             "name": "monster1",
             "file": "../assets/gfx/sprite_sheets/monster1.png"
+        },
+        {
+            "name": "explosion1",
+            "file": "../assets/gfx/sprite_sheets/explosion1.png"
         }
     ],
     "animation_files": [
         "../assets/gfx/sprite_sheets/knight1_animation.json",
         "../assets/gfx/sprite_sheets/bullet1_animation.json",
-        "../assets/gfx/sprite_sheets/monster1_animation.json"
+        "../assets/gfx/sprite_sheets/monster1_animation.json",
+        "../assets/gfx/sprite_sheets/explosion1_animation.json"
     ],
     "sprites": [
         {
