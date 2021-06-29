@@ -1,6 +1,7 @@
 use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::error::GMError;
 use green_moon_2d::resource_manager::GMResourceManager;
+use green_moon_2d::bullet_factory::GMBulletFactory;
 
 use macroquad::prelude::*;
 
@@ -14,6 +15,10 @@ async fn main() -> Result<(), GMError> {
 
     loop {
         clear_background(BLACK);
+
+        if is_key_pressed(KeyCode::Escape) {
+            break;
+        }
 
         next_frame().await
     }
