@@ -7,7 +7,8 @@ pub trait GMAnimationT {
     fn next_frame(&mut self);
     fn get_rect(&self) -> Rect;
     fn finished(&self) -> bool;
-    // Clone is not possible because of object safety
+    // impl Clone is not possible because of object safety:
+    // clone() returns Self
     fn clone_animation(&self) -> Box<dyn GMAnimationT>;
 }
 
@@ -109,7 +110,6 @@ impl GMAnimationT for GMAnimationForwardOnce {
     }
 }
 
-// TODO: Add other animation types
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMAnimationForwardLoop {
@@ -315,3 +315,5 @@ impl GMAnimationT for GMAnimationPingPong {
         Box::new(self.clone())
    }
 }
+
+// TODO: Add other animation types
