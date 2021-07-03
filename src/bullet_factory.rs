@@ -29,7 +29,7 @@ pub struct GMBulletFactory {
 impl GMBulletFactory {
     pub fn new(sprite: &GMSprite, max_bullets: usize) -> Self {
         Self {
-            base_sprite: sprite.clone_sprite(),
+            base_sprite: sprite.clone(),
             max_bullets,
             delay: 0.5,
             prev_time: 0.0,
@@ -58,7 +58,7 @@ impl GMBulletFactory {
         }
 
         if self.bullets.len() < self.max_bullets {
-            let mut sprite = self.base_sprite.clone_sprite();
+            let mut sprite = self.base_sprite.clone();
             sprite.set_x(x);
             sprite.set_y(y);
             sprite.set_vx(vx);

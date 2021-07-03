@@ -261,8 +261,8 @@ pub struct GMSpriteText {
 
 impl GMSpriteText {
     pub fn new(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Self {
-        let left_sprite = sprite.clone_sprite();
-        let right_sprite = sprite.clone_sprite();
+        let left_sprite = sprite.clone();
+        let right_sprite = sprite.clone();
 
         let mut result = Self {
             base,
@@ -294,8 +294,8 @@ impl GMSpriteText {
         Self::new_static(text, x, y, &font, sprite)
     }
     pub fn set_sprite(&mut self, sprite: &GMSprite) {
-        self.left_sprite = sprite.clone_sprite();
-        self.right_sprite = sprite.clone_sprite();
+        self.left_sprite = sprite.clone();
+        self.right_sprite = sprite.clone();
 
         self.right_sprite.flipx(true);
 

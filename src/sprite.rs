@@ -21,6 +21,39 @@ pub fn in_rect(x1: f32, x2: f32, y1: f32, y2: f32, xp: f32, yp: f32) -> bool {
     between(x1, xp, x2) && between(y1, yp, y2)
 }
 
+pub fn dist_angle(x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let dist = dx.hypot(dy);
+    let angle = (dy / dx).atan();
+
+    (dist, angle)
+}
+
+pub struct GMSpritePart {
+    active: bool,
+    offsetx: f32,
+    offsety: f32,
+    animation: Box<dyn GMAnimationT>,
+    flip_x: bool,
+    flip_y: bool,
+    rotation: f32,
+}
+
+impl Clone for GMSpritePart {
+    fn clone(&self) -> Self {
+        Self {
+            active: self.active,
+            offsetx: self.offsetx,
+            offsety: self.offsety,
+            animation: self.animation.clone_animation(),
+            flip_x: self.flip_x,
+            flip_y: self.flip_y,
+            rotation: self.rotation,
+        }
+    }
+}
+
 pub struct GMSprite {
     sheet: Rc<GMSpriteSheet>,
     animation: Box<dyn GMAnimationT>,
@@ -35,6 +68,7 @@ pub struct GMSprite {
     flip_y: bool,
     rotation: f32,
     rot_speed: f32,
+    parts: Vec<GMSpritePart>,
 }
 
 impl GMSprite {
@@ -53,23 +87,7 @@ impl GMSprite {
             flip_y: false,
             rotation: 0.0,
             rot_speed: 0.0,
-        }
-    }
-    pub fn clone_sprite(&self) -> Self {
-        Self {
-            sheet: self.sheet.clone(),
-            animation: self.animation.clone_animation(),
-            x: self.x,
-            y: self.y,
-            vx: self.vx,
-            vy: self.vy,
-            active: self.active,
-            collision_shape: self.collision_shape,
-            state_id: self.state_id,
-            flip_x: self.flip_x,
-            flip_y: self.flip_y,
-            rotation: self.rotation,
-            rot_speed: self.rot_speed,
+            parts: Vec::new(),
         }
     }
     pub fn draw(&self) {
@@ -78,6 +96,15 @@ impl GMSprite {
         }
         let rect = self.animation.get_rect();
         self.sheet.draw_ex(&rect, self.x, self.y, self.flip_x, self.flip_y, self.rotation);
+
+        for part in self.parts.iter() {
+            if part.active {
+                let rect = part.animation.get_rect();
+                let x = self.x + part.offsetx;
+                let y = self.y + part.offsety;
+                self.sheet.draw_ex(&rect, x, y, part.flip_x, part.flip_y, part.rotation);
+            }
+        }
     }
     pub fn update(&mut self) {
         if !self.active {
@@ -92,6 +119,12 @@ impl GMSprite {
             self.rotation -= consts::TAU;
         } else if self.rotation < consts::TAU {
             self.rotation += consts::TAU;
+        }
+
+        for part in self.parts.iter_mut() {
+            if part.active {
+                part.animation.next_frame();
+            }
         }
 }
     pub fn get_extend(&self) -> (f32, f32) {
@@ -241,5 +274,26 @@ impl GMSprite {
     }
     pub fn resume_animation(&mut self) {
         self.animation.resume();
+    }
+}
+
+impl Clone for GMSprite {
+    fn clone(&self) -> Self {
+        Self {
+            sheet: self.sheet.clone(),
+            animation: self.animation.clone_animation(),
+            x: self.x,
+            y: self.y,
+            vx: self.vx,
+            vy: self.vy,
+            active: self.active,
+            collision_shape: self.collision_shape,
+            state_id: self.state_id,
+            flip_x: self.flip_x,
+            flip_y: self.flip_y,
+            rotation: self.rotation,
+            rot_speed: self.rot_speed,
+            parts: self.parts.clone(),
+        }
     }
 }

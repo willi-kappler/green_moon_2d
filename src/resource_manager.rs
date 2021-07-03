@@ -190,7 +190,7 @@ impl GMResourceManager {
         self.sprite_sheets.remove(name);
     }
     pub fn add_sprite(&mut self, name: &str, sprite: &GMSprite) {
-        self.sprites.insert(name.to_string(), sprite.clone_sprite());
+        self.sprites.insert(name.to_string(), sprite.clone());
     }
     pub fn get_sprite(&self, name: &str) -> Option<&GMSprite> {
         self.sprites.get(name)

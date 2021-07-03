@@ -88,7 +88,7 @@ async fn main() -> Result<(), GMError> {
                         } else if i == 1 {
                             main_menu.set_item_font(fonts[j]);
                         } else if i == 2 {
-                            main_menu.change_property_all(&GMKeyValue::new("sprite", Box::new(sprites[j].clone_sprite())));
+                            main_menu.change_property_all(&GMKeyValue::new("sprite", Box::new(sprites[j].clone())));
                         }
                     }
                     GMValue::F32(f) => {

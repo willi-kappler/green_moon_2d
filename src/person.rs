@@ -15,7 +15,7 @@ pub struct GMPerson {
 impl GMPerson {
     pub fn new(sprite: &GMSprite, health_bar: Box<dyn GMHealthBarT>) -> Self {
         Self {
-            sprite: sprite.clone_sprite(),
+            sprite: sprite.clone(),
             health: 0,
             health_bar,
         }

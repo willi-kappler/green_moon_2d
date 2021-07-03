@@ -47,7 +47,7 @@ pub struct GMParticleEmitter {
 impl GMParticleEmitter {
     pub fn new(sprite: &GMSprite, x: f32, y: f32) -> Self {
         Self {
-            sprite: sprite.clone_sprite(),
+            sprite: sprite.clone(),
             x,
             y,
             active: false,
@@ -113,7 +113,7 @@ impl GMParticleEmitter {
             if time - self.delay_t > self.delay {
                 self.delay_t = time;
 
-                let mut new_sprite = self.sprite.clone_sprite();
+                let mut new_sprite = self.sprite.clone();
                 new_sprite.set_x(self.x);
                 new_sprite.set_y(self.y);
                 new_sprite.set_active(true);
