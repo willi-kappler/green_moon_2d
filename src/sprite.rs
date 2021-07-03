@@ -1,5 +1,5 @@
 
-use crate::animation::GMAnimationT;
+use crate::animation::GMAnimation;
 use crate::spritesheet::GMSpriteSheet;
 
 use macroquad::window::{screen_width, screen_height};
@@ -30,18 +30,19 @@ pub fn dist_angle(x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
     (dist, angle)
 }
 
+#[derive(Clone)]
 pub struct GMSpritePart {
     active: bool,
     offsetx: f32,
     offsety: f32,
-    animation: Box<dyn GMAnimationT>,
+    animation: GMAnimation,
     flipx: bool,
     flipy: bool,
     rotation: f32,
 }
 
 impl GMSpritePart {
-    pub fn new(offsetx: f32, offsety: f32, animation: Box<dyn GMAnimationT>) -> Self {
+    pub fn new(offsetx: f32, offsety: f32, animation: GMAnimation) -> Self {
         Self {
             active: true,
             offsetx,
@@ -61,7 +62,7 @@ impl GMSpritePart {
     pub fn set_offsety(&mut self, offsety: f32) {
         self.offsety = offsety;
     }
-    pub fn set_animation(&mut self, animation: Box<dyn GMAnimationT>) {
+    pub fn set_animation(&mut self, animation: GMAnimation) {
         self.animation = animation;
     }
     pub fn flipx(&mut self, flipx: bool) {
@@ -75,23 +76,10 @@ impl GMSpritePart {
     }
 }
 
-impl Clone for GMSpritePart {
-    fn clone(&self) -> Self {
-        Self {
-            active: self.active,
-            offsetx: self.offsetx,
-            offsety: self.offsety,
-            animation: self.animation.clone_animation(),
-            flipx: self.flipx,
-            flipy: self.flipy,
-            rotation: self.rotation,
-        }
-    }
-}
-
+#[derive(Clone)]
 pub struct GMSprite {
     sheet: Rc<GMSpriteSheet>,
-    animation: Box<dyn GMAnimationT>,
+    animation: GMAnimation,
     x: f32,
     y: f32,
     vx: f32,
@@ -107,7 +95,7 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new(sheet: &Rc<GMSpriteSheet>, animation: Box<dyn GMAnimationT>, x: f32, y: f32) -> Self {
+    pub fn new(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> Self {
         Self {
             sheet: sheet.clone(),
             animation,
@@ -230,7 +218,7 @@ impl GMSprite {
     pub fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
         self.sheet = sheet.clone();
     }
-    pub fn set_animation(&mut self, animation: Box<dyn GMAnimationT>) {
+    pub fn set_animation(&mut self, animation: GMAnimation) {
         self.animation = animation;
     }
     pub fn set_x(&mut self, x: f32) {
@@ -319,7 +307,7 @@ impl GMSprite {
     pub fn set_part_offsety(&mut self, index: usize, offsety: f32) {
         self.parts[index].set_offsety(offsety);
     }
-    pub fn set_part_animation(&mut self, index: usize, animation: Box<dyn GMAnimationT>) {
+    pub fn set_part_animation(&mut self, index: usize, animation: GMAnimation) {
         self.parts[index].set_animation(animation);
     }
     pub fn set_part_flipx(&mut self, index: usize, flipx: bool) {
@@ -330,26 +318,5 @@ impl GMSprite {
     }
     pub fn set_part_rotation(&mut self, index: usize, rotation: f32) {
         self.parts[index].set_rotation(rotation);
-    }
-}
-
-impl Clone for GMSprite {
-    fn clone(&self) -> Self {
-        Self {
-            sheet: self.sheet.clone(),
-            animation: self.animation.clone_animation(),
-            x: self.x,
-            y: self.y,
-            vx: self.vx,
-            vy: self.vy,
-            active: self.active,
-            collision_shape: self.collision_shape,
-            state_id: self.state_id,
-            flipx: self.flipx,
-            flipy: self.flipy,
-            rotation: self.rotation,
-            rot_speed: self.rot_speed,
-            parts: self.parts.clone(),
-        }
     }
 }

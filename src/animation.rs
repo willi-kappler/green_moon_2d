@@ -12,6 +12,47 @@ pub trait GMAnimationT {
     fn clone_animation(&self) -> Box<dyn GMAnimationT>;
 }
 
+pub struct GMAnimation {
+    animation: Box<dyn GMAnimationT>,
+}
+
+impl GMAnimation {
+    pub fn new(animation: Box<dyn GMAnimationT>) -> Self {
+        Self {
+            animation,
+        }
+    }
+    pub fn set_animation(&mut self, animation: Box<dyn GMAnimationT>) {
+        self.animation = animation;
+    }
+    pub fn start(&mut self) {
+        self.animation.start();
+    }
+    pub fn pause(&mut self){
+        self.animation.pause();
+    }
+    pub fn resume(&mut self){
+        self.animation.resume();
+    }
+    pub fn next_frame(&mut self){
+        self.animation.next_frame();
+    }
+    pub fn get_rect(&self) -> Rect {
+        self.animation.get_rect()
+    }
+    pub fn finished(&self) -> bool {
+        self.animation.finished()
+    }
+}
+
+impl Clone for GMAnimation {
+    fn clone(&self) -> Self {
+        Self {
+            animation: self.animation.clone_animation(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GMAnimationBase {
     frames: Vec<(Rect, f64)>,
@@ -73,9 +114,9 @@ impl GMAnimationForwardOnce {
             base: GMAnimationBase::new(frames)
         }
     }
-    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+    pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        Box::new(animation)
+        GMAnimation::new(Box::new(animation))
     }
 }
 
@@ -122,9 +163,9 @@ impl GMAnimationForwardLoop {
             base: GMAnimationBase::new(frames)
         }
     }
-    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+    pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        Box::new(animation)
+        GMAnimation::new(Box::new(animation))
     }
 }
 
@@ -171,9 +212,9 @@ impl GMAnimationBackwardOnce {
             base: GMAnimationBase::new(frames)
         }
     }
-    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+    pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        Box::new(animation)
+        GMAnimation::new(Box::new(animation))
     }
 }
 
@@ -218,9 +259,9 @@ impl GMAnimationBackwardLoop {
             base: GMAnimationBase::new(frames)
         }
     }
-    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+    pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        Box::new(animation)
+        GMAnimation::new(Box::new(animation))
     }
 }
 
@@ -269,9 +310,9 @@ impl GMAnimationPingPong {
             forward: true,
         }
     }
-    pub fn new_box(frames: &[(Rect, f64)]) -> Box<dyn GMAnimationT> {
+    pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        Box::new(animation)
+        GMAnimation::new(Box::new(animation))
     }
 }
 

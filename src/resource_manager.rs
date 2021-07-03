@@ -5,7 +5,7 @@ use crate::font::{GMBitmapFont, GMFontT};
 use crate::spritesheet::GMSpriteSheet;
 use crate::sprite::GMSprite;
 use crate::sound::GMSound;
-use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimationT};
+use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimation};
 
 use macroquad::file::load_string;
 use macroquad::math::Rect;
@@ -89,7 +89,7 @@ pub struct GMResourceManager {
     sprite_sheets: HashMap<String, Rc<GMSpriteSheet>>,
     sprites: HashMap<String, GMSprite>,
     sounds: HashMap<String, Rc<GMSound>>,
-    animations: HashMap<String, Box<dyn GMAnimationT>>,
+    animations: HashMap<String, GMAnimation>,
 }
 
 impl GMResourceManager {
@@ -198,8 +198,8 @@ impl GMResourceManager {
     pub fn remove_sprite(&mut self, name: &str) {
         self.sprites.remove(name);
     }
-    pub fn add_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
-        self.animations.insert(name.to_string(), Box::new(animation));
+    pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {
+        self.animations.insert(name.to_string(), animation);
     }
     pub async fn animations_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
         info!("Loading animation file: '{}'", file_name);
@@ -216,19 +216,19 @@ impl GMResourceManager {
 
             let animation = match item.animation_type {
                 ForwardOnce => {
-                    GMAnimationForwardOnce::new_box(&frames)
+                    GMAnimationForwardOnce::new_anim(&frames)
                 }
                 ForwardLoop => {
-                    GMAnimationForwardLoop::new_box(&frames)
+                    GMAnimationForwardLoop::new_anim(&frames)
                 }
                 BackwardOnce => {
-                    GMAnimationBackwardOnce::new_box(&frames)
+                    GMAnimationBackwardOnce::new_anim(&frames)
                 }
                 BackwardLoop => {
-                    GMAnimationBackwardLoop::new_box(&frames)
+                    GMAnimationBackwardLoop::new_anim(&frames)
                 }
                 PingPong => {
-                    GMAnimationPingPong::new_box(&frames)
+                    GMAnimationPingPong::new_anim(&frames)
                 }
             };
 
@@ -237,8 +237,8 @@ impl GMResourceManager {
 
         Ok(())
     }
-    pub fn get_animation(&self, name: &str) -> Option<Box<dyn GMAnimationT>> {
-        self.animations.get(name).map(|v| v.clone_animation())
+    pub fn get_animation(&self, name: &str) -> Option<GMAnimation> {
+        self.animations.get(name).map(|v| v.clone())
     }
     pub fn remove_animation(&mut self, name: &str) {
         self.animations.remove(name);

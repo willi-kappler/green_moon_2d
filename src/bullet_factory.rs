@@ -1,4 +1,3 @@
-use crate::animation::GMAnimationT;
 use crate::resource_manager::GMResourceManager;
 use crate::sprite::GMSprite;
 
