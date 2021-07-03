@@ -30,6 +30,12 @@ pub fn dist_angle(x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
     (dist, angle)
 }
 
+pub fn angle(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    (dy / dx).atan()
+}
+
 #[derive(Clone)]
 pub struct GMSpritePart {
     active: bool,
@@ -247,6 +253,10 @@ impl GMSprite {
     }
     pub fn set_rot_speed(&mut self, rot_speed: f32) {
         self.rot_speed = rot_speed;
+    }
+    pub fn rotate_to_point(&mut self, px: f32, py: f32) {
+        let a = angle(self.x, self.y, px, py);
+        self.set_rotation(a);
     }
     pub fn is_offscreen(&self) -> bool {
         let (width, height) = self.get_extend();
