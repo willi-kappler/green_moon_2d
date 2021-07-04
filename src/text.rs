@@ -6,6 +6,10 @@ use crate::behavior::GMKeyValue;
 use std::rc::Rc;
 use std::f32::consts;
 
+// TODO:
+// - Text with sprite / tile border
+
+
 pub trait GMTextT {
     fn draw(&self);
     fn update(&mut self) {
@@ -521,4 +525,3 @@ impl GMTextT for GMWaveText {
     }
 }
 
-// TODO: Text with sprite / tile border
