@@ -86,11 +86,21 @@ impl GMAnimationBase {
         self.frames[self.current_frame].0
     }
     fn check_frame(&mut self) -> bool {
+        let duration = self.frames[self.current_frame].1;
+
+        if duration == 0.0 {
+            return true
+        }
+
         if !self.active {
             return true
         }
 
-        if get_time() - self.start_time < self.frames[self.current_frame].1 {
+        if self.frames.len() == 1 {
+            return true
+        }
+
+        if get_time() - self.start_time < duration {
             // Time for current frame has not elapsed yet, so nothing to do.
             // (display the same image as before until the frame time has elapsed)
             return true
