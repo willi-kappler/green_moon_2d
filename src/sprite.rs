@@ -7,6 +7,13 @@ use macroquad::window::{screen_width, screen_height};
 use std::rc::Rc;
 use std::f32::consts;
 
+// TODO:
+// - Sprite trait: GMSpriteT
+// - Remove GMSprite Part use GMMultiSprite
+// - Rename GMSprite to GMSpriteSingle
+// - Use GMSprite as wrapper for GMSpriteT
+
+
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum GMCollisionShape {
     Rectangle,
