@@ -1,0 +1,36 @@
+{
+    "animations": [
+        {
+            "name": "bullets1_1",
+            "animation_type": { "ForwardOnce": [] },
+            "frames":
+            [
+                {"x": 0.0, "y": 0.0, "w": 8.0, "h": 4.0, "duration": 0.000}
+            ]
+        },
+        {
+            "name": "bullets1_2",
+            "animation_type": { "ForwardOnce": [] },
+            "frames":
+            [
+                {"x": 4.0, "y": 0.0, "w": 10.0, "h": 10.0, "duration": 0.000}
+            ]
+        },
+        {
+            "name": "bullets1_3",
+            "animation_type": { "ForwardOnce": [] },
+            "frames":
+            [
+                {"x": 14.0, "y": 0.0, "w": 15.0, "h": 14.0, "duration": 0.000}
+            ]
+        },
+        {
+            "name": "bullets1_4",
+            "animation_type": { "ForwardOnce": [] },
+            "frames":
+            [
+                {"x": 28.0, "y": 0.0, "w": 14.0, "h": 20.0, "duration": 0.000}
+            ]
+        }
+    ]
+}
