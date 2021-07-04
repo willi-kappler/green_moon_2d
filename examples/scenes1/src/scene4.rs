@@ -25,7 +25,7 @@ impl Scene4 {
 
 impl GMSceneT for Scene4 {
     fn init(&mut self) {
-        println!("Scene 3, init()");
+        println!("Scene 4, init()");
     }
     fn draw(&self) {
         clear_background(BLACK);
