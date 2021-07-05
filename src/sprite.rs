@@ -14,12 +14,6 @@ use std::f32::consts;
 // - Use GMSprite as wrapper for GMSpriteT
 
 
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum GMCollisionShape {
-    Rectangle,
-    Circle,
-}
-
 pub fn between(a: f32, b: f32, c: f32) -> bool {
     a <= b && b <= c
 }
@@ -43,50 +37,14 @@ pub fn angle(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
     (dy / dx).atan()
 }
 
-#[derive(Clone)]
-pub struct GMSpritePart {
-    active: bool,
-    offsetx: f32,
-    offsety: f32,
-    animation: GMAnimation,
-    flipx: bool,
-    flipy: bool,
-    rotation: f32,
+pub trait GMSpriteT {
+    // TODO: Add methods from GMSprite here
 }
 
-impl GMSpritePart {
-    pub fn new(offsetx: f32, offsety: f32, animation: GMAnimation) -> Self {
-        Self {
-            active: true,
-            offsetx,
-            offsety,
-            animation,
-            flipx: false,
-            flipy: false,
-            rotation: 0.0,
-        }
-    }
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-    pub fn set_offsetx(&mut self, offsetx: f32) {
-        self.offsetx = offsetx;
-    }
-    pub fn set_offsety(&mut self, offsety: f32) {
-        self.offsety = offsety;
-    }
-    pub fn set_animation(&mut self, animation: GMAnimation) {
-        self.animation = animation;
-    }
-    pub fn flipx(&mut self, flipx: bool) {
-        self.flipx = flipx;
-    }
-    pub fn flipy(&mut self, flipy: bool) {
-        self.flipy = flipy;
-    }
-    pub fn set_rotation(&mut self, rotation: f32) {
-        self.rotation = rotation;
-    }
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum GMCollisionShape {
+    Rectangle,
+    Circle,
 }
 
 #[derive(Clone)]
@@ -104,7 +62,6 @@ pub struct GMSprite {
     flipy: bool,
     rotation: f32,
     rot_speed: f32,
-    parts: Vec<GMSpritePart>,
 }
 
 impl GMSprite {
@@ -123,7 +80,6 @@ impl GMSprite {
             flipy: false,
             rotation: 0.0,
             rot_speed: 0.0,
-            parts: Vec::new(),
         }
     }
     pub fn draw(&self) {
@@ -132,15 +88,6 @@ impl GMSprite {
         }
         let rect = self.animation.get_rect();
         self.sheet.draw_ex(&rect, self.x, self.y, self.flipx, self.flipy, self.rotation);
-
-        for part in self.parts.iter() {
-            if part.active {
-                let rect = part.animation.get_rect();
-                let x = self.x + part.offsetx;
-                let y = self.y + part.offsety;
-                self.sheet.draw_ex(&rect, x, y, part.flipx, part.flipy, part.rotation);
-            }
-        }
     }
     pub fn update(&mut self) {
         if !self.active {
@@ -157,12 +104,7 @@ impl GMSprite {
             self.rotation += consts::TAU;
         }
 
-        for part in self.parts.iter_mut() {
-            if part.active {
-                part.animation.next_frame();
-            }
-        }
-}
+    }
     pub fn get_extend(&self) -> (f32, f32) {
         let rect = self.animation.get_rect();
         (rect.w, rect.h)
@@ -315,25 +257,9 @@ impl GMSprite {
     pub fn resume_animation(&mut self) {
         self.animation.resume();
     }
-    pub fn set_part_active(&mut self, index: usize, active: bool) {
-        self.parts[index].set_active(active);
-    }
-    pub fn set_part_offsetx(&mut self, index: usize, offsetx: f32) {
-        self.parts[index].set_offsetx(offsetx);
-    }
-    pub fn set_part_offsety(&mut self, index: usize, offsety: f32) {
-        self.parts[index].set_offsety(offsety);
-    }
-    pub fn set_part_animation(&mut self, index: usize, animation: GMAnimation) {
-        self.parts[index].set_animation(animation);
-    }
-    pub fn set_part_flipx(&mut self, index: usize, flipx: bool) {
-        self.parts[index].flipx(flipx);
-    }
-    pub fn set_part_flipy(&mut self, index: usize, flipy: bool) {
-        self.parts[index].flipy(flipy);
-    }
-    pub fn set_part_rotation(&mut self, index: usize, rotation: f32) {
-        self.parts[index].set_rotation(rotation);
-    }
+}
+
+#[derive(Clone)]
+pub struct GMSpriteMultiple {
+
 }
