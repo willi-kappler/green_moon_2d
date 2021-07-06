@@ -3,7 +3,7 @@
 use crate::error::GMError;
 use crate::font::{GMBitmapFont, GMFontT};
 use crate::spritesheet::GMSpriteSheet;
-use crate::sprite::GMSprite;
+use crate::sprite::{GMSprite, GMSpriteSingle};
 use crate::sound::GMSound;
 use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimation};
 
@@ -138,7 +138,7 @@ impl GMResourceManager {
             for item in sprites.into_iter() {
                 debug!("Sprite name: '{}', sprite sheet: '{}', animation: '{}'", item.name, item.sprite_sheet, item.animation);
 
-                let sprite = GMSprite::new(
+                let sprite = GMSpriteSingle::new_wrapped(
                     &resource.get_sprite_sheet(&item.sprite_sheet).unwrap(),
                     resource.get_animation(&item.animation).unwrap(), 0.0, 0.0);
                 resource.sprites.insert(item.name, sprite);

@@ -274,7 +274,7 @@ impl GMSpriteText {
             right_sprite,
         };
 
-        result.right_sprite.flipx(true);
+        result.right_sprite.flip_x(true);
 
         result.change_x(result.base.get_x());
         result.change_y(result.base.get_y());
@@ -301,7 +301,7 @@ impl GMSpriteText {
         self.left_sprite = sprite.clone();
         self.right_sprite = sprite.clone();
 
-        self.right_sprite.flipx(true);
+        self.right_sprite.flip_x(true);
 
         self.left_sprite.start_animation();
         self.right_sprite.start_animation();

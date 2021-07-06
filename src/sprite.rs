@@ -8,10 +8,7 @@ use std::rc::Rc;
 use std::f32::consts;
 
 // TODO:
-// - Sprite trait: GMSpriteT
 // - Remove GMSprite Part use GMMultiSprite
-// - Rename GMSprite to GMSpriteSingle
-// - Use GMSprite as wrapper for GMSpriteT
 
 
 pub fn between(a: f32, b: f32, c: f32) -> bool {
@@ -37,18 +34,156 @@ pub fn angle(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
     (dy / dx).atan()
 }
 
-pub trait GMSpriteT {
-    // TODO: Add methods from GMSprite here
-}
-
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum GMCollisionShape {
     Rectangle,
     Circle,
 }
 
-#[derive(Clone)]
+pub trait GMSpriteT {
+    fn clone_sprite(&self) -> GMSprite;
+    fn draw(&self);
+    fn update(&mut self);
+    fn get_extend(&self) -> (f32, f32);
+    fn get_state_id(&self) -> u32;
+    fn get_active(&self) -> bool;
+    fn get_x(&self) -> f32;
+    fn get_y(&self) -> f32;
+    fn get_rotation(&self) -> f32;
+    fn get_collision_shape(&self) -> GMCollisionShape;
+    fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>);
+    fn set_animation(&mut self, animation: GMAnimation);
+    fn set_x(&mut self, x: f32);
+    fn set_y(&mut self, y: f32);
+    fn set_vx(&mut self, vx: f32);
+    fn set_vy(&mut self, vy: f32);
+    fn set_active(&mut self, active: bool);
+    fn set_collision_shape(&mut self, collision_shape: GMCollisionShape);
+    fn set_state_id(&mut self, state_id: u32);
+    fn set_rotation(&mut self, rotation: f32);
+    fn set_rot_speed(&mut self, rot_speed: f32);
+    fn rotate_to_point(&mut self, px: f32, py: f32);
+    fn collides_with(&self, other: &GMSprite) -> bool;
+    fn is_offscreen(&self) -> bool;
+    fn wrap_around(&mut self);
+    fn animation_finished(&self) -> bool;
+    fn flip_x(&mut self, flip_x: bool);
+    fn flip_y(&mut self, flip_y: bool);
+    fn start_animation(&mut self);
+    fn pause_animation(&mut self);
+    fn resume_animation(&mut self);
+}
+
 pub struct GMSprite {
+    sprite: Box<dyn GMSpriteT>,
+}
+
+impl GMSprite {
+    pub fn new(sprite: Box<dyn GMSpriteT>) -> Self {
+        Self {
+            sprite
+        }
+    }
+    pub fn draw(&self) {
+        self.sprite.draw();
+    }
+    pub fn update(&mut self) {
+        self.sprite.update();
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.sprite.get_extend()
+    }
+    pub fn get_state_id(&self) -> u32 {
+        self.sprite.get_state_id()
+    }
+    pub fn get_active(&self) -> bool {
+        self.sprite.get_active()
+    }
+    pub fn get_x(&self) -> f32 {
+        self.sprite.get_x()
+    }
+    pub fn get_y(&self) -> f32 {
+        self.sprite.get_y()
+    }
+    pub fn get_rotation(&self) -> f32 {
+        self.sprite.get_rotation()
+    }
+    pub fn get_collision_shape(&self) -> GMCollisionShape {
+        self.sprite.get_collision_shape()
+    }
+    pub fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
+        self.sprite.set_sheet(sheet);
+    }
+    pub fn set_animation(&mut self, animation: GMAnimation) {
+        self.sprite.set_animation(animation);
+    }
+    pub fn set_x(&mut self, x: f32) {
+        self.sprite.set_x(x);
+    }
+    pub fn set_y(&mut self, y: f32) {
+        self.sprite.set_y(y);
+    }
+    pub fn set_vx(&mut self, vx: f32) {
+        self.sprite.set_vx(vx);
+    }
+    pub fn set_vy(&mut self, vy: f32) {
+        self.sprite.set_vy(vy);
+    }
+    pub fn set_active(&mut self, active: bool) {
+        self.sprite.set_active(active);
+    }
+    pub fn set_collision_shape(&mut self, collision_shape: GMCollisionShape) {
+        self.sprite.set_collision_shape(collision_shape);
+    }
+    pub fn set_state_id(&mut self, state_id: u32) {
+        self.sprite.set_state_id(state_id);
+    }
+    pub fn set_rotation(&mut self, rotation: f32) {
+        self.sprite.set_rotation(rotation);
+    }
+    pub fn set_rot_speed(&mut self, rot_speed: f32) {
+        self.sprite.set_rot_speed(rot_speed);
+    }
+    pub fn rotate_to_point(&mut self, px: f32, py: f32) {
+        self.sprite.rotate_to_point(px, py);
+    }
+    pub fn collides_with(&self, other: &GMSprite) -> bool {
+        self.sprite.collides_with(other)
+    }
+    pub fn is_offscreen(&self) -> bool {
+        self.sprite.is_offscreen()
+    }
+    pub fn wrap_around(&mut self) {
+        self.sprite.wrap_around()
+    }
+    pub fn animation_finished(&self) -> bool {
+        self.sprite.animation_finished()
+    }
+    pub fn flip_x(&mut self, flip_x: bool) {
+        self.sprite.flip_x(flip_x);
+    }
+    pub fn flip_y(&mut self, flip_y: bool) {
+        self.sprite.flip_y(flip_y);
+    }
+    pub fn start_animation(&mut self) {
+        self.sprite.start_animation();
+    }
+    pub fn pause_animation(&mut self) {
+        self.sprite.pause_animation();
+    }
+    pub fn resume_animation(&mut self) {
+        self.sprite.resume_animation();
+    }
+}
+
+impl Clone for GMSprite {
+    fn clone(&self) -> Self {
+        self.sprite.clone_sprite()
+    }
+}
+
+#[derive(Clone)]
+pub struct GMSpriteSingle {
     sheet: Rc<GMSpriteSheet>,
     animation: GMAnimation,
     x: f32,
@@ -58,13 +193,13 @@ pub struct GMSprite {
     active: bool,
     collision_shape: GMCollisionShape,
     state_id: u32,
-    flipx: bool,
-    flipy: bool,
+    flip_x: bool,
+    flip_y: bool,
     rotation: f32,
     rot_speed: f32,
 }
 
-impl GMSprite {
+impl GMSpriteSingle {
     pub fn new(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> Self {
         Self {
             sheet: sheet.clone(),
@@ -76,20 +211,30 @@ impl GMSprite {
             active: true,
             collision_shape: GMCollisionShape::Rectangle,
             state_id: 0,
-            flipx: false,
-            flipy: false,
+            flip_x: false,
+            flip_y: false,
             rotation: 0.0,
             rot_speed: 0.0,
         }
     }
-    pub fn draw(&self) {
+    pub fn new_wrapped(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> GMSprite {
+        let sprite = Self::new(sheet, animation, x, y);
+        GMSprite::new(Box::new(sprite))
+    }
+}
+impl GMSpriteT for GMSpriteSingle {
+    fn clone_sprite(&self) -> GMSprite {
+        let sprite = self.clone();
+        GMSprite::new(Box::new(sprite))
+    }
+    fn draw(&self) {
         if !self.active {
             return
         }
         let rect = self.animation.get_rect();
-        self.sheet.draw_ex(&rect, self.x, self.y, self.flipx, self.flipy, self.rotation);
+        self.sheet.draw_ex(&rect, self.x, self.y, self.flip_x, self.flip_y, self.rotation);
     }
-    pub fn update(&mut self) {
+    fn update(&mut self) {
         if !self.active {
             return
         }
@@ -105,20 +250,73 @@ impl GMSprite {
         }
 
     }
-    pub fn get_extend(&self) -> (f32, f32) {
+    fn get_extend(&self) -> (f32, f32) {
         let rect = self.animation.get_rect();
         (rect.w, rect.h)
     }
-    pub fn get_state_id(&self) -> u32 {
+    fn get_state_id(&self) -> u32 {
         self.state_id
     }
-    pub fn get_active(&self) -> bool {
+    fn get_active(&self) -> bool {
         self.active
     }
-    pub fn collides_with(&self, other: &GMSprite) -> bool {
+    fn get_x(&self) -> f32 {
+        self.x
+    }
+    fn get_y(&self) -> f32 {
+        self.y
+    }
+    fn get_rotation(&self) -> f32 {
+        self.rotation
+    }
+    fn get_collision_shape(&self) -> GMCollisionShape {
+        self.collision_shape
+    }
+    fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
+        self.sheet = sheet.clone();
+    }
+    fn set_animation(&mut self, animation: GMAnimation) {
+        self.animation = animation;
+    }
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+    fn set_vx(&mut self, vx: f32) {
+        self.vx = vx;
+    }
+    fn set_vy(&mut self, vy: f32) {
+        self.vy = vy;
+    }
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+    fn set_collision_shape(&mut self, collision_shape: GMCollisionShape) {
+        self.collision_shape = collision_shape;
+    }
+    fn set_state_id(&mut self, state_id: u32) {
+        self.state_id = state_id;
+    }
+    fn set_rotation(&mut self, rotation: f32) {
+        self.rotation = rotation;
+    }
+    fn set_rot_speed(&mut self, rot_speed: f32) {
+        self.rot_speed = rot_speed;
+    }
+    fn rotate_to_point(&mut self, px: f32, py: f32) {
+        let a = angle(self.x, self.y, px, py);
+        self.set_rotation(a);
+    }
+    fn collides_with(&self, other: &GMSprite) -> bool {
         if !self.active {
             return false
         }
+        if !other.get_active() {
+            return false
+        }
+
         let (self_width, self_height) = self.get_extend();
         let (other_width, other_height) = other.get_extend();
 
@@ -127,14 +325,14 @@ impl GMSprite {
         let sy1 = self.y;
         let sy2 = self.y + self_height;
 
-        let ox1 = other.x;
-        let ox2 = other.x + other_width;
-        let oy1 = other.y;
-        let oy2 = other.y + other_height;
+        let ox1 = other.get_x();
+        let ox2 = other.get_x() + other_width;
+        let oy1 = other.get_y();
+        let oy2 = other.get_y() + other_height;
 
         use GMCollisionShape::*;
 
-        match (self.collision_shape, other.collision_shape) {
+        match (self.collision_shape, other.get_collision_shape()) {
             (Rectangle, Rectangle) => {
                 if in_rect(sx1, sx2, sy1, sy2, ox1, oy1) {
                     return true
@@ -158,8 +356,8 @@ impl GMSprite {
 
                 let smx = self.x + sr;
                 let smy = self.y + sr;
-                let omx = other.x + or;
-                let omy = other.y + or;
+                let omx = other.get_x() + or;
+                let omy = other.get_y() + or;
 
                 let dx = smx - omx;
                 let dy = smy - omy;
@@ -170,44 +368,7 @@ impl GMSprite {
         };
         false
     }
-    pub fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
-        self.sheet = sheet.clone();
-    }
-    pub fn set_animation(&mut self, animation: GMAnimation) {
-        self.animation = animation;
-    }
-    pub fn set_x(&mut self, x: f32) {
-        self.x = x;
-    }
-    pub fn set_y(&mut self, y: f32) {
-        self.y = y;
-    }
-    pub fn set_vx(&mut self, vx: f32) {
-        self.vx = vx;
-    }
-    pub fn set_vy(&mut self, vy: f32) {
-        self.vy = vy;
-    }
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-    pub fn set_collision_shape(&mut self, collision_shape: GMCollisionShape) {
-        self.collision_shape = collision_shape;
-    }
-    pub fn set_state_id(&mut self, state_id: u32) {
-        self.state_id = state_id;
-    }
-    pub fn set_rotation(&mut self, rotation: f32) {
-        self.rotation = rotation;
-    }
-    pub fn set_rot_speed(&mut self, rot_speed: f32) {
-        self.rot_speed = rot_speed;
-    }
-    pub fn rotate_to_point(&mut self, px: f32, py: f32) {
-        let a = angle(self.x, self.y, px, py);
-        self.set_rotation(a);
-    }
-    pub fn is_offscreen(&self) -> bool {
+    fn is_offscreen(&self) -> bool {
         let (width, height) = self.get_extend();
 
         if self.x + width < 0.0 {
@@ -222,7 +383,7 @@ impl GMSprite {
 
         false
     }
-    pub fn wrap_around(&mut self) {
+    fn wrap_around(&mut self) {
         let (width, height) = self.get_extend();
         let screen_w = screen_width();
         let screen_h = screen_height();
@@ -239,22 +400,22 @@ impl GMSprite {
             self.y = self.y - y2;
         }
     }
-    pub fn animation_finished(&self) -> bool {
+    fn animation_finished(&self) -> bool {
         self.animation.finished()
     }
-    pub fn flipx(&mut self, flipx: bool) {
-        self.flipx = flipx;
+    fn flip_x(&mut self, flip_x: bool) {
+        self.flip_x = flip_x;
     }
-    pub fn flipy(&mut self, flipy: bool) {
-        self.flipy = flipy;
+    fn flip_y(&mut self, flip_y: bool) {
+        self.flip_y = flip_y;
     }
-    pub fn start_animation(&mut self) {
+    fn start_animation(&mut self) {
         self.animation.start();
     }
-    pub fn pause_animation(&mut self) {
+    fn pause_animation(&mut self) {
         self.animation.pause();
     }
-    pub fn resume_animation(&mut self) {
+    fn resume_animation(&mut self) {
         self.animation.resume();
     }
 }
