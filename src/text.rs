@@ -28,14 +28,14 @@ pub trait GMTextT {
     }
 }
 
-pub struct GMStaticText {
+pub struct GMTextStatic {
     data: String,
     x: f32,
     y: f32,
     font: Rc<dyn GMFontT>,
 }
 
-impl GMStaticText {
+impl GMTextStatic {
     pub fn new(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Self {
         Self {
             data: text.to_string(),
@@ -49,7 +49,7 @@ impl GMStaticText {
     }
 }
 
-impl GMTextT for GMStaticText {
+impl GMTextT for GMTextStatic {
     fn draw(&self) {
         let mut current_x = self.x;
 
@@ -104,7 +104,7 @@ impl GMTextT for GMStaticText {
 }
 
 pub(crate) struct GMArrow {
-    text: GMStaticText,
+    text: GMTextStatic,
     min_x: f32,
     max_x: f32,
     step: f32,
@@ -115,7 +115,7 @@ impl GMArrow {
         let font = base.get_font();
         let base_y = base.get_y();
 
-        let text = GMStaticText::new(arrow, 0.0, base_y, font);
+        let text = GMTextStatic::new(arrow, 0.0, base_y, font);
 
         let mut result = Self {
             text,
@@ -179,13 +179,13 @@ impl GMArrow {
     }
 }
 
-pub struct GMArrowText {
+pub struct GMTextArrow {
     base: Box<dyn GMTextT>,
     left_arrow: GMArrow,
     right_arrow: GMArrow,
 }
 
-impl GMArrowText {
+impl GMTextArrow {
     pub fn new(base: Box<dyn GMTextT>) -> Self {
         let left_arrow = GMArrow::new("->", &base);
         let right_arrow = GMArrow::new("<-", &base);
@@ -200,12 +200,12 @@ impl GMArrowText {
         Box::new(Self::new(base))
     }
     pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMTextT> {
-        let base = GMStaticText::new_box(text, x, y, font);
+        let base = GMTextStatic::new_box(text, x, y, font);
         Self::new_box(base)
     }
 }
 
-impl GMTextT for GMArrowText {
+impl GMTextT for GMTextArrow {
     fn draw(&self) {
         self.base.draw();
         self.left_arrow.draw();
@@ -257,13 +257,13 @@ impl GMTextT for GMArrowText {
     }
 }
 
-pub struct GMSpriteText {
+pub struct GMTextSprite {
     base: Box<dyn GMTextT>,
     left_sprite: GMSprite,
     right_sprite: GMSprite,
 }
 
-impl GMSpriteText {
+impl GMTextSprite {
     pub fn new(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Self {
         let left_sprite = sprite.clone();
         let right_sprite = sprite.clone();
@@ -288,7 +288,7 @@ impl GMSpriteText {
         Box::new(Self::new(base, sprite))
     }
     pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite) -> Box<dyn GMTextT> {
-        let base = GMStaticText::new_box(text, x, y, font);
+        let base = GMTextStatic::new_box(text, x, y, font);
         Self::new_box(base, sprite)
     }
     pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> Box<dyn GMTextT> {
@@ -326,7 +326,7 @@ impl GMSpriteText {
     }
 }
 
-impl GMTextT for GMSpriteText {
+impl GMTextT for GMTextSprite {
     fn draw(&self) {
         self.base.draw();
         self.left_sprite.draw();
@@ -382,7 +382,7 @@ impl GMTextT for GMSpriteText {
                     self.set_sprite(&sprite);
                 }
                 None => {
-                    eprintln!("GMSpriteText::set_property(), could not downcast value to GMSprite")
+                    eprintln!("GMTextSprite::set_property(), could not downcast value to GMSprite")
                 }
             }
         } else {
@@ -391,16 +391,16 @@ impl GMTextT for GMSpriteText {
     }
 }
 
-pub struct GMWaveText {
-    base: GMStaticText,
+pub struct GMTextWave {
+    base: GMTextStatic,
     amplitude: f32,
     frequency: f32,
     offset: f32,
     time: f32,
 }
 
-impl GMWaveText {
-    pub fn new(base: GMStaticText, amplitude: f32, frequency: f32) -> Self {
+impl GMTextWave {
+    pub fn new(base: GMTextStatic, amplitude: f32, frequency: f32) -> Self {
         Self {
             base,
             amplitude,
@@ -409,12 +409,12 @@ impl GMWaveText {
             time: 0.0,
         }
     }
-    pub fn new_box(base: GMStaticText, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
+    pub fn new_box(base: GMTextStatic, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
         let text = Self::new(base, amplitude, frequency);
         Box::new(text)
     }
     pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
-        let base = GMStaticText::new(text, x, y, font);
+        let base = GMTextStatic::new(text, x, y, font);
         Self::new_box(base, amplitude, frequency)
     }
     pub fn set_amplitude(&mut self, amplitude: f32) {
@@ -437,7 +437,7 @@ impl GMWaveText {
     }
 }
 
-impl GMTextT for GMWaveText {
+impl GMTextT for GMTextWave {
     fn draw(&self) {
         let mut current_x = self.base.x;
         let mut current_y: f32;
@@ -497,7 +497,7 @@ impl GMTextT for GMWaveText {
                     self.set_amplitude(*a);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
+                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         } else if data.key == "frequency" {
@@ -506,7 +506,7 @@ impl GMTextT for GMWaveText {
                     self.set_frequency(*f);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
+                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         } else if data.key == "offset" {
@@ -515,7 +515,7 @@ impl GMTextT for GMWaveText {
                     self.set_offset(*f);
                 }
                 None => {
-                    eprintln!("GMWaveText::set_property(), '{}', could not downcast value to f32", data.key)
+                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         }

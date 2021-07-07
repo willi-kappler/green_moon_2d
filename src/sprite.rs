@@ -8,7 +8,7 @@ use std::rc::Rc;
 use std::f32::consts;
 
 // TODO:
-// - Remove GMSprite Part use GMMultiSprite
+// - GMMultiSprite
 
 
 pub fn between(a: f32, b: f32, c: f32) -> bool {
@@ -19,19 +19,27 @@ pub fn in_rect(x1: f32, x2: f32, y1: f32, y2: f32, xp: f32, yp: f32) -> bool {
     between(x1, xp, x2) && between(y1, yp, y2)
 }
 
-pub fn dist_angle(x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
+pub fn dist_point(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
     let dx = x2 - x1;
     let dy = y2 - y1;
-    let dist = dx.hypot(dy);
-    let angle = (dy / dx).atan();
-
-    (dist, angle)
+    dx.hypot(dy)
 }
 
-pub fn angle(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
+pub fn angle_point(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
     let dx = x2 - x1;
     let dy = y2 - y1;
-    (dy / dx).atan()
+
+    let mut angle = (dy / dx).atan();
+
+    if dx < 0.0 && dy >= 0.0 {
+        angle += consts::PI;
+    } else if dx < 0.0 && dy < 0.0 {
+        angle += consts::PI;
+    } else if dx >= 0.0 && dy < 0.0 {
+        angle += consts::TAU;
+    }
+
+    angle
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -49,12 +57,16 @@ pub trait GMSpriteT {
     fn get_active(&self) -> bool;
     fn get_x(&self) -> f32;
     fn get_y(&self) -> f32;
+    fn get_mid_x(&self) -> f32;
+    fn get_mid_y(&self) -> f32;
     fn get_rotation(&self) -> f32;
     fn get_collision_shape(&self) -> GMCollisionShape;
     fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>);
     fn set_animation(&mut self, animation: GMAnimation);
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
+    fn set_mid_x(&mut self, x: f32);
+    fn set_mid_y(&mut self, y: f32);
     fn set_vx(&mut self, vx: f32);
     fn set_vy(&mut self, vy: f32);
     fn set_active(&mut self, active: bool);
@@ -79,9 +91,9 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new(sprite: Box<dyn GMSpriteT>) -> Self {
+    pub fn new<T: 'static + GMSpriteT>(sprite: T) -> Self {
         Self {
-            sprite
+            sprite: Box::new(sprite),
         }
     }
     pub fn draw(&self) {
@@ -105,6 +117,12 @@ impl GMSprite {
     pub fn get_y(&self) -> f32 {
         self.sprite.get_y()
     }
+    pub fn get_mid_x(&mut self) -> f32 {
+        self.sprite.get_mid_x()
+    }
+    pub fn get_mid_y(&mut self) -> f32 {
+        self.sprite.get_mid_y()
+    }
     pub fn get_rotation(&self) -> f32 {
         self.sprite.get_rotation()
     }
@@ -122,6 +140,12 @@ impl GMSprite {
     }
     pub fn set_y(&mut self, y: f32) {
         self.sprite.set_y(y);
+    }
+    pub fn set_mid_x(&mut self, x: f32) {
+        self.sprite.set_mid_x(x);
+    }
+    pub fn set_mid_y(&mut self, y: f32) {
+        self.sprite.set_mid_y(y);
     }
     pub fn set_vx(&mut self, vx: f32) {
         self.sprite.set_vx(vx);
@@ -219,13 +243,13 @@ impl GMSpriteSingle {
     }
     pub fn new_wrapped(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> GMSprite {
         let sprite = Self::new(sheet, animation, x, y);
-        GMSprite::new(Box::new(sprite))
+        GMSprite::new(sprite)
     }
 }
 impl GMSpriteT for GMSpriteSingle {
     fn clone_sprite(&self) -> GMSprite {
         let sprite = self.clone();
-        GMSprite::new(Box::new(sprite))
+        GMSprite::new(sprite)
     }
     fn draw(&self) {
         if !self.active {
@@ -267,6 +291,12 @@ impl GMSpriteT for GMSpriteSingle {
     fn get_y(&self) -> f32 {
         self.y
     }
+    fn get_mid_x(&self) -> f32 {
+        self.x + (self.animation.get_rect().w / 2.0)
+    }
+    fn get_mid_y(&self) -> f32 {
+        self.y + (self.animation.get_rect().h / 2.0)
+    }
     fn get_rotation(&self) -> f32 {
         self.rotation
     }
@@ -284,6 +314,12 @@ impl GMSpriteT for GMSpriteSingle {
     }
     fn set_y(&mut self, y: f32) {
         self.y = y;
+    }
+    fn set_mid_x(&mut self, x: f32) {
+        self.x = x - (self.animation.get_rect().w / 2.0);
+    }
+    fn set_mid_y(&mut self, y: f32) {
+        self.y = y - (self.animation.get_rect().h / 2.0);
     }
     fn set_vx(&mut self, vx: f32) {
         self.vx = vx;
@@ -307,7 +343,7 @@ impl GMSpriteT for GMSpriteSingle {
         self.rot_speed = rot_speed;
     }
     fn rotate_to_point(&mut self, px: f32, py: f32) {
-        let a = angle(self.x, self.y, px, py);
+        let a = angle_point(self.x, self.y, px, py);
         self.set_rotation(a);
     }
     fn collides_with(&self, other: &GMSprite) -> bool {

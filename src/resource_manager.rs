@@ -18,16 +18,16 @@ use std::rc::Rc;
 use std::path::Path;
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMResourceFormat {
+pub struct GMFormatResource {
     font_files: Option<Vec<String>>,
-    sprite_sheets: Option<Vec<GMSpriteSheetFormat>>,
-    sprites: Option<Vec<GMSpriteFormat>>,
-    sounds: Option<Vec<GMSoundFormat>>,
+    sprite_sheets: Option<Vec<GMFormatSpriteSheet>>,
+    sprites: Option<Vec<GMFormatSprite>>,
+    sounds: Option<Vec<GMFormatSound>>,
     animation_files: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMFontFormat{
+pub struct GMFormatFont{
     name: String,
     image_file: String,
     char_width: f32,
@@ -36,20 +36,20 @@ pub struct GMFontFormat{
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMSpriteSheetFormat {
+pub struct GMFormatSpriteSheet {
     name: String,
     file: String,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMSpriteFormat {
+pub struct GMFormatSprite {
     name: String,
     sprite_sheet: String,
     animation: String,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMFrameFormat {
+pub struct GMFormatFrame {
     x: f32,
     y: f32,
     w: f32,
@@ -67,19 +67,19 @@ pub enum GMAnimationType {
 }
 
 #[derive(Clone, Debug, DeJson)]
-pub struct GMAnimationFormat {
+pub struct GMFormatAnimation {
     name: String,
     animation_type: GMAnimationType,
-    frames: Vec<GMFrameFormat>,
+    frames: Vec<GMFormatFrame>,
 }
 
 #[derive(Clone, Debug, DeJson)]
-pub struct GMAnimationFormatMultiple {
-    animations: Vec<GMAnimationFormat>,
+pub struct GMFormatAnimationMultiple {
+    animations: Vec<GMFormatAnimation>,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
-pub struct GMSoundFormat {
+pub struct GMFormatSound {
     name: String,
     file: String,
 }
@@ -105,7 +105,7 @@ impl GMResourceManager {
     pub async fn new_from_file(file_name: &str) -> Result<Self, GMError> {
         info!("Loading resource file: '{}'", file_name);
         let json = load_string(file_name).await?;
-        let result: GMResourceFormat = DeJson::deserialize_json(&json)?;
+        let result: GMFormatResource = DeJson::deserialize_json(&json)?;
         let mut resource = Self::new();
 
         if let Some(font_files) = result.font_files {
@@ -153,7 +153,7 @@ impl GMResourceManager {
     pub async fn fonts_from_file(&mut self, file_name: &str) -> Result<(), GMError>{
         info!("Loading font file: '{}'", file_name);
         let json = load_string(file_name).await?;
-        let item: GMFontFormat = DeJson::deserialize_json(&json)?;
+        let item: GMFormatFont = DeJson::deserialize_json(&json)?;
 
         debug!("Processing font...");
         debug!("Font name: '{}', width: {}, height: {}", item.name, item.char_width, item.char_height);
@@ -180,6 +180,9 @@ impl GMResourceManager {
     pub fn remove_font(&mut self, name: &str) {
         self.fonts.remove(name);
     }
+    pub fn clear_fonts(&mut self) {
+        self.fonts.clear();
+    }
     pub fn add_sprite_sheet(&mut self, name: &str, sprite_sheet: GMSpriteSheet) {
         self.sprite_sheets.insert(name.to_string(), Rc::new(sprite_sheet));
     }
@@ -188,6 +191,9 @@ impl GMResourceManager {
     }
     pub fn remove_sprite_sheet(&mut self, name: &str) {
         self.sprite_sheets.remove(name);
+    }
+    pub fn clear_sprite_sheets(&mut self) {
+        self.sprite_sheets.clear();
     }
     pub fn add_sprite(&mut self, name: &str, sprite: &GMSprite) {
         self.sprites.insert(name.to_string(), sprite.clone());
@@ -198,13 +204,16 @@ impl GMResourceManager {
     pub fn remove_sprite(&mut self, name: &str) {
         self.sprites.remove(name);
     }
+    pub fn clear_sprites(&mut self) {
+        self.sprites.clear();
+    }
     pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {
         self.animations.insert(name.to_string(), animation);
     }
     pub async fn animations_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
         info!("Loading animation file: '{}'", file_name);
         let json = load_string(file_name).await?;
-        let result: GMAnimationFormatMultiple = DeJson::deserialize_json(&json)?;
+        let result: GMFormatAnimationMultiple = DeJson::deserialize_json(&json)?;
 
         for item in result.animations.into_iter() {
             debug!("Processing animations...");
@@ -243,6 +252,9 @@ impl GMResourceManager {
     pub fn remove_animation(&mut self, name: &str) {
         self.animations.remove(name);
     }
+    pub fn clear_animations(&mut self) {
+        self.animations.clear();
+    }
     pub fn add_sound(&mut self, name: &str, sound: GMSound) {
         self.sounds.insert(name.to_string(), Rc::new(sound));
     }
@@ -251,5 +263,15 @@ impl GMResourceManager {
     }
     pub fn remove_sound(&mut self, name: &str) {
         self.sounds.remove(name);
+    }
+    pub fn clear_sounds(&mut self) {
+        self.sounds.clear();
+    }
+    pub fn clear_all(&mut self) {
+        self.clear_fonts();
+        self.clear_sprite_sheets();
+        self.clear_sprites();
+        self.clear_animations();
+        self.clear_sounds();
     }
 }

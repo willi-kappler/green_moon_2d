@@ -1,43 +1,38 @@
 
 use crate::sprite::GMSprite;
+use crate::health_bar::GMHealthBar;
 
-pub trait GMHealthBarT {
-    fn draw(&self, sprite: &GMSprite, health: u32);
-    fn update(&mut self);
-}
 
 pub struct GMPerson {
     sprite: GMSprite,
-    health: u32,
-    health_bar: Box<dyn GMHealthBarT>,
+    health_bar: GMHealthBar,
 }
 
 impl GMPerson {
-    pub fn new(sprite: &GMSprite, health_bar: Box<dyn GMHealthBarT>) -> Self {
+    pub fn new(sprite: &GMSprite, health_bar: GMHealthBar) -> Self {
         Self {
             sprite: sprite.clone(),
-            health: 0,
             health_bar,
         }
     }
     pub fn set_health(&mut self, health: u32) {
-        self.health = health;
+        self.health_bar.set_health(health);
     }
     pub fn get_health(&self) -> u32 {
-        self.health
+        self.health_bar.get_health()
     }
     pub fn inc_health(&mut self, inc: u32) {
-        self.health += inc;
+        self.health_bar.inc_health(inc);
     }
     pub fn dec_health(&mut self, dec: u32) {
-        self.health -= dec;
+        self.health_bar.dec_health(dec);
     }
     pub fn is_dead(&self) -> bool {
-        self.health == 0
+        self.health_bar.is_dead()
     }
     pub fn draw(&self) {
         self.sprite.draw();
-        self.health_bar.draw(&self.sprite, self.health);
+        self.health_bar.draw();
     }
     pub fn update(&mut self) {
         self.sprite.update();

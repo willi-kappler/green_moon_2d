@@ -1,10 +1,12 @@
 pub mod animation;
 pub mod behavior;
+pub mod border;
 pub mod bullet_factory;
 pub mod error;
 pub mod font;
-pub mod menu;
+pub mod health_bar;
 pub mod menu_item;
+pub mod menu;
 pub mod option;
 pub mod particle;
 pub mod person;

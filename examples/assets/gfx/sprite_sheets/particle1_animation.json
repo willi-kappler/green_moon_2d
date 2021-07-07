@@ -2,7 +2,7 @@
     "animations": [
         {
             "name": "particle1",
-            "animation_type": { "PingPong": [] },
+            "animation_type": "PingPong",
             "frames":
             [
                 {"x": 0.0, "y": 0.0, "w": 18.0, "h": 18.0, "duration": 0.050},

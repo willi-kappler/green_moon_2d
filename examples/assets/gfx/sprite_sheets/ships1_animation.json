@@ -2,7 +2,7 @@
     "animations": [
         {
             "name": "ships1_1",
-            "animation_type": { "ForwardOnce": [] },
+            "animation_type": "ForwardOnce",
             "frames":
             [
                 {"x": 0.0, "y": 0.0, "w": 26.0, "h": 32.0, "duration": 0.000}
@@ -10,7 +10,7 @@
         },
         {
             "name": "ships1_2",
-            "animation_type": { "ForwardOnce": [] },
+            "animation_type": "ForwardOnce",
             "frames":
             [
                 {"x": 32.0, "y": 0.0, "w": 28.0, "h": 32.0, "duration": 0.000}
@@ -18,7 +18,7 @@
         },
         {
             "name": "ships1_3",
-            "animation_type": { "ForwardOnce": [] },
+            "animation_type": "ForwardOnce",
             "frames":
             [
                 {"x": 60.0, "y": 0.0, "w": 41.0, "h": 32.0, "duration": 0.000}
