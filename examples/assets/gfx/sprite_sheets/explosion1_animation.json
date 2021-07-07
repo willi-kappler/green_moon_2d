@@ -2,7 +2,7 @@
     "animations": [
         {
             "name": "explosion1",
-            "animation_type": { "ForwardOnce": [] },
+            "animation_type": "ForwardOnce",
             "frames":
             [
                 {"x": 0.0, "y": 0.0, "w": 36.0, "h": 30.0, "duration": 0.050},
