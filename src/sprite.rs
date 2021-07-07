@@ -8,7 +8,7 @@ use std::rc::Rc;
 use std::f32::consts;
 
 // TODO:
-// - Remove GMSprite Part use GMMultiSprite
+// - GMMultiSprite
 
 
 pub fn between(a: f32, b: f32, c: f32) -> bool {
@@ -79,9 +79,9 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new(sprite: Box<dyn GMSpriteT>) -> Self {
+    pub fn new<T: 'static + GMSpriteT>(sprite: T) -> Self {
         Self {
-            sprite
+            sprite: Box::new(sprite),
         }
     }
     pub fn draw(&self) {
@@ -219,13 +219,13 @@ impl GMSpriteSingle {
     }
     pub fn new_wrapped(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> GMSprite {
         let sprite = Self::new(sheet, animation, x, y);
-        GMSprite::new(Box::new(sprite))
+        GMSprite::new(sprite)
     }
 }
 impl GMSpriteT for GMSpriteSingle {
     fn clone_sprite(&self) -> GMSprite {
         let sprite = self.clone();
-        GMSprite::new(Box::new(sprite))
+        GMSprite::new(sprite)
     }
     fn draw(&self) {
         if !self.active {
