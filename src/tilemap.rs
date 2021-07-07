@@ -24,7 +24,7 @@ impl GMTileMap {
         self.height = height;
         self.map = map.to_vec();
     }
-    pub async fn load_map(&mut self, file_name: &str) {
+    pub async fn load_map(&mut self, _file_name: &str) {
         todo!();
     }
     pub fn set_tile_set(&mut self, tile_set: &Rc<GMTileSet>) {
