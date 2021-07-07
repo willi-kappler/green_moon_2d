@@ -27,12 +27,12 @@
         {
             "name": "ship1",
             "sprite_sheet": "ships1",
-            "animation": "ships1_1"
+            "animation": "ships1_2"
         },
         {
             "name": "bullet1",
             "sprite_sheet": "bullets1",
-            "animation": "bullets1_1"
+            "animation": "bullets1_4"
         },
         {
             "name": "head1",
