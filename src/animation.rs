@@ -21,9 +21,9 @@ pub struct GMAnimation {
 }
 
 impl GMAnimation {
-    pub fn new(animation: Box<dyn GMAnimationT>) -> Self {
+    pub fn new<T: 'static + GMAnimationT>(animation: T) -> Self {
         Self {
-            animation,
+            animation: Box::new(animation),
         }
     }
     pub fn set_animation(&mut self, animation: Box<dyn GMAnimationT>) {
@@ -128,7 +128,7 @@ impl GMAnimationForwardOnce {
     }
     pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        GMAnimation::new(Box::new(animation))
+        GMAnimation::new(animation)
     }
 }
 
@@ -159,7 +159,7 @@ impl GMAnimationT for GMAnimationForwardOnce {
         self.base.current_frame == self.base.frames.len() - 1
     }
     fn clone_animation(&self) -> GMAnimation {
-        GMAnimation::new(Box::new(self.clone()))
+        GMAnimation::new(self.clone())
     }
 }
 
@@ -177,7 +177,7 @@ impl GMAnimationForwardLoop {
     }
     pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        GMAnimation::new(Box::new(animation))
+        GMAnimation::new(animation)
     }
 }
 
@@ -209,7 +209,7 @@ impl GMAnimationT for GMAnimationForwardLoop {
         false
     }
     fn clone_animation(&self) -> GMAnimation {
-        GMAnimation::new(Box::new(self.clone()))
+        GMAnimation::new(self.clone())
    }
 }
 
@@ -226,7 +226,7 @@ impl GMAnimationBackwardOnce {
     }
     pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        GMAnimation::new(Box::new(animation))
+        GMAnimation::new(animation)
     }
 }
 
@@ -256,7 +256,7 @@ impl GMAnimationT for GMAnimationBackwardOnce {
         self.base.current_frame == 0
     }
     fn clone_animation(&self) -> GMAnimation {
-        GMAnimation::new(Box::new(self.clone()))
+        GMAnimation::new(self.clone())
    }
 }
 
@@ -273,7 +273,7 @@ impl GMAnimationBackwardLoop {
     }
     pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        GMAnimation::new(Box::new(animation))
+        GMAnimation::new(animation)
     }
 }
 
@@ -305,7 +305,7 @@ impl GMAnimationT for GMAnimationBackwardLoop {
         false
     }
     fn clone_animation(&self) -> GMAnimation {
-        GMAnimation::new(Box::new(self.clone()))
+        GMAnimation::new(self.clone())
    }
 }
 
@@ -324,7 +324,7 @@ impl GMAnimationPingPong {
     }
     pub fn new_anim(frames: &[(Rect, f64)]) -> GMAnimation {
         let animation = Self::new(frames);
-        GMAnimation::new(Box::new(animation))
+        GMAnimation::new(animation)
     }
 }
 
@@ -365,7 +365,6 @@ impl GMAnimationT for GMAnimationPingPong {
         false
     }
     fn clone_animation(&self) -> GMAnimation {
-        GMAnimation::new(Box::new(self.clone()))
+        GMAnimation::new(self.clone())
    }
 }
-
