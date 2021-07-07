@@ -1,5 +1,9 @@
 use macroquad::math::Rect;
 use macroquad::time::get_time;
+
+
+// TODO: Add other animation types
+
 pub trait GMAnimationT {
     fn start(&mut self);
     fn pause(&mut self);
@@ -9,7 +13,7 @@ pub trait GMAnimationT {
     fn finished(&self) -> bool;
     // impl Clone is not possible because of object safety:
     // clone() returns Self
-    fn clone_animation(&self) -> Box<dyn GMAnimationT>;
+    fn clone_animation(&self) -> GMAnimation;
 }
 
 pub struct GMAnimation {
@@ -47,9 +51,7 @@ impl GMAnimation {
 
 impl Clone for GMAnimation {
     fn clone(&self) -> Self {
-        Self {
-            animation: self.animation.clone_animation(),
-        }
+        self.animation.clone_animation()
     }
 }
 
@@ -156,8 +158,8 @@ impl GMAnimationT for GMAnimationForwardOnce {
     fn finished(&self) -> bool {
         self.base.current_frame == self.base.frames.len() - 1
     }
-    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
-         Box::new(self.clone())
+    fn clone_animation(&self) -> GMAnimation {
+        GMAnimation::new(Box::new(self.clone()))
     }
 }
 
@@ -206,8 +208,8 @@ impl GMAnimationT for GMAnimationForwardLoop {
     fn finished(&self) -> bool {
         false
     }
-    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
-        Box::new(self.clone())
+    fn clone_animation(&self) -> GMAnimation {
+        GMAnimation::new(Box::new(self.clone()))
    }
 }
 
@@ -253,8 +255,8 @@ impl GMAnimationT for GMAnimationBackwardOnce {
     fn finished(&self) -> bool {
         self.base.current_frame == 0
     }
-    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
-        Box::new(self.clone())
+    fn clone_animation(&self) -> GMAnimation {
+        GMAnimation::new(Box::new(self.clone()))
    }
 }
 
@@ -302,8 +304,8 @@ impl GMAnimationT for GMAnimationBackwardLoop {
     fn finished(&self) -> bool {
         false
     }
-    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
-        Box::new(self.clone())
+    fn clone_animation(&self) -> GMAnimation {
+        GMAnimation::new(Box::new(self.clone()))
    }
 }
 
@@ -362,9 +364,8 @@ impl GMAnimationT for GMAnimationPingPong {
     fn finished(&self) -> bool {
         false
     }
-    fn clone_animation(&self) -> Box<(dyn GMAnimationT)> {
-        Box::new(self.clone())
+    fn clone_animation(&self) -> GMAnimation {
+        GMAnimation::new(Box::new(self.clone()))
    }
 }
 
-// TODO: Add other animation types
