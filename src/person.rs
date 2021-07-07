@@ -1,6 +1,7 @@
 
 use crate::sprite::GMSprite;
 
+// TODO: Move healthbar to own file
 pub trait GMHealthBarT {
     fn draw(&self, sprite: &GMSprite, health: u32);
     fn update(&mut self);

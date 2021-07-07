@@ -1,7 +1,7 @@
 
 use crate::font::GMFontT;
 use crate::value::GMValue;
-use crate::text::{GMTextT, GMStaticText, GMArrowText, GMSpriteText};
+use crate::text::{GMTextT, GMTextStatic, GMTextArrow, GMTextSprite};
 use crate::sprite::{GMSprite, in_rect};
 use crate::resource_manager::GMResourceManager;
 use crate::behavior::GMKeyValue;
@@ -51,13 +51,13 @@ impl GMMenuItemStatic {
         Box::new(Self::new(inactive_text, active_text))
     }
     pub fn new_static_arrow(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(text, x, y, font);
-        let active_text = GMArrowText::new_static(text, x, y, font);
+        let inactive_text = GMTextStatic::new_box(text, x, y, font);
+        let active_text = GMTextArrow::new_static(text, x, y, font);
         Self::new_box(inactive_text, active_text)
     }
     pub fn new_static_sprite(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(text, x, y, font);
-        let active_text = GMSpriteText::new_static(text, x, y, font, sprite);
+        let inactive_text = GMTextStatic::new_box(text, x, y, font);
+        let active_text = GMTextSprite::new_static(text, x, y, font, sprite);
         Self::new_box(inactive_text, active_text)
     }
     pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> Box<dyn GMMenuItemT> {
@@ -184,13 +184,13 @@ impl GMMenuItemNumeric {
         Box::new(Self::new(inactive_text, active_text, prefix, min_val, max_val, current_val, step))
     }
     pub fn new_static_arrow(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
-        let active_text = GMArrowText::new_static(prefix, x, y, font);
+        let inactive_text = GMTextStatic::new_box(prefix, x, y, font);
+        let active_text = GMTextArrow::new_static(prefix, x, y, font);
         Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
     }
     pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite, min_val: f32, max_val: f32, current_val: f32, step: f32) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
-        let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
+        let inactive_text = GMTextStatic::new_box(prefix, x, y, font);
+        let active_text = GMTextSprite::new_static(prefix, x, y, font, sprite);
         Self::new_box(inactive_text, active_text, prefix, min_val, max_val, current_val, step)
     }
     pub fn update_text(&mut self) {
@@ -306,13 +306,13 @@ impl GMMenuItemEnum {
         Box::new(Self::new(inactive_text, active_text, prefix, items, current_item))
     }
     pub fn new_static_arrow(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
-        let active_text = GMArrowText::new_static(prefix, x, y, font);
+        let inactive_text = GMTextStatic::new_box(prefix, x, y, font);
+        let active_text = GMTextArrow::new_static(prefix, x, y, font);
         Self::new_box(inactive_text, active_text, prefix, items, current_item)
     }
     pub fn new_static_sprite(prefix: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite, items: &[&str], current_item: usize) -> Box<dyn GMMenuItemT> {
-        let inactive_text = GMStaticText::new_box(prefix, x, y, font);
-        let active_text = GMSpriteText::new_static(prefix, x, y, font, sprite);
+        let inactive_text = GMTextStatic::new_box(prefix, x, y, font);
+        let active_text = GMTextSprite::new_static(prefix, x, y, font, sprite);
         Self::new_box(inactive_text, active_text, prefix, items, current_item)
     }
     pub fn update_text(&mut self) {

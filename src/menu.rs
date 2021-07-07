@@ -1,6 +1,6 @@
 
 use crate::font::GMFontT;
-use crate::text::{GMTextT, GMStaticText};
+use crate::text::{GMTextT, GMTextStatic};
 use crate::sprite::GMSprite;
 use crate::value::GMValue;
 use crate::sound::GMSound;
@@ -40,7 +40,7 @@ impl GMMenu {
     pub fn new_static_arrow(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
-        let title = GMStaticText::new_box(title, x, y, font);
+        let title = GMTextStatic::new_box(title, x, y, font);
         let mut menu_items = Vec::new();
         let (_, font_height) = font.get_extend('A');
         current_y += font_height * 2.0;
@@ -58,7 +58,7 @@ impl GMMenu {
     pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &Rc<dyn GMFontT>, sprite: &GMSprite, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
-        let title = GMStaticText::new_box(title, x, y, font);
+        let title = GMTextStatic::new_box(title, x, y, font);
         let mut menu_items = Vec::new();
         let (_, font_height) = font.get_extend('A');
         current_y += font_height * 2.0;

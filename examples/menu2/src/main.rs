@@ -1,8 +1,7 @@
 use green_moon_2d::menu::GMMenu;
 use green_moon_2d::menu_item::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
 use green_moon_2d::value::GMValue;
-use green_moon_2d::sprite::GMSprite;
-use green_moon_2d::text::GMWaveText;
+use green_moon_2d::text::GMTextWave;
 use green_moon_2d::error::GMError;
 use green_moon_2d::resource_manager::GMResourceManager;
 use green_moon_2d::behavior::GMKeyValue;
@@ -33,7 +32,7 @@ async fn main() -> Result<(), GMError> {
         resources.get_sprite("ghost1").unwrap(),
     ];
 
-    let menu_title = GMWaveText::new_static("MAIN MENU", 100.0, 40.0, &fonts[0], 8.0, 10.0);
+    let menu_title = GMTextWave::new_static("MAIN MENU", 100.0, 40.0, &fonts[0], 8.0, 10.0);
 
     let mut main_menu = GMMenu::new_empty(menu_title,
         &resources.get_sound("change1").unwrap(),
