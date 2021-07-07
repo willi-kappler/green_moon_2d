@@ -33,4 +33,19 @@ impl GMOption {
     pub fn get_language(&self) -> &str {
         &self.language
     }
+    pub fn set_sound_volume(&mut self, volume: f32) {
+        self.sound_volume = volume;
+    }
+    pub fn set_music_volume(&mut self, volume: f32) {
+        self.music_volume= volume;
+    }
+    pub fn set_screen_width(&mut self, width: f32) {
+        self.screen_width = width;
+    }
+    pub fn set_screen_height(&mut self, height: f32) {
+        self.screen_height = height;
+    }
+    pub fn set_language(&mut self, language: &str) {
+        self.language = language.to_string();
+    }
 }
