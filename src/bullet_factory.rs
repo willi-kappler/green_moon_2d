@@ -47,7 +47,7 @@ impl GMBulletFactory {
     pub fn set_offscreen_mode(&mut self, offscreen_mode: GMOffscreenMode) {
         self.offscreen_mode = offscreen_mode;
     }
-    pub fn add_bullet(&mut self, x: f32, y: f32, vx: f32, vy: f32) {
+    pub fn add_bullet(&mut self, x: f32, y: f32, vx: f32, vy: f32, rotation: f32, mid: bool) {
         // TODO: Reuse inactive bullets
         let current_time = get_time();
         if current_time - self.prev_time < self.delay {
@@ -58,10 +58,16 @@ impl GMBulletFactory {
 
         if self.bullets.len() < self.max_bullets {
             let mut sprite = self.base_sprite.clone();
-            sprite.set_x(x);
-            sprite.set_y(y);
+            if mid {
+                sprite.set_mid_x(x);
+                sprite.set_mid_y(y);
+            } else {
+                sprite.set_x(x);
+                sprite.set_y(y);
+            }
             sprite.set_vx(vx);
             sprite.set_vy(vy);
+            sprite.set_rotation(rotation);
             sprite.start_animation();
             self.bullets.push(sprite);
         }
