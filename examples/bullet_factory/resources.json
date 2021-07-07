@@ -1,16 +1,16 @@
 {
     "sprite_sheets": [
         {
-            "name": "knight1",
-            "file": "../assets/gfx/sprite_sheets/knight1.png"
+            "name": "ships1",
+            "file": "../assets/gfx/sprite_sheets/ships1.png"
         },
         {
-            "name": "bullet1",
-            "file": "../assets/gfx/sprite_sheets/bullet1.png"
+            "name": "bullets1",
+            "file": "../assets/gfx/sprite_sheets/bullets1.png"
         },
         {
-            "name": "monster1",
-            "file": "../assets/gfx/sprite_sheets/monster1.png"
+            "name": "head1",
+            "file": "../assets/gfx/sprite_sheets/head1.png"
         },
         {
             "name": "explosion1",
@@ -18,26 +18,26 @@
         }
     ],
     "animation_files": [
-        "../assets/gfx/sprite_sheets/knight1_animation.json",
-        "../assets/gfx/sprite_sheets/bullet1_animation.json",
-        "../assets/gfx/sprite_sheets/monster1_animation.json",
+        "../assets/gfx/sprite_sheets/ships1_animation.json",
+        "../assets/gfx/sprite_sheets/bullets1_animation.json",
+        "../assets/gfx/sprite_sheets/head1_animation.json",
         "../assets/gfx/sprite_sheets/explosion1_animation.json"
     ],
     "sprites": [
         {
-            "name": "knight1",
-            "sprite_sheet": "knight1",
-            "animation": "knight1"
+            "name": "ship1",
+            "sprite_sheet": "ships1",
+            "animation": "ships1_1"
         },
         {
             "name": "bullet1",
-            "sprite_sheet": "bullet1",
-            "animation": "bullet1"
+            "sprite_sheet": "bullets1",
+            "animation": "bullets1_1"
         },
         {
-            "name": "monster1",
-            "sprite_sheet": "monster1",
-            "animation": "monster1"
+            "name": "head1",
+            "sprite_sheet": "head1",
+            "animation": "head1"
         }
     ]
 }
