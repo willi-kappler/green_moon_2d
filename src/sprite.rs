@@ -243,6 +243,7 @@ impl GMSpriteT for GMSpriteSingle {
         self.x += self.vx;
         self.y += self.vy;
         self.rotation += self.rot_speed;
+
         if self.rotation > consts::TAU {
             self.rotation -= consts::TAU;
         } else if self.rotation < consts::TAU {
