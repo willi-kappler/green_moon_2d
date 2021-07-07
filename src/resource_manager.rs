@@ -180,6 +180,9 @@ impl GMResourceManager {
     pub fn remove_font(&mut self, name: &str) {
         self.fonts.remove(name);
     }
+    pub fn clear_fonts(&mut self) {
+        self.fonts.clear();
+    }
     pub fn add_sprite_sheet(&mut self, name: &str, sprite_sheet: GMSpriteSheet) {
         self.sprite_sheets.insert(name.to_string(), Rc::new(sprite_sheet));
     }
@@ -189,6 +192,9 @@ impl GMResourceManager {
     pub fn remove_sprite_sheet(&mut self, name: &str) {
         self.sprite_sheets.remove(name);
     }
+    pub fn clear_sprite_sheets(&mut self) {
+        self.sprite_sheets.clear();
+    }
     pub fn add_sprite(&mut self, name: &str, sprite: &GMSprite) {
         self.sprites.insert(name.to_string(), sprite.clone());
     }
@@ -197,6 +203,9 @@ impl GMResourceManager {
     }
     pub fn remove_sprite(&mut self, name: &str) {
         self.sprites.remove(name);
+    }
+    pub fn clear_sprites(&mut self) {
+        self.sprites.clear();
     }
     pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {
         self.animations.insert(name.to_string(), animation);
@@ -243,6 +252,9 @@ impl GMResourceManager {
     pub fn remove_animation(&mut self, name: &str) {
         self.animations.remove(name);
     }
+    pub fn clear_animations(&mut self) {
+        self.animations.clear();
+    }
     pub fn add_sound(&mut self, name: &str, sound: GMSound) {
         self.sounds.insert(name.to_string(), Rc::new(sound));
     }
@@ -251,5 +263,15 @@ impl GMResourceManager {
     }
     pub fn remove_sound(&mut self, name: &str) {
         self.sounds.remove(name);
+    }
+    pub fn clear_sounds(&mut self) {
+        self.sounds.clear();
+    }
+    pub fn clear_all(&mut self) {
+        self.clear_fonts();
+        self.clear_sprite_sheets();
+        self.clear_sprites();
+        self.clear_animations();
+        self.clear_sounds();
     }
 }
