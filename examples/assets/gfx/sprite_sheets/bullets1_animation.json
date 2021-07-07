@@ -13,7 +13,7 @@
             "animation_type": "ForwardOnce",
             "frames":
             [
-                {"x": 4.0, "y": 0.0, "w": 10.0, "h": 10.0, "duration": 0.000}
+                {"x": 8.0, "y": 0.0, "w": 10.0, "h": 10.0, "duration": 0.000}
             ]
         },
         {
@@ -21,7 +21,7 @@
             "animation_type": "ForwardOnce",
             "frames":
             [
-                {"x": 14.0, "y": 0.0, "w": 15.0, "h": 14.0, "duration": 0.000}
+                {"x": 18.0, "y": 0.0, "w": 15.0, "h": 14.0, "duration": 0.000}
             ]
         },
         {
@@ -29,7 +29,7 @@
             "animation_type": "ForwardOnce",
             "frames":
             [
-                {"x": 28.0, "y": 0.0, "w": 14.0, "h": 20.0, "duration": 0.000}
+                {"x": 33.0, "y": 0.0, "w": 14.0, "h": 20.0, "duration": 0.000}
             ]
         }
     ]
