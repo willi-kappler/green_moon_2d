@@ -32,7 +32,7 @@
         {
             "name": "bullet1",
             "sprite_sheet": "bullets1",
-            "animation": "bullets1_4"
+            "animation": "bullets1_1"
         },
         {
             "name": "head1",
