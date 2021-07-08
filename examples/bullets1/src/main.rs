@@ -12,8 +12,7 @@ async fn main() -> Result<(), GMError> {
 
     let resources = GMResourceManager::new_from_file("resources.json").await?;
 
-    let bullet = resources.get_sprite("bullet1").unwrap();
-    let mut bullet_manager = GMBulletManager::new(bullet, 30);
+    let mut bullet_manager = GMBulletManager::new_from_resource(&resources, "bullet1", 5, "laser1");
     bullet_manager.set_delay(0.05);
     //bullet_manager.set_offscreen_mode(GMOffscreenMode::WrapAround);
     let bullet_speed = 6.0;
@@ -21,8 +20,6 @@ async fn main() -> Result<(), GMError> {
     let mut player = resources.get_sprite("ship1").unwrap().clone();
     player.set_x(400.0);
     player.set_y(300.0);
-
-    let laser = resources.get_sound("laser1").unwrap();
 
     show_mouse(true);
 
@@ -39,8 +36,6 @@ async fn main() -> Result<(), GMError> {
         player.rotate_to_point(mousex, mousey);
 
         if is_mouse_button_pressed(MouseButton::Left) {
-            laser.play();
-
             let rotation = player.get_rotation();
             let bullet_vx = rotation.cos() * bullet_speed;
             let bullet_vy = rotation.sin() * bullet_speed;

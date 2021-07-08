@@ -1,8 +1,13 @@
 use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
+use crate::sound::GMSound;
 
 use macroquad::time::get_time;
 
+use std::rc::Rc;
+
+// TODO:
+// - add bullet duration / lifetime
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum GMOffscreenMode {
@@ -18,10 +23,12 @@ pub struct GMBulletManager {
     prev_time: f64,
     offscreen_mode: GMOffscreenMode,
     bullets: Vec<GMSprite>,
+    shoot_sound: Rc<GMSound>,
+
 }
 
 impl GMBulletManager {
-    pub fn new(sprite: &GMSprite, max_bullets: usize) -> Self {
+    pub fn new(sprite: &GMSprite, max_bullets: usize, shoot_sound: &Rc<GMSound>) -> Self {
         Self {
             base_sprite: sprite.clone(),
             max_bullets,
@@ -29,12 +36,14 @@ impl GMBulletManager {
             prev_time: 0.0,
             offscreen_mode: GMOffscreenMode::Destroy,
             bullets: Vec::new(),
+            shoot_sound: shoot_sound.clone(),
         }
     }
-    pub fn new_from_resource(resources: &GMResourceManager, sprite_name: &str, max_bullets: usize) -> Self {
+    pub fn new_from_resource(resources: &GMResourceManager, sprite_name: &str, max_bullets: usize, shoot_sound_name: &str) -> Self {
         let sprite = resources.get_sprite(sprite_name).unwrap();
+        let shoot_sound = resources.get_sound(shoot_sound_name).unwrap();
 
-        Self::new(sprite, max_bullets)
+        Self::new(sprite, max_bullets, &shoot_sound)
     }
     pub fn set_delay(&mut self, delay: f64) {
         self.delay = delay;
@@ -52,6 +61,8 @@ impl GMBulletManager {
         }
 
         if self.bullets.len() < self.max_bullets {
+            self.shoot_sound.play();
+
             let mut sprite = self.base_sprite.clone();
             if mid {
                 sprite.set_mid_x(x);
