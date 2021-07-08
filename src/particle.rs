@@ -1,4 +1,4 @@
-use crate::resource_manager::GMResourceManager;
+use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
 
 use macroquad::time::get_time;

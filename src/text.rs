@@ -1,5 +1,5 @@
 use crate::font::{GMFontT};
-use crate::resource_manager::GMResourceManager;
+use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
 use crate::behavior::GMKeyValue;
 

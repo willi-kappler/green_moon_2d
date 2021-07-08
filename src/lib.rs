@@ -10,7 +10,7 @@ pub mod menu;
 pub mod option;
 pub mod particle;
 pub mod person;
-pub mod resource_manager;
+pub mod resources;
 pub mod scene;
 pub mod sound;
 pub mod sprite;

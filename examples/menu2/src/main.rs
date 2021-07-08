@@ -3,7 +3,7 @@ use green_moon_2d::menu_item::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumer
 use green_moon_2d::value::GMValue;
 use green_moon_2d::text::GMTextWave;
 use green_moon_2d::error::GMError;
-use green_moon_2d::resource_manager::GMResourceManager;
+use green_moon_2d::resources::GMResourceManager;
 use green_moon_2d::behavior::GMKeyValue;
 
 use macroquad::prelude::*;

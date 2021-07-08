@@ -1,6 +1,6 @@
 use green_moon_2d::menu::GMMenu;
 use green_moon_2d::scene::{GMSceneT, GMSceneResult};
-use green_moon_2d::resource_manager::GMResourceManager;
+use green_moon_2d::resources::GMResourceManager;
 
 use macroquad::prelude::*;
 

@@ -3,7 +3,7 @@ use crate::font::GMFontT;
 use crate::value::GMValue;
 use crate::text::{GMTextT, GMTextStatic, GMTextArrow, GMTextSprite};
 use crate::sprite::{GMSprite, in_rect};
-use crate::resource_manager::GMResourceManager;
+use crate::resources::GMResourceManager;
 use crate::behavior::GMKeyValue;
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};

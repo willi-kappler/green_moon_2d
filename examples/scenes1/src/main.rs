@@ -1,5 +1,5 @@
 use green_moon_2d::error::GMError;
-use green_moon_2d::resource_manager::GMResourceManager;
+use green_moon_2d::resources::GMResourceManager;
 use green_moon_2d::scene::GMSceneManager;
 
 use macroquad::prelude::*;
