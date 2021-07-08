@@ -17,6 +17,11 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::path::Path;
 
+// TODO:
+// - get_bullet_manager()
+// - get_menu_item()
+//
+
 #[derive(Clone, Debug, Default, DeJson)]
 pub struct GMFormatResource {
     font_files: Option<Vec<String>>,
