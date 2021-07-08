@@ -12,6 +12,7 @@ pub mod particle;
 pub mod person;
 pub mod resources;
 pub mod scene;
+pub mod score;
 pub mod sound;
 pub mod sprite;
 pub mod spritesheet;
