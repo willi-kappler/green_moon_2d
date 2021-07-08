@@ -20,6 +20,8 @@ use std::path::Path;
 // TODO:
 // - get_bullet_manager()
 // - get_menu_item()
+// - get_tile_set()
+// - get_tile_map()
 //
 
 #[derive(Clone, Debug, Default, DeJson)]
