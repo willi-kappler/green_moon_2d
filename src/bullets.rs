@@ -11,12 +11,7 @@ pub enum GMOffscreenMode {
     WrapAround,
 }
 
-pub enum GMBulletState {
-    Moving,
-    Exploding,
-}
-
-pub struct GMBulletFactory {
+pub struct GMBulletManager {
     base_sprite: GMSprite,
     max_bullets: usize,
     delay: f64,
@@ -25,7 +20,7 @@ pub struct GMBulletFactory {
     bullets: Vec<GMSprite>,
 }
 
-impl GMBulletFactory {
+impl GMBulletManager {
     pub fn new(sprite: &GMSprite, max_bullets: usize) -> Self {
         Self {
             base_sprite: sprite.clone(),

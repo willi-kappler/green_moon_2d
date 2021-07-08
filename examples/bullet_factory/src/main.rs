@@ -1,6 +1,6 @@
 use green_moon_2d::error::GMError;
 use green_moon_2d::resource_manager::GMResourceManager;
-use green_moon_2d::bullet_factory::{GMBulletFactory, GMOffscreenMode};
+use green_moon_2d::bullets::{GMBulletManager, GMOffscreenMode};
 
 use macroquad::prelude::*;
 
@@ -13,9 +13,9 @@ async fn main() -> Result<(), GMError> {
     let resources = GMResourceManager::new_from_file("resources.json").await?;
 
     let bullet = resources.get_sprite("bullet1").unwrap();
-    let mut bullet_factory = GMBulletFactory::new(bullet, 30);
-    bullet_factory.set_delay(0.05);
-    //bullet_factory.set_offscreen_mode(GMOffscreenMode::WrapAround);
+    let mut bullet_manager = GMBulletManager::new(bullet, 30);
+    bullet_manager.set_delay(0.05);
+    //bullet_manager.set_offscreen_mode(GMOffscreenMode::WrapAround);
     let bullet_speed = 6.0;
 
     let mut player = resources.get_sprite("ship1").unwrap().clone();
@@ -29,10 +29,10 @@ async fn main() -> Result<(), GMError> {
     loop {
         clear_background(BLACK);
 
-        bullet_factory.draw();
+        bullet_manager.draw();
         player.draw();
 
-        bullet_factory.update();
+        bullet_manager.update();
         player.update();
 
         let (mousex, mousey) = mouse_position();
@@ -44,7 +44,7 @@ async fn main() -> Result<(), GMError> {
             let rotation = player.get_rotation();
             let bullet_vx = rotation.cos() * bullet_speed;
             let bullet_vy = rotation.sin() * bullet_speed;
-            bullet_factory.add_bullet(player.get_mid_x(), player.get_mid_y(), bullet_vx, bullet_vy, rotation, true);
+            bullet_manager.add_bullet(player.get_mid_x(), player.get_mid_y(), bullet_vx, bullet_vy, rotation, true);
         }
 
         if is_key_pressed(KeyCode::Escape) {

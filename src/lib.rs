@@ -1,7 +1,7 @@
 pub mod animation;
 pub mod behavior;
 pub mod border;
-pub mod bullet_factory;
+pub mod bullets;
 pub mod error;
 pub mod font;
 pub mod health_bar;
