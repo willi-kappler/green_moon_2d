@@ -27,7 +27,7 @@
         {
             "name": "ship1",
             "sprite_sheet": "ships1",
-            "animation": "ships1_2"
+            "animation": "ships1_1"
         },
         {
             "name": "bullet1",
@@ -38,6 +38,12 @@
             "name": "head1",
             "sprite_sheet": "head1",
             "animation": "head1"
+        }
+    ],
+    "sounds": [
+        {
+            "name": "laser1",
+            "file": "../assets/sfx/laser1.ogg"
         }
     ]
 }

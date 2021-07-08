@@ -1,6 +1,6 @@
 use green_moon_2d::error::GMError;
 use green_moon_2d::resource_manager::GMResourceManager;
-use green_moon_2d::bullet_factory::GMBulletFactory;
+use green_moon_2d::bullet_factory::{GMBulletFactory, GMOffscreenMode};
 
 use macroquad::prelude::*;
 
@@ -13,13 +13,16 @@ async fn main() -> Result<(), GMError> {
     let resources = GMResourceManager::new_from_file("resources.json").await?;
 
     let bullet = resources.get_sprite("bullet1").unwrap();
-    let mut bullet_factory = GMBulletFactory::new(bullet, 20);
-    bullet_factory.set_delay(0.1);
-    let bullet_speed = 4.0;
+    let mut bullet_factory = GMBulletFactory::new(bullet, 30);
+    bullet_factory.set_delay(0.05);
+    //bullet_factory.set_offscreen_mode(GMOffscreenMode::WrapAround);
+    let bullet_speed = 6.0;
 
     let mut player = resources.get_sprite("ship1").unwrap().clone();
     player.set_x(400.0);
     player.set_y(300.0);
+
+    let laser = resources.get_sound("laser1").unwrap();
 
     show_mouse(true);
 
@@ -36,6 +39,8 @@ async fn main() -> Result<(), GMError> {
         player.rotate_to_point(mousex, mousey);
 
         if is_mouse_button_pressed(MouseButton::Left) {
+            laser.play();
+
             let rotation = player.get_rotation();
             let bullet_vx = rotation.cos() * bullet_speed;
             let bullet_vy = rotation.sin() * bullet_speed;
