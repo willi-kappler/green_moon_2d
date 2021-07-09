@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd bullet_factory/
+cd bullets1
 cargo check
 cargo build --release
 cd ..

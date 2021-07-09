@@ -4,7 +4,7 @@ use crate::text::{GMTextT, GMTextStatic};
 use crate::sprite::GMSprite;
 use crate::value::GMValue;
 use crate::sound::GMSound;
-use crate::menu_item::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
+use crate::menuitem::{GMMenuItemT, GMMenuItemStatic, GMMenuItemEvent};
 use crate::behavior::GMKeyValue;
 
 // use macroquad::window::{screen_width};

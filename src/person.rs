@@ -1,6 +1,6 @@
 
 use crate::sprite::GMSprite;
-use crate::health_bar::GMHealthBar;
+use crate::healthbar::GMHealthBar;
 
 
 pub struct GMPerson {

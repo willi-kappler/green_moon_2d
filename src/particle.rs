@@ -6,6 +6,13 @@ use macroquad::rand::gen_range;
 
 use std::f32::consts;
 
+// TODO:
+// - Limit direction fo particles
+// - Set maximum number of particles
+//   Instead of deleting a particle, reuse it.
+
+
+
 pub struct GMParticle {
     sprite: GMSprite,
     time: f64,
@@ -26,7 +33,7 @@ impl GMParticle {
     }
 }
 
-pub struct GMParticleEmitter {
+pub struct GMParticleManager {
     sprite: GMSprite,
     x: f32,
     y: f32,
@@ -41,10 +48,7 @@ pub struct GMParticleEmitter {
     particles: Vec<GMParticle>,
 }
 
-// TODO: Set maximum number of particles
-// Instead of deleting a particle, reuse it.
-
-impl GMParticleEmitter {
+impl GMParticleManager {
     pub fn new(sprite: &GMSprite, x: f32, y: f32) -> Self {
         Self {
             sprite: sprite.clone(),

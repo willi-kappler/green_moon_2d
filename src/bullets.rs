@@ -8,6 +8,8 @@ use std::rc::Rc;
 
 // TODO:
 // - add bullet duration / lifetime
+// - add trait GMBulletManagerT ?
+// - add more options for bullet hell shooter
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum GMOffscreenMode {

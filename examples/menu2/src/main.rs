@@ -1,5 +1,5 @@
 use green_moon_2d::menu::GMMenu;
-use green_moon_2d::menu_item::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
+use green_moon_2d::menuitem::{GMMenuItemStatic, GMMenuItemEnum, GMMenuItemNumeric};
 use green_moon_2d::value::GMValue;
 use green_moon_2d::text::GMTextWave;
 use green_moon_2d::error::GMError;
