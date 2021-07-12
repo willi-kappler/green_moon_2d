@@ -9,52 +9,44 @@ use std::rc::Rc;
 
 pub struct GMTileSet {
     data: Texture2D,
-    mapping: HashMap<u32, Rect>,
+    mapping: HashMap<u32, (f32, f32)>,
+    tile_width: f32,
+    tile_height: f32,
 }
 
 impl GMTileSet {
-    pub async fn new(file_name: &str) -> Result<Self, GMError> {
+    pub async fn new(file_name: &str, tile_width: f32, tile_height: f32) -> Result<Self, GMError> {
         let data = load_texture(file_name).await?;
 
         let tile_set = Self {
             data,
             mapping: HashMap::new(),
+            tile_width,
+            tile_height,
         };
 
         Ok(tile_set)
     }
-    pub async fn new_rc(file_name: &str) -> Result<Rc<Self>, GMError> {
-        let tile_set = GMTileSet::new(file_name).await?;
+    pub async fn new_rc(file_name: &str, tile_width: f32, tile_height: f32) -> Result<Rc<Self>, GMError> {
+        let tile_set = GMTileSet::new(file_name, tile_width, tile_height).await?;
         Ok(Rc::new(tile_set))
     }
-    pub fn set_mapping(&mut self, mapping: HashMap<u32, Rect>) {
+    pub fn set_mapping(&mut self, mapping: HashMap<u32, (f32, f32)>) {
         self.mapping = mapping;
     }
-    pub fn set_mapping_array(&mut self, tile_width: f32, tile_height: f32, mapping: &[u32]) {
-        let mut current_x = 0.0;
-        let mut current_y = 0.0;
-
-        for id in mapping.iter() {
-            let rect = Rect::new(current_x, current_y, tile_width, tile_height);
-            self.mapping.insert(*id, rect);
-            current_x += tile_width;
-            if current_x >= self.data.width() {
-                current_x = 0.0;
-                current_y += tile_height;
-            }
-        }
-    }
-    pub fn draw(&self, tile_id: u32, x: f32, y: f32) {
-        let source = self.mapping[&tile_id];
+    pub fn draw(&self, tile_id: u32, screenx: f32, screeny: f32) {
+        let (tilex, tiley) = self.mapping[&tile_id];
         let params = DrawTextureParams {
-            source: Some(source),
+            source: Some(Rect::new(tilex, tiley, self.tile_width, self.tile_height)),
             .. Default::default()
         };
 
-        draw_texture_ex(self.data, x, y, colors::WHITE, params);
+        draw_texture_ex(self.data, screenx, screeny, colors::WHITE, params);
     }
-    pub fn get_extend(&self, tile_id: u32) -> (f32, f32) {
-        let rect = self.mapping[&tile_id];
-        (rect.w, rect.h)
+    pub fn get_tile_width(&self) -> f32 {
+        self.tile_width
+    }
+    pub fn get_tile_height(&self) -> f32 {
+        self.tile_height
     }
 }
