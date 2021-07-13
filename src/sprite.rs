@@ -51,6 +51,7 @@ pub enum GMCollisionShape {
 pub trait GMSpriteT {
     fn clone_sprite(&self) -> GMSprite;
     fn draw(&self);
+    fn draw_at(&self, x: f32, y: f32);
     fn update(&mut self);
     fn get_extend(&self) -> (f32, f32);
     fn get_state_id(&self) -> u32;
@@ -98,6 +99,9 @@ impl GMSprite {
     }
     pub fn draw(&self) {
         self.sprite.draw();
+    }
+    pub fn draw_at(&self, x: f32, y: f32) {
+        self.sprite.draw_at(x, y);
     }
     pub fn update(&mut self) {
         self.sprite.update();
@@ -257,6 +261,13 @@ impl GMSpriteT for GMSpriteSingle {
         }
         let rect = self.animation.get_rect();
         self.sheet.draw_ex(&rect, self.x, self.y, self.flip_x, self.flip_y, self.rotation);
+    }
+    fn draw_at(&self, x: f32, y: f32) {
+        if !self.active {
+            return
+        }
+        let rect = self.animation.get_rect();
+        self.sheet.draw_ex(&rect, x, y, self.flip_x, self.flip_y, self.rotation);
     }
     fn update(&mut self) {
         if !self.active {
