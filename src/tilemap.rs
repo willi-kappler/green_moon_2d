@@ -39,6 +39,12 @@ impl GMTileMap {
     pub fn set_map(&mut self, map: &[u32]) {
         self.map = map.to_vec();
     }
+    pub fn get_tile_width(&self) -> f32 {
+        self.tileset.get_tile_width()
+    }
+    pub fn get_tile_height(&self) -> f32 {
+        self.tileset.get_tile_height()
+    }
     pub fn draw(&self, sx: f32, sy: f32, tx1: usize, tx2: usize, ty1: usize, ty2: usize) {
         let mut x = sx;
         let mut y = sy;
