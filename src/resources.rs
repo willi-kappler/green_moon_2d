@@ -20,9 +20,10 @@ use std::path::Path;
 // TODO:
 // - get_bullet_manager()
 // - get_menu_item()
-// - get_tile_set()
-// - get_tile_map()
-//
+// - get_tileset()
+// - get_tilemap()
+// - get_tilewindow()
+// -
 
 #[derive(Clone, Debug, Default, DeJson)]
 pub struct GMFormatResource {
