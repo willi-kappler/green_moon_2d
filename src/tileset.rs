@@ -15,24 +15,36 @@ pub struct GMTileSet {
 }
 
 impl GMTileSet {
-    pub async fn new(file_name: &str, tile_width: f32, tile_height: f32) -> Result<Self, GMError> {
+    pub async fn new(file_name: &str, tile_width: f32, tile_height: f32, mapping: &HashMap<u32, (f32, f32)>) -> Result<Self, GMError> {
         let data = load_texture(file_name).await?;
 
         let tile_set = Self {
             data,
-            mapping: HashMap::new(),
+            mapping: mapping.clone(),
             tile_width,
             tile_height,
         };
 
         Ok(tile_set)
     }
-    pub async fn new_rc(file_name: &str, tile_width: f32, tile_height: f32) -> Result<Rc<Self>, GMError> {
-        let tile_set = GMTileSet::new(file_name, tile_width, tile_height).await?;
+    pub async fn new_rc(file_name: &str, tile_width: f32, tile_height: f32, mapping: &HashMap<u32, (f32, f32)>) -> Result<Rc<Self>, GMError> {
+        let tile_set = GMTileSet::new(file_name, tile_width, tile_height, mapping).await?;
         Ok(Rc::new(tile_set))
     }
-    pub fn set_mapping(&mut self, mapping: HashMap<u32, (f32, f32)>) {
-        self.mapping = mapping;
+    pub fn get_tile_width(&self) -> f32 {
+        self.tile_width
+    }
+    pub fn get_tile_height(&self) -> f32 {
+        self.tile_height
+    }
+    pub fn set_tile_width(&mut self, tile_width: f32) {
+        self.tile_width = tile_width;
+    }
+    pub fn set_tile_height(&mut self, tile_height: f32) {
+        self.tile_height = tile_height;
+    }
+    pub fn set_mapping(&mut self, mapping: &HashMap<u32, (f32, f32)>) {
+        self.mapping = mapping.clone();
     }
     pub fn draw(&self, tile_id: u32, screenx: f32, screeny: f32) {
         let (tilex, tiley) = self.mapping[&tile_id];
@@ -42,11 +54,5 @@ impl GMTileSet {
         };
 
         draw_texture_ex(self.data, screenx, screeny, colors::WHITE, params);
-    }
-    pub fn get_tile_width(&self) -> f32 {
-        self.tile_width
-    }
-    pub fn get_tile_height(&self) -> f32 {
-        self.tile_height
     }
 }
