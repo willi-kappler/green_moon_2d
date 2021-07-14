@@ -46,13 +46,22 @@ impl GMTileSet {
     pub fn set_mapping(&mut self, mapping: &HashMap<u32, (f32, f32)>) {
         self.mapping = mapping.clone();
     }
-    pub fn draw(&self, tile_id: u32, screenx: f32, screeny: f32) {
-        let (tilex, tiley) = self.mapping[&tile_id];
+    pub fn draw(&self, tile_id: u32, screen_x: f32, screen_y: f32) {
+        let (tile_x, tile_y) = self.mapping[&tile_id];
         let params = DrawTextureParams {
-            source: Some(Rect::new(tilex, tiley, self.tile_width, self.tile_height)),
+            source: Some(Rect::new(tile_x, tile_y, self.tile_width, self.tile_height)),
             .. Default::default()
         };
 
-        draw_texture_ex(self.data, screenx, screeny, colors::WHITE, params);
+        draw_texture_ex(self.data, screen_x, screen_y, colors::WHITE, params);
+    }
+    pub fn draw_part(&self, tile_id: u32, screen_x: f32, screen_y: f32, offset_x: f32, offset_y: f32, width: f32, height: f32) {
+        let (tile_x, tile_y) = self.mapping[&tile_id];
+        let params = DrawTextureParams {
+            source: Some(Rect::new(tile_x + offset_x, tile_y + offset_y, width, height)),
+            .. Default::default()
+        };
+
+        draw_texture_ex(self.data, screen_x, screen_y, colors::WHITE, params);
     }
 }

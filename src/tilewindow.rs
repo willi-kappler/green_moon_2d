@@ -52,7 +52,7 @@ impl GMTileWindow {
         self.check_world_y();
     }
     pub fn draw(&self) {
-        // TODO:
+        self.tile_map.draw(self.screen_x, self.screen_y, self.world_x, self.world_y, self.window_width, self.window_height);
     }
     pub fn draw_sprite(&self, sprite: &GMSprite) {
         let sprite_x = sprite.get_x();
