@@ -2,6 +2,11 @@
 use crate::tilemap::GMTileMap;
 use crate::sprite::GMSprite;
 
+// TODO:
+// - add shake() method
+// - add border() method for sprite
+
+
 pub struct GMTileWindow {
     tile_map: GMTileMap,
     screen_x: f32,
