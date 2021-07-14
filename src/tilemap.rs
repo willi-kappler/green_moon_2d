@@ -45,20 +45,59 @@ impl GMTileMap {
     pub fn get_tile_height(&self) -> f32 {
         self.tileset.get_tile_height()
     }
-    pub fn draw(&self, sx: f32, sy: f32, tx1: usize, tx2: usize, ty1: usize, ty2: usize) {
-        let mut x = sx;
-        let mut y = sy;
-        let tile_width = self.tileset.get_tile_width();
-        let tile_height = self.tileset.get_tile_height();
+    pub fn draw(&self, screen_x: f32, screen_y: f32, world_x: f32, world_y: f32, window_width: f32, window_height: f32) {
+        let tile_width = self.get_tile_width();
+        let tile_height = self.get_tile_height();
+        let tile_x1 = (world_x / tile_width).floor() as usize;
+        let tile_y1 = (world_y / tile_height).floor() as usize;
+        let tile_x2 = ((world_x + window_width) / tile_width).floor() as usize;
+        let tile_y2 = ((world_y + window_height) / tile_height).floor() as usize;
+        let mut tile_x = tile_x1;
+        let mut tile_y = tile_y1;
 
-        for ty in ty1..ty2 {
-            for tx in tx1..tx2 {
-                let tile_id = self.get_tile(tx, ty);
-                self.tileset.draw(tile_id, x, y);
-                x += tile_width;
+        loop {
+            let tile_id = self.get_tile(tile_x, tile_y);
+            let sx = (tile_x as f32) * tile_width;
+            let sy = (tile_y as f32) * tile_height;
+            let dx1 = sx - world_x;
+            let dy1 = sy - world_y;
+            let dx2 = window_width - sx + tile_width - world_x;
+            let dy2 = window_height - sy + tile_height - world_y;
+
+            if dx1 < 0.0 {
+                if dy1 < 0.0 {
+                    self.tileset.draw_part(tile_id, screen_x, screen_y, -dx1, -dy1, tile_width + dx1, tile_height + dy1);
+                } else if dy2 < 0.0 {
+                    self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height + dy2);
+                } else {
+                    self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height);
+                }
+            } else if dx2 < 0.0 {
+                if dy1 < 0.0 {
+                    self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width + dx2, tile_height + dy1);
+                } else if dy2 < 0.0 {
+                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height + dy2);
+                } else {
+                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height);                    
+                }
+            } else {
+                if dy1 < 0.0 {
+                    self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width, tile_height + dy1);
+                } else if dy2 < 0.0 {
+                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width, tile_height + dy2);
+                } else {
+                    self.tileset.draw(tile_id, sx + screen_x, sy + screen_y);
+                }
             }
-            x = sx;
-            y += tile_height;
+
+            tile_x += 1;
+            if tile_x > tile_x2 {
+                tile_x = tile_x1;
+                tile_y += 1;
+                if tile_y > tile_y2 {
+                    break;
+                }
+            }
         }
     }
 }
