@@ -65,11 +65,37 @@ impl GMBorderSingleTile {
     pub fn set_tile_id(&mut self, tile_id: u32) {
         self.tile_id = tile_id;
     }
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+    }
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+    }
 }
 
 impl GMBorderT for GMBorderSingleTile {
     fn draw(&self) {
-    
+        let tile_width = self.tileset.get_tile_width();
+        let tile_height = self.tileset.get_tile_height();
+
+        let border_width = ((self.width - 1) as f32) * tile_width;
+        let border_height = ((self.height - 1) as f32) * tile_height;
+
+        let tile_id = self.tile_id;
+
+        // Draw top and bottom line
+        for tile_x in 0..self.width {
+            let screen_x = self.x + ((tile_x as f32) * tile_width);
+            self.tileset.draw(tile_id, screen_x, self.y);
+            self.tileset.draw(tile_id, screen_x, self.y + border_height);
+        }
+
+        // Draw left and right border
+        for tile_y in 1..(self.height - 1) {
+            let screen_y = self.y + ((tile_y as f32) * tile_height);
+            self.tileset.draw(tile_id, self.x, screen_y);
+            self.tileset.draw(tile_id, self.x + border_width, screen_y);
+        }
     }
     fn update(&mut self) {
     }
@@ -90,5 +116,56 @@ impl GMBorderT for GMBorderSingleTile {
                 }
             }
         }
+    }
+}
+
+pub struct GMBorder9Tiles {
+    tileset: Rc<GMTileSet>,
+    tile_top_left: u32,
+    tile_top: u32,
+    tile_top_right: u32,
+    tile_right: u32,
+    tile_bottom_right: u32,
+    tile_bottom: u32,
+    tile_bottom_left: u32,
+    tile_left: u32,
+    width: u32,
+    height: u32,
+    x: f32,
+    y: f32,
+}
+
+impl GMBorder9Tiles {
+    pub fn new(tileset: &Rc<GMTileSet>, width: u32, height: u32, x: f32, y: f32) -> Self {
+        Self {
+            tileset: tileset.clone(),
+            tile_top_left: 0,
+            tile_top: 0,
+            tile_top_right: 0,
+            tile_right: 0,
+            tile_bottom_right: 0,
+            tile_bottom: 0,
+            tile_bottom_left: 0,
+            tile_left: 0,
+            // Number of tiles
+            width,
+            // Number of tiles
+            height,
+            x,
+            y,
+        }
+    }
+    pub fn set_corner_tiles(&mut self, top_left: u32, top_right: u32, bottom_right: u32, bottom_left: u32) {
+        self.tile_top_left = top_left;
+        self.tile_top_right = top_right;
+        self.tile_bottom_right = bottom_right;
+        self.tile_bottom_left = bottom_left;
+
+    }
+    pub fn set_edge_tiles(&mut self, top: u32, right: u32, bottom: u32, left: u32) {
+        self.tile_top = top;
+        self.tile_right = right;
+        self.tile_bottom = bottom;
+        self.tile_left = left;
     }
 }
