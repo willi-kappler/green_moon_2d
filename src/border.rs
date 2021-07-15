@@ -168,4 +168,35 @@ impl GMBorder9Tiles {
         self.tile_bottom = bottom;
         self.tile_left = left;
     }
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+    }
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+    }
+}
+
+impl GMBorderT for GMBorder9Tiles {
+    fn draw(&self) {
+    }
+    fn update(&mut self) {
+    }
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+    fn set_property(&mut self, data: &GMKeyValue) {
+        if data.key == "corner" {
+            match data.value.downcast_ref::<(u32, u32, u32, u32)>() {
+                Some((top_left, top_right, bottom_right, bottom_left)) => {
+                    self.set_corner_tiles(*top_left, *top_right, *bottom_right, *bottom_left)
+                }
+                None => {
+                    error!("GMBorderSingleTile::set_property(), '{}', could not downcast value to u32", data.key)
+                }
+            }
+        }
+    }
 }
