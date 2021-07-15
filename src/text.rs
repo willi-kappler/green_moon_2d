@@ -3,6 +3,8 @@ use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
 use crate::behavior::GMKeyValue;
 
+use log::error;
+
 use std::f32::consts;
 
 // TODO:
@@ -546,7 +548,7 @@ impl GMTextT for GMTextWave {
                     self.set_amplitude(*a);
                 }
                 None => {
-                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
+                    error!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         } else if data.key == "frequency" {
@@ -555,7 +557,7 @@ impl GMTextT for GMTextWave {
                     self.set_frequency(*f);
                 }
                 None => {
-                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
+                    error!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         } else if data.key == "offset" {
@@ -564,7 +566,7 @@ impl GMTextT for GMTextWave {
                     self.set_offset(*f);
                 }
                 None => {
-                    eprintln!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
+                    error!("GMTextWave::set_property(), '{}', could not downcast value to f32", data.key)
                 }
             }
         }
@@ -573,4 +575,3 @@ impl GMTextT for GMTextWave {
         }
     }
 }
-
