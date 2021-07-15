@@ -1,7 +1,7 @@
 
 
 use crate::error::GMError;
-use crate::font::{GMBitmapFont, GMFontT};
+use crate::font::{GMBitmapFont, GMFont};
 use crate::spritesheet::GMSpriteSheet;
 use crate::sprite::{GMSprite, GMSpriteSingle};
 use crate::sound::GMSound;
@@ -93,7 +93,7 @@ pub struct GMFormatSound {
 }
 
 pub struct GMResourceManager {
-    fonts: HashMap<String, Rc<dyn GMFontT>>,
+    fonts: HashMap<String, GMFont>,
     sprite_sheets: HashMap<String, Rc<GMSpriteSheet>>,
     sprites: HashMap<String, GMSprite>,
     sounds: HashMap<String, Rc<GMSound>>,
@@ -155,8 +155,8 @@ impl GMResourceManager {
 
         Ok(resource)
     }
-    pub fn add_font<T: 'static + GMFontT>(&mut self, name: &str, font: T) {
-        self.fonts.insert(name.to_string(), Rc::new(font));
+    pub fn add_font(&mut self, name: &str, font: &GMFont) {
+        self.fonts.insert(name.to_string(), font.clone());
     }
     pub async fn fonts_from_file(&mut self, file_name: &str) -> Result<(), GMError>{
         info!("Loading font file: '{}'", file_name);
@@ -175,14 +175,14 @@ impl GMResourceManager {
 
         debug!("Font image file: '{}'", img_file_name);
 
-        let font = GMBitmapFont::new_rc(&img_file_name,
+        let font = GMBitmapFont::new_font(&img_file_name,
             item.char_width, item.char_height, &item.char_order).await?;
 
         self.fonts.insert(item.name, font);
 
         Ok(())
     }
-    pub fn get_font(&self, name: &str) -> Option<Rc<dyn GMFontT>> {
+    pub fn get_font(&self, name: &str) -> Option<GMFont> {
         self.fonts.get(name).map(|v| v.clone())
     }
     pub fn remove_font(&mut self, name: &str) {

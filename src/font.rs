@@ -7,9 +7,32 @@ use macroquad::texture::{Texture2D, draw_texture_ex, load_texture, DrawTexturePa
 use macroquad::color::colors;
 use macroquad::math::Rect;
 
+// TODO:
+// - use GMFont instead of GMFontT
+// 
+
 pub trait GMFontT {
     fn draw(&self, c: char, x: f32, y: f32);
     fn get_extend(&self, c: char) -> (f32, f32);
+}
+
+#[derive(Clone)]
+pub struct GMFont {
+    font: Rc<dyn GMFontT>,
+}
+
+impl GMFont {
+    pub fn new<T: 'static + GMFontT>(font: T) -> Self {
+        Self {
+            font: Rc::new(font),
+        }
+    }
+    pub fn draw(&self, c: char, x: f32, y: f32) {
+        self.font.draw(c, x, y);
+    }
+    pub fn get_extend(&self, c: char) -> (f32, f32) {
+        self.font.get_extend(c)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -29,10 +52,10 @@ impl GMBitmapFont {
 
         Ok(font)
     }
-    pub async fn new_rc(file_name: &str, char_width: f32, char_height: f32, char_order: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+    pub async fn new_font(file_name: &str, char_width: f32, char_height: f32, char_order: &str) -> Result<GMFont, GMError> {
         let mut font = Self::new(file_name).await?;
         font.set_mapping_fixed(char_width, char_height, char_order);
-        Ok(Rc::new(font))
+        Ok(GMFont::new(font))
     }
     pub fn set_mapping(&mut self, mapping: HashMap<char, Rect>) {
         self.mapping = mapping;

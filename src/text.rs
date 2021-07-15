@@ -1,30 +1,79 @@
-use crate::font::{GMFontT};
+use crate::font::{GMFont};
 use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
 use crate::behavior::GMKeyValue;
 
-use std::rc::Rc;
 use std::f32::consts;
 
 // TODO:
 // - Text with sprite / tile border
+// - use GMText instead of GMTextT
 
 
 pub trait GMTextT {
     fn draw(&self);
-    fn update(&mut self) {
-    }
+    fn update(&mut self) {}
     fn set_text(&mut self, text: &str);
     fn get_text(&self) -> &str;
     fn set_x(&mut self, x: f32);
     fn get_x(&self) -> f32;
     fn set_y(&mut self, y: f32);
     fn get_y(&self) -> f32;
-    fn set_font(&mut self, font: &Rc<dyn GMFontT>);
-    fn get_font(&self) -> &Rc<dyn GMFontT>;
-    fn from_other(&mut self, other: Box<dyn GMTextT>);
+    fn set_font(&mut self, font: &GMFont);
+    fn get_font(&self) -> &GMFont;
+    fn from_other(&mut self, other: &GMText);
     fn get_extend(&self) -> (f32, f32);
-    fn set_property(&mut self, _data: &GMKeyValue) {
+    fn set_property(&mut self, _data: &GMKeyValue) {}
+}
+
+pub struct GMText {
+    text: Box<dyn GMTextT>,
+}
+
+impl GMText {
+    pub fn new<T: 'static + GMTextT>(text: T) -> Self {
+        Self {
+            text: Box::new(text),
+        }
+    }
+    pub fn draw(&self) {
+        self.text.draw();
+    }
+    pub fn update(&mut self) {
+        self.text.update();
+    }
+    pub fn set_text(&mut self, text: &str) {
+        self.text.set_text(text);
+    }
+    pub fn get_text(&self) -> &str {
+        self.text.get_text()
+    }
+    pub fn set_x(&mut self, x: f32) {
+        self.text.set_x(x);
+    }
+    pub fn get_x(&self) -> f32 {
+        self.text.get_x()
+    }
+    pub fn set_y(&mut self, y: f32) {
+        self.text.set_y(y);
+    }
+    pub fn get_y(&self) -> f32 {
+        self.text.get_y()
+    }
+    pub fn set_font(&mut self, font: &GMFont) {
+        self.text.set_font(font);
+    }
+    pub fn get_font(&self) -> &GMFont {
+        self.text.get_font()
+    }
+    pub fn from_other(&mut self, other: &GMText) {
+        self.text.from_other(other);
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.text.get_extend()
+    }
+    pub fn set_property(&mut self, data: &GMKeyValue) {
+        self.text.set_property(data);
     }
 }
 
@@ -32,11 +81,11 @@ pub struct GMTextStatic {
     data: String,
     x: f32,
     y: f32,
-    font: Rc<dyn GMFontT>,
+    font: GMFont,
 }
 
 impl GMTextStatic {
-    pub fn new(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Self {
+    pub fn new(text: &str, x: f32, y: f32, font: &GMFont) -> Self {
         Self {
             data: text.to_string(),
             x,
@@ -44,8 +93,8 @@ impl GMTextStatic {
             font: font.clone(),
         }
     }
-    pub fn new_box(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMTextT> {
-        Box::new(Self::new(text, x, y, font))
+    pub fn new_box(text: &str, x: f32, y: f32, font: &GMFont) -> GMText {
+        GMText::new(Self::new(text, x, y, font))
     }
 }
 
@@ -77,13 +126,13 @@ impl GMTextT for GMTextStatic {
     fn get_y(&self) -> f32 {
         self.y
     }
-    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+    fn set_font(&mut self, font: &GMFont) {
         self.font = font.clone();
     }
-    fn get_font(&self) -> &Rc<dyn GMFontT> {
+    fn get_font(&self) -> &GMFont {
         &self.font
     }
-    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+    fn from_other(&mut self, other: &GMText) {
         self.data = other.get_text().to_string();
         self.x = other.get_x();
         self.y = other.get_y();
@@ -111,7 +160,7 @@ pub(crate) struct GMArrow {
 }
 
 impl GMArrow {
-    fn new(arrow: &str, base: &Box<dyn GMTextT>) -> Self {
+    fn new(arrow: &str, base: &GMText) -> Self {
         let font = base.get_font();
         let base_y = base.get_y();
 
@@ -131,7 +180,7 @@ impl GMArrow {
     fn set_y(&mut self, y: f32) {
         self.text.set_y(y);
     }
-    fn set_x(&mut self, base: &Box<dyn GMTextT>) {
+    fn set_x(&mut self, base: &GMText) {
         let base_x = base.get_x();
 
         match self.text.data.as_str() {
@@ -154,7 +203,7 @@ impl GMArrow {
             }
         }
     }
-    fn change_all(&mut self, base: &Box<dyn GMTextT>) {
+    fn change_all(&mut self, base: &GMText) {
         self.text.set_font(base.get_font());
         self.set_x(base);
         self.set_y(base.get_y());
@@ -180,13 +229,13 @@ impl GMArrow {
 }
 
 pub struct GMTextArrow {
-    base: Box<dyn GMTextT>,
+    base: GMText,
     left_arrow: GMArrow,
     right_arrow: GMArrow,
 }
 
 impl GMTextArrow {
-    pub fn new(base: Box<dyn GMTextT>) -> Self {
+    pub fn new(base: GMText) -> Self {
         let left_arrow = GMArrow::new("->", &base);
         let right_arrow = GMArrow::new("<-", &base);
 
@@ -196,10 +245,10 @@ impl GMTextArrow {
             right_arrow,
         }
     }
-    pub fn new_box(base: Box<dyn GMTextT>) -> Box<dyn GMTextT> {
-        Box::new(Self::new(base))
+    pub fn new_box(base: GMText) -> GMText {
+        GMText::new(Self::new(base))
     }
-    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>) -> Box<dyn GMTextT> {
+    pub fn new_static(text: &str, x: f32, y: f32, font: &GMFont) -> GMText {
         let base = GMTextStatic::new_box(text, x, y, font);
         Self::new_box(base)
     }
@@ -239,15 +288,15 @@ impl GMTextT for GMTextArrow {
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+    fn set_font(&mut self, font: &GMFont) {
         self.base.set_font(font);
         self.left_arrow.change_all(&self.base);
         self.right_arrow.change_all(&self.base);
     }
-    fn get_font(&self) -> &Rc<dyn GMFontT> {
+    fn get_font(&self) -> &GMFont {
         self.base.get_font()
     }
-    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+    fn from_other(&mut self, other: &GMText) {
         self.base.from_other(other);
         self.left_arrow.change_all(&self.base);
         self.right_arrow.change_all(&self.base);
@@ -258,13 +307,13 @@ impl GMTextT for GMTextArrow {
 }
 
 pub struct GMTextSprite {
-    base: Box<dyn GMTextT>,
+    base: GMText,
     left_sprite: GMSprite,
     right_sprite: GMSprite,
 }
 
 impl GMTextSprite {
-    pub fn new(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Self {
+    pub fn new(base: GMText, sprite: &GMSprite) -> Self {
         let left_sprite = sprite.clone();
         let right_sprite = sprite.clone();
 
@@ -284,14 +333,14 @@ impl GMTextSprite {
 
         result
     }
-    pub fn new_box(base: Box<dyn GMTextT>, sprite: &GMSprite) -> Box<dyn GMTextT> {
-        Box::new(Self::new(base, sprite))
+    pub fn new_box(base: GMText, sprite: &GMSprite) -> GMText {
+        GMText::new(Self::new(base, sprite))
     }
-    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, sprite: &GMSprite) -> Box<dyn GMTextT> {
+    pub fn new_static(text: &str, x: f32, y: f32, font: &GMFont, sprite: &GMSprite) -> GMText {
         let base = GMTextStatic::new_box(text, x, y, font);
         Self::new_box(base, sprite)
     }
-    pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> Box<dyn GMTextT> {
+    pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> GMText {
         let font = resources.get_font(font_name).unwrap();
         let sprite = resources.get_sprite(sprite_name).unwrap();
 
@@ -359,15 +408,15 @@ impl GMTextT for GMTextSprite {
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+    fn set_font(&mut self, font: &GMFont) {
         self.base.set_font(font);
         self.change_x(self.base.get_x());
         self.change_y(self.base.get_y());
     }
-    fn get_font(&self) -> &Rc<dyn GMFontT> {
+    fn get_font(&self) -> &GMFont {
         self.base.get_font()
     }
-    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+    fn from_other(&mut self, other: &GMText) {
         self.base.from_other(other);
         self.change_x(self.base.get_x());
         self.change_y(self.base.get_y());
@@ -409,11 +458,11 @@ impl GMTextWave {
             time: 0.0,
         }
     }
-    pub fn new_box(base: GMTextStatic, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
+    pub fn new_box(base: GMTextStatic, amplitude: f32, frequency: f32) -> GMText {
         let text = Self::new(base, amplitude, frequency);
-        Box::new(text)
+        GMText::new(text)
     }
-    pub fn new_static(text: &str, x: f32, y: f32, font: &Rc<dyn GMFontT>, amplitude: f32, frequency: f32) -> Box<dyn GMTextT> {
+    pub fn new_static(text: &str, x: f32, y: f32, font: &GMFont, amplitude: f32, frequency: f32) -> GMText {
         let base = GMTextStatic::new(text, x, y, font);
         Self::new_box(base, amplitude, frequency)
     }
@@ -477,13 +526,13 @@ impl GMTextT for GMTextWave {
     fn get_y(&self) -> f32 {
         self.base.get_y()
     }
-    fn set_font(&mut self, font: &Rc<dyn GMFontT>) {
+    fn set_font(&mut self, font: &GMFont) {
         self.base.set_font(font);
     }
-    fn get_font(&self) -> &Rc<dyn GMFontT> {
+    fn get_font(&self) -> &GMFont {
         self.base.get_font()
     }
-    fn from_other(&mut self, other: Box<dyn GMTextT>) {
+    fn from_other(&mut self, other: &GMText) {
         self.base.from_other(other);
     }
     fn get_extend(&self) -> (f32, f32) {
