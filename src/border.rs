@@ -176,7 +176,31 @@ impl GMBorder9Tiles {
 
 impl GMBorderT for GMBorder9Tiles {
     fn draw(&self) {
-        // TODO:
+        let tile_width = self.tileset.get_tile_width();
+        let tile_height = self.tileset.get_tile_height();
+        let border_width = ((self.width - 1) as f32) * tile_width;
+        let border_height = ((self.height - 1) as f32) * tile_height;
+
+        let x1 = self.x;
+        let x2 = x1 + border_width;
+        let y1 = self.y;
+        let y2 = y1 + border_height;
+
+        // Draw set_corners
+        self.tileset.draw(self.tile_top_left, x1, y1);
+        self.tileset.draw(self.tile_top_right, x2, y1);
+        self.tileset.draw(self.tile_bottom_right, x2, y2);
+        self.tileset.draw(self.tile_bottom_left, x2, y1);
+
+        // Draw edges
+        for x in 1..(self.width - 2) {
+            self.tileset.draw(self.tile_top, x1 + ((x as f32) * tile_width), y1);
+            self.tileset.draw(self.tile_bottom, x1 + ((x as f32) * tile_width), y2);
+        }
+        for y in 1..(self.height - 2) {
+            self.tileset.draw(self.tile_left, x1, y1 + ((y as f32) * tile_height));
+            self.tileset.draw(self.tile_right, x2, y1 + ((y as f32) * tile_height));
+        }
     }
     fn set_x(&mut self, x: f32) {
         self.x = x;
@@ -191,7 +215,16 @@ impl GMBorderT for GMBorder9Tiles {
                     self.set_corner_tiles(*top_left, *top_right, *bottom_right, *bottom_left)
                 }
                 None => {
-                    error!("GMBorderSingleTile::set_property(), '{}', could not downcast value to u32", data.key)
+                    error!("GMBorderSingleTile::set_property(), '{}', could not downcast value to u32 (corner)", data.key)
+                }
+            }
+        } else if data.key == "edge" {
+            match data.value.downcast_ref::<(u32, u32, u32, u32)>() {
+                Some((top, right, bottom, left)) => {
+                    self.set_edge_tiles(*top, *right, *bottom, *left)
+                }
+                None => {
+                    error!("GMBorderSingleTile::set_property(), '{}', could not downcast value to u32 (edge)", data.key)
                 }
             }
         }
