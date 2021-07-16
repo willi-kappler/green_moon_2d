@@ -18,18 +18,18 @@ impl GMTileSet {
     pub async fn new(file_name: &str, tile_width: f32, tile_height: f32, mapping: &HashMap<u32, (f32, f32)>) -> Result<Self, GMError> {
         let data = load_texture(file_name).await?;
 
-        let tile_set = Self {
+        let tileset = Self {
             data,
             mapping: mapping.clone(),
             tile_width,
             tile_height,
         };
 
-        Ok(tile_set)
+        Ok(tileset)
     }
     pub async fn new_rc(file_name: &str, tile_width: f32, tile_height: f32, mapping: &HashMap<u32, (f32, f32)>) -> Result<Rc<Self>, GMError> {
-        let tile_set = GMTileSet::new(file_name, tile_width, tile_height, mapping).await?;
-        Ok(Rc::new(tile_set))
+        let tileset = GMTileSet::new(file_name, tile_width, tile_height, mapping).await?;
+        Ok(Rc::new(tileset))
     }
     pub fn get_tile_width(&self) -> f32 {
         self.tile_width
