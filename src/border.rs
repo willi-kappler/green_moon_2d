@@ -7,7 +7,7 @@ use std::rc::Rc;
 
 pub trait GMBorderT {
     fn draw(&self);
-    fn update(&mut self);
+    fn update(&mut self) {}
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
     fn set_property(&mut self, data: &GMKeyValue);
@@ -97,8 +97,6 @@ impl GMBorderT for GMBorderSingleTile {
             self.tileset.draw(tile_id, self.x + border_width, screen_y);
         }
     }
-    fn update(&mut self) {
-    }
     fn set_x(&mut self, x: f32) {
         self.x = x;
     }
@@ -178,8 +176,7 @@ impl GMBorder9Tiles {
 
 impl GMBorderT for GMBorder9Tiles {
     fn draw(&self) {
-    }
-    fn update(&mut self) {
+        // TODO:
     }
     fn set_x(&mut self, x: f32) {
         self.x = x;
