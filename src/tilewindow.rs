@@ -4,11 +4,11 @@ use crate::sprite::GMSprite;
 
 // TODO:
 // - add shake() method
-// - add border() method for sprite
+// - add border() method for window
 
 
 pub struct GMTileWindow {
-    tile_map: GMTileMap,
+    tilemap: GMTileMap,
     screen_x: f32,
     screen_y: f32,
     window_width: f32,
@@ -20,12 +20,12 @@ pub struct GMTileWindow {
 }
 
 impl GMTileWindow {
-    pub fn new(tile_map: &GMTileMap, screen_x: f32, screen_y: f32, window_width: f32, window_height: f32) -> Self {
-        let world_size_x = (tile_map.get_width() as f32) * tile_map.get_tile_width();
-        let world_size_y = (tile_map.get_height() as f32) * tile_map.get_tile_height();
+    pub fn new(tilemap: &GMTileMap, screen_x: f32, screen_y: f32, window_width: f32, window_height: f32) -> Self {
+        let world_size_x = (tilemap.get_width() as f32) * tilemap.get_tile_width();
+        let world_size_y = (tilemap.get_height() as f32) * tilemap.get_tile_height();
 
         Self {
-            tile_map: tile_map.clone(),
+            tilemap: tilemap.clone(),
             screen_x,
             screen_y,
             window_width,
@@ -57,7 +57,7 @@ impl GMTileWindow {
         self.check_world_y();
     }
     pub fn draw(&self) {
-        self.tile_map.draw(self.screen_x, self.screen_y, self.world_x, self.world_y, self.window_width, self.window_height);
+        self.tilemap.draw(self.screen_x, self.screen_y, self.world_x, self.world_y, self.window_width, self.window_height);
     }
     pub fn draw_sprite(&self, sprite: &GMSprite) {
         let sprite_x = sprite.get_x();
@@ -87,13 +87,13 @@ impl GMTileWindow {
         self.check_world_y();
     }
     pub fn get_tile(&self, tx: usize, ty: usize) -> u32 {
-        self.tile_map.get_tile(tx, ty)
+        self.tilemap.get_tile(tx, ty)
     }
     pub fn get_tile_pixel(&self, px: f32, py: f32) -> u32 {
-        let tx = (px / self.tile_map.get_tile_width()).floor() as usize;
-        let ty = (py / self.tile_map.get_tile_height()).floor() as usize;
+        let tx = (px / self.tilemap.get_tile_width()).floor() as usize;
+        let ty = (py / self.tilemap.get_tile_height()).floor() as usize;
 
-        self.tile_map.get_tile(tx, ty)
+        self.tilemap.get_tile(tx, ty)
     }
     pub fn move_up(&mut self, step: f32) {
         self.world_y -= step;
