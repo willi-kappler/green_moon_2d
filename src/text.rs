@@ -430,10 +430,10 @@ impl GMTextT for GMTextSprite {
         if data.key == "sprite" {
             match data.value.downcast_ref::<GMSprite>() {
                 Some(sprite) => {
-                    self.set_sprite(&sprite);
+                    self.set_sprite(sprite);
                 }
                 None => {
-                    eprintln!("GMTextSprite::set_property(), could not downcast value to GMSprite")
+                    error!("GMTextSprite::set_property(), could not downcast value to GMSprite")
                 }
             }
         } else {
