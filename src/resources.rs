@@ -6,6 +6,9 @@ use crate::spritesheet::GMSpriteSheet;
 use crate::sprite::{GMSprite, GMSpriteSingle};
 use crate::sound::GMSound;
 use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimation};
+use crate::tilemap::GMTileMap;
+use crate::tileset::GMTileSet;
+use crate::tilewindow::GMTileWindow;
 
 use macroquad::file::load_string;
 use macroquad::math::Rect;
@@ -19,10 +22,9 @@ use std::path::Path;
 
 // TODO:
 // - get_bullet_manager()
+// - get_particle_manager()
 // - get_menu_item()
-// - get_tileset()
-// - get_tilemap()
-// - get_tilewindow()
+// - get_border()
 // -
 
 #[derive(Clone, Debug, Default, DeJson)]
@@ -32,6 +34,10 @@ pub struct GMFormatResource {
     sprites: Option<Vec<GMFormatSprite>>,
     sounds: Option<Vec<GMFormatSound>>,
     animation_files: Option<Vec<String>>,
+    tileset_files: Option<Vec<String>>,
+    tilemap_files: Option<Vec<String>>,
+    tile_windows: Option<Vec<GMFormatTileWindow>>,
+    borders: Option<Vec<GMFormatBorder>>,
 }
 
 #[derive(Clone, Debug, Default, DeJson)]
@@ -66,7 +72,7 @@ pub struct GMFormatFrame {
 }
 
 #[derive(Clone, Debug, DeJson)]
-pub enum GMAnimationType {
+pub enum GMFormatAnimationType {
     ForwardOnce,
     ForwardLoop,
     BackwardOnce,
@@ -77,7 +83,7 @@ pub enum GMAnimationType {
 #[derive(Clone, Debug, DeJson)]
 pub struct GMFormatAnimation {
     name: String,
-    animation_type: GMAnimationType,
+    animation_type: GMFormatAnimationType,
     frames: Vec<GMFormatFrame>,
 }
 
@@ -92,12 +98,49 @@ pub struct GMFormatSound {
     file: String,
 }
 
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMFormatTileSet {
+    name: String,
+    file: String,
+    tile_width: f32,
+    tile_height: f32,
+    mapping: HashMap<u32, (f32, f32)>,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMFormatTileMap {
+    name: String,
+    tileset: String,
+    map: Vec<u32>,
+    width: usize,
+    height: usize,
+    range_mapping: Vec<(u32, u32, String)>,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMFormatTileWindow {
+    name: String,
+    tilemap: String,
+    screen_x: f32,
+    screen_y: f32,
+    window_width: f32,
+    window_height: f32,
+}
+
+#[derive(Clone, Debug, Default, DeJson)]
+pub struct GMFormatBorder {
+
+}
+
 pub struct GMResourceManager {
     fonts: HashMap<String, GMFont>,
     sprite_sheets: HashMap<String, Rc<GMSpriteSheet>>,
     sprites: HashMap<String, GMSprite>,
     sounds: HashMap<String, Rc<GMSound>>,
     animations: HashMap<String, GMAnimation>,
+    tileset: HashMap<String, Rc<GMTileSet>>,
+    tilemap: HashMap<String, GMTileMap>,
+    tile_window: HashMap<String, GMTileWindow>,
 }
 
 impl GMResourceManager {
@@ -108,6 +151,9 @@ impl GMResourceManager {
             sprites: HashMap::new(),
             sounds: HashMap::new(),
             animations: HashMap::new(),
+            tileset: HashMap::new(),
+            tilemap: HashMap::new(),
+            tile_window: HashMap::new(),
         }
     }
     pub async fn new_from_file(file_name: &str) -> Result<Self, GMError> {
@@ -144,13 +190,34 @@ impl GMResourceManager {
         }
         if let Some(sprites) = result.sprites {
             for item in sprites.into_iter() {
-                debug!("Sprite name: '{}', sprite sheet: '{}', animation: '{}'", item.name, item.sprite_sheet, item.animation);
+                debug!("Sprite name: '{}', sprite sheet: '{}', animation: '{}'", item.name,
+                    item.sprite_sheet, item.animation);
 
                 let sprite = GMSpriteSingle::new_wrapped(
                     &resource.get_sprite_sheet(&item.sprite_sheet).unwrap(),
                     resource.get_animation(&item.animation).unwrap(), 0.0, 0.0);
                 resource.sprites.insert(item.name, sprite);
             }
+        }
+        if let Some(tileset_files) = result.tileset_files {
+            for file_name in tileset_files.iter() {
+                resource.tileset_from_file(file_name).await?;
+            }
+        }
+        if let Some(tilemap_files) = result.tilemap_files {
+            for file_name in tilemap_files.iter() {
+                resource.tilemap_from_file(file_name).await?;
+            }            
+        }
+        if let Some(tile_windows) = result.tile_windows {
+            for item in tile_windows.into_iter() {
+                debug!("Tile window name: '{}', map name: '{}'", item.name, item.tilemap);
+
+                let tilemap = resource.get_tilemap(&item.tilemap).unwrap();
+                let tile_window = GMTileWindow::new(tilemap, item.screen_x,
+                    item.screen_y, item.window_width, item.window_height);
+                resource.tile_window.insert(item.name, tile_window);
+            }            
         }
 
         Ok(resource)
@@ -185,8 +252,8 @@ impl GMResourceManager {
     pub fn get_font(&self, name: &str) -> Option<GMFont> {
         self.fonts.get(name).map(|v| v.clone())
     }
-    pub fn remove_font(&mut self, name: &str) {
-        self.fonts.remove(name);
+    pub fn remove_font(&mut self, name: &str) -> Option<GMFont> {
+        self.fonts.remove(name)
     }
     pub fn clear_fonts(&mut self) {
         self.fonts.clear();
@@ -197,8 +264,8 @@ impl GMResourceManager {
     pub fn get_sprite_sheet(&self, name: &str) -> Option<Rc<GMSpriteSheet>> {
         self.sprite_sheets.get(name).map(|v| v.clone())
     }
-    pub fn remove_sprite_sheet(&mut self, name: &str) {
-        self.sprite_sheets.remove(name);
+    pub fn remove_sprite_sheet(&mut self, name: &str) -> Option<Rc<GMSpriteSheet>> {
+        self.sprite_sheets.remove(name)
     }
     pub fn clear_sprite_sheets(&mut self) {
         self.sprite_sheets.clear();
@@ -209,8 +276,8 @@ impl GMResourceManager {
     pub fn get_sprite(&self, name: &str) -> Option<&GMSprite> {
         self.sprites.get(name)
     }
-    pub fn remove_sprite(&mut self, name: &str) {
-        self.sprites.remove(name);
+    pub fn remove_sprite(&mut self, name: &str) -> Option<GMSprite> {
+        self.sprites.remove(name)
     }
     pub fn clear_sprites(&mut self) {
         self.sprites.clear();
@@ -229,7 +296,7 @@ impl GMResourceManager {
 
             let frames: Vec<(Rect, f64)> = item.frames.iter().map(|f| (Rect::new(f.x, f.y, f.w, f.h), f.duration)).collect();
 
-            use GMAnimationType::*;
+            use GMFormatAnimationType::*;
 
             let animation = match item.animation_type {
                 ForwardOnce => {
@@ -257,8 +324,8 @@ impl GMResourceManager {
     pub fn get_animation(&self, name: &str) -> Option<GMAnimation> {
         self.animations.get(name).map(|v| v.clone())
     }
-    pub fn remove_animation(&mut self, name: &str) {
-        self.animations.remove(name);
+    pub fn remove_animation(&mut self, name: &str) -> Option<GMAnimation> {
+        self.animations.remove(name)
     }
     pub fn clear_animations(&mut self) {
         self.animations.clear();
@@ -269,11 +336,64 @@ impl GMResourceManager {
     pub fn get_sound(&self, name: &str) -> Option<Rc<GMSound>> {
         self.sounds.get(name).map(|v| v.clone())
     }
-    pub fn remove_sound(&mut self, name: &str) {
-        self.sounds.remove(name);
+    pub fn remove_sound(&mut self, name: &str) -> Option<Rc<GMSound>> {
+        self.sounds.remove(name)
     }
     pub fn clear_sounds(&mut self) {
         self.sounds.clear();
+    }
+    pub fn add_tileset(&mut self, name: &str, tileset: GMTileSet) {
+        self.tileset.insert(name.to_string(), Rc::new(tileset));
+    }
+    pub async fn tileset_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
+        info!("Loading tileset file: '{}'", file_name);
+        let json = load_string(file_name).await?;
+        let result: GMFormatTileSet = DeJson::deserialize_json(&json)?;
+        let tileset = GMTileSet::new(&result.file, result.tile_width, result.tile_height, &result.mapping).await?;
+        self.tileset.insert(result.name, Rc::new(tileset));
+        Ok(())
+    }
+    pub fn get_tileset(&self, name: &str) -> Option<Rc<GMTileSet>>{
+        self.tileset.get(name).map(|v| v.clone())
+    }
+    pub fn remove_tileset(&mut self, name: &str) -> Option<Rc<GMTileSet>> {
+        self.tileset.remove(name)
+    }
+    pub fn clear_tileset(&mut self) {
+        self.tileset.clear();
+    }
+    pub fn add_tilemap(&mut self, name: &str, tilemap: GMTileMap) {
+        self.tilemap.insert(name.to_string(), tilemap);
+    }
+    pub async fn tilemap_from_file(&mut self, file_name: &str) -> Result<(), GMError> {
+        info!("Loading tilemap file: '{}'", file_name);
+        let json = load_string(file_name).await?;
+        let result: GMFormatTileMap = DeJson::deserialize_json(&json)?;
+        let tileset = self.get_tileset(&result.tileset).unwrap();
+        let tilemap = GMTileMap::new(tileset, result.width, result.height, &result.map);
+        self.tilemap.insert(result.name, tilemap);
+        Ok(())
+    }
+    pub fn get_tilemap(&self, name: &str) -> Option<&GMTileMap>{
+        self.tilemap.get(name)
+    }
+    pub fn remove_tilemap(&mut self, name: &str) -> Option<GMTileMap> {
+        self.tilemap.remove(name)
+    }
+    pub fn clear_tilemap(&mut self) {
+        self.tilemap.clear();
+    }
+    pub fn add_tile_window(&mut self, name: &str, tile_window: GMTileWindow) {
+        self.tile_window.insert(name.to_string(), tile_window);
+    }
+    pub fn get_tile_window(&self, name: &str) -> Option<&GMTileWindow> {
+        self.tile_window.get(name)
+    }
+    pub fn remove_tile_window(&mut self, name: &str) {
+        self.tile_window.remove(name);
+    }
+    pub fn clear_tile_window(&mut self) {
+        self.tile_window.clear();
     }
     pub fn clear_all(&mut self) {
         self.clear_fonts();
