@@ -20,4 +20,4 @@ pub mod text;
 pub mod tilemap;
 pub mod tileset;
 pub mod tilewindow;
-pub mod value;
+pub mod utils;

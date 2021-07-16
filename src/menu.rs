@@ -2,10 +2,9 @@
 use crate::font::GMFont;
 use crate::text::{GMText, GMTextStatic};
 use crate::sprite::GMSprite;
-use crate::value::GMValue;
 use crate::sound::GMSound;
 use crate::menuitem::{GMMenuItem, GMMenuItemStatic, GMMenuItemEvent};
-use crate::behavior::GMKeyValue;
+use crate::utils::{GMKeyValue, GMValue};
 
 // use macroquad::window::{screen_width};
 

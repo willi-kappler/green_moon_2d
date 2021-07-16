@@ -1,10 +1,9 @@
 
 use crate::font::GMFont;
-use crate::value::GMValue;
 use crate::text::{GMText, GMTextStatic, GMTextArrow, GMTextSprite};
-use crate::sprite::{GMSprite, in_rect};
+use crate::sprite::GMSprite;
 use crate::resources::GMResourceManager;
-use crate::behavior::GMKeyValue;
+use crate::utils::{GMKeyValue, in_rect, GMValue};
 
 use macroquad::input::{is_key_pressed, KeyCode, mouse_position, is_mouse_button_pressed, MouseButton};
 

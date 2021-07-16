@@ -1,9 +1,6 @@
-use std::any::Any;
+use crate::utils::GMKeyValue;
 
-pub struct GMKeyValue<'a> {
-    pub key: &'a str,
-    pub value: Box<dyn Any>,
-}
+use std::any::Any;
 
 impl<'a> GMKeyValue<'a> {
     pub fn new(key: &'a str, value: Box<dyn Any>) -> Self {

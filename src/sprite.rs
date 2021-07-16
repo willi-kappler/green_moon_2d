@@ -1,6 +1,7 @@
 
 use crate::animation::GMAnimation;
 use crate::spritesheet::GMSpriteSheet;
+use crate::utils::{angle_point, in_rect};
 
 use macroquad::window::{screen_width, screen_height};
 
@@ -11,36 +12,6 @@ use std::f32::consts;
 // - GMMultiSprite
 
 
-pub fn between(a: f32, b: f32, c: f32) -> bool {
-    a <= b && b <= c
-}
-
-pub fn in_rect(x1: f32, x2: f32, y1: f32, y2: f32, xp: f32, yp: f32) -> bool {
-    between(x1, xp, x2) && between(y1, yp, y2)
-}
-
-pub fn dist_point(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    dx.hypot(dy)
-}
-
-pub fn angle_point(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-
-    let mut angle = (dy / dx).atan();
-
-    if dx < 0.0 && dy >= 0.0 {
-        angle += consts::PI;
-    } else if dx < 0.0 && dy < 0.0 {
-        angle += consts::PI;
-    } else if dx >= 0.0 && dy < 0.0 {
-        angle += consts::TAU;
-    }
-
-    angle
-}
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum GMCollisionShape {

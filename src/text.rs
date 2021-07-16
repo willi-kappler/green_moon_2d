@@ -1,7 +1,7 @@
 use crate::font::{GMFont};
 use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
-use crate::behavior::GMKeyValue;
+use crate::utils::GMKeyValue;
 
 use log::error;
 

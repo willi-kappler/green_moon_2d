@@ -1,5 +1,5 @@
 use crate::tileset::GMTileSet;
-use crate::behavior::GMKeyValue;
+use crate::utils::GMKeyValue;
 
 use log::error;
 

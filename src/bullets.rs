@@ -1,6 +1,7 @@
 use crate::resources::GMResourceManager;
 use crate::sprite::GMSprite;
 use crate::sound::GMSound;
+use crate::utils::GMOffscreenMode;
 
 use macroquad::time::get_time;
 
@@ -11,12 +12,6 @@ use std::rc::Rc;
 // - add trait GMBulletManagerT ?
 // - add more options for bullet hell shooter
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum GMOffscreenMode {
-    Keep,
-    Destroy,
-    WrapAround,
-}
 
 pub struct GMBulletManager {
     base_sprite: GMSprite,
