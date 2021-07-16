@@ -310,6 +310,7 @@ impl GMTextT for GMTextArrow {
 
 pub struct GMTextSprite {
     base: GMText,
+    // TODO: use sprite sheet and animation instead of sprite
     left_sprite: GMSprite,
     right_sprite: GMSprite,
 }
