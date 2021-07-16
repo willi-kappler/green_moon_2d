@@ -10,6 +10,7 @@ pub struct GMTileMap {
     // width and height are number of tiles, not pixels!
     width: usize,
     height: usize,
+    range_mapping: Vec<(u32, u32, String)>,
 }
 
 impl GMTileMap {
@@ -19,6 +20,7 @@ impl GMTileMap {
             map: map.to_vec(),
             width,
             height,
+            range_mapping: Vec::new(),
         }
     }
     pub fn get_tile(&self, x: usize, y: usize) -> u32 {
@@ -38,6 +40,9 @@ impl GMTileMap {
     }
     pub fn set_map(&mut self, map: &[u32]) {
         self.map = map.to_vec();
+    }
+    pub fn set_range_mapping(&mut self, range_mapping: &Vec<(u32, u32, String)>) {
+        self.range_mapping = range_mapping.clone();
     }
     pub fn get_tile_width(&self) -> f32 {
         self.tileset.get_tile_width()
@@ -99,5 +104,18 @@ impl GMTileMap {
                 }
             }
         }
+    }
+    pub fn tile_in_range(&self, x: usize, y: usize, low_id: u32, high_id: u32) -> bool {
+        let tile_id = self.get_tile(x, y);
+        (low_id <= tile_id) && (tile_id <= high_id)
+    }
+    pub fn get_tile_type(&self, x: usize, y: usize) -> &str {
+        for (low_id, high_id, name) in self.range_mapping.iter() {
+            if self.tile_in_range(x, y, *low_id, *high_id) {
+                return name
+            }
+        }
+
+        "gm_unknown"
     }
 }
