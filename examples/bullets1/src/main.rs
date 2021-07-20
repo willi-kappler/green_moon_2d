@@ -7,7 +7,7 @@ use macroquad::prelude::*;
 
 use log4rs;
 
-#[macroquad::main("BulletFactory")]
+#[macroquad::main("BulletManager1")]
 async fn main() -> Result<(), GMError> {
     log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
 
