@@ -1,6 +1,7 @@
 use green_moon_2d::error::GMError;
 use green_moon_2d::resources::GMResourceManager;
-use green_moon_2d::bullets::{GMBulletManager, GMOffscreenMode};
+use green_moon_2d::bullets::GMBulletManager;
+use green_moon_2d::utils::GMOffscreenMode;
 
 use macroquad::prelude::*;
 
