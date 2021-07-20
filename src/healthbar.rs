@@ -2,6 +2,7 @@ use crate::animation::GMAnimation;
 use crate::spritesheet::GMSpriteSheet;
 use crate::text::GMText;
 
+use std::rc::Rc;
 
 pub trait GMHealthBarT {
     fn draw(&self);
@@ -92,11 +93,73 @@ pub struct GMLabelText {
     text: GMText,
 }
 
+impl GMLabelText {
+    pub fn new(text: GMText) -> Self {
+        Self {
+            text,
+        }
+    }
+}
+
+impl GMLabelT for GMLabelText {
+    fn draw(&self) {
+        self.text.draw();
+    }
+    fn update(&mut self) {
+        self.text.update();
+    }
+    fn set_x(&mut self, x: f32) {
+        self.text.set_x(x);
+    }
+    fn set_y(&mut self, y: f32) {
+        self.text.set_y(y);
+    }
+    fn get_x(&self) -> f32 {
+        self.text.get_x()
+    }
+    fn get_y(&self) -> f32 {
+        self.text.get_y()
+    }
+}
+
 pub struct GMLabelSprite {
     x: f32,
     y: f32,
-    sprite_sheet: GMSpriteSheet,
+    sprite_sheet: Rc<GMSpriteSheet>,
     animation: GMAnimation,
+}
+
+impl GMLabelSprite {
+    pub fn new(x: f32, y: f32, sprite_sheet: &Rc<GMSpriteSheet>, animation: GMAnimation) -> Self {
+        Self {
+            x,
+            y,
+            sprite_sheet: sprite_sheet.clone(),
+            animation,
+        }
+    }
+}
+
+impl GMLabelT for GMLabelSprite {
+    fn draw(&self) {
+        let rect = self.animation.get_rect();
+        self.sprite_sheet.draw_ex(&rect, self.x, self.y, false, false, 0.0);
+    }
+    fn update(&mut self) {
+        self.animation.next_frame()
+    }
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+    fn get_x(&self) -> f32 {
+        self.x
+    }
+    fn get_y(&self) -> f32 {
+        self.y
+    }
 }
 
 pub trait GMBarT {
@@ -137,6 +200,50 @@ impl GMBar {
     }
 }
 
+pub struct GMBarText {
+    text: GMText,
+}
+
+impl GMBarText {
+    pub fn new(text: GMText) -> Self {
+        Self {
+            text,
+        }
+    }
+}
+
+impl GMBarT for GMBarText {
+    fn draw(&self) {
+        self.text.draw();
+    }
+    fn update(&mut self) {
+        self.text.update();
+    }
+    fn set_x(&mut self, x: f32) {
+        self.text.set_x(x);
+    }
+    fn set_y(&mut self, y: f32) {
+        self.text.set_y(y);
+    }
+    fn get_x(&self) -> f32 {
+        self.text.get_x()
+    }
+    fn get_y(&self) -> f32 {
+        self.text.get_y()
+    }
+    fn set_value(&mut self, value: u32) {
+        let text_value = format!("{}", value);
+        self.text.set_text(&text_value);
+    }
+}
+
+pub struct GMBarSpriteSingle {
+
+}
+
+pub struct GMBarSpriteMultiple {
+
+}
 
 pub struct GMHealthBarSimple {
     x: f32,
@@ -144,4 +251,42 @@ pub struct GMHealthBarSimple {
     health: u32,
     label: GMLabel,
     bar: GMBar,
+}
+
+impl GMHealthBarT for GMHealthBarSimple {
+    fn draw(&self) {
+        self.label.draw();
+        self.bar.draw();
+    }
+    fn update(&mut self) {
+        self.label.update();
+        self.bar.update();
+    }
+    fn set_x(&mut self, x: f32) {
+        self.x = x;
+        self.label.set_x(x);
+    }
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+        self.label.set_y(y);
+    }
+    fn set_health(&mut self, health: u32) {
+        self.health = health;
+    }
+    fn get_health(&self) -> u32 {
+        self.health
+    }
+    fn inc_health(&mut self, inc: u32) {
+        self.health += inc;
+    }
+    fn dec_health(&mut self, dec: u32) {
+        if dec > self.health {
+            self.health = 0;
+        } else {
+            self.health -= dec;
+        }
+    }
+    fn is_dead(&self) -> bool {
+        self.health == 0
+    }
 }
