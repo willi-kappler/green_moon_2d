@@ -6,4 +6,3 @@ TODO:
 - GMCollisionManager
 - GMGameManager
 - GMMessageManager
-- Refactor to utils.rs
