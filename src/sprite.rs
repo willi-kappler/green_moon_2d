@@ -479,7 +479,7 @@ impl GMSpriteSimple {
     }
     pub fn draw(&self) {
         let rect = self.animation.get_rect();
-        self.sprite_sheet.draw(&rect, self.x, self.y);
+        self.sprite_sheet.draw_ex(&rect, self.x, self.y, self.flip_x, self.flip_y, 0.0);
     }
     pub fn update(&mut self) {
         self.animation.next_frame();
