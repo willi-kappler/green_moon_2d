@@ -58,6 +58,10 @@ impl GMTileWindow {
     }
     pub fn draw(&self) {
         self.tilemap.draw(self.screen_x, self.screen_y, self.world_x, self.world_y, self.window_width, self.window_height);
+        // self.camera = Camera2D::from_display_rect(Rect::new(self.screen_x, self.screen_y, self.window_width, self.window_height));
+        // set_camera(&self.camera);
+        // draw
+        // set_default_camera();
     }
     pub fn draw_sprite(&self, sprite: &GMSprite) {
         let sprite_x = sprite.get_x();
