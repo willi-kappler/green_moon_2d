@@ -1,6 +1,6 @@
 use crate::font::{GMFont};
 use crate::resources::GMResourceManager;
-use crate::sprite::GMSprite;
+use crate::sprite::GMSpriteSimple;
 use crate::utils::GMKeyValue;
 
 use log::error;
@@ -311,12 +311,12 @@ impl GMTextT for GMTextArrow {
 pub struct GMTextSprite {
     base: GMText,
     // TODO: use sprite sheet and animation instead of sprite
-    left_sprite: GMSprite,
-    right_sprite: GMSprite,
+    left_sprite: GMSpriteSimple,
+    right_sprite: GMSpriteSimple,
 }
 
 impl GMTextSprite {
-    pub fn new(base: GMText, sprite: &GMSprite) -> Self {
+    pub fn new(base: GMText, sprite: &GMSpriteSimple) -> Self {
         let left_sprite = sprite.clone();
         let right_sprite = sprite.clone();
 
@@ -336,20 +336,20 @@ impl GMTextSprite {
 
         result
     }
-    pub fn new_box(base: GMText, sprite: &GMSprite) -> GMText {
+    pub fn new_box(base: GMText, sprite: &GMSpriteSimple) -> GMText {
         GMText::new(Self::new(base, sprite))
     }
-    pub fn new_static(text: &str, x: f32, y: f32, font: &GMFont, sprite: &GMSprite) -> GMText {
+    pub fn new_static(text: &str, x: f32, y: f32, font: &GMFont, sprite: &GMSpriteSimple) -> GMText {
         let base = GMTextStatic::new_box(text, x, y, font);
         Self::new_box(base, sprite)
     }
     pub fn new_from_resource(text: &str, x: f32, y: f32, resources: &GMResourceManager, font_name: &str, sprite_name: &str) -> GMText {
         let font = resources.get_font(font_name).unwrap();
-        let sprite = resources.get_sprite(sprite_name).unwrap();
+        let sprite = resources.get_sprite_simple(sprite_name).unwrap();
 
-        Self::new_static(text, x, y, &font, sprite)
+        Self::new_static(text, x, y, &font, &sprite)
     }
-    pub fn set_sprite(&mut self, sprite: &GMSprite) {
+    pub fn set_sprite(&mut self, sprite: &GMSpriteSimple) {
         self.left_sprite = sprite.clone();
         self.right_sprite = sprite.clone();
 
@@ -429,7 +429,7 @@ impl GMTextT for GMTextSprite {
     }
     fn set_property(&mut self, data: &GMKeyValue) {
         if data.key == "sprite" {
-            match data.value.downcast_ref::<GMSprite>() {
+            match data.value.downcast_ref::<GMSpriteSimple>() {
                 Some(sprite) => {
                     self.set_sprite(sprite);
                 }

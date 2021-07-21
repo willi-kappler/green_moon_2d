@@ -1,7 +1,7 @@
 
 use crate::font::GMFont;
 use crate::text::{GMText, GMTextStatic};
-use crate::sprite::GMSprite;
+use crate::sprite::GMSpriteSimple;
 use crate::sound::GMSound;
 use crate::menuitem::{GMMenuItem, GMMenuItemStatic, GMMenuItemEvent};
 use crate::utils::{GMKeyValue, GMValue};
@@ -55,7 +55,7 @@ impl GMMenu {
 
         GMMenu::new(title, menu_items, change_sound, enter_sound)
     }
-    pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &GMFont, sprite: &GMSprite, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
+    pub fn new_static_sprite(x: f32, y: f32, title: &str, items: &[&str], font: &GMFont, sprite: &GMSpriteSimple, change_sound: &Rc<GMSound>, enter_sound: &Rc<GMSound>) -> Self {
         let mut current_y = y;
 
         let title = GMTextStatic::new_box(title, x, y, font);

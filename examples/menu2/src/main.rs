@@ -26,9 +26,9 @@ async fn main() -> Result<(), GMError> {
     ];
 
     let sprites = [
-        resources.get_sprite("bat1").unwrap(),
-        resources.get_sprite("cat1").unwrap(),
-        resources.get_sprite("ghost1").unwrap(),
+        resources.get_sprite_simple("bat1").unwrap(),
+        resources.get_sprite_simple("cat1").unwrap(),
+        resources.get_sprite_simple("ghost1").unwrap(),
     ];
 
     let menu_title = GMTextWave::new_static("MAIN MENU", 100.0, 40.0, &fonts[0], 8.0, 10.0);
@@ -39,25 +39,25 @@ async fn main() -> Result<(), GMError> {
     );
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("TITLE FONT ", 100.0, 100.0,
-        &fonts[0], sprites[0], &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 0.0);
+        &fonts[0], &sprites[0], &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 0.0);
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("ITEM FONT ", 0.0, 0.0,
-        &fonts[0], sprites[0], &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 40.0);
+        &fonts[0], &sprites[0], &["CUDDLY", "BBC1", "BLAGGER"], 0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemEnum::new_static_sprite("SPRITE ", 0.0, 0.0,
-        &fonts[0], sprites[0], &["BAT", "CAT", "GHOST"], 0), 0.0, 40.0);
+        &fonts[0], &sprites[0], &["BAT", "CAT", "GHOST"], 0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("AMPLITUDE ", 0.0, 0.0,
-        &fonts[0], sprites[0], 1.0, 20.0, 8.0, 1.0), 0.0, 40.0);
+        &fonts[0], &sprites[0], 1.0, 20.0, 8.0, 1.0), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("FREQUENCY ", 0.0, 0.0,
-        &fonts[0], sprites[0], 1.0, 30.0, 10.0, 0.5), 0.0, 40.0);
+        &fonts[0], &sprites[0], 1.0, 30.0, 10.0, 0.5), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemNumeric::new_static_sprite("OFFSET ", 0.0, 0.0,
-        &fonts[0], sprites[0], 1.0, 3.1, 1.0, 0.1), 0.0, 40.0);
+        &fonts[0], &sprites[0], 1.0, 3.1, 1.0, 0.1), 0.0, 40.0);
 
     main_menu.add_item(GMMenuItemStatic::new_static_sprite("EXIT", 0.0, 0.0,
-        &fonts[0], sprites[0]), 0.0, 40.0);
+        &fonts[0], &sprites[0]), 0.0, 40.0);
 
     loop {
         clear_background(BLACK);

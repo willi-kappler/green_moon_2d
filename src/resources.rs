@@ -3,7 +3,7 @@
 use crate::error::GMError;
 use crate::font::{GMBitmapFont, GMFont};
 use crate::spritesheet::GMSpriteSheet;
-use crate::sprite::{GMSprite, GMSpriteSingle};
+use crate::sprite::{GMSprite, GMSpriteSingle, GMSpriteSimple};
 use crate::sound::GMSound;
 use crate::animation::{GMAnimationBackwardLoop, GMAnimationBackwardOnce, GMAnimationForwardLoop, GMAnimationForwardOnce, GMAnimationPingPong, GMAnimation};
 use crate::tilemap::GMTileMap;
@@ -195,7 +195,7 @@ impl GMResourceManager {
 
                 let sprite = GMSpriteSingle::new_wrapped(
                     &resource.get_sprite_sheet(&item.sprite_sheet).unwrap(),
-                    resource.get_animation(&item.animation).unwrap(), 0.0, 0.0);
+                    &resource.get_animation(&item.animation).unwrap(), 0.0, 0.0);
                 resource.sprites.insert(item.name, sprite);
             }
         }
@@ -275,6 +275,13 @@ impl GMResourceManager {
     }
     pub fn get_sprite(&self, name: &str) -> Option<&GMSprite> {
         self.sprites.get(name)
+    }
+    pub fn get_sprite_simple(&self, name: &str) -> Option<GMSpriteSimple> {
+        if let Some(sprite) = self.sprites.get(name) {
+            Some(sprite.to_simple())
+        } else {
+            None
+        }
     }
     pub fn remove_sprite(&mut self, name: &str) -> Option<GMSprite> {
         self.sprites.remove(name)

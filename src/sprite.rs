@@ -34,7 +34,7 @@ pub trait GMSpriteT {
     fn get_rotation(&self) -> f32;
     fn get_collision_shape(&self) -> GMCollisionShape;
     fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>);
-    fn set_animation(&mut self, animation: GMAnimation);
+    fn set_animation(&mut self, animation: &GMAnimation);
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, y: f32);
     fn set_mid_x(&mut self, x: f32);
@@ -56,6 +56,7 @@ pub trait GMSpriteT {
     fn start_animation(&mut self);
     fn pause_animation(&mut self);
     fn resume_animation(&mut self);
+    fn to_simple(&self) -> GMSpriteSimple;
 }
 
 pub struct GMSprite {
@@ -107,7 +108,7 @@ impl GMSprite {
     pub fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
         self.sprite.set_sheet(sheet);
     }
-    pub fn set_animation(&mut self, animation: GMAnimation) {
+    pub fn set_animation(&mut self, animation: &GMAnimation) {
         self.sprite.set_animation(animation);
     }
     pub fn set_x(&mut self, x: f32) {
@@ -173,6 +174,9 @@ impl GMSprite {
     pub fn resume_animation(&mut self) {
         self.sprite.resume_animation();
     }
+    pub fn to_simple(&self) -> GMSpriteSimple {
+        self.sprite.to_simple()
+    }
 }
 
 impl Clone for GMSprite {
@@ -199,10 +203,10 @@ pub struct GMSpriteSingle {
 }
 
 impl GMSpriteSingle {
-    pub fn new(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> Self {
+    pub fn new(sheet: &Rc<GMSpriteSheet>, animation: &GMAnimation, x: f32, y: f32) -> Self {
         Self {
             sheet: sheet.clone(),
-            animation,
+            animation: animation.clone(),
             x,
             y,
             vx: 0.0,
@@ -216,7 +220,7 @@ impl GMSpriteSingle {
             rot_speed: 0.0,
         }
     }
-    pub fn new_wrapped(sheet: &Rc<GMSpriteSheet>, animation: GMAnimation, x: f32, y: f32) -> GMSprite {
+    pub fn new_wrapped(sheet: &Rc<GMSpriteSheet>, animation: &GMAnimation, x: f32, y: f32) -> GMSprite {
         let sprite = Self::new(sheet, animation, x, y);
         GMSprite::new(sprite)
     }
@@ -288,8 +292,8 @@ impl GMSpriteT for GMSpriteSingle {
     fn set_sheet(&mut self, sheet: &Rc<GMSpriteSheet>) {
         self.sheet = sheet.clone();
     }
-    fn set_animation(&mut self, animation: GMAnimation) {
-        self.animation = animation;
+    fn set_animation(&mut self, animation: &GMAnimation) {
+        self.animation = animation.clone();
     }
     fn set_x(&mut self, x: f32) {
         self.x = x;
@@ -437,9 +441,78 @@ impl GMSpriteT for GMSpriteSingle {
     fn resume_animation(&mut self) {
         self.animation.resume();
     }
+    fn to_simple(&self) -> GMSpriteSimple {
+        GMSpriteSimple::new(
+            self.x,
+            self.y,
+            &self.sheet,
+            &self.animation
+        )
+    }
 }
 
 #[derive(Clone)]
 pub struct GMSpriteMultiple {
 
+}
+
+#[derive(Clone)]
+pub struct GMSpriteSimple {
+    x: f32,
+    y: f32,
+    sprite_sheet: Rc<GMSpriteSheet>,
+    animation: GMAnimation,
+    flip_x: bool,
+    flip_y: bool,
+}
+
+impl GMSpriteSimple {
+    pub fn new(x: f32, y: f32, sprite_sheet: &Rc<GMSpriteSheet>, animation: &GMAnimation) -> Self {
+        Self {
+            x,
+            y,
+            sprite_sheet: sprite_sheet.clone(),
+            animation: animation.clone(),
+            flip_x: false,
+            flip_y: false,
+        }
+    }
+    pub fn draw(&self) {
+        let rect = self.animation.get_rect();
+        self.sprite_sheet.draw(&rect, self.x, self.y);
+    }
+    pub fn update(&mut self) {
+        self.animation.next_frame();
+    }
+    pub fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    pub fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+    pub fn get_x(&self) -> f32 {
+        self.x
+    }
+    pub fn get_y(&self) -> f32 {
+        self.y
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        let rect = self.animation.get_rect();
+        (rect.w, rect.h)
+    }
+    pub fn set_sprite_sheet(&mut self, sprite_sheet: &Rc<GMSpriteSheet>) {
+        self.sprite_sheet = sprite_sheet.clone();
+    }
+    pub fn set_animation(&mut self, animation: &GMAnimation) {
+        self.animation = animation.clone()
+    }
+    pub fn flip_x(&mut self, flip_x: bool) {
+        self.flip_x = flip_x;
+    }
+    pub fn flip_y(&mut self, flip_y: bool) {
+        self.flip_y = flip_y;
+    }
+    pub fn start_animation(&mut self) {
+        self.animation.start();
+    }
 }
