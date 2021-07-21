@@ -1,14 +1,12 @@
-use crate::animation::GMAnimation;
-use crate::spritesheet::GMSpriteSheet;
+use crate::sprite::GMSpriteSimple;
 use crate::text::GMText;
-
-use std::rc::Rc;
 
 pub trait GMHealthBarT {
     fn draw(&self);
     fn update(&mut self);
     fn set_x(&mut self, x: f32);
     fn set_y(&mut self, x: f32);
+    fn get_extend(&self) -> (f32, f32);
     fn set_health(&mut self, health: u32);
     fn get_health(&self) -> u32;
     fn inc_health(&mut self, inc: u32);
@@ -38,6 +36,9 @@ impl GMHealthBar {
     pub fn set_y(&mut self, y: f32) {
         self.health_bar.set_y(y);
     }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.health_bar.get_extend()
+    }
     pub fn set_health(&mut self, health: u32) {
         self.health_bar.set_health(health);
     }
@@ -62,6 +63,7 @@ pub trait GMLabelT {
     fn set_y(&mut self, y: f32);
     fn get_x(&self) -> f32;
     fn get_y(&self) -> f32;
+    fn get_extend(&self) -> (f32, f32);
 }
 
 pub struct GMLabel {
@@ -86,6 +88,9 @@ impl GMLabel {
     }
     pub fn get_y(&self) -> f32 {
         self.label.get_y()
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.label.get_extend()
     }
 }
 
@@ -120,45 +125,44 @@ impl GMLabelT for GMLabelText {
     fn get_y(&self) -> f32 {
         self.text.get_y()
     }
+    fn get_extend(&self) -> (f32, f32) {
+        self.text.get_extend()
+    }
 }
 
 pub struct GMLabelSprite {
-    x: f32,
-    y: f32,
-    sprite_sheet: Rc<GMSpriteSheet>,
-    animation: GMAnimation,
+    sprite: GMSpriteSimple,
 }
 
 impl GMLabelSprite {
-    pub fn new(x: f32, y: f32, sprite_sheet: &Rc<GMSpriteSheet>, animation: GMAnimation) -> Self {
+    pub fn new(sprite: &GMSpriteSimple) -> Self {
         Self {
-            x,
-            y,
-            sprite_sheet: sprite_sheet.clone(),
-            animation,
+            sprite: sprite.clone(),
         }
     }
 }
 
 impl GMLabelT for GMLabelSprite {
     fn draw(&self) {
-        let rect = self.animation.get_rect();
-        self.sprite_sheet.draw_ex(&rect, self.x, self.y, false, false, 0.0);
+        self.sprite.draw();
     }
     fn update(&mut self) {
-        self.animation.next_frame()
+        self.sprite.update();
     }
     fn set_x(&mut self, x: f32) {
-        self.x = x;
+        self.sprite.set_x(x);
     }
     fn set_y(&mut self, y: f32) {
-        self.y = y;
+        self.sprite.set_y(y);
     }
     fn get_x(&self) -> f32 {
-        self.x
+        self.sprite.get_x()
     }
     fn get_y(&self) -> f32 {
-        self.y
+        self.sprite.get_y()
+    }
+    fn get_extend(&self) -> (f32, f32) {
+        self.sprite.get_extend()
     }
 }
 
@@ -169,6 +173,7 @@ pub trait GMBarT {
     fn set_y(&mut self, y: f32);
     fn get_x(&self) -> f32;
     fn get_y(&self) -> f32;
+    fn get_extend(&self) -> (f32, f32);
     fn set_value(&mut self, value: u32);
 }
 
@@ -194,6 +199,9 @@ impl GMBar {
     }
     pub fn get_y(&self) -> f32 {
         self.bar.get_y()
+    }
+    pub fn get_extend(&self) -> (f32, f32) {
+        self.bar.get_extend()
     }
     pub fn set_value(&mut self, value: u32) {
         self.bar.set_value(value);
@@ -235,14 +243,17 @@ impl GMBarT for GMBarText {
         let text_value = format!("{}", value);
         self.text.set_text(&text_value);
     }
+    fn get_extend(&self) -> (f32, f32) {
+        self.text.get_extend()
+    }
 }
 
 pub struct GMBarSpriteSingle {
-
+    sprite: GMSpriteSimple,
 }
 
 pub struct GMBarSpriteMultiple {
-
+    sprite: GMSpriteSimple,
 }
 
 pub struct GMHealthBarSimple {
@@ -265,10 +276,13 @@ impl GMHealthBarT for GMHealthBarSimple {
     fn set_x(&mut self, x: f32) {
         self.x = x;
         self.label.set_x(x);
+        let (w, _) = self.label.get_extend();
+        self.bar.set_x(x + w);
     }
     fn set_y(&mut self, y: f32) {
         self.y = y;
         self.label.set_y(y);
+        self.bar.set_y(y);
     }
     fn set_health(&mut self, health: u32) {
         self.health = health;
@@ -288,5 +302,10 @@ impl GMHealthBarT for GMHealthBarSimple {
     }
     fn is_dead(&self) -> bool {
         self.health == 0
+    }
+    fn get_extend(&self) -> (f32, f32) {
+        let (w1, h1) = self.label.get_extend();
+        let (w2, h2) = self.bar.get_extend();
+        (w1 + w2, h1.max(h2))
     }
 }
