@@ -1,5 +1,5 @@
 [package]
-name = "bullet_factory"
+name = "bullets1"
 version = "0.1.0"
 authors = ["Willi Kappler <grandor@gmx.de>"]
 license = "MIT"
