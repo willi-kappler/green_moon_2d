@@ -1,0 +1,54 @@
+{
+    "tilesets": [
+        {
+            "name": "set11",
+            "file": "../assets/gfx/tileset/set1.png"
+        },
+        {
+            "name": "set2",
+            "file": "../assets/gfx/tileset/set2.png"
+        }
+    ],
+    "borders": [
+        {
+            "name": "border1",
+            "tileset": "set1",
+            "type": "single",
+            "tile_id": 1,
+            "width": 5,
+            "height": 5,
+            "x": 20.0,
+            "y": 20.0
+        },
+        {
+            "name": "border2",
+            "tileset": "set2",
+            "type": "single",
+            "tile_id": 2,
+            "width": 4,
+            "height": 4,
+            "x": 200.0,
+            "y": 20.0
+        },
+        {
+            "name": "border3",
+            "tileset": "set1",
+            "type": "tiles9",
+            "tile_id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "width": 4,
+            "height": 4,
+            "x": 20.0,
+            "y": 200.0
+        },
+        {
+            "name": "border4",
+            "tileset": "set2",
+            "type": "tiles9",
+            "tile_id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "width": 4,
+            "height": 4,
+            "x": 200.0,
+            "y": 200.0
+        }
+    ]
+}

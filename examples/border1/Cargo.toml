@@ -1,0 +1,20 @@
+[package]
+name = "border1"
+version = "0.1.0"
+authors = ["Willi Kappler <grandor@gmx.de>"]
+license = "MIT"
+repository = "https://github.com/willi-kappler/green_moon_2d"
+description = "2D game library"
+readme = "README.md"
+exclude = ["target"]
+keywords = ["2d", "Game", "Engine"]
+categories = ["Game"]
+edition = "2018"
+
+[dependencies]
+green_moon_2d = { path = "../../", version = "0.1.0" }
+macroquad = "0.3.4"
+log4rs = "1.0"
+
+[profile.release]
+lto = true
