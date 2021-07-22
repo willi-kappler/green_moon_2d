@@ -50,7 +50,7 @@ impl GMTileMap {
     pub fn get_tile_height(&self) -> f32 {
         self.tileset.get_tile_height()
     }
-    pub fn draw(&self, screen_x: f32, screen_y: f32, world_x: f32, world_y: f32, window_width: f32, window_height: f32) {
+    pub fn draw_old(&self, screen_x: f32, screen_y: f32, world_x: f32, world_y: f32, window_width: f32, window_height: f32) {
         let tile_width = self.get_tile_width();
         let tile_height = self.get_tile_height();
         let tile_x1 = (world_x / tile_width).floor() as usize;
@@ -104,6 +104,9 @@ impl GMTileMap {
                 }
             }
         }
+    }
+    pub fn draw(&self, world_x: f32, world_y: f32, window_width: f32, window_height: f32) {
+        // TODO:
     }
     pub fn tile_in_range(&self, x: usize, y: usize, low_id: u32, high_id: u32) -> bool {
         let tile_id = self.get_tile(x, y);
