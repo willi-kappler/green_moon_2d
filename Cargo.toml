@@ -13,7 +13,7 @@ edition = "2018"
 
 [dependencies]
 thiserror = "1.0"
-macroquad = "0.3.4"
+macroquad = "0.3.7"
 nanoserde = "0.1.26"
 log = "0.4"
 

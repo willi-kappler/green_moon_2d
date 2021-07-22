@@ -13,7 +13,7 @@ edition = "2018"
 
 [dependencies]
 green_moon_2d = { path = "../../", version = "0.1.0" }
-macroquad = "0.3.4"
+macroquad = "0.3.7"
 log4rs = "1.0"
 
 [profile.release]
