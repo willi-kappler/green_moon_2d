@@ -96,9 +96,12 @@ impl GMTileMap {
             }
 
             tile_x += 1;
+
             if tile_x > tile_x2 {
                 tile_x = tile_x1;
+
                 tile_y += 1;
+
                 if tile_y > tile_y2 {
                     break;
                 }
@@ -106,8 +109,39 @@ impl GMTileMap {
         }
     }
     pub fn draw(&self, world_x: f32, world_y: f32, window_width: f32, window_height: f32) {
-        // TODO:
-    }
+        let tile_width = self.get_tile_width();
+        let tile_height = self.get_tile_height();
+        let tile_x1 = (world_x / tile_width).floor() as usize;
+        let tile_y1 = (world_y / tile_height).floor() as usize;
+        let tile_x2 = ((world_x + window_width) / tile_width).floor() as usize;
+        let tile_y2 = ((world_y + window_height) / tile_height).floor() as usize;
+        let mut tile_x = tile_x1;
+        let mut tile_y = tile_y1;
+        let start_x = ((tile_x as f32) * tile_width) - world_x;
+        let mut sx = start_x;
+        let mut sy = ((tile_y as f32) * tile_height) - world_y;
+
+        loop {
+            let tile_id = self.get_tile(tile_x, tile_y);
+
+            self.tileset.draw(tile_id, sx, sy);
+
+            tile_x += 1;
+            sx += tile_width;
+
+            if tile_x > tile_x2 {
+                tile_x = tile_x1;
+                sx = start_x;
+
+                tile_y += 1;
+                sy += tile_height;
+
+                if tile_y > tile_y2 {
+                    break;
+                }
+            }
+        }
+}
     pub fn tile_in_range(&self, x: usize, y: usize, low_id: u32, high_id: u32) -> bool {
         let tile_id = self.get_tile(x, y);
         (low_id <= tile_id) && (tile_id <= high_id)
