@@ -57,54 +57,44 @@ impl GMTileMap {
         let tile_y1 = (world_y / tile_height).floor() as usize;
         let tile_x2 = ((world_x + window_width) / tile_width).floor() as usize;
         let tile_y2 = ((world_y + window_height) / tile_height).floor() as usize;
-        let mut tile_x = tile_x1;
-        let mut tile_y = tile_y1;
 
-        loop {
-            let tile_id = self.get_tile(tile_x, tile_y);
-            let sx = (tile_x as f32) * tile_width;
+        for tile_y in tile_y1..=tile_y2 {
             let sy = (tile_y as f32) * tile_height;
-            let dx1 = sx - world_x;
             let dy1 = sy - world_y;
-            let dx2 = window_width - sx + tile_width - world_x;
             let dy2 = window_height - sy + tile_height - world_y;
 
-            if dx1 < 0.0 {
-                if dy1 < 0.0 {
-                    self.tileset.draw_part(tile_id, screen_x, screen_y, -dx1, -dy1, tile_width + dx1, tile_height + dy1);
-                } else if dy2 < 0.0 {
-                    self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height + dy2);
+            for tile_x in tile_x1..=tile_x2 {
+                let tile_id = self.get_tile(tile_x, tile_y);
+                let sx = (tile_x as f32) * tile_width;
+                let dx1 = sx - world_x;
+                let dx2 = window_width - sx + tile_width - world_x;
+
+                if dx1 < 0.0 {
+                    if dy1 < 0.0 {
+                        self.tileset.draw_part(tile_id, screen_x, screen_y, -dx1, -dy1, tile_width + dx1, tile_height + dy1);
+                    } else if dy2 < 0.0 {
+                        self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height + dy2);
+                    } else {
+                        self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height);
+                    }
+                } else if dx2 < 0.0 {
+                    if dy1 < 0.0 {
+                        self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width + dx2, tile_height + dy1);
+                    } else if dy2 < 0.0 {
+                        self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height + dy2);
+                    } else {
+                        self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height);
+                    }
                 } else {
-                    self.tileset.draw_part(tile_id, screen_x, sy, -dx1, 0.0, tile_width + dx1, tile_height);
+                    if dy1 < 0.0 {
+                        self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width, tile_height + dy1);
+                    } else if dy2 < 0.0 {
+                        self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width, tile_height + dy2);
+                    } else {
+                        self.tileset.draw(tile_id, sx + screen_x, sy + screen_y);
+                    }
                 }
-            } else if dx2 < 0.0 {
-                if dy1 < 0.0 {
-                    self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width + dx2, tile_height + dy1);
-                } else if dy2 < 0.0 {
-                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height + dy2);
-                } else {
-                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width + dx2, tile_height);                    
-                }
-            } else {
-                if dy1 < 0.0 {
-                    self.tileset.draw_part(tile_id, sx, screen_y, 0.0, -dy1, tile_width, tile_height + dy1);
-                } else if dy2 < 0.0 {
-                    self.tileset.draw_part(tile_id, sx, sy, 0.0, 0.0, tile_width, tile_height + dy2);
-                } else {
-                    self.tileset.draw(tile_id, sx + screen_x, sy + screen_y);
-                }
-            }
 
-            tile_x += 1;
-
-            if tile_x > tile_x2 {
-                tile_x = tile_x1;
-
-                tile_y += 1;
-
-                if tile_y > tile_y2 {
-                    break;
-                }
             }
         }
     }
@@ -115,33 +105,21 @@ impl GMTileMap {
         let tile_y1 = (world_y / tile_height).floor() as usize;
         let tile_x2 = ((world_x + window_width) / tile_width).floor() as usize;
         let tile_y2 = ((world_y + window_height) / tile_height).floor() as usize;
-        let mut tile_x = tile_x1;
-        let mut tile_y = tile_y1;
-        let start_x = ((tile_x as f32) * tile_width) - world_x;
+
+        let start_x = ((tile_x1 as f32) * tile_width) - world_x;
         let mut sx = start_x;
-        let mut sy = ((tile_y as f32) * tile_height) - world_y;
+        let mut sy = ((tile_y1 as f32) * tile_height) - world_y;
 
-        loop {
-            let tile_id = self.get_tile(tile_x, tile_y);
-
-            self.tileset.draw(tile_id, sx, sy);
-
-            tile_x += 1;
-            sx += tile_width;
-
-            if tile_x > tile_x2 {
-                tile_x = tile_x1;
-                sx = start_x;
-
-                tile_y += 1;
-                sy += tile_height;
-
-                if tile_y > tile_y2 {
-                    break;
-                }
+        for tile_y in tile_y1..=tile_y2 {
+            for tile_x in tile_x1..=tile_x2 {
+                let tile_id = self.get_tile(tile_x, tile_y);
+                self.tileset.draw(tile_id, sx, sy);
+                sx += tile_width;
             }
+            sx = start_x;
+            sy += tile_height;
         }
-}
+    }
     pub fn tile_in_range(&self, x: usize, y: usize, low_id: u32, high_id: u32) -> bool {
         let tile_id = self.get_tile(x, y);
         (low_id <= tile_id) && (tile_id <= high_id)
