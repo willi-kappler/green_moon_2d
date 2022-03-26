@@ -1,50 +1,75 @@
 
+use std::time::{Duration, Instant};
+use std::thread::sleep;
 
+
+use crate::configuration::GMConfiguration;
+use crate::context::{GMContext, GMSceneState};
 use crate::error::GMError;
-use crate::scene::{GMSceneState, GMScene};
+use crate::scene_container::GMSceneContainer;
+use crate::scene::GMScene;
+
 pub struct GMApp {
-    scenes: Vec<Box<dyn GMScene>>,
+    scenes: GMSceneContainer,
+    configuration: GMConfiguration,
 }
 
 impl GMApp {
-    pub fn new<S: 'static + GMScene>(first_scene: S) -> Self {
+    pub fn new<S: 'static + GMScene>(name: &str, first_scene: S) -> Self {
+        let mut scenes = GMSceneContainer::new();
+        scenes.add_scene(name, first_scene);
+
         Self {
-            scenes: vec![Box::new(first_scene)],
+            scenes,
+            configuration: GMConfiguration::new(),
         }
     }
 
+    pub fn load_configuration(&mut self, _file: &str) {
+        todo!();
+    }
+
     pub fn run(&mut self) -> Result<(), GMError> {
-        let current_scene = &mut self.scenes[0];
-        let mut current_state = GMSceneState::Enter;
+        let mut current_scene = self.scenes.first_scene();
+
+        let mut context = GMContext::new();
 
         loop {
-            let new_state = match current_state {
+            let start_time = Instant::now();
+            let scene_state = context.get_scene_state();
+
+            match scene_state {
                 GMSceneState::Enter => {
-                    current_scene.enter()
+                    current_scene.enter(&mut context)?;
                 }
                 GMSceneState::Run => {
-                    current_scene.run()
+                    current_scene.update_before(&mut context)?;
+                    context.update()?;
+                    current_scene.update_after(&mut context)?;
+                    current_scene.draw_before(&mut context)?;
+                    context.draw()?;
+                    current_scene.draw_after(&mut context)?;
                 }
                 GMSceneState::Leave => {
-                    current_scene.leave()
+                    current_scene.leave(&mut context)?;
                 }
-                GMSceneState::NewScene(ref new_scene) => {
-                    // TODO:
-                    Ok(GMSceneState::Enter)
+                GMSceneState::ChangeToScene(scene_name) => {
+                    current_scene = self.scenes.get_scene(scene_name)?;
                 }
                 GMSceneState::Quit => {
-                    return Ok(())
-                }
-            };
-
-            match new_state {
-                Ok(state) => {
-
-                }
-                Err(e) => {
-                    return Err(e)
+                    break
                 }
             }
+
+            let elapsed = start_time.elapsed().as_secs_f32();
+            let diff = self.configuration.frame_time - elapsed;
+
+            if diff > 0.0 {
+                sleep(Duration::from_secs_f32(diff));
+            }
+
         }
+
+        Ok(())
     }
 }
