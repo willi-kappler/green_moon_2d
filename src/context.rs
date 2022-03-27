@@ -1,5 +1,8 @@
-use crate::error::GMError;
 
+
+
+use crate::error::GMError;
+use crate::configuration::GMConfiguration;
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -13,12 +16,14 @@ pub enum GMSceneState {
 
 pub struct GMContext {
     scene_state: GMSceneState,
+    pub frame_time: f32,
 }
 
 impl GMContext {
     pub fn new() -> Self {
         Self {
             scene_state: GMSceneState::Enter,
+            frame_time: 1.0 / 60.0 // 60 FPS
         }
     }
 
@@ -46,11 +51,19 @@ impl GMContext {
         self.scene_state = GMSceneState::ChangeToScene(name.to_string());
     }
 
-    pub fn update(&mut self) -> Result<(), GMError> {
+    pub(crate) fn update(&mut self) -> Result<(), GMError> {
         Ok(())
     }
 
-    pub fn draw(&mut self) -> Result<(), GMError> {
+    pub(crate) fn draw(&mut self) -> Result<(), GMError> {
         Ok(())
+    }
+
+    pub fn set_fps(&mut self, fps: f32) {
+        self.frame_time = 1.0 / fps;
+    }
+
+    pub(crate) fn set_configuration(&mut self, _configuration: &GMConfiguration) {
+        todo!();
     }
 }

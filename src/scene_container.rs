@@ -1,11 +1,11 @@
 
 
 use crate::error::GMError;
-use crate::scene::GMScene;
+use crate::scene::GMSceneT;
 
 
 pub struct GMSceneContainer {
-    scenes: Vec<(String, Box<dyn GMScene>)>
+    scenes: Vec<(String, Box<dyn GMSceneT>)>
 }
 
 impl GMSceneContainer {
@@ -15,15 +15,15 @@ impl GMSceneContainer {
         }
     }
 
-    pub fn add_scene<T: 'static + GMScene>(&mut self, name: &str, new_scene: T) {
+    pub fn add_scene<T: 'static + GMSceneT>(&mut self, name: &str, new_scene: T) {
         self.scenes.push((name.to_string(), Box::new(new_scene)));
     }
 
-    pub fn first_scene(&mut self) -> &mut Box<dyn GMScene> {
+    pub fn first_scene(&mut self) -> &mut Box<dyn GMSceneT> {
         &mut self.scenes[0].1
     }
 
-    pub fn get_scene(&mut self, name: &str) -> Result<&mut Box<dyn GMScene>, GMError> {
+    pub fn get_scene(&mut self, name: &str) -> Result<&mut Box<dyn GMSceneT>, GMError> {
         match self.scenes.iter_mut().find(|(stored_name, _)| stored_name == name) {
             Some(item) => {
                 Ok(&mut item.1)

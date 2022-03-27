@@ -7,7 +7,7 @@ use crate::configuration::GMConfiguration;
 use crate::context::{GMContext, GMSceneState};
 use crate::error::GMError;
 use crate::scene_container::GMSceneContainer;
-use crate::scene::GMScene;
+use crate::scene::GMSceneT;
 
 pub struct GMApp {
     scenes: GMSceneContainer,
@@ -15,7 +15,7 @@ pub struct GMApp {
 }
 
 impl GMApp {
-    pub fn new<S: 'static + GMScene>(name: &str, first_scene: S) -> Self {
+    pub fn new<S: 'static + GMSceneT>(name: &str, first_scene: S) -> Self {
         let mut scenes = GMSceneContainer::new();
         scenes.add_scene(name, first_scene);
 
@@ -25,7 +25,7 @@ impl GMApp {
         }
     }
 
-    pub fn load_configuration(&mut self, _file: &str) {
+    pub fn load_configuration(&mut self, _file: &str) -> Result<(), GMError> {
         todo!();
     }
 
@@ -33,6 +33,7 @@ impl GMApp {
         let mut current_scene = self.scenes.first_scene();
 
         let mut context = GMContext::new();
+        context.set_configuration(&self.configuration);
 
         loop {
             let start_time = Instant::now();
@@ -62,7 +63,7 @@ impl GMApp {
             }
 
             let elapsed = start_time.elapsed().as_secs_f32();
-            let diff = self.configuration.frame_time - elapsed;
+            let diff = context.frame_time - elapsed;
 
             if diff > 0.0 {
                 sleep(Duration::from_secs_f32(diff));
