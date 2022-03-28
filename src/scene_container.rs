@@ -1,5 +1,7 @@
 
 
+use log::debug;
+
 use crate::error::GMError;
 use crate::scene::GMSceneT;
 
@@ -16,6 +18,8 @@ impl GMSceneContainer {
     }
 
     pub fn add_scene<T: 'static + GMSceneT>(&mut self, name: &str, new_scene: T) {
+        debug!("GMSceneContainer::add_scene(), with name: '{}'", name);
+
         self.scenes.push((name.to_string(), Box::new(new_scene)));
     }
 

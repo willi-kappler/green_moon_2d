@@ -1,5 +1,5 @@
 [package]
-name = "green_moon_2d"
+name = "text1"
 version = "0.1.0"
 authors = ["Willi Kappler <grandor@gmx.de>"]
 license = "MIT"
@@ -12,12 +12,9 @@ categories = ["Game"]
 edition = "2021"
 
 [dependencies]
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
 log = "0.4"
-nanorand = "0.7.0"
-sdl2 = "0.35.2"
+simplelog = "0.11.2"
+green_moon_2d = { path = "../../", version = "0.1.0" }
 
 [profile.release]
 lto = true
