@@ -1,6 +1,7 @@
 // #![warn(clippy::pedantic)]
 
 pub mod app;
+pub mod assets;
 pub mod configuration;
 pub mod context;
 pub mod error;

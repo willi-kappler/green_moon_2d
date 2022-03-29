@@ -1,13 +1,18 @@
 
-
+use std::fs::File;
+use std::io::Read;
 
 use sdl2::video;
 use sdl2::render;
 use sdl2::keyboard::Keycode;
 use sdl2::event::Event;
+use sdl2::pixels;
 
-use crate::error::GMError;
+use log::debug;
+
+use crate::assets::GMAssets;
 use crate::configuration::GMConfiguration;
+use crate::error::GMError;
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -40,7 +45,10 @@ impl GMContext {
             .position_centered()
             .build()
             .unwrap();
-        let canvas = window.into_canvas().build().unwrap();
+        let canvas = window.into_canvas()
+            .accelerated()
+            .present_vsync()
+            .build().unwrap();
         let event_pump = sdl_context.event_pump().unwrap();
 
         let frame_time = 1.0 / configuration.fps;
@@ -56,7 +64,23 @@ impl GMContext {
         }
     }
 
+    pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
+        debug!("GMContext::load_assets(), from file: '{}'", assets_file);
+
+        let mut file = File::open(assets_file)?;
+        let mut data = Vec::new();
+
+        file.read_to_end(&mut data)?;
+
+        let all_assets: GMAssets = serde_json::from_slice(&data)?;
+
+
+        Ok(())
+    }
+
     pub fn set_fps(&mut self, fps: f32) {
+        debug!("GMContext::set_fps(), to value: '{}'", fps);
+
         self.frame_time = 1.0 / fps;
     }
 
@@ -111,6 +135,21 @@ impl GMContext {
 
     pub(crate) fn present(&mut self) {
         self.canvas.present();
+    }
+
+    pub fn clear_black(&mut self) {
+        let black = pixels::Color::BLACK;
+        self.canvas.set_draw_color(black);
+        self.canvas.clear();
+    }
+
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+        // TODO: Map SDL2 error
+        if fullscreen {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True).ok();
+        } else {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off).ok();
+        }
     }
 
     pub fn key_esc_down(&self) -> bool {
