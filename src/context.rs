@@ -74,8 +74,37 @@ impl GMContext {
 
         let all_assets: GMAssets = serde_json::from_slice(&data)?;
 
+        for texture in all_assets.textures.iter() {
+            self.add_texture(&texture.name, &texture.file, texture.rows, texture.cols);
+        }
+
+        for animation in all_assets.animations.iter() {
+            self.add_animation(&animation.name, &animation.frames, animation.animation_type);
+        }
+
+        for font in all_assets.fonts.iter() {
+            self.add_font(&font.name, &font.texture, &font.mapping);
+        }
 
         Ok(())
+    }
+
+    pub fn add_texture(&mut self, name: &str, file: &str, rows: u32, cols: u32) {
+        debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
+
+        todo!();
+    }
+
+    pub fn add_animation(&mut self, name: &str, frames: &[(usize, f32)], animation_type: u8) {
+        debug!("GMContext::add_animation(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) {
+        debug!("GMContext::add_font(), name: '{}', texture: '{}', mapping: '{}'", name, texture, mapping);
+
+        todo!();
     }
 
     pub fn set_fps(&mut self, fps: f32) {

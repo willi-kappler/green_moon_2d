@@ -1,5 +1,6 @@
 // #![warn(clippy::pedantic)]
 
+pub mod animation;
 pub mod app;
 pub mod assets;
 pub mod configuration;

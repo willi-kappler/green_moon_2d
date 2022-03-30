@@ -4,7 +4,7 @@ use serde_derive::Deserialize;
 #[derive(Clone, Deserialize)]
 pub(crate) struct GMAssetTexture {
     pub(crate) name: String,
-    pub(crate) path: String,
+    pub(crate) file: String,
     pub(crate) rows: u32,
     pub(crate) cols: u32,
 }
@@ -13,7 +13,7 @@ pub(crate) struct GMAssetTexture {
 pub(crate) struct GMAssetAnimation {
     pub(crate) name: String,
     pub(crate) frames: Vec<(usize, f32)>, // (index, duration)
-    // TODO: animation_type
+    pub(crate) animation_type: u8 // TODO
 }
 
 #[derive(Clone, Deserialize)]
