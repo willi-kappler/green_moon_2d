@@ -1,10 +1,9 @@
 
-use std::time::{Duration, Instant};
-use std::thread::sleep;
 use std::fs::File;
 use std::io::Read;
 
 use log::debug;
+use sdl2::gfx::framerate::FPSManager;
 
 use crate::configuration::GMConfiguration;
 use crate::context::{GMContext, GMSceneState};
@@ -53,11 +52,11 @@ impl GMApp {
         debug!("GMApp::run()");
 
         let mut current_scene = self.scenes.first_scene();
-
         let mut context = GMContext::new(self.configuration.clone());
+        let mut fps_manager = FPSManager::new();
+        fps_manager.set_framerate(self.configuration.fps).unwrap();
 
         loop {
-            let start_time = Instant::now();
             let scene_state = context.get_scene_state();
 
             match scene_state {
@@ -85,13 +84,12 @@ impl GMApp {
                 }
             }
 
-            let elapsed = start_time.elapsed().as_secs_f32();
-            let diff = context.frame_time - elapsed;
-
-            if diff > 0.0 {
-                sleep(Duration::from_secs_f32(diff));
+            if context.new_fps > 0 {
+                fps_manager.set_framerate(context.new_fps).unwrap();
+                context.new_fps = 0;
             }
 
+            fps_manager.delay();
         }
 
         Ok(())

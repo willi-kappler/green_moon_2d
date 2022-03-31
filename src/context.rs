@@ -25,8 +25,8 @@ pub enum GMSceneState {
 }
 
 pub struct GMContext {
-    pub frame_time: f32,
     configuration: GMConfiguration,
+    pub(crate) new_fps: u32,
     scene_state: GMSceneState,
     canvas: render::Canvas<video::Window>,
     event_pump: sdl2::EventPump,
@@ -51,17 +51,19 @@ impl GMContext {
             .build().unwrap();
         let event_pump = sdl_context.event_pump().unwrap();
 
-        let frame_time = 1.0 / configuration.fps;
-
         Self {
-            frame_time,
             configuration,
+            new_fps: 0,
             scene_state: GMSceneState::Enter,
             canvas,
             event_pump,
             key_esc_down_: false,
             key_esc_up_: false,
         }
+    }
+
+    pub fn set_fps(&mut self, new_fps: u32) {
+        self.new_fps = new_fps;
     }
 
     pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
@@ -105,12 +107,6 @@ impl GMContext {
         debug!("GMContext::add_font(), name: '{}', texture: '{}', mapping: '{}'", name, texture, mapping);
 
         todo!();
-    }
-
-    pub fn set_fps(&mut self, fps: f32) {
-        debug!("GMContext::set_fps(), to value: '{}'", fps);
-
-        self.frame_time = 1.0 / fps;
     }
 
     pub fn get_scene_state(&self) -> &GMSceneState {
