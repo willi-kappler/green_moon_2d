@@ -13,7 +13,7 @@ pub struct GMTexture {
 }
 
 impl GMTexture {
-    pub fn draw(&mut self, dx: i32, dy: i32, index: u32) {
+    pub fn draw(&self, dx: i32, dy: i32, index: u32) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 
@@ -24,5 +24,9 @@ impl GMTexture {
         let dst_rect = Rect::new(dx, dy, self.unit_width, self.unit_height);
 
 
+    }
+
+    pub fn get_unit_dimension(&self) -> (u32, u32) {
+        (self.unit_width, self.unit_height)
     }
 }
