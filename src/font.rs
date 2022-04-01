@@ -12,12 +12,12 @@ pub struct GMBitmapFont {
 }
 
 impl GMBitmapFont {
-    pub fn draw(&self, c: char, x: i32, y: i32) {
+    pub fn draw(&self, c: char, x: f32, y: f32) {
         let index = self.mapping.get(&c).unwrap();
         self.texture.draw(x, y, *index);
     }
 
-    pub fn get_char_dimensions(&self) -> (u32, u32) {
+    pub fn get_char_dimensions(&self) -> (f32, f32) {
         self.texture.get_unit_dimension()
     }
 }

@@ -3,7 +3,7 @@
 use std::rc::Rc;
 
 use crate::font::GMBitmapFont;
-use crate::movement::{GMMovementT, GMConstPos};
+use crate::movement::{GMMovementT, GMConstPosition};
 
 
 pub trait GMTextEffectT {
@@ -14,10 +14,10 @@ pub trait GMTextEffectT {
 pub struct GMTextInner {
     pub font: Rc<GMBitmapFont>,
     pub text: String,
-    pub x: i32,
-    pub y: i32,
-    pub char_width: u32,
-    pub char_height: u32,
+    pub x: f32,
+    pub y: f32,
+    pub char_width: f32,
+    pub char_height: f32,
     pub horizontal: bool,
 }
 
@@ -29,7 +29,7 @@ pub struct GMText {
 }
 
 impl GMText {
-    pub fn new(font: Rc<GMBitmapFont>, text: &str, x: i32, y: i32) -> Self {
+    pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
         let (char_width, char_height) = font.get_char_dimensions();
 
         let inner = GMTextInner {
@@ -42,7 +42,7 @@ impl GMText {
             horizontal: true };
         Self {
             inner,
-            movement: Box::new(GMConstPos::new()),
+            movement: Box::new(GMConstPosition::new()),
             effect: Box::new(GMTextEffectStatic::new()),
         }
     }
@@ -87,9 +87,9 @@ impl GMTextEffectT for GMTextEffectStatic {
             text.font.draw(c, x, y);
 
             if text.horizontal {
-                x += text.char_width as i32;
+                x += text.char_width;
             } else {
-                y += text.char_height as i32;
+                y += text.char_height;
             }
         }
     }
