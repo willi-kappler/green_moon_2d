@@ -27,9 +27,9 @@ impl GMAnimationStatic {
 }
 
 impl GMAnimationT for GMAnimationStatic {
-    fn set_frame_index(&mut self, index: usize) {}
+    fn set_frame_index(&mut self, _index: usize) {}
 
-    fn set_active(&mut self, active: bool) {}
+    fn set_active(&mut self, _active: bool) {}
 
     fn update(&mut self) {}
 
@@ -41,7 +41,7 @@ impl GMAnimationT for GMAnimationStatic {
         0
     }
 
-    fn set_frames(&mut self, frames: &[(u32, f32)]) {}
+    fn set_frames(&mut self, _frames: &[(u32, f32)]) {}
 
     fn frames_mut(&mut self) -> &mut [(u32, f32)] {
         &mut self.frames

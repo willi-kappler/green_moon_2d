@@ -98,7 +98,7 @@ impl GMSprite {
         Self {
             sprite_inner,
             movements: Vec::new(),
-            effects: Vec::new(),
+            effects: vec![Box::new(GMSpriteEffectStatic::new())],
         }
     }
 }

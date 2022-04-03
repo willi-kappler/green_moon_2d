@@ -102,7 +102,7 @@ impl GMText {
         Self {
             text_inner,
             movements: Vec::new(),
-            effects: Vec::new(),
+            effects: vec![Box::new(GMTextEffectStatic::new())],
         }
     }
 }
