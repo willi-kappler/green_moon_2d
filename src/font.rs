@@ -8,6 +8,7 @@ use crate::texture::GMTexture;
 pub trait GMFontT {
     fn draw(&self, c: char, x: f32, y: f32);
     fn get_char_dimensions(&self, c: char) -> (f32, f32);
+    fn rc_clone(&self) -> Rc<dyn GMFontT>;
 }
 
 pub struct GMBitmapFont {
@@ -32,5 +33,14 @@ impl GMFontT for GMBitmapFont {
 
     fn get_char_dimensions(&self, _c: char) -> (f32, f32) {
         self.texture.get_unit_dimension()
+    }
+
+    fn rc_clone(&self) -> Rc<dyn GMFontT> {
+        let result = GMBitmapFont::new(
+            self.texture.clone(),
+            self.mapping.clone()
+        );
+
+        Rc::new(result)
     }
 }

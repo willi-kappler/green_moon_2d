@@ -6,6 +6,7 @@ use crate::font::GMFontT;
 use crate::movement::{GMMovementT, GMMovementInner};
 
 
+#[derive(Clone)]
 pub struct GMTextInner {
     pub font: Rc<dyn GMFontT>,
     pub text: String,
@@ -28,18 +29,43 @@ impl GMTextInner {
             active: true,
         }
     }
+
+    pub fn draw(&mut self) {
+        let mut x = self.movement_inner.x;
+        let mut y = self.movement_inner.y;
+
+        for c in self.text.chars() {
+            let (c_width, c_height) = self.font.get_char_dimensions(c);
+
+            self.font.draw(c, x, y);
+
+            if self.horizontal {
+                x += c_width + self.spacing_x;
+            } else {
+                y += c_height + self.spacing_y;
+            }
+        }
+    }
 }
 
 pub trait GMTextT {
     fn update(&mut self);
     fn draw(&mut self);
     fn set_active(&mut self, active: bool);
+    fn get_inner(&self) -> &GMTextInner;
+    fn get_inner_mut(&mut self) -> &mut GMTextInner;
+    fn get_movements(&self) -> &[Box<dyn GMMovementT>];
+    fn get_movements_mut(&mut self) -> &mut [Box<dyn GMMovementT>];
+    fn get_effects(&self) -> &[Box<dyn GMTextEffectT>];
+    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMTextEffectT>];
+    fn box_clone(&self) -> Box<dyn GMTextT>;
 }
 
 pub trait GMTextEffectT {
     fn update(&mut self, text_inner: &mut GMTextInner);
     fn draw(&mut self, text_inner: &mut GMTextInner);
     fn set_active(&mut self, active: bool);
+    fn box_clone(&self) -> Box<dyn GMTextEffectT>;
 }
 
 pub struct GMText {
@@ -104,5 +130,73 @@ impl GMTextT for GMText {
 
     fn set_active(&mut self, active: bool) {
         self.text_inner.active = active;
+    }
+
+    fn get_inner(&self) -> &GMTextInner {
+        &self.text_inner
+    }
+
+    fn get_inner_mut(&mut self) -> &mut GMTextInner {
+        &mut self.text_inner
+    }
+
+    fn get_movements(&self) -> &[Box<dyn GMMovementT>] {
+        todo!()
+    }
+
+    fn get_movements_mut(&mut self) -> &mut [Box<dyn GMMovementT>] {
+        todo!()
+    }
+
+    fn get_effects(&self) -> &[Box<dyn GMTextEffectT>] {
+        todo!()
+    }
+
+    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMTextEffectT>] {
+        todo!()
+    }
+
+    fn box_clone(&self) -> Box<dyn GMTextT> {
+        let result = GMText {
+            text_inner: self.text_inner.clone(),
+            movements: self.movements.iter().map(|m| m.box_clone()).collect(),
+            effects: self.effects.iter().map(|e| e.box_clone()).collect(),
+        };
+
+        Box::new(result)
+    }
+}
+
+pub struct GMTextEffectStatic {
+    active: bool,
+}
+
+impl GMTextEffectStatic {
+    pub fn new() -> Self {
+        Self {
+            active: true,
+        }
+    }
+}
+
+impl GMTextEffectT for GMTextEffectStatic {
+    fn update(&mut self, _text_inner: &mut GMTextInner) {}
+
+    fn draw(&mut self, text_inner: &mut GMTextInner) {
+        if self.active {
+            text_inner.draw();
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn box_clone(&self) -> Box<dyn GMTextEffectT> {
+        let result = GMTextEffectStatic {
+            active: self.active,
+        };
+
+        Box::new(result)
     }
 }

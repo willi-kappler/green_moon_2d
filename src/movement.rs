@@ -1,5 +1,6 @@
 
 
+#[derive(Clone)]
 pub struct GMMovementInner {
     pub x: f32,
     pub y: f32,
@@ -25,8 +26,8 @@ pub trait GMMovementT {
 }
 
 pub struct GMConstVelocity {
-    vx: f32,
-    vy: f32,
+    pub vx: f32,
+    pub vy: f32,
     active: bool,
 }
 
@@ -64,10 +65,10 @@ impl GMMovementT for GMConstVelocity {
 }
 
 pub struct GMConstAcceleration {
-    vx: f32,
-    vy: f32,
-    ax: f32,
-    ay: f32,
+    pub vx: f32,
+    pub vy: f32,
+    pub ax: f32,
+    pub ay: f32,
     active: bool,
 }
 
@@ -111,13 +112,13 @@ impl GMMovementT for GMConstAcceleration {
 }
 
 pub struct GMWrapAround {
-    screen_width: f32,
-    screen_height: f32,
+    pub screen_width: f32,
+    pub screen_height: f32,
     active: bool,
 }
 
 impl GMWrapAround {
-    pub fn new(screen_width: f32, screen_height: f32, item_width: f32, item_height: f32) -> Self {
+    pub fn new(screen_width: f32, screen_height: f32) -> Self {
         Self {
             screen_width,
             screen_height,
@@ -160,30 +161,27 @@ impl GMMovementT for GMWrapAround {
 }
 
 pub struct GMMovementConstVeloBounce {
-    vx: f32,
-    vy: f32,
-    screen_width: f32,
-    screen_height: f32,
-    item_width: f32,
-    item_height: f32,
+    pub vx: f32,
+    pub vy: f32,
+    pub screen_width: f32,
+    pub screen_height: f32,
     active: bool,
 }
 
 pub struct GMMovementConstAccelBounce {
-    vx: f32,
-    vy: f32,
-    ax: f32,
-    ay: f32,
-    screen_width: f32,
-    screen_height: f32,
-    item_width: f32,
-    item_height: f32,
+    pub vx: f32,
+    pub vy: f32,
+    pub ax: f32,
+    pub ay: f32,
+    pub screen_width: f32,
+    pub screen_height: f32,
     active: bool,
 }
 
 pub struct GMMovementCircular {
-    mx: f32,
-    my: f32,
-    radius: f32,
-    angle: f32,
+    pub mx: f32,
+    pub my: f32,
+    pub radius: f32,
+    pub angle: f32,
+    active: bool,
 }
