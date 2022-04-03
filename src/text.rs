@@ -2,95 +2,107 @@
 
 use std::rc::Rc;
 
-use crate::font::GMBitmapFont;
-use crate::movement::{GMMovementT, GMConstPosition};
+use crate::font::GMFontT;
+use crate::movement::{GMMovementT, GMMovementInner};
 
-
-pub trait GMTextEffectT {
-    fn update(&mut self);
-    fn draw(&self, text: &GMTextInner);
-}
 
 pub struct GMTextInner {
-    pub font: Rc<GMBitmapFont>,
+    pub font: Rc<dyn GMFontT>,
     pub text: String,
-    pub x: f32,
-    pub y: f32,
-    pub char_width: f32,
-    pub char_height: f32,
+    pub movement_inner: GMMovementInner,
+    pub spacing_x: f32,
+    pub spacing_y: f32,
     pub horizontal: bool,
+    pub active: bool,
 }
 
+impl GMTextInner {
+    pub fn new(font: Rc<dyn GMFontT>, text: String, movement_inner: GMMovementInner) -> Self {
+        Self {
+            font,
+            text,
+            movement_inner,
+            spacing_x: 0.0,
+            spacing_y: 0.0,
+            horizontal: true,
+            active: true,
+        }
+    }
+}
+
+pub trait GMTextT {
+    fn update(&mut self);
+    fn draw(&mut self);
+    fn set_active(&mut self, active: bool);
+}
+
+pub trait GMTextEffectT {
+    fn update(&mut self, text_inner: &mut GMTextInner);
+    fn draw(&mut self, text_inner: &mut GMTextInner);
+    fn set_active(&mut self, active: bool);
+}
 
 pub struct GMText {
-    pub inner: GMTextInner,
-    movement: Box<dyn GMMovementT>,
-    effect: Box<dyn GMTextEffectT>,
+    text_inner: GMTextInner,
+    movements: Vec<Box<dyn GMMovementT>>,
+    effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
 impl GMText {
-    pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
-        let (char_width, char_height) = font.get_char_dimensions();
+    pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
+        let mut width: f32 = 0.0;
+        let mut height: f32 = 0.0;
 
-        let inner = GMTextInner {
-            font,
-            text: text.to_string(),
+        for c in text.chars() {
+            let (c_width, c_height) = font.get_char_dimensions(c);
+
+            width += c_width;
+            height = height.max(c_height);
+        }
+
+        let movement_inner = GMMovementInner::new(
             x,
             y,
-            char_width,
-            char_height,
-            horizontal: true };
+            width,
+            height,
+        );
+
+        let text_inner = GMTextInner::new(
+            font.clone(),
+            text.to_string(),
+            movement_inner,
+        );
+
         Self {
-            inner,
-            movement: Box::new(GMConstPosition::new()),
-            effect: Box::new(GMTextEffectStatic::new()),
+            text_inner,
+            movements: Vec::new(),
+            effects: Vec::new(),
         }
     }
-
-    pub fn update(&mut self) {
-        let (new_x, new_y) = self.movement.update(self.inner.x, self.inner.y);
-        self.inner.x = new_x;
-        self.inner.y = new_y;
-    }
-
-    pub fn draw(&self) {
-        self.effect.draw(&self.inner);
-    }
-
-    pub fn set_movement<M: 'static + GMMovementT>(&mut self, movement: M) {
-        self.movement = Box::new(movement);
-    }
-
-    pub fn set_effect<E: 'static + GMTextEffectT>(&mut self, effect: E) {
-        self.effect = Box::new(effect);
-    }
 }
 
-pub struct GMTextEffectStatic {
-}
-
-impl GMTextEffectStatic {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl GMTextEffectT for GMTextEffectStatic {
+impl GMTextT for GMText {
     fn update(&mut self) {
-    }
+        if self.text_inner.active {
+            for movement in self.movements.iter_mut() {
+                movement.update(&mut self.text_inner.movement_inner);
+            }
 
-    fn draw(&self, text: &GMTextInner) {
-        let mut x = text.x;
-        let mut y = text.y;
-
-        for c in text.text.chars() {
-            text.font.draw(c, x, y);
-
-            if text.horizontal {
-                x += text.char_width;
-            } else {
-                y += text.char_height;
+            for effect in self.effects.iter_mut() {
+                effect.update(&mut self.text_inner);
             }
         }
+    }
+
+    fn draw(&mut self) {
+        if self.text_inner.active {
+            for effect in self.effects.iter_mut() {
+                effect.draw(&mut self.text_inner);
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.text_inner.active = active;
     }
 }

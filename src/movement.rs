@@ -1,30 +1,32 @@
 
 
+pub struct GMMovementInner {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
+impl GMMovementInner {
+    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
+    }
+}
+
 pub trait GMMovementT {
-    fn update(&mut self, x: f32, y: f32) -> (f32, f32);
+    fn update(&mut self, movement_inner: &mut GMMovementInner);
     fn set_active(&mut self, active: bool);
-}
-
-pub struct GMConstPosition {
-}
-
-impl GMConstPosition {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl GMMovementT for GMConstPosition {
-    fn update(&mut self, x: f32, y: f32) -> (f32, f32) {
-        (x, y)
-    }
-    fn set_active(&mut self, _active: bool) {
-    }
+    fn box_clone(&self) -> Box<dyn GMMovementT>;
 }
 
 pub struct GMConstVelocity {
-    pub vx: f32,
-    pub vy: f32,
+    vx: f32,
+    vy: f32,
     active: bool,
 }
 
@@ -33,30 +35,39 @@ impl GMConstVelocity {
         Self {
             vx,
             vy,
-            active: false,
+            active: true,
         }
     }
 }
 
 impl GMMovementT for GMConstVelocity {
-    fn update(&mut self, x: f32, y: f32) -> (f32, f32) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            (x + self.vx, y + self.vy)
-        } else {
-            (x, y)
+            movement_inner.x += self.vx;
+            movement_inner.y += self.vy;
         }
     }
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = GMConstVelocity {
+            vx: self.vx,
+            vy: self.vy,
+            active: self.active,
+        };
+
+        Box::new(result)
+    }
 }
 
 pub struct GMConstAcceleration {
-    pub vx: f32,
-    pub vy: f32,
-    pub ax: f32,
-    pub ay: f32,
+    vx: f32,
+    vy: f32,
+    ax: f32,
+    ay: f32,
     active: bool,
 }
 
@@ -67,32 +78,41 @@ impl GMConstAcceleration {
             vy,
             ax,
             ay,
-            active: false,
+            active: true,
         }
     }
 }
 
 impl GMMovementT for GMConstAcceleration {
-    fn update(&mut self, x: f32, y: f32) -> (f32, f32) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
             self.vx += self.ax;
             self.vy += self.ay;
-            (x + self.vx, y + self.vy)
-        } else {
-            (x, y)
+            movement_inner.x += self.vx;
+            movement_inner.y += self.vy;
         }
     }
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = GMConstAcceleration {
+            vx: self.vx,
+            vy: self.vy,
+            ax: self.ax,
+            ay: self.ay,
+            active: self.active,
+        };
+
+        Box::new(result)
+    }
 }
 
 pub struct GMWrapAround {
     screen_width: f32,
     screen_height: f32,
-    item_width: f32,
-    item_height: f32,
     active: bool,
 }
 
@@ -101,34 +121,69 @@ impl GMWrapAround {
         Self {
             screen_width,
             screen_height,
-            item_width,
-            item_height,
-            active: false,
+            active: true,
         }
     }
 }
 
 impl GMMovementT for GMWrapAround {
-    fn update(&mut self, x: f32, y: f32) -> (f32, f32) {
-        let mut new_x = x;
-        let mut new_y = y;
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+        let x = movement_inner.x;
+        let y = movement_inner.y;
 
         if x > self.screen_width {
-            new_x = -self.item_width;
-        } else if x < -self.item_width {
-            new_x = self.screen_width;
+            movement_inner.x = -movement_inner.width;
+        } else if x < -movement_inner.width {
+            movement_inner.x = self.screen_width;
         }
 
         if y > self.screen_height {
-            new_y = -self.item_height;
-        } else if y < -self.item_height {
-            new_y = self.screen_height;
+            movement_inner.y = -movement_inner.height;
+        } else if y < -movement_inner.height {
+            movement_inner.y = self.screen_height;
         }
-
-        (new_x, new_y)
     }
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = GMWrapAround {
+            screen_width: self.screen_width,
+            screen_height: self.screen_height,
+            active: self.active,
+        };
+
+        Box::new(result)
+    }
+}
+
+pub struct GMMovementConstVeloBounce {
+    vx: f32,
+    vy: f32,
+    screen_width: f32,
+    screen_height: f32,
+    item_width: f32,
+    item_height: f32,
+    active: bool,
+}
+
+pub struct GMMovementConstAccelBounce {
+    vx: f32,
+    vy: f32,
+    ax: f32,
+    ay: f32,
+    screen_width: f32,
+    screen_height: f32,
+    item_width: f32,
+    item_height: f32,
+    active: bool,
+}
+
+pub struct GMMovementCircular {
+    mx: f32,
+    my: f32,
+    radius: f32,
+    angle: f32,
 }

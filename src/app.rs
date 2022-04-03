@@ -84,9 +84,10 @@ impl GMApp {
                 }
             }
 
-            if context.new_fps > 0 {
-                fps_manager.set_framerate(context.new_fps).unwrap();
-                context.new_fps = 0;
+            let new_fps = context.get_fps();
+            if new_fps > 0 {
+                fps_manager.set_framerate(new_fps).unwrap();
+                context.set_fps(0);
             }
 
             fps_manager.delay();

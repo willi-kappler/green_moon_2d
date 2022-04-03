@@ -26,7 +26,7 @@ pub enum GMSceneState {
 
 pub struct GMContext {
     configuration: GMConfiguration,
-    pub(crate) new_fps: u32,
+    new_fps: u32,
     scene_state: GMSceneState,
     canvas: render::Canvas<video::Window>,
     event_pump: sdl2::EventPump,
@@ -64,6 +64,10 @@ impl GMContext {
 
     pub fn set_fps(&mut self, new_fps: u32) {
         self.new_fps = new_fps;
+    }
+
+    pub fn get_fps(&self) -> u32 {
+        self.new_fps
     }
 
     pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
