@@ -4,7 +4,19 @@
 Next TODO:
 - Load assets from JSON file
 - Remove assets
-
+- Add new scene via context
+- More text effects
+- Bitblit for sprites and texts
+- GMParticleManager
+- GMBulletManager
+- GMLine
+- GMBorder
+- GMScore
+- GMHealthbar
+- GMTileMap
+- GMMenuEntry
+- GMMenu
+- GMInput
 
 
 
@@ -13,8 +25,6 @@ Next TODO:
 
 Future TODO:
 
-
-
 - procedural graphics
 - procedural sound
-
+- procedural levels / maps

@@ -3,7 +3,6 @@
 
 pub trait GMDrawT {
     fn update(&mut self) {
-
     }
 
     fn draw(&self);

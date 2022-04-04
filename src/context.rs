@@ -17,6 +17,8 @@ use crate::configuration::GMConfiguration;
 use crate::draw_object::GMDrawT;
 use crate::error::GMError;
 use crate::font::GMFontT;
+use crate::sprite::GMSprite;
+use crate::text::GMText;
 use crate::texture::GMTexture;
 
 
@@ -113,8 +115,20 @@ impl GMContext {
         Ok(())
     }
 
-    pub fn add_animation(&mut self, name: &str, frames: &[(usize, f32)], animation_type: u8) {
+    pub fn add_animation(&mut self, name: &str, _frames: &[(usize, f32)], _animation_type: u8) {
         debug!("GMContext::add_animation(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn get_animation_clone(&self, name: &str) -> Result<Box<dyn GMAnimationT>, GMError> {
+        debug!("GMContext::get_animation_clone(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn remove_animation(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_animation(), name: '{}'", name);
 
         todo!();
     }
@@ -125,22 +139,98 @@ impl GMContext {
         todo!();
     }
 
+    pub fn get_font_rc(&self, name: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+        debug!("GMContext::get_font_rc(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn remove_font(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_font(), name: '{}'", name);
+
+        todo!();
+    }
+
     pub fn add_sprite(&mut self, name: &str) {
         debug!("GMContext::add_sprite(), name: '{}'", name);
 
         todo!();
+    }
 
+    pub fn get_sprite(&self, name: &str) -> Result<&GMSprite, GMError> {
+        debug!("GMContext::get_sprite(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn get_sprite_mut(&mut self, name: &str) -> Result<&mut GMSprite, GMError> {
+        debug!("GMContext::get_sprite_mut(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn get_sprite_clone(&self, name: &str) -> Result<GMSprite, GMError> {
+        debug!("GMContext::get_sprite_clone(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn remove_sprite(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_sprite(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn set_sprite_animation(&mut self, sprite: &str, animation: &str) -> Result<(), GMError> {
+        debug!("GMContext::set_sprite_animation(), sprite: '{}', animation: '{}'", sprite, animation);
+
+        todo!();
     }
 
     pub fn add_text(&mut self, name: &str) {
         debug!("GMContext::add_text(), name: '{}'", name);
 
         todo!();
-
     }
 
-    pub fn add_texture(&mut self, name: &str, file: &str, rows: u32, cols: u32) {
+    pub fn get_text(&mut self, name: &str) -> Result<&GMText, GMError> {
+        debug!("GMContext::get_text(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn get_text_mut(&mut self, name: &str) -> Result<&mut GMText, GMError> {
+        debug!("GMContext::get_text_mut(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn get_text_clone(&mut self, name: &str) -> Result<GMText, GMError> {
+        debug!("GMContext::get_text_clone(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn remove_text(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_text(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn add_texture(&mut self, name: &str, file: &str, _rows: u32, _cols: u32) {
         debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
+
+        todo!();
+    }
+
+    pub fn get_texture_rc(&self, name: &str) -> Result<Rc<GMTexture>, GMError> {
+        debug!("GMContext::get_texture_rc(), name: '{}'", name);
+
+        todo!();
+    }
+
+    pub fn remove_texture(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_texture(), name: '{}'", name);
 
         todo!();
     }
