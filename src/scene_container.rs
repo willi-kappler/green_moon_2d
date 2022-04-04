@@ -37,4 +37,8 @@ impl GMSceneContainer {
             }
         }
     }
+
+    pub fn remove_scene(&mut self, _name: &str) -> Result<(), GMError> {
+        todo!();
+    }
 }

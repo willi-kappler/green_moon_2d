@@ -2,6 +2,7 @@
 
 use std::rc::Rc;
 
+use crate::draw_object::GMDrawT;
 use crate::font::GMFontT;
 use crate::movement::{GMMovementT, GMMovementInner};
 
@@ -15,6 +16,7 @@ pub struct GMTextInner {
     pub spacing_y: f32,
     pub horizontal: bool,
     pub active: bool,
+    pub z_index: i32,
 }
 
 impl GMTextInner {
@@ -27,10 +29,11 @@ impl GMTextInner {
             spacing_y: 0.0,
             horizontal: true,
             active: true,
+            z_index: 0,
         }
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&self) {
         let mut x = self.movement_inner.x;
         let mut y = self.movement_inner.y;
 
@@ -48,30 +51,17 @@ impl GMTextInner {
     }
 }
 
-pub trait GMTextT {
-    fn update(&mut self);
-    fn draw(&mut self);
-    fn set_active(&mut self, active: bool);
-    fn get_inner(&self) -> &GMTextInner;
-    fn get_inner_mut(&mut self) -> &mut GMTextInner;
-    fn get_movements(&self) -> &[Box<dyn GMMovementT>];
-    fn get_movements_mut(&mut self) -> &mut [Box<dyn GMMovementT>];
-    fn get_effects(&self) -> &[Box<dyn GMTextEffectT>];
-    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMTextEffectT>];
-    fn box_clone(&self) -> Box<dyn GMTextT>;
-}
-
 pub trait GMTextEffectT {
     fn update(&mut self, text_inner: &mut GMTextInner);
-    fn draw(&mut self, text_inner: &mut GMTextInner);
+    fn draw(&self, text_inner: &GMTextInner);
     fn set_active(&mut self, active: bool);
     fn box_clone(&self) -> Box<dyn GMTextEffectT>;
 }
 
 pub struct GMText {
-    text_inner: GMTextInner,
-    movements: Vec<Box<dyn GMMovementT>>,
-    effects: Vec<Box<dyn GMTextEffectT>>,
+    pub text_inner: GMTextInner,
+    pub movements: Vec<Box<dyn GMMovementT>>,
+    pub effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
 impl GMText {
@@ -107,7 +97,7 @@ impl GMText {
     }
 }
 
-impl GMTextT for GMText {
+impl GMDrawT for GMText {
     fn update(&mut self) {
         if self.text_inner.active {
             for movement in self.movements.iter_mut() {
@@ -120,43 +110,19 @@ impl GMTextT for GMText {
         }
     }
 
-    fn draw(&mut self) {
+    fn draw(&self) {
         if self.text_inner.active {
-            for effect in self.effects.iter_mut() {
-                effect.draw(&mut self.text_inner);
+            for effect in self.effects.iter() {
+                effect.draw(&self.text_inner);
             }
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.text_inner.active = active;
+    fn get_z_index(&self) -> i32 {
+        self.text_inner.z_index
     }
 
-    fn get_inner(&self) -> &GMTextInner {
-        &self.text_inner
-    }
-
-    fn get_inner_mut(&mut self) -> &mut GMTextInner {
-        &mut self.text_inner
-    }
-
-    fn get_movements(&self) -> &[Box<dyn GMMovementT>] {
-        todo!()
-    }
-
-    fn get_movements_mut(&mut self) -> &mut [Box<dyn GMMovementT>] {
-        todo!()
-    }
-
-    fn get_effects(&self) -> &[Box<dyn GMTextEffectT>] {
-        todo!()
-    }
-
-    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMTextEffectT>] {
-        todo!()
-    }
-
-    fn box_clone(&self) -> Box<dyn GMTextT> {
+    fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = GMText {
             text_inner: self.text_inner.clone(),
             movements: self.movements.iter().map(|m| m.box_clone()).collect(),
@@ -182,7 +148,7 @@ impl GMTextEffectStatic {
 impl GMTextEffectT for GMTextEffectStatic {
     fn update(&mut self, _text_inner: &mut GMTextInner) {}
 
-    fn draw(&mut self, text_inner: &mut GMTextInner) {
+    fn draw(&self, text_inner: &GMTextInner) {
         if self.active {
             text_inner.draw();
         }

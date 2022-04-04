@@ -84,6 +84,8 @@ impl GMApp {
                 }
             }
 
+            // TODO: Add / remove scene via context
+
             let new_fps = context.get_fps();
             if new_fps > 0 {
                 fps_manager.set_framerate(new_fps).unwrap();

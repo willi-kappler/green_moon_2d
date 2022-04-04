@@ -5,6 +5,7 @@ pub mod app;
 pub mod assets;
 pub mod configuration;
 pub mod context;
+pub mod draw_object;
 pub mod error;
 pub mod font;
 pub mod movement;

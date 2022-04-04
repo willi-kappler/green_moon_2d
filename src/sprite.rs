@@ -1,9 +1,10 @@
 
 use std::rc::Rc;
 
-use crate::texture::GMTexture;
 use crate::animation::{GMAnimationT};
+use crate::draw_object::GMDrawT;
 use crate::movement::{GMMovementT, GMMovementInner};
+use crate::texture::GMTexture;
 
 
 pub struct GMSpriteInner {
@@ -11,6 +12,7 @@ pub struct GMSpriteInner {
     pub movement_inner: GMMovementInner,
     pub active: bool,
     pub animation: Box<dyn GMAnimationT>,
+    pub z_index: i32,
 }
 
 impl Clone for GMSpriteInner {
@@ -18,8 +20,10 @@ impl Clone for GMSpriteInner {
         Self {
             texture: self.texture.clone(),
             movement_inner: self.movement_inner.clone(),
-            active: self.active.clone(),
-            animation: self.animation.box_clone() }
+            active: self.active,
+            animation: self.animation.box_clone(),
+            z_index: self.z_index,
+        }
     }
 }
 
@@ -29,7 +33,8 @@ impl GMSpriteInner {
             texture,
             movement_inner,
             active,
-            animation
+            animation,
+            z_index: 0,
         }
     }
 
@@ -37,7 +42,7 @@ impl GMSpriteInner {
         self.animation.update();
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&self) {
         let index = self.animation.frame_index();
         let x = self.movement_inner.x;
         let y = self.movement_inner.y;
@@ -50,31 +55,18 @@ impl GMSpriteInner {
     }
 }
 
-pub trait GMSpriteT {
-    fn update(&mut self);
-    fn draw(&mut self);
-    fn set_active(&mut self, active: bool);
-    fn get_inner(&self) -> &GMSpriteInner;
-    fn get_inner_mut(&mut self) -> &mut GMSpriteInner;
-    fn get_movements(&self) -> &[Box<dyn GMMovementT>];
-    fn get_movements_mut(&mut self) -> &mut [Box<dyn GMMovementT>];
-    fn get_effects(&self) -> &[Box<dyn GMSpriteEffectT>];
-    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMSpriteEffectT>];
-    fn box_clone(&self) -> Box<dyn GMSpriteT>;
-}
-
 pub trait GMSpriteEffectT {
     fn update(&mut self, sprite_inner: &mut GMSpriteInner);
-    fn draw(&mut self, sprite_inner: &mut GMSpriteInner);
+    fn draw(&self, sprite_inner: &GMSpriteInner);
     fn set_active(&mut self, active: bool);
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
 }
 
 
 pub struct GMSprite {
-    sprite_inner: GMSpriteInner,
-    movements: Vec<Box<dyn GMMovementT>>,
-    effects: Vec<Box<dyn GMSpriteEffectT>>,
+    pub sprite_inner: GMSpriteInner,
+    pub movements: Vec<Box<dyn GMMovementT>>,
+    pub effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
 impl GMSprite {
@@ -103,7 +95,7 @@ impl GMSprite {
     }
 }
 
-impl GMSpriteT for GMSprite {
+impl GMDrawT for GMSprite {
     fn update(&mut self) {
         if self.sprite_inner.active {
             self.sprite_inner.update();
@@ -118,43 +110,19 @@ impl GMSpriteT for GMSprite {
         }
     }
 
-    fn draw(&mut self) {
+    fn draw(&self) {
         if self.sprite_inner.active {
-            for effect in self.effects.iter_mut() {
-                effect.draw(&mut self.sprite_inner);
+            for effect in self.effects.iter() {
+                effect.draw(&self.sprite_inner);
             }
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.sprite_inner.set_active(active);
+    fn get_z_index(&self) -> i32 {
+        self.sprite_inner.z_index
     }
 
-    fn get_inner(&self) -> &GMSpriteInner {
-        &self.sprite_inner
-    }
-
-    fn get_inner_mut(&mut self) -> &mut GMSpriteInner {
-        &mut self.sprite_inner
-    }
-
-    fn get_movements(&self) -> &[Box<dyn GMMovementT>] {
-        &self.movements
-    }
-
-    fn get_movements_mut(&mut self)  -> &mut [Box<dyn GMMovementT>] {
-        &mut self.movements
-    }
-
-    fn get_effects(&self) -> &[Box<dyn GMSpriteEffectT>] {
-        &self.effects
-    }
-
-    fn get_effects_mut(&mut self) -> &mut [Box<dyn GMSpriteEffectT>] {
-        &mut self.effects
-    }
-
-    fn box_clone(&self) -> Box<dyn GMSpriteT> {
+    fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = GMSprite {
             sprite_inner: self.sprite_inner.clone(),
             movements: self.movements.iter().map(|m| m.box_clone()).collect(),
@@ -180,7 +148,7 @@ impl GMSpriteEffectStatic {
 impl GMSpriteEffectT for GMSpriteEffectStatic {
     fn update(&mut self, _sprite_inner: &mut GMSpriteInner) {}
 
-    fn draw(&mut self, sprite_inner: &mut GMSpriteInner) {
+    fn draw(&self, sprite_inner: &GMSpriteInner) {
         if self.active {
             sprite_inner.draw();
         }

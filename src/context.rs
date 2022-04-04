@@ -1,6 +1,7 @@
 
 use std::fs::File;
 use std::io::Read;
+use std::rc::Rc;
 
 use sdl2::video;
 use sdl2::render;
@@ -10,9 +11,13 @@ use sdl2::pixels;
 
 use log::debug;
 
+use crate::animation::GMAnimationT;
 use crate::assets::GMAssets;
 use crate::configuration::GMConfiguration;
+use crate::draw_object::GMDrawT;
 use crate::error::GMError;
+use crate::font::GMFontT;
+use crate::texture::GMTexture;
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -30,6 +35,13 @@ pub struct GMContext {
     scene_state: GMSceneState,
     canvas: render::Canvas<video::Window>,
     event_pump: sdl2::EventPump,
+
+    // Name, Object
+    animations: Vec<(String, Box<dyn GMAnimationT>)>,
+    draw_objects: Vec<(String, Box<dyn GMDrawT>)>,
+    fonts: Vec<(String, Rc<dyn GMFontT>)>,
+    textures: Vec<Rc<GMTexture>>,
+
     key_esc_down_: bool,
     key_esc_up_: bool,
 }
@@ -57,6 +69,12 @@ impl GMContext {
             scene_state: GMSceneState::Enter,
             canvas,
             event_pump,
+
+            animations: Vec::new(),
+            fonts: Vec::new(),
+            draw_objects: Vec::new(),
+            textures: Vec::new(),
+
             key_esc_down_: false,
             key_esc_up_: false,
         }
@@ -95,12 +113,6 @@ impl GMContext {
         Ok(())
     }
 
-    pub fn add_texture(&mut self, name: &str, file: &str, rows: u32, cols: u32) {
-        debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
-
-        todo!();
-    }
-
     pub fn add_animation(&mut self, name: &str, frames: &[(usize, f32)], animation_type: u8) {
         debug!("GMContext::add_animation(), name: '{}'", name);
 
@@ -109,6 +121,26 @@ impl GMContext {
 
     pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) {
         debug!("GMContext::add_font(), name: '{}', texture: '{}', mapping: '{}'", name, texture, mapping);
+
+        todo!();
+    }
+
+    pub fn add_sprite(&mut self, name: &str) {
+        debug!("GMContext::add_sprite(), name: '{}'", name);
+
+        todo!();
+
+    }
+
+    pub fn add_text(&mut self, name: &str) {
+        debug!("GMContext::add_text(), name: '{}'", name);
+
+        todo!();
+
+    }
+
+    pub fn add_texture(&mut self, name: &str, file: &str, rows: u32, cols: u32) {
+        debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
 
         todo!();
     }
@@ -155,10 +187,25 @@ impl GMContext {
             }
         }
 
+        for (_, animation) in self.animations.iter_mut() {
+            animation.update();
+        }
+
+        for (_, object) in self.draw_objects.iter_mut() {
+            object.update();
+        }
+
         Ok(())
     }
 
     pub(crate) fn draw(&mut self) -> Result<(), GMError> {
+        // Sort all drawable objects by z order before drawing them
+        self.draw_objects.sort_by_key(|(_, object)| object.get_z_index());
+
+        for (_, object) in self.draw_objects.iter() {
+            object.draw();
+        }
+
         Ok(())
     }
 

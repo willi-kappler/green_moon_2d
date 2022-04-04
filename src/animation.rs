@@ -4,18 +4,15 @@ use std::{time::Instant};
 
 
 pub trait GMAnimationT {
-    fn set_frame_index(&mut self, index: usize);
     fn set_active(&mut self, active: bool);
     fn update(&mut self);
     fn finished(&self) -> bool;
     fn frame_index(&self) -> u32;
-    fn set_frames(&mut self, frames: &[(u32, f32)]);
-    fn frames_mut(&mut self) -> &mut [(u32, f32)];
     fn box_clone(&self) -> Box<dyn GMAnimationT>;
 }
 
 pub struct GMAnimationStatic {
-    frames: Vec<(u32, f32)>,
+    pub frames: Vec<(u32, f32)>,
 }
 
 impl GMAnimationStatic {
@@ -27,8 +24,6 @@ impl GMAnimationStatic {
 }
 
 impl GMAnimationT for GMAnimationStatic {
-    fn set_frame_index(&mut self, _index: usize) {}
-
     fn set_active(&mut self, _active: bool) {}
 
     fn update(&mut self) {}
@@ -41,12 +36,6 @@ impl GMAnimationT for GMAnimationStatic {
         0
     }
 
-    fn set_frames(&mut self, _frames: &[(u32, f32)]) {}
-
-    fn frames_mut(&mut self) -> &mut [(u32, f32)] {
-        &mut self.frames
-    }
-
     fn box_clone(&self) -> Box<dyn GMAnimationT> {
         let result = GMAnimationStatic::new();
         Box::new(result)
@@ -54,9 +43,9 @@ impl GMAnimationT for GMAnimationStatic {
 }
 
 pub struct GMAnimationForwardOnce {
-    active: bool,
-    current_frame: usize,
-    frames: Vec<(u32, f32)>,
+    pub active: bool,
+    pub current_frame: usize,
+    pub frames: Vec<(u32, f32)>,
     instant: Instant,
 }
 
@@ -72,10 +61,6 @@ impl GMAnimationForwardOnce {
 }
 
 impl GMAnimationT for GMAnimationForwardOnce {
-    fn set_frame_index(&mut self, index: usize) {
-        self.current_frame = index;
-    }
-
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
@@ -100,14 +85,6 @@ impl GMAnimationT for GMAnimationForwardOnce {
         self.frames[self.current_frame].0
     }
 
-    fn set_frames(&mut self, frames: &[(u32, f32)]) {
-        self.frames = frames.to_vec();
-    }
-
-    fn frames_mut(&mut self) -> &mut [(u32, f32)] {
-        &mut self.frames
-    }
-
     fn box_clone(&self) -> Box<dyn GMAnimationT> {
         let result = GMAnimationForwardOnce::new(&self.frames.clone());
         Box::new(result)
@@ -115,9 +92,9 @@ impl GMAnimationT for GMAnimationForwardOnce {
 }
 
 pub struct GMAnimationForwardLoop {
-    active: bool,
-    current_frame: usize,
-    frames: Vec<(u32, f32)>,
+    pub active: bool,
+    pub current_frame: usize,
+    pub frames: Vec<(u32, f32)>,
     instant: Instant,
 }
 
@@ -133,10 +110,6 @@ impl GMAnimationForwardLoop {
 }
 
 impl GMAnimationT for GMAnimationForwardLoop {
-    fn set_frame_index(&mut self, index: usize) {
-        self.current_frame = index;
-    }
-
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
@@ -160,14 +133,6 @@ impl GMAnimationT for GMAnimationForwardLoop {
         self.frames[self.current_frame].0
     }
 
-    fn set_frames(&mut self, frames: &[(u32, f32)]) {
-        self.frames = frames.to_vec();
-    }
-
-    fn frames_mut(&mut self) -> &mut [(u32, f32)] {
-        &mut self.frames
-    }
-
     fn box_clone(&self) -> Box<dyn GMAnimationT> {
         let result = GMAnimationForwardLoop::new(&self.frames.clone());
         Box::new(result)
@@ -175,9 +140,9 @@ impl GMAnimationT for GMAnimationForwardLoop {
 }
 
 pub struct GMAnimationPingPong {
-    active: bool,
-    current_frame: usize,
-    frames: Vec<(u32, f32)>,
+    pub active: bool,
+    pub current_frame: usize,
+    pub frames: Vec<(u32, f32)>,
     instant: Instant,
     foreward: bool,
 }
@@ -195,10 +160,6 @@ impl GMAnimationPingPong {
 }
 
 impl GMAnimationT for GMAnimationPingPong {
-    fn set_frame_index(&mut self, index: usize) {
-        self.current_frame = index;
-    }
-
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
@@ -229,14 +190,6 @@ impl GMAnimationT for GMAnimationPingPong {
 
     fn frame_index(&self) -> u32 {
         self.frames[self.current_frame].0
-    }
-
-    fn set_frames(&mut self, frames: &[(u32, f32)]) {
-        self.frames = frames.to_vec();
-    }
-
-    fn frames_mut(&mut self) -> &mut [(u32, f32)] {
-        &mut self.frames
     }
 
     fn box_clone(&self) -> Box<dyn GMAnimationT> {
