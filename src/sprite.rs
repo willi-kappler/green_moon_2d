@@ -7,12 +7,26 @@ use crate::movement::{GMMovementT, GMMovementInner};
 use crate::texture::GMTexture;
 
 
+#[derive(Clone)]
+pub enum GMSpriteCommands {
+    AddMovement,
+    RemoveMovement,
+    SetMovementActive,
+    CustomMovementCommand,
+    AddEffect,
+    RemoveEffect,
+    SetEffectActive,
+    CustomEffectCommand,
+    CustomContextCommand,
+}
+
 pub struct GMSpriteInner {
     pub texture: Rc<GMTexture>,
     pub movement_inner: GMMovementInner,
     pub active: bool,
     pub animation: Box<dyn GMAnimationT>,
     pub z_index: i32,
+    pub commands: Vec<GMSpriteCommands>,
 }
 
 impl Clone for GMSpriteInner {
@@ -23,6 +37,7 @@ impl Clone for GMSpriteInner {
             active: self.active,
             animation: self.animation.box_clone(),
             z_index: self.z_index,
+            commands: self.commands.clone(),
         }
     }
 }
@@ -35,6 +50,7 @@ impl GMSpriteInner {
             active,
             animation,
             z_index: 0,
+            commands: Vec::new(),
         }
     }
 

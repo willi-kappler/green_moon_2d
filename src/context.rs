@@ -73,8 +73,8 @@ impl GMContext {
             event_pump,
 
             animations: Vec::new(),
-            fonts: Vec::new(),
             draw_objects: Vec::new(),
+            fonts: Vec::new(),
             textures: Vec::new(),
 
             key_esc_down_: false,
@@ -101,21 +101,21 @@ impl GMContext {
         let all_assets: GMAssets = serde_json::from_slice(&data)?;
 
         for texture in all_assets.textures.iter() {
-            self.add_texture(&texture.name, &texture.file, texture.rows, texture.cols);
+            self.add_texture(&texture.name, &texture.file, texture.rows, texture.cols)?;
         }
 
         for animation in all_assets.animations.iter() {
-            self.add_animation(&animation.name, &animation.frames, animation.animation_type);
+            self.add_animation(&animation.name, &animation.frames, animation.animation_type)?;
         }
 
         for font in all_assets.fonts.iter() {
-            self.add_font(&font.name, &font.texture, &font.mapping);
+            self.add_font(&font.name, &font.texture, &font.mapping)?;
         }
 
         Ok(())
     }
 
-    pub fn add_animation(&mut self, name: &str, _frames: &[(usize, f32)], _animation_type: u8) {
+    pub fn add_animation(&mut self, name: &str, _frames: &[(usize, f32)], _animation_type: u8) -> Result<(), GMError> {
         debug!("GMContext::add_animation(), name: '{}'", name);
 
         todo!();
@@ -133,7 +133,69 @@ impl GMContext {
         todo!();
     }
 
-    pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) {
+    pub fn add_draw_object(&mut self, name: &str, object: Box<dyn GMDrawT>) -> Result<(), GMError> {
+        debug!("GMContext::add_animation(), name: '{}'", name);
+
+        for (o_name, _) in self.draw_objects.iter() {
+            if o_name == name {
+                return Err(GMError::ObjectAlreadyExists(name.to_string()))
+            }
+        }
+
+        self.draw_objects.push((name.to_string(), object));
+
+        Ok(())
+    }
+
+    pub fn get_draw_object(&self, name: &str) -> Result<&Box<dyn GMDrawT>, GMError> {
+        debug!("GMContext::get_draw_object(), name: '{}'", name);
+
+        for (o_name, object) in self.draw_objects.iter() {
+            if o_name == name {
+                return Ok(object)
+            }
+        }
+
+        Err(GMError::DrawObjectNotFound(name.to_string()))
+    }
+
+    pub fn get_draw_object_mut(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawT>, GMError> {
+        debug!("GMContext::get_draw_object_mut(), name: '{}'", name);
+
+        for (o_name, object) in self.draw_objects.iter_mut() {
+            if o_name == name {
+                return Ok(object)
+            }
+        }
+
+        Err(GMError::DrawObjectNotFound(name.to_string()))
+    }
+
+    pub fn get_draw_object_clone(&self, name: &str) -> Result<Box<dyn GMDrawT>, GMError> {
+        debug!("GMContext::get_draw_object_clone(), name: '{}'", name);
+
+        for (o_name, object) in self.draw_objects.iter() {
+            if o_name == name {
+                return Ok(object.box_clone())
+            }
+        }
+
+        Err(GMError::DrawObjectNotFound(name.to_string()))
+    }
+
+    pub fn remove_draw_object(&mut self, name: &str) -> Result<(), GMError> {
+        debug!("GMContext::remove_draw_object(), name: '{}'", name);
+
+        for (o_name, _) in self.draw_objects.iter() {
+            if o_name == name {
+                todo!();
+            }
+        }
+
+        Err(GMError::DrawObjectNotFound(name.to_string()))
+    }
+
+    pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) -> Result<(), GMError> {
         debug!("GMContext::add_font(), name: '{}', texture: '{}', mapping: '{}'", name, texture, mapping);
 
         todo!();
@@ -151,7 +213,7 @@ impl GMContext {
         todo!();
     }
 
-    pub fn add_sprite(&mut self, name: &str) {
+    pub fn add_sprite(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::add_sprite(), name: '{}'", name);
 
         todo!();
@@ -187,7 +249,7 @@ impl GMContext {
         todo!();
     }
 
-    pub fn add_text(&mut self, name: &str) {
+    pub fn add_text(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::add_text(), name: '{}'", name);
 
         todo!();
@@ -217,7 +279,7 @@ impl GMContext {
         todo!();
     }
 
-    pub fn add_texture(&mut self, name: &str, file: &str, _rows: u32, _cols: u32) {
+    pub fn add_texture(&mut self, name: &str, file: &str, _rows: u32, _cols: u32) -> Result<(), GMError> {
         debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
 
         todo!();
