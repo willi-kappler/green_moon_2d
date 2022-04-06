@@ -3,7 +3,26 @@
 
 use std::any::Any;
 
-use crate::movement::GMMovementInner;
+
+pub enum GMMessage {
+    SetX(f32),
+    SetY(f32),
+    SetXY(f32, f32),
+    GetX,
+    GetY,
+    GetXY,
+    CustomString(String),
+    CustomAny(Box<dyn Any>),
+}
+
+pub enum GMAnswer {
+    X(f32),
+    Y(f32),
+    XY(f32, f32),
+
+    CustomString(String),
+    CustomAny(Box<dyn Any>),
+}
 
 
 pub trait GMDrawT {
@@ -18,15 +37,7 @@ pub trait GMDrawT {
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 
-    fn get_movement_inner(&self) -> &GMMovementInner;
+    fn send_message1(&mut self, message: GMMessage);
 
-    fn get_movement_inner_mut(&mut self) -> &mut GMMovementInner;
-
-    fn set_property(&mut self, name: &str, value: &dyn Any);
-
-    fn get_property(&self, name: &str) -> &dyn Any;
-
-    fn get_property_mut(&mut self, name: &str) -> &mut dyn Any;
-
-    fn send_message(&mut self, message: &str);
+    fn send_message2(&mut self, message: GMMessage) -> GMAnswer;
 }

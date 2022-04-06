@@ -1,8 +1,9 @@
 
 
 use std::rc::Rc;
+use std::any::Any;
 
-use crate::draw_object::GMDrawT;
+use crate::draw_object::{GMDrawT, GMMessage, GMAnswer};
 use crate::font::GMFontT;
 use crate::movement::{GMMovementT, GMMovementInner};
 
@@ -132,27 +133,11 @@ impl GMDrawT for GMText {
         Box::new(result)
     }
 
-    fn get_movement_inner(&self) -> &GMMovementInner {
+    fn send_message1(&mut self, message: GMMessage) {
         todo!()
     }
 
-    fn get_movement_inner_mut(&mut self) -> &mut GMMovementInner {
-        todo!()
-    }
-
-    fn set_property(&mut self, name: &str, value: &dyn std::any::Any) {
-        todo!()
-    }
-
-    fn get_property(&self, name: &str) -> &dyn std::any::Any {
-        todo!()
-    }
-
-    fn get_property_mut(&mut self, name: &str) -> &mut dyn std::any::Any {
-        todo!()
-    }
-
-    fn send_message(&mut self, message: &str) {
+    fn send_message2(&mut self, message: GMMessage) -> GMAnswer {
         todo!()
     }
 }

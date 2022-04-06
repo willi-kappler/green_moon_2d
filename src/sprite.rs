@@ -1,8 +1,9 @@
 
 use std::rc::Rc;
+use std::any::Any;
 
 use crate::animation::{GMAnimationT};
-use crate::draw_object::GMDrawT;
+use crate::draw_object::{GMDrawT, GMMessage, GMAnswer};
 use crate::movement::{GMMovementT, GMMovementInner};
 use crate::texture::GMTexture;
 
@@ -10,14 +11,14 @@ use crate::texture::GMTexture;
 #[derive(Clone)]
 pub enum GMSpriteCommand {
     AddMovement,
-    RemoveMovement,
-    SetMovementActive,
-    CustomMovementCommand,
+    RemoveMovement(usize),
+    SetMovementActive(usize, bool),
+    CustomMovementMessage(usize),
     AddEffect,
-    RemoveEffect,
-    SetEffectActive,
-    CustomEffectCommand,
-    CustomContextCommand,
+    RemoveEffect(usize),
+    SetEffectActive(usize, bool),
+    CustomEffectMessage(usize),
+    CustomContextMessage,
 }
 
 pub struct GMSpriteInner {
@@ -121,32 +122,34 @@ impl GMDrawT for GMSprite {
                     GMSpriteCommand::AddMovement => {
                         todo!();
                     }
-                    GMSpriteCommand::RemoveMovement => {
-                        todo!();
+                    GMSpriteCommand::RemoveMovement(index) => {
+                        self.movements.remove(*index);
                     }
-                    GMSpriteCommand::SetMovementActive => {
-                        todo!();
+                    GMSpriteCommand::SetMovementActive(index, active) => {
+                        self.movements[*index].set_active(*active);
                     }
-                    GMSpriteCommand::CustomMovementCommand => {
+                    GMSpriteCommand::CustomMovementMessage(index) => {
                         todo!();
                     }
                     GMSpriteCommand::AddEffect => {
                         todo!();
                     }
-                    GMSpriteCommand::RemoveEffect => {
+                    GMSpriteCommand::RemoveEffect(index) => {
+                        self.effects.remove(*index);
+                    }
+                    GMSpriteCommand::SetEffectActive(index, active) => {
+                        self.effects[*index].set_active(*active);
+                    }
+                    GMSpriteCommand::CustomEffectMessage(index) => {
                         todo!();
                     }
-                    GMSpriteCommand::SetEffectActive => {
-                        todo!();
-                    }
-                    GMSpriteCommand::CustomEffectCommand => {
-                        todo!();
-                    }
-                    GMSpriteCommand::CustomContextCommand => {
+                    GMSpriteCommand::CustomContextMessage => {
                         todo!();
                     }
                 }
             }
+
+            self.sprite_inner.commands.clear();
         }
     }
 
@@ -172,30 +175,13 @@ impl GMDrawT for GMSprite {
         Box::new(result)
     }
 
-    fn get_movement_inner(&self) -> &GMMovementInner {
+    fn send_message1(&mut self, message: GMMessage) {
         todo!()
     }
 
-    fn get_movement_inner_mut(&mut self) -> &mut GMMovementInner {
+    fn send_message2(&mut self, message: GMMessage) -> GMAnswer {
         todo!()
     }
-
-    fn set_property(&mut self, name: &str, value: &dyn std::any::Any) {
-        todo!()
-    }
-
-    fn get_property(&self, name: &str) -> &dyn std::any::Any {
-        todo!()
-    }
-
-    fn get_property_mut(&mut self, name: &str) -> &mut dyn std::any::Any {
-        todo!()
-    }
-
-    fn send_message(&mut self, message: &str) {
-        todo!()
-    }
-
 }
 
 pub trait GMSpriteEffectT {
