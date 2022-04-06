@@ -8,7 +8,7 @@ use crate::texture::GMTexture;
 
 
 #[derive(Clone)]
-pub enum GMSpriteCommands {
+pub enum GMSpriteCommand {
     AddMovement,
     RemoveMovement,
     SetMovementActive,
@@ -26,7 +26,7 @@ pub struct GMSpriteInner {
     pub active: bool,
     pub animation: Box<dyn GMAnimationT>,
     pub z_index: i32,
-    pub commands: Vec<GMSpriteCommands>,
+    pub commands: Vec<GMSpriteCommand>,
 }
 
 impl Clone for GMSpriteInner {
@@ -70,14 +70,6 @@ impl GMSpriteInner {
         self.active = active;
     }
 }
-
-pub trait GMSpriteEffectT {
-    fn update(&mut self, sprite_inner: &mut GMSpriteInner);
-    fn draw(&self, sprite_inner: &GMSpriteInner);
-    fn set_active(&mut self, active: bool);
-    fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
-}
-
 
 pub struct GMSprite {
     pub sprite_inner: GMSpriteInner,
@@ -123,6 +115,38 @@ impl GMDrawT for GMSprite {
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.sprite_inner);
             }
+
+            for command in self.sprite_inner.commands.iter() {
+                match command {
+                    GMSpriteCommand::AddMovement => {
+                        todo!();
+                    }
+                    GMSpriteCommand::RemoveMovement => {
+                        todo!();
+                    }
+                    GMSpriteCommand::SetMovementActive => {
+                        todo!();
+                    }
+                    GMSpriteCommand::CustomMovementCommand => {
+                        todo!();
+                    }
+                    GMSpriteCommand::AddEffect => {
+                        todo!();
+                    }
+                    GMSpriteCommand::RemoveEffect => {
+                        todo!();
+                    }
+                    GMSpriteCommand::SetEffectActive => {
+                        todo!();
+                    }
+                    GMSpriteCommand::CustomEffectCommand => {
+                        todo!();
+                    }
+                    GMSpriteCommand::CustomContextCommand => {
+                        todo!();
+                    }
+                }
+            }
         }
     }
 
@@ -147,6 +171,38 @@ impl GMDrawT for GMSprite {
 
         Box::new(result)
     }
+
+    fn get_movement_inner(&self) -> &GMMovementInner {
+        todo!()
+    }
+
+    fn get_movement_inner_mut(&mut self) -> &mut GMMovementInner {
+        todo!()
+    }
+
+    fn set_property(&mut self, name: &str, value: &dyn std::any::Any) {
+        todo!()
+    }
+
+    fn get_property(&self, name: &str) -> &dyn std::any::Any {
+        todo!()
+    }
+
+    fn get_property_mut(&mut self, name: &str) -> &mut dyn std::any::Any {
+        todo!()
+    }
+
+    fn send_message(&mut self, message: &str) {
+        todo!()
+    }
+
+}
+
+pub trait GMSpriteEffectT {
+    fn update(&mut self, sprite_inner: &mut GMSpriteInner);
+    fn draw(&self, sprite_inner: &GMSpriteInner);
+    fn set_active(&mut self, active: bool);
+    fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
 }
 
 pub struct GMSpriteEffectStatic {

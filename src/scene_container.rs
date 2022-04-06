@@ -40,9 +40,9 @@ impl GMSceneContainer {
     pub fn get_scene_mut(&mut self, name: &str) -> Result<&mut Box<dyn GMSceneT>, GMError> {
         debug!("GMSceneContainer::get_scene(), name: '{}'", name);
 
-        for (s_name, scene) in self.scenes {
+        for (s_name, scene) in self.scenes.iter_mut() {
             if s_name == name {
-                return Ok(&mut scene)
+                return Ok(scene)
             }
         }
 

@@ -76,7 +76,7 @@ impl GMApp {
                     current_scene.leave(&mut context)?;
                 }
                 GMSceneState::ChangeToScene(scene_name) => {
-                    current_scene = self.scenes.get_scene(scene_name)?;
+                    current_scene = self.scenes.get_scene_mut(scene_name)?;
                     context.enter_scene();
                 }
                 GMSceneState::Quit => {

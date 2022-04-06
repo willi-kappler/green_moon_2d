@@ -131,6 +131,30 @@ impl GMDrawT for GMText {
 
         Box::new(result)
     }
+
+    fn get_movement_inner(&self) -> &GMMovementInner {
+        todo!()
+    }
+
+    fn get_movement_inner_mut(&mut self) -> &mut GMMovementInner {
+        todo!()
+    }
+
+    fn set_property(&mut self, name: &str, value: &dyn std::any::Any) {
+        todo!()
+    }
+
+    fn get_property(&self, name: &str) -> &dyn std::any::Any {
+        todo!()
+    }
+
+    fn get_property_mut(&mut self, name: &str) -> &mut dyn std::any::Any {
+        todo!()
+    }
+
+    fn send_message(&mut self, message: &str) {
+        todo!()
+    }
 }
 
 pub struct GMTextEffectStatic {

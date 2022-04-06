@@ -105,7 +105,7 @@ impl GMContext {
         }
 
         for animation in all_assets.animations.iter() {
-            self.add_animation(&animation.name, &animation.frames, animation.animation_type)?;
+            self.add_animation1(&animation.name, &animation.frames, animation.animation_type)?;
         }
 
         for font in all_assets.fonts.iter() {
@@ -115,31 +115,95 @@ impl GMContext {
         Ok(())
     }
 
-    pub fn add_animation(&mut self, name: &str, _frames: &[(usize, f32)], _animation_type: u8) -> Result<(), GMError> {
-        debug!("GMContext::add_animation(), name: '{}'", name);
+    pub fn has_animation(&self, name: &str) -> bool {
+        debug!("GMContext::has_animation(), name: '{}'", name);
+
+        self.animations.iter().any(|(a_name, _)| a_name == name)
+    }
+
+    pub fn add_animation1(&mut self, name: &str, _frames: &[(usize, f32)], _animation_type: u8) -> Result<(), GMError> {
+        debug!("GMContext::add_animation1(), name: '{}'", name);
+
+        if self.has_animation(name) {
+            return Err(GMError::AnimationAlreadyExists(name.to_string()))
+        }
 
         todo!();
+    }
+
+    pub fn add_animation2<A: 'static + GMAnimationT>(&mut self, name: &str, animation: A) -> Result<(), GMError> {
+        debug!("GMContext::add_animation2(), name: '{}'", name);
+
+        if self.has_animation(name) {
+            return Err(GMError::AnimationAlreadyExists(name.to_string()))
+        }
+
+        self.animations.push((name.to_string(), Box::new(animation)));
+
+        Ok(())
+    }
+
+    pub fn add_animation3(&mut self, name: &str, animation: Box<dyn GMAnimationT>) -> Result<(), GMError> {
+        debug!("GMContext::add_animation3(), name: '{}'", name);
+
+        if self.has_animation(name) {
+            return Err(GMError::AnimationAlreadyExists(name.to_string()))
+        }
+
+        self.animations.push((name.to_string(), animation));
+
+        Ok(())
     }
 
     pub fn get_animation_clone(&self, name: &str) -> Result<Box<dyn GMAnimationT>, GMError> {
         debug!("GMContext::get_animation_clone(), name: '{}'", name);
 
-        todo!();
+        for (a_name, animation) in self.animations.iter() {
+            if a_name == name {
+                return Ok(animation.box_clone())
+            }
+        }
+
+        Err(GMError::AnimationNotFound(name.to_string()))
     }
 
     pub fn remove_animation(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::remove_animation(), name: '{}'", name);
 
-        todo!();
+        match self.animations.iter().position(|(a_name, _)| a_name == name) {
+            Some(index) => {
+                self.animations.remove(index);
+                Ok(())
+            }
+            None => {
+                Err(GMError::AnimationNotFound(name.to_string()))
+            }
+        }
     }
 
-    pub fn add_draw_object(&mut self, name: &str, object: Box<dyn GMDrawT>) -> Result<(), GMError> {
-        debug!("GMContext::add_animation(), name: '{}'", name);
+    pub fn has_draw_object(&self, name: &str) -> bool {
+        debug!("GMContext::has_draw_object(), name: '{}'", name);
 
-        for (o_name, _) in self.draw_objects.iter() {
-            if o_name == name {
-                return Err(GMError::ObjectAlreadyExists(name.to_string()))
-            }
+        self.draw_objects.iter().any(|(o_name, _)| o_name == name)
+    }
+
+    pub fn add_draw_object1<D: 'static + GMDrawT>(&mut self, name: &str, object: D) -> Result<(), GMError> {
+        debug!("GMContext::add_draw_object1(), name: '{}'", name);
+
+        if self.has_draw_object(name) {
+            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
+        }
+
+        self.draw_objects.push((name.to_string(), Box::new(object)));
+
+        Ok(())
+    }
+
+    pub fn add_draw_object2(&mut self, name: &str, object: Box<dyn GMDrawT>) -> Result<(), GMError> {
+        debug!("GMContext::add_draw_object2(), name: '{}'", name);
+
+        if self.has_draw_object(name) {
+            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
         }
 
         self.draw_objects.push((name.to_string(), object));
@@ -186,13 +250,15 @@ impl GMContext {
     pub fn remove_draw_object(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::remove_draw_object(), name: '{}'", name);
 
-        for (o_name, _) in self.draw_objects.iter() {
-            if o_name == name {
-                todo!();
+        match self.draw_objects.iter().position(|(o_name, _)| o_name == name) {
+            Some(index) => {
+                self.draw_objects.remove(index);
+                Ok(())
+            }
+            None => {
+                Err(GMError::DrawObjectNotFound(name.to_string()))
             }
         }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
     }
 
     pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) -> Result<(), GMError> {
@@ -204,79 +270,51 @@ impl GMContext {
     pub fn get_font_rc(&self, name: &str) -> Result<Rc<dyn GMFontT>, GMError> {
         debug!("GMContext::get_font_rc(), name: '{}'", name);
 
-        todo!();
+        for (f_name, font) in self.fonts.iter() {
+            if f_name == name {
+                return Ok(font.clone())
+            }
+        }
+
+        Err(GMError::FontNotFound(name.to_string()))
     }
 
     pub fn remove_font(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::remove_font(), name: '{}'", name);
 
-        todo!();
+        match self.fonts.iter().position(|(f_name, _)| f_name == name) {
+            Some(index) => {
+                self.fonts.remove(index);
+                Ok(())
+            }
+            None => {
+                Err(GMError::FontNotFound(name.to_string()))
+            }
+        }
     }
 
     pub fn add_sprite(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::add_sprite(), name: '{}'", name);
+        debug!("GMContext::add_sprite1(), name: '{}'", name);
+
+        if self.has_draw_object(name) {
+            return Err(GMError::SpriteAlreadyExists(name.to_string()))
+        }
 
         todo!();
-    }
 
-    pub fn get_sprite(&self, name: &str) -> Result<&GMSprite, GMError> {
-        debug!("GMContext::get_sprite(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn get_sprite_mut(&mut self, name: &str) -> Result<&mut GMSprite, GMError> {
-        debug!("GMContext::get_sprite_mut(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn get_sprite_clone(&self, name: &str) -> Result<GMSprite, GMError> {
-        debug!("GMContext::get_sprite_clone(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn remove_sprite(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::remove_sprite(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn set_sprite_animation(&mut self, sprite: &str, animation: &str) -> Result<(), GMError> {
-        debug!("GMContext::set_sprite_animation(), sprite: '{}', animation: '{}'", sprite, animation);
-
-        todo!();
+        // Ok(())
     }
 
     pub fn add_text(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMContext::add_text(), name: '{}'", name);
 
-        todo!();
-    }
-
-    pub fn get_text(&mut self, name: &str) -> Result<&GMText, GMError> {
-        debug!("GMContext::get_text(), name: '{}'", name);
+        if self.has_draw_object(name) {
+            return Err(GMError::TextAlreadyExists(name.to_string()))
+        }
 
         todo!();
-    }
 
-    pub fn get_text_mut(&mut self, name: &str) -> Result<&mut GMText, GMError> {
-        debug!("GMContext::get_text_mut(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn get_text_clone(&mut self, name: &str) -> Result<GMText, GMError> {
-        debug!("GMContext::get_text_clone(), name: '{}'", name);
-
-        todo!();
-    }
-
-    pub fn remove_text(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::remove_text(), name: '{}'", name);
-
-        todo!();
+        // Ok(())
     }
 
     pub fn add_texture(&mut self, name: &str, file: &str, _rows: u32, _cols: u32) -> Result<(), GMError> {
