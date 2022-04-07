@@ -3,30 +3,43 @@
 
 use std::any::Any;
 
+use crate::movement::GMMovementInner;
+use crate::sprite::GMSpriteInner;
+use crate::GMError;
 
-pub enum GMMessage {
-    SetX(f32),
-    SetY(f32),
-    SetXY(f32, f32),
-    GetX,
-    GetY,
-    GetXY,
-    CustomString(String),
-    CustomAny(Box<dyn Any>),
+
+#[derive(Debug)]
+pub enum GMDrawMessage {
+    GetMovementInner,
+    GetMovementInnerRef,
+    GetMovementInnerMutRef,
+
+    GetSpriteInner,
+    GetSpriteInnerRef,
+    GetSpriteInnerMutRef,
+
+    CustomProperty(String, Box<dyn Any>),
 }
 
-pub enum GMAnswer {
-    X(f32),
-    Y(f32),
-    XY(f32, f32),
+#[derive(Debug)]
+pub enum GMDrawAnswer<'a> {
+    None,
 
-    CustomString(String),
-    CustomAny(Box<dyn Any>),
+    MovementInner(GMMovementInner),
+    MovementInnerRef(&'a GMMovementInner),
+    MovementInnerMutRef(&'a mut GMMovementInner),
+
+    SpriteInner(GMSpriteInner),
+    SpriteInnerRef(&'a GMSpriteInner),
+    SpriteInnerMutRef(&'a mut GMSpriteInner),
+
+    CustomProperty(String, Box<dyn Any>),
 }
 
 
 pub trait GMDrawT {
-    fn update(&mut self) {
+    fn update(&mut self) -> Result<(), GMError> {
+        Ok(())
     }
 
     fn draw(&self);
@@ -37,7 +50,11 @@ pub trait GMDrawT {
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 
-    fn send_message1(&mut self, message: GMMessage);
+    fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError>;
+}
 
-    fn send_message2(&mut self, message: GMMessage) -> GMAnswer;
+impl Clone for Box<dyn GMDrawT> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
 }

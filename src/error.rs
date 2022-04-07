@@ -4,6 +4,8 @@ use std::fmt;
 
 use serde_json;
 
+use crate::draw_object::GMDrawMessage;
+use crate::movement::GMMovementMessage;
 
 #[derive(Debug)]
 pub enum GMError {
@@ -19,6 +21,8 @@ pub enum GMError {
     FontAlreadyExists(String),
     SpriteAlreadyExists(String),
     TextAlreadyExists(String),
+    UnexpectedDrawMessage(GMDrawMessage),
+    UnexpectedMovementMessage(GMMovementMessage),
 }
 
 impl std::error::Error for GMError {
@@ -40,6 +44,8 @@ impl fmt::Display for GMError {
             GMError::FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
             GMError::SpriteAlreadyExists(name) => write!(f, "Sprite already exists: '{}'", name),
             GMError::TextAlreadyExists(name) => write!(f, "Text already exists: '{}'", name),
+            GMError::UnexpectedDrawMessage(message) => write!(f, "Unexpected draw message: '{:?}'", message),
+            GMError::UnexpectedMovementMessage(message) => write!(f, "Unexpected movement message: '{:?}'", message),
         }
     }
 }

@@ -1,6 +1,18 @@
 
 
-use std::any::Any;
+
+
+
+
+
+/*
+
+pub trait GMPropertyT {
+    fn set_property1(&mut self, name: &str, value: &dyn Any) -> Result<(), GMError>;
+    fn set_property2(&mut self, name: &str, value: Box<dyn Any>) -> Result<(), GMError>;
+    fn get_property_ref(&self, name: &str) -> Result<&dyn Any, GMError>;
+    fn get_property_mut_ref(&self, name: &str) -> Result<&mut dyn Any, GMError>;
+}
 
 pub struct GMPropertyContainer {
     properties: Vec<(String, Box<dyn Any>)>,
@@ -62,3 +74,5 @@ impl GMPropertyContainer {
         false
     }
 }
+
+*/

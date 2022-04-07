@@ -21,7 +21,7 @@ impl GMApp {
         debug!("GMApp::new(), initial scene name: '{}'", name);
 
         let mut scenes = GMSceneContainer::new();
-        scenes.add_scene(name, first_scene);
+        scenes.add_scene(name, first_scene).unwrap();
 
         Self {
             scenes,

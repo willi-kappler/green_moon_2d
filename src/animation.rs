@@ -1,7 +1,7 @@
 
 
 use std::{time::Instant};
-
+use std::fmt::{self, Debug, Formatter};
 
 pub trait GMAnimationT {
     fn set_active(&mut self, active: bool);
@@ -9,6 +9,18 @@ pub trait GMAnimationT {
     fn finished(&self) -> bool;
     fn frame_index(&self) -> u32;
     fn box_clone(&self) -> Box<dyn GMAnimationT>;
+}
+
+impl Clone for Box<dyn GMAnimationT> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
+}
+
+impl Debug for Box<dyn GMAnimationT> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "GMAnimationT")
+    }
 }
 
 pub struct GMAnimationStatic {

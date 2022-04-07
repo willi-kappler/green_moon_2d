@@ -1,33 +1,38 @@
 
 use std::rc::Rc;
 use std::any::Any;
+use std::fmt::{self, Debug, Formatter};
 
+use crate::GMError;
 use crate::animation::{GMAnimationT};
-use crate::draw_object::{GMDrawT, GMMessage, GMAnswer};
-use crate::movement::{GMMovementT, GMMovementInner};
+use crate::draw_object::{GMDrawT, GMDrawMessage, GMDrawAnswer};
+use crate::movement::{GMMovementT, GMMovementInner, GMMovementMessage, GMMovementAnswer};
 use crate::texture::GMTexture;
 
 
-#[derive(Clone)]
-pub enum GMSpriteCommand {
-    AddMovement,
+#[derive(Debug)]
+pub enum GMSpriteMessage {
+    AddMovement(Box<dyn GMMovementT>),
     RemoveMovement(usize),
     SetMovementActive(usize, bool),
-    CustomMovementMessage(usize),
-    AddEffect,
+    CustomMovementMessage(usize, GMMovementMessage),
+    AddEffect(Box<dyn GMSpriteEffectT>),
     RemoveEffect(usize),
     SetEffectActive(usize, bool),
-    CustomEffectMessage(usize),
-    CustomContextMessage,
+    CustomEffectMessage(usize, GMSpriteEffectMessage),
+    CustomContextProperty(String, Box<dyn Any>),
 }
 
+#[derive(Debug)]
 pub struct GMSpriteInner {
     pub texture: Rc<GMTexture>,
     pub movement_inner: GMMovementInner,
     pub active: bool,
     pub animation: Box<dyn GMAnimationT>,
     pub z_index: i32,
-    pub commands: Vec<GMSpriteCommand>,
+    pub messages: Vec<GMSpriteMessage>,
+    pub movement_answers: Vec<(usize, GMMovementAnswer)>,
+    pub sprite_effect_answers: Vec<(usize, GMSpriteEffectAnswer)>,
 }
 
 impl Clone for GMSpriteInner {
@@ -35,10 +40,12 @@ impl Clone for GMSpriteInner {
         Self {
             texture: self.texture.clone(),
             movement_inner: self.movement_inner.clone(),
-            active: self.active,
-            animation: self.animation.box_clone(),
-            z_index: self.z_index,
-            commands: self.commands.clone(),
+            active: self.active.clone(),
+            animation: self.animation.clone(),
+            z_index: self.z_index.clone(),
+            messages: Vec::new(), // Don't clone messages
+            movement_answers: Vec::new(), // Don't clone answers
+            sprite_effect_answers: Vec::new(), // Don't clone answers
         }
     }
 }
@@ -51,7 +58,9 @@ impl GMSpriteInner {
             active,
             animation,
             z_index: 0,
-            commands: Vec::new(),
+            messages: Vec::new(),
+            movement_answers: Vec::new(),
+            sprite_effect_answers: Vec::new(),
         }
     }
 
@@ -73,9 +82,9 @@ impl GMSpriteInner {
 }
 
 pub struct GMSprite {
-    pub sprite_inner: GMSpriteInner,
-    pub movements: Vec<Box<dyn GMMovementT>>,
-    pub effects: Vec<Box<dyn GMSpriteEffectT>>,
+    sprite_inner: GMSpriteInner,
+    movements: Vec<Box<dyn GMMovementT>>,
+    effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
 impl GMSprite {
@@ -105,7 +114,7 @@ impl GMSprite {
 }
 
 impl GMDrawT for GMSprite {
-    fn update(&mut self) {
+    fn update(&mut self) -> Result<(), GMError> {
         if self.sprite_inner.active {
             self.sprite_inner.update();
 
@@ -117,40 +126,45 @@ impl GMDrawT for GMSprite {
                 effect.update(&mut self.sprite_inner);
             }
 
-            for command in self.sprite_inner.commands.iter() {
+            self.sprite_inner.movement_answers.clear();
+            self.sprite_inner.sprite_effect_answers.clear();
+            self.sprite_inner.messages.reverse();
+            while let Some(command) = self.sprite_inner.messages.pop() {
                 match command {
-                    GMSpriteCommand::AddMovement => {
-                        todo!();
+                    GMSpriteMessage::AddMovement(new_movement) => {
+                        self.movements.push(new_movement);
                     }
-                    GMSpriteCommand::RemoveMovement(index) => {
-                        self.movements.remove(*index);
+                    GMSpriteMessage::RemoveMovement(index) => {
+                        self.movements.remove(index);
                     }
-                    GMSpriteCommand::SetMovementActive(index, active) => {
-                        self.movements[*index].set_active(*active);
+                    GMSpriteMessage::SetMovementActive(index, active) => {
+                        self.movements[index].set_active(active);
                     }
-                    GMSpriteCommand::CustomMovementMessage(index) => {
-                        todo!();
+                    GMSpriteMessage::CustomMovementMessage(index, message) => {
+                        let answer = self.movements[index].send_message(message)?;
+                        self.sprite_inner.movement_answers.push((index, answer));
                     }
-                    GMSpriteCommand::AddEffect => {
-                        todo!();
+                    GMSpriteMessage::AddEffect(new_effect) => {
+                        self.effects.push(new_effect);
                     }
-                    GMSpriteCommand::RemoveEffect(index) => {
-                        self.effects.remove(*index);
+                    GMSpriteMessage::RemoveEffect(index) => {
+                        self.effects.remove(index);
                     }
-                    GMSpriteCommand::SetEffectActive(index, active) => {
-                        self.effects[*index].set_active(*active);
+                    GMSpriteMessage::SetEffectActive(index, active) => {
+                        self.effects[index].set_active(active);
                     }
-                    GMSpriteCommand::CustomEffectMessage(index) => {
-                        todo!();
+                    GMSpriteMessage::CustomEffectMessage(index, message) => {
+                        let answer = self.effects[index].send_message(message)?;
+                        self.sprite_inner.sprite_effect_answers.push((index, answer));
                     }
-                    GMSpriteCommand::CustomContextMessage => {
+                    GMSpriteMessage::CustomContextProperty(name, value) => {
                         todo!();
                     }
                 }
             }
-
-            self.sprite_inner.commands.clear();
         }
+
+        Ok(())
     }
 
     fn draw(&self) {
@@ -168,28 +182,66 @@ impl GMDrawT for GMSprite {
     fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = GMSprite {
             sprite_inner: self.sprite_inner.clone(),
-            movements: self.movements.iter().map(|m| m.box_clone()).collect(),
-            effects: self.effects.iter().map(|e| e.box_clone()).collect(),
+            movements: self.movements.clone(),
+            effects: self.effects.clone(),
         };
 
         Box::new(result)
     }
 
-    fn send_message1(&mut self, message: GMMessage) {
-        todo!()
+    fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
+        match message {
+            GMDrawMessage::GetMovementInner => {
+                Ok(GMDrawAnswer::MovementInner(self.sprite_inner.movement_inner.clone()))
+            }
+            GMDrawMessage::GetMovementInnerRef => {
+                Ok(GMDrawAnswer::MovementInnerRef(&self.sprite_inner.movement_inner))
+            }
+            GMDrawMessage::GetMovementInnerMutRef => {
+                Ok(GMDrawAnswer::MovementInnerMutRef(&mut self.sprite_inner.movement_inner))
+            }
+            _ => {
+                Err(GMError::UnexpectedDrawMessage(message))
+            }
+        }
     }
+}
 
-    fn send_message2(&mut self, message: GMMessage) -> GMAnswer {
-        todo!()
-    }
+#[derive(Debug)]
+pub enum GMSpriteEffectMessage {
+    DoSomeStuff,
+}
+
+#[derive(Debug)]
+pub enum GMSpriteEffectAnswer {
+    None,
+
 }
 
 pub trait GMSpriteEffectT {
     fn update(&mut self, sprite_inner: &mut GMSpriteInner);
+
     fn draw(&self, sprite_inner: &GMSpriteInner);
+
     fn set_active(&mut self, active: bool);
+
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
+
+    fn send_message(&mut self, message: GMSpriteEffectMessage) -> Result<GMSpriteEffectAnswer, GMError>;
 }
+
+impl Clone for Box<dyn GMSpriteEffectT> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
+}
+
+impl Debug for Box<dyn GMSpriteEffectT> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "GMSpriteEffectT")
+    }
+}
+
 
 pub struct GMSpriteEffectStatic {
     active: bool,
@@ -222,5 +274,13 @@ impl GMSpriteEffectT for GMSpriteEffectStatic {
         };
 
         Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMSpriteEffectMessage) -> Result<GMSpriteEffectAnswer, GMError> {
+        match message {
+            _ => {
+                Ok(GMSpriteEffectAnswer::None)
+            }
+        }
     }
 }

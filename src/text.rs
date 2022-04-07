@@ -3,9 +3,10 @@
 use std::rc::Rc;
 use std::any::Any;
 
-use crate::draw_object::{GMDrawT, GMMessage, GMAnswer};
+use crate::draw_object::{GMDrawT, GMDrawMessage, GMDrawAnswer};
 use crate::font::GMFontT;
 use crate::movement::{GMMovementT, GMMovementInner};
+use crate::error::GMError;
 
 
 #[derive(Clone)]
@@ -60,9 +61,9 @@ pub trait GMTextEffectT {
 }
 
 pub struct GMText {
-    pub text_inner: GMTextInner,
-    pub movements: Vec<Box<dyn GMMovementT>>,
-    pub effects: Vec<Box<dyn GMTextEffectT>>,
+    text_inner: GMTextInner,
+    movements: Vec<Box<dyn GMMovementT>>,
+    effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
 impl GMText {
@@ -99,7 +100,7 @@ impl GMText {
 }
 
 impl GMDrawT for GMText {
-    fn update(&mut self) {
+    fn update(&mut self) -> Result<(), GMError> {
         if self.text_inner.active {
             for movement in self.movements.iter_mut() {
                 movement.update(&mut self.text_inner.movement_inner);
@@ -109,6 +110,8 @@ impl GMDrawT for GMText {
                 effect.update(&mut self.text_inner);
             }
         }
+
+        Ok(())
     }
 
     fn draw(&self) {
@@ -133,11 +136,7 @@ impl GMDrawT for GMText {
         Box::new(result)
     }
 
-    fn send_message1(&mut self, message: GMMessage) {
-        todo!()
-    }
-
-    fn send_message2(&mut self, message: GMMessage) -> GMAnswer {
+    fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
         todo!()
     }
 }

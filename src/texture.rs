@@ -2,6 +2,7 @@
 
 use sdl2::rect::Rect;
 
+#[derive(Debug)]
 pub struct GMTexture {
     width: u32,
     height: u32,

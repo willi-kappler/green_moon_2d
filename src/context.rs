@@ -17,8 +17,6 @@ use crate::configuration::GMConfiguration;
 use crate::draw_object::GMDrawT;
 use crate::error::GMError;
 use crate::font::GMFontT;
-use crate::sprite::GMSprite;
-use crate::text::GMText;
 use crate::texture::GMTexture;
 
 
@@ -382,7 +380,7 @@ impl GMContext {
         }
 
         for (_, object) in self.draw_objects.iter_mut() {
-            object.update();
+            object.update()?;
         }
 
         Ok(())

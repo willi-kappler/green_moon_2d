@@ -1,6 +1,12 @@
 
 
-#[derive(Clone)]
+use std::fmt::{self, Debug, Formatter};
+use std::any::Any;
+
+use crate::GMError;
+
+
+#[derive(Clone, Debug)]
 pub struct GMMovementInner {
     pub x: f32,
     pub y: f32,
@@ -19,10 +25,62 @@ impl GMMovementInner {
     }
 }
 
+#[derive(Debug)]
+pub enum GMMovementMessage {
+    SetVx(f32),
+    SetVy(f32),
+    SetVxVy(f32, f32),
+
+    SetAx(f32),
+    SetAy(f32),
+    SetAxAy(f32, f32),
+
+    GetVx,
+    GetVy,
+    GetVxVy,
+
+    GetAx,
+    GetAy,
+    GetAxAy,
+
+    CustomProperty(String, Box<dyn Any>),
+}
+
+#[derive(Debug)]
+pub enum GMMovementAnswer {
+    None,
+
+    Vx(f32),
+    Vy(f32),
+    VxVy(f32, f32),
+
+    Ax(f32),
+    Ay(f32),
+    AxAy(f32, f32),
+
+    CustomProperty(String, Box<dyn Any>),
+}
+
 pub trait GMMovementT {
     fn update(&mut self, movement_inner: &mut GMMovementInner);
+
     fn set_active(&mut self, active: bool);
+
     fn box_clone(&self) -> Box<dyn GMMovementT>;
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError>;
+}
+
+impl Clone for Box<dyn GMMovementT> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
+}
+
+impl Debug for Box<dyn GMMovementT> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "GMMovementT")
+    }
 }
 
 pub struct GMConstVelocity {
@@ -62,6 +120,36 @@ impl GMMovementT for GMConstVelocity {
 
         Box::new(result)
     }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetVx(x) => {
+                self.vx = x;
+            }
+            GMMovementMessage::SetVy(y) => {
+                self.vy = y;
+            }
+            GMMovementMessage::SetVxVy(x, y) => {
+                self.vx = x;
+                self.vy = y;
+            }
+            GMMovementMessage::GetVx => {
+                return Ok(GMMovementAnswer::Vx(self.vx))
+            }
+            GMMovementMessage::GetVy => {
+                return Ok(GMMovementAnswer::Vy(self.vy))
+            }
+            GMMovementMessage::GetVxVy => {
+                return Ok(GMMovementAnswer::VxVy(self.vx, self.vy))
+            }
+            _ => {
+                return Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+
+        Ok(GMMovementAnswer::None)
+    }
+
 }
 
 pub struct GMConstAcceleration {
@@ -108,6 +196,35 @@ impl GMMovementT for GMConstAcceleration {
         };
 
         Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetVx(x) => {
+                self.vx = x;
+            }
+            GMMovementMessage::SetVy(y) => {
+                self.vy = y;
+            }
+            GMMovementMessage::SetVxVy(x, y) => {
+                self.vx = x;
+                self.vy = y;
+            }
+            GMMovementMessage::GetVx => {
+                return Ok(GMMovementAnswer::Vx(self.vx))
+            }
+            GMMovementMessage::GetVy => {
+                return Ok(GMMovementAnswer::Vy(self.vy))
+            }
+            GMMovementMessage::GetVxVy => {
+                return Ok(GMMovementAnswer::VxVy(self.vx, self.vy))
+            }
+            _ => {
+                return Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+
+        Ok(GMMovementAnswer::None)
     }
 }
 
@@ -157,6 +274,10 @@ impl GMMovementT for GMWrapAround {
         };
 
         Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        todo!()
     }
 }
 
