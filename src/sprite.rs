@@ -14,10 +14,12 @@ use crate::texture::GMTexture;
 pub enum GMSpriteMessage {
     AddMovement(Box<dyn GMMovementT>),
     RemoveMovement(usize),
+    SetMovement(usize, Box<dyn GMMovementT>),
     SetMovementActive(usize, bool),
     CustomMovementMessage(usize, GMMovementMessage),
     AddEffect(Box<dyn GMSpriteEffectT>),
     RemoveEffect(usize),
+    SetEffect(usize, Box<dyn GMSpriteEffectT>),
     SetEffectActive(usize, bool),
     CustomEffectMessage(usize, GMSpriteEffectMessage),
     CustomContextProperty(String, Box<dyn Any>),
@@ -82,9 +84,9 @@ impl GMSpriteInner {
 }
 
 pub struct GMSprite {
-    sprite_inner: GMSpriteInner,
-    movements: Vec<Box<dyn GMMovementT>>,
-    effects: Vec<Box<dyn GMSpriteEffectT>>,
+    pub sprite_inner: GMSpriteInner,
+    pub movements: Vec<Box<dyn GMMovementT>>,
+    pub effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
 impl GMSprite {
@@ -137,6 +139,9 @@ impl GMDrawT for GMSprite {
                     GMSpriteMessage::RemoveMovement(index) => {
                         self.movements.remove(index);
                     }
+                    GMSpriteMessage::SetMovement(index, new_movement) => {
+                        self.movements[index] = new_movement;
+                    }
                     GMSpriteMessage::SetMovementActive(index, active) => {
                         self.movements[index].set_active(active);
                     }
@@ -150,6 +155,9 @@ impl GMDrawT for GMSprite {
                     GMSpriteMessage::RemoveEffect(index) => {
                         self.effects.remove(index);
                     }
+                    GMSpriteMessage::SetEffect(index, new_effect) => {
+                        self.effects[index] = new_effect;
+                    }
                     GMSpriteMessage::SetEffectActive(index, active) => {
                         self.effects[index].set_active(active);
                     }
@@ -157,7 +165,8 @@ impl GMDrawT for GMSprite {
                         let answer = self.effects[index].send_message(message)?;
                         self.sprite_inner.sprite_effect_answers.push((index, answer));
                     }
-                    GMSpriteMessage::CustomContextProperty(name, value) => {
+                    GMSpriteMessage::CustomContextProperty(_name, _value) => {
+                        // TODO: add message to context
                         todo!();
                     }
                 }
@@ -191,14 +200,23 @@ impl GMDrawT for GMSprite {
 
     fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
         match message {
-            GMDrawMessage::GetMovementInner => {
-                Ok(GMDrawAnswer::MovementInner(self.sprite_inner.movement_inner.clone()))
-            }
             GMDrawMessage::GetMovementInnerRef => {
                 Ok(GMDrawAnswer::MovementInnerRef(&self.sprite_inner.movement_inner))
             }
             GMDrawMessage::GetMovementInnerMutRef => {
                 Ok(GMDrawAnswer::MovementInnerMutRef(&mut self.sprite_inner.movement_inner))
+            }
+            GMDrawMessage::GetSpriteInnerRef => {
+                Ok(GMDrawAnswer::SpriteInnerRef(&self.sprite_inner))
+            }
+            GMDrawMessage::GetSpriteInnerMutRef => {
+                Ok(GMDrawAnswer::SpriteInnerMutRef(&mut self.sprite_inner))
+            }
+            GMDrawMessage::GetAnimationRef => {
+                Ok(GMDrawAnswer::AnimationRef(&self.sprite_inner.animation))
+            }
+            GMDrawMessage::GetAnimationMutRef => {
+                Ok(GMDrawAnswer::AnimationMutRef(&mut self.sprite_inner.animation))
             }
             _ => {
                 Err(GMError::UnexpectedDrawMessage(message))
@@ -243,6 +261,7 @@ impl Debug for Box<dyn GMSpriteEffectT> {
 }
 
 
+#[derive(Clone, Debug)]
 pub struct GMSpriteEffectStatic {
     active: bool,
 }
@@ -269,9 +288,7 @@ impl GMSpriteEffectT for GMSpriteEffectStatic {
     }
 
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT> {
-        let result = GMSpriteEffectStatic {
-            active: self.active
-        };
+        let result = self.clone();
 
         Box::new(result)
     }

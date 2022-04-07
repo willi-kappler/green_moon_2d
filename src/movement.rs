@@ -10,6 +10,8 @@ use crate::GMError;
 pub struct GMMovementInner {
     pub x: f32,
     pub y: f32,
+    pub vx: f32,
+    pub vy: f32,
     pub width: f32,
     pub height: f32,
 }
@@ -19,6 +21,8 @@ impl GMMovementInner {
         Self {
             x,
             y,
+            vx: 0.0,
+            vy: 0.0,
             width,
             height,
         }
@@ -27,21 +31,23 @@ impl GMMovementInner {
 
 #[derive(Debug)]
 pub enum GMMovementMessage {
-    SetVx(f32),
-    SetVy(f32),
-    SetVxVy(f32, f32),
-
     SetAx(f32),
     SetAy(f32),
     SetAxAy(f32, f32),
 
-    GetVx,
-    GetVy,
-    GetVxVy,
-
     GetAx,
     GetAy,
     GetAxAy,
+
+    SetScreenSize(f32, f32),
+
+    SetCircleCenter(f32, f32),
+    SetCircleRadius(f32),
+    SetCircleAngle(f32),
+
+    GetCircleCenter,
+    GetCircleRadius,
+    GetCircleAngle,
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -50,13 +56,13 @@ pub enum GMMovementMessage {
 pub enum GMMovementAnswer {
     None,
 
-    Vx(f32),
-    Vy(f32),
-    VxVy(f32, f32),
-
     Ax(f32),
     Ay(f32),
     AxAy(f32, f32),
+
+    CircleCenter(f32, f32),
+    CircleRadius(f32),
+    CircleAngle(f32),
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -83,17 +89,14 @@ impl Debug for Box<dyn GMMovementT> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMConstVelocity {
-    pub vx: f32,
-    pub vy: f32,
     active: bool,
 }
 
 impl GMConstVelocity {
-    pub fn new(vx: f32, vy: f32) -> Self {
+    pub fn new() -> Self {
         Self {
-            vx,
-            vy,
             active: true,
         }
     }
@@ -102,8 +105,8 @@ impl GMConstVelocity {
 impl GMMovementT for GMConstVelocity {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            movement_inner.x += self.vx;
-            movement_inner.y += self.vy;
+            movement_inner.x += movement_inner.vx;
+            movement_inner.y += movement_inner.vy;
         }
     }
 
@@ -112,59 +115,30 @@ impl GMMovementT for GMConstVelocity {
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
-        let result = GMConstVelocity {
-            vx: self.vx,
-            vy: self.vy,
-            active: self.active,
-        };
+        let result = self.clone();
 
         Box::new(result)
     }
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
-            GMMovementMessage::SetVx(x) => {
-                self.vx = x;
-            }
-            GMMovementMessage::SetVy(y) => {
-                self.vy = y;
-            }
-            GMMovementMessage::SetVxVy(x, y) => {
-                self.vx = x;
-                self.vy = y;
-            }
-            GMMovementMessage::GetVx => {
-                return Ok(GMMovementAnswer::Vx(self.vx))
-            }
-            GMMovementMessage::GetVy => {
-                return Ok(GMMovementAnswer::Vy(self.vy))
-            }
-            GMMovementMessage::GetVxVy => {
-                return Ok(GMMovementAnswer::VxVy(self.vx, self.vy))
-            }
             _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
+                Ok(GMMovementAnswer::None)
             }
         }
-
-        Ok(GMMovementAnswer::None)
     }
-
 }
 
+#[derive(Clone, Debug)]
 pub struct GMConstAcceleration {
-    pub vx: f32,
-    pub vy: f32,
     pub ax: f32,
     pub ay: f32,
     active: bool,
 }
 
 impl GMConstAcceleration {
-    pub fn new(vx: f32, vy: f32, ax: f32, ay: f32) -> Self {
+    pub fn new(ax: f32, ay: f32) -> Self {
         Self {
-            vx,
-            vy,
             ax,
             ay,
             active: true,
@@ -175,10 +149,8 @@ impl GMConstAcceleration {
 impl GMMovementT for GMConstAcceleration {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            self.vx += self.ax;
-            self.vy += self.ay;
-            movement_inner.x += self.vx;
-            movement_inner.y += self.vy;
+            movement_inner.vx += self.ax;
+            movement_inner.vy += self.ay;
         }
     }
 
@@ -187,37 +159,31 @@ impl GMMovementT for GMConstAcceleration {
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
-        let result = GMConstAcceleration {
-            vx: self.vx,
-            vy: self.vy,
-            ax: self.ax,
-            ay: self.ay,
-            active: self.active,
-        };
+        let result = self.clone();
 
         Box::new(result)
     }
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
-            GMMovementMessage::SetVx(x) => {
-                self.vx = x;
+            GMMovementMessage::SetAx(x) => {
+                self.ax = x;
             }
-            GMMovementMessage::SetVy(y) => {
-                self.vy = y;
+            GMMovementMessage::SetAy(y) => {
+                self.ay = y;
             }
-            GMMovementMessage::SetVxVy(x, y) => {
-                self.vx = x;
-                self.vy = y;
+            GMMovementMessage::SetAxAy(x, y) => {
+                self.ax = x;
+                self.ay = y;
             }
-            GMMovementMessage::GetVx => {
-                return Ok(GMMovementAnswer::Vx(self.vx))
+            GMMovementMessage::GetAx => {
+                return Ok(GMMovementAnswer::Ax(self.ax))
             }
-            GMMovementMessage::GetVy => {
-                return Ok(GMMovementAnswer::Vy(self.vy))
+            GMMovementMessage::GetAy => {
+                return Ok(GMMovementAnswer::Ay(self.ay))
             }
-            GMMovementMessage::GetVxVy => {
-                return Ok(GMMovementAnswer::VxVy(self.vx, self.vy))
+            GMMovementMessage::GetAxAy => {
+                return Ok(GMMovementAnswer::AxAy(self.ax, self.ay))
             }
             _ => {
                 return Err(GMError::UnexpectedMovementMessage(message))
@@ -228,6 +194,7 @@ impl GMMovementT for GMConstAcceleration {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMWrapAround {
     pub screen_width: f32,
     pub screen_height: f32,
@@ -246,19 +213,23 @@ impl GMWrapAround {
 
 impl GMMovementT for GMWrapAround {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
-        let x = movement_inner.x;
-        let y = movement_inner.y;
+        if self.active {
+            let x = movement_inner.x;
+            let y = movement_inner.y;
+            let width = movement_inner.width;
+            let height = movement_inner.height;
 
-        if x > self.screen_width {
-            movement_inner.x = -movement_inner.width;
-        } else if x < -movement_inner.width {
-            movement_inner.x = self.screen_width;
-        }
+            if x > self.screen_width {
+                movement_inner.x = -width;
+            } else if x < -width {
+                movement_inner.x = self.screen_width;
+            }
 
-        if y > self.screen_height {
-            movement_inner.y = -movement_inner.height;
-        } else if y < -movement_inner.height {
-            movement_inner.y = self.screen_height;
+            if y > self.screen_height {
+                movement_inner.y = -height;
+            } else if y < -height {
+                movement_inner.y = self.screen_height;
+            }
         }
     }
 
@@ -267,42 +238,153 @@ impl GMMovementT for GMWrapAround {
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
-        let result = GMWrapAround {
-            screen_width: self.screen_width,
-            screen_height: self.screen_height,
-            active: self.active,
-        };
+        let result = self.clone();
 
         Box::new(result)
     }
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        todo!()
+        match message {
+            GMMovementMessage::SetScreenSize(screen_width, screen_height) => {
+                self.screen_width = screen_width;
+                self.screen_height = screen_height;
+                Ok(GMMovementAnswer::None)
+            }
+            _ => {
+                Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+
     }
 }
 
-pub struct GMMovementConstVeloBounce {
-    pub vx: f32,
-    pub vy: f32,
+#[derive(Clone, Debug)]
+pub struct GMMovementBounce {
     pub screen_width: f32,
     pub screen_height: f32,
     active: bool,
 }
 
-pub struct GMMovementConstAccelBounce {
-    pub vx: f32,
-    pub vy: f32,
-    pub ax: f32,
-    pub ay: f32,
-    pub screen_width: f32,
-    pub screen_height: f32,
-    active: bool,
+impl GMMovementBounce {
+    pub fn new(screen_width: f32, screen_height: f32) -> Self {
+        Self {
+            screen_width,
+            screen_height,
+            active: true,
+        }
+    }
 }
 
+impl GMMovementT for GMMovementBounce {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+        if self.active {
+            let x = movement_inner.x;
+            let y = movement_inner.y;
+            let width = movement_inner.width;
+            let height = movement_inner.height;
+
+            if x + width >= self.screen_width {
+                movement_inner.vx = -movement_inner.vx;
+            } else if x <= 0.0 {
+                movement_inner.vx = -movement_inner.vx;
+            }
+
+            if y + height >= self.screen_height {
+                movement_inner.vy = -movement_inner.vy;
+            } else if y <= 0.0 {
+                movement_inner.vy = -movement_inner.vy;
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetScreenSize(screen_width, screen_height) => {
+                self.screen_width = screen_width;
+                self.screen_height = screen_height;
+                Ok(GMMovementAnswer::None)
+            }
+            _ => {
+                Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct GMMovementCircular {
-    pub mx: f32,
-    pub my: f32,
+    pub cx: f32,
+    pub cy: f32,
     pub radius: f32,
     pub angle: f32,
     active: bool,
+}
+
+impl GMMovementCircular {
+    pub fn new(cx: f32, cy: f32, radius: f32, angle: f32) -> Self {
+        Self {
+            cx,
+            cy,
+            radius,
+            angle,
+            active: true,
+        }
+    }
+}
+
+impl GMMovementT for GMMovementCircular {
+    fn update(&mut self, _movement_inner: &mut GMMovementInner) {
+        if self.active {
+
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetCircleCenter(cx, cy) => {
+                self.cx = cx;
+                self.cy = cy;
+            }
+            GMMovementMessage::SetCircleRadius(radius) => {
+                self.radius = radius;
+            }
+            GMMovementMessage::SetCircleAngle(angle) => {
+                self.angle = angle;
+            }
+            GMMovementMessage::GetCircleCenter => {
+                return Ok(GMMovementAnswer::CircleCenter(self.cx, self.cy))
+            }
+            GMMovementMessage::GetCircleRadius => {
+                return Ok(GMMovementAnswer::CircleRadius(self.radius))
+            }
+            GMMovementMessage::GetCircleAngle => {
+                return Ok(GMMovementAnswer::CircleAngle(self.angle))
+            }
+            _ => {
+                return Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+
+        Ok(GMMovementAnswer::None)
+    }
 }

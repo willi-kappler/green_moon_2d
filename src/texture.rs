@@ -4,13 +4,13 @@ use sdl2::rect::Rect;
 
 #[derive(Debug)]
 pub struct GMTexture {
-    width: u32,
-    height: u32,
-    rows: u32,
+    //width: u32,
+    //height: u32,
+    //rows: u32,
     cols: u32,
     unit_width: u32,
     unit_height: u32,
-    data: u8, // TODO
+    //data: u8, // TODO
 }
 
 impl GMTexture {
@@ -21,8 +21,8 @@ impl GMTexture {
         let sx = (xi * self.unit_width) as i32;
         let sy = (yi * self.unit_height) as i32;
 
-        let src_rect = Rect::new(sx, sy, self.unit_width, self.unit_height);
-        let dst_rect = Rect::new(dx as i32, dy as i32, self.unit_width, self.unit_height);
+        let _src_rect = Rect::new(sx, sy, self.unit_width, self.unit_height);
+        let _dst_rect = Rect::new(dx as i32, dy as i32, self.unit_width, self.unit_height);
 
 
     }

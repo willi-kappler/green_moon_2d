@@ -1,7 +1,7 @@
 
 
 use std::rc::Rc;
-use std::any::Any;
+//use std::any::Any;
 
 use crate::draw_object::{GMDrawT, GMDrawMessage, GMDrawAnswer};
 use crate::font::GMFontT;
@@ -61,9 +61,9 @@ pub trait GMTextEffectT {
 }
 
 pub struct GMText {
-    text_inner: GMTextInner,
-    movements: Vec<Box<dyn GMMovementT>>,
-    effects: Vec<Box<dyn GMTextEffectT>>,
+    pub text_inner: GMTextInner,
+    pub movements: Vec<Box<dyn GMMovementT>>,
+    pub effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
 impl GMText {
@@ -136,11 +136,12 @@ impl GMDrawT for GMText {
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
+    fn send_message(&mut self, _message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
         todo!()
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMTextEffectStatic {
     active: bool,
 }

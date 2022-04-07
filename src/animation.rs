@@ -23,6 +23,7 @@ impl Debug for Box<dyn GMAnimationT> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMAnimationStatic {
     pub frames: Vec<(u32, f32)>,
 }
@@ -54,6 +55,7 @@ impl GMAnimationT for GMAnimationStatic {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMAnimationForwardOnce {
     pub active: bool,
     pub current_frame: usize,
@@ -103,6 +105,7 @@ impl GMAnimationT for GMAnimationForwardOnce {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMAnimationForwardLoop {
     pub active: bool,
     pub current_frame: usize,
@@ -151,6 +154,7 @@ impl GMAnimationT for GMAnimationForwardLoop {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct GMAnimationPingPong {
     pub active: bool,
     pub current_frame: usize,

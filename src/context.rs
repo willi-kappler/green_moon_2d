@@ -30,7 +30,7 @@ pub enum GMSceneState {
 }
 
 pub struct GMContext {
-    configuration: GMConfiguration,
+    // configuration: GMConfiguration,
     new_fps: u32,
     scene_state: GMSceneState,
     canvas: render::Canvas<video::Window>,
@@ -40,7 +40,7 @@ pub struct GMContext {
     animations: Vec<(String, Box<dyn GMAnimationT>)>,
     draw_objects: Vec<(String, Box<dyn GMDrawT>)>,
     fonts: Vec<(String, Rc<dyn GMFontT>)>,
-    textures: Vec<Rc<GMTexture>>,
+    // textures: Vec<Rc<GMTexture>>,
 
     key_esc_down_: bool,
     key_esc_up_: bool,
@@ -64,7 +64,7 @@ impl GMContext {
         let event_pump = sdl_context.event_pump().unwrap();
 
         Self {
-            configuration,
+            //configuration,
             new_fps: 0,
             scene_state: GMSceneState::Enter,
             canvas,
@@ -73,7 +73,7 @@ impl GMContext {
             animations: Vec::new(),
             draw_objects: Vec::new(),
             fonts: Vec::new(),
-            textures: Vec::new(),
+            //textures: Vec::new(),
 
             key_esc_down_: false,
             key_esc_up_: false,

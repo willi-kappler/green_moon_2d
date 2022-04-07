@@ -5,18 +5,20 @@ use std::any::Any;
 
 use crate::movement::GMMovementInner;
 use crate::sprite::GMSpriteInner;
+use crate::animation::GMAnimationT;
 use crate::GMError;
 
 
 #[derive(Debug)]
 pub enum GMDrawMessage {
-    GetMovementInner,
     GetMovementInnerRef,
     GetMovementInnerMutRef,
 
-    GetSpriteInner,
     GetSpriteInnerRef,
     GetSpriteInnerMutRef,
+
+    GetAnimationRef,
+    GetAnimationMutRef,
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -25,13 +27,14 @@ pub enum GMDrawMessage {
 pub enum GMDrawAnswer<'a> {
     None,
 
-    MovementInner(GMMovementInner),
     MovementInnerRef(&'a GMMovementInner),
     MovementInnerMutRef(&'a mut GMMovementInner),
 
-    SpriteInner(GMSpriteInner),
     SpriteInnerRef(&'a GMSpriteInner),
     SpriteInnerMutRef(&'a mut GMSpriteInner),
+
+    AnimationRef(&'a Box<dyn GMAnimationT>),
+    AnimationMutRef(&'a mut Box<dyn GMAnimationT>),
 
     CustomProperty(String, Box<dyn Any>),
 }
