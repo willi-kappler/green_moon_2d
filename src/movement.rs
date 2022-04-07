@@ -2,6 +2,7 @@
 
 use std::fmt::{self, Debug, Formatter};
 use std::any::Any;
+use std::time::Instant;
 
 use crate::GMError;
 
@@ -44,10 +45,12 @@ pub enum GMMovementMessage {
     SetCircleCenter(f32, f32),
     SetCircleRadius(f32),
     SetCircleAngle(f32),
+    SetCircleVAngle(f32),
 
     GetCircleCenter,
     GetCircleRadius,
     GetCircleAngle,
+    GetCircleVAngle,
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -63,6 +66,7 @@ pub enum GMMovementAnswer {
     CircleCenter(f32, f32),
     CircleRadius(f32),
     CircleAngle(f32),
+    CircleVAngle(f32),
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -133,7 +137,7 @@ impl GMMovementT for GMConstVelocity {
 pub struct GMConstAcceleration {
     pub ax: f32,
     pub ay: f32,
-    active: bool,
+    pub active: bool,
 }
 
 impl GMConstAcceleration {
@@ -194,11 +198,14 @@ impl GMMovementT for GMConstAcceleration {
     }
 }
 
+
+// TODO: block screen
+
 #[derive(Clone, Debug)]
 pub struct GMWrapAround {
     pub screen_width: f32,
     pub screen_height: f32,
-    active: bool,
+    pub active: bool,
 }
 
 impl GMWrapAround {
@@ -262,7 +269,7 @@ impl GMMovementT for GMWrapAround {
 pub struct GMMovementBounce {
     pub screen_width: f32,
     pub screen_height: f32,
-    active: bool,
+    pub active: bool,
 }
 
 impl GMMovementBounce {
@@ -327,25 +334,32 @@ pub struct GMMovementCircular {
     pub cy: f32,
     pub radius: f32,
     pub angle: f32,
-    active: bool,
+    pub v_angle: f32,
+    pub active: bool,
 }
 
 impl GMMovementCircular {
-    pub fn new(cx: f32, cy: f32, radius: f32, angle: f32) -> Self {
+    pub fn new(cx: f32, cy: f32, radius: f32, angle: f32, v_angle: f32) -> Self {
         Self {
             cx,
             cy,
             radius,
             angle,
+            v_angle,
             active: true,
         }
     }
 }
 
 impl GMMovementT for GMMovementCircular {
-    fn update(&mut self, _movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
+            self.angle += self.v_angle;
+            let new_x = self.cx + (self.angle.cos() * self.radius);
+            let new_y = self.cy + (self.angle.sin() * self.radius);
 
+            movement_inner.vx = new_x - movement_inner.x;
+            movement_inner.vy = new_y - movement_inner.y;
         }
     }
 
@@ -371,6 +385,9 @@ impl GMMovementT for GMMovementCircular {
             GMMovementMessage::SetCircleAngle(angle) => {
                 self.angle = angle;
             }
+            GMMovementMessage::SetCircleVAngle(v_angle) => {
+                self.v_angle = v_angle;
+            }
             GMMovementMessage::GetCircleCenter => {
                 return Ok(GMMovementAnswer::CircleCenter(self.cx, self.cy))
             }
@@ -380,11 +397,60 @@ impl GMMovementT for GMMovementCircular {
             GMMovementMessage::GetCircleAngle => {
                 return Ok(GMMovementAnswer::CircleAngle(self.angle))
             }
+            GMMovementMessage::GetCircleVAngle => {
+                return Ok(GMMovementAnswer::CircleVAngle(self.v_angle))
+            }
             _ => {
                 return Err(GMError::UnexpectedMovementMessage(message))
             }
         }
 
         Ok(GMMovementAnswer::None)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMMovementForce {
+    pub fx: f32,
+    pub fy: f32,
+    pub strength: f32,
+    pub duration: f32,
+    pub instant: Instant,
+    pub active: bool,
+}
+
+impl GMMovementForce {
+    pub fn new(fx: f32, fy: f32, strength: f32, duration: f32) -> Self {
+        Self {
+            fx,
+            fy,
+            strength,
+            duration,
+            instant: Instant::now(),
+            active: true,
+        }
+    }
+}
+
+impl GMMovementT for GMMovementForce {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+        if self.active {
+            if self.duration <= 0.0 || (self.instant.elapsed().as_secs_f32() < self.duration) {
+
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active
+    }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = self.clone();
+        Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        todo!()
     }
 }
