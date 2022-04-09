@@ -131,8 +131,8 @@ impl GMDrawT for GMSprite {
             self.sprite_inner.movement_answers.clear();
             self.sprite_inner.sprite_effect_answers.clear();
             self.sprite_inner.messages.reverse();
-            while let Some(command) = self.sprite_inner.messages.pop() {
-                match command {
+            while let Some(message) = self.sprite_inner.messages.pop() {
+                match message {
                     GMSpriteMessage::AddMovement(new_movement) => {
                         self.movements.push(new_movement);
                     }

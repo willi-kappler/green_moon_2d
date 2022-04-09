@@ -29,6 +29,10 @@ pub enum GMSceneState {
     Quit,
 }
 
+pub struct GMContextInner {
+    // TODO: Move from GMContext to this
+}
+
 pub struct GMContext {
     // configuration: GMConfiguration,
     new_fps: u32,

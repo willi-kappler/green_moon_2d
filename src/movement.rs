@@ -40,17 +40,36 @@ pub enum GMMovementMessage {
     GetAy,
     GetAxAy,
 
-    SetScreenSize(f32, f32),
 
-    SetCircleCenter(f32, f32),
+    SetCircleX(f32, f32),
+    SetCircleY(f32, f32),
+    SetCircleXY(f32, f32),
     SetCircleRadius(f32),
     SetCircleAngle(f32),
     SetCircleVAngle(f32),
 
-    GetCircleCenter,
+    SetBounds(f32, f32, f32, f32),
+
+    SetFx(f32),
+    SetFy(f32),
+    SetFxFy(f32, f32),
+    SetStrength(f32),
+    SetDuration(f32),
+
+    GetCircleX,
+    GetCircleY,
+    GetCircleXY,
     GetCircleRadius,
     GetCircleAngle,
     GetCircleVAngle,
+
+    GetBounds,
+
+    GetFx,
+    GetFy,
+    GetFxFy,
+    GetStrength,
+    GetDuration,
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -63,10 +82,20 @@ pub enum GMMovementAnswer {
     Ay(f32),
     AxAy(f32, f32),
 
-    CircleCenter(f32, f32),
+    CircleX(f32, f32),
+    Circley(f32, f32),
+    CircleXY(f32, f32),
     CircleRadius(f32),
     CircleAngle(f32),
     CircleVAngle(f32),
+
+    Bounds(f32, f32, f32, f32),
+
+    Fx(f32),
+    Fy(f32),
+    FxFy(f32, f32),
+    Strength(f32),
+    Duration(f32),
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -198,45 +227,43 @@ impl GMMovementT for GMConstAcceleration {
     }
 }
 
-
-// TODO: block screen
-
 #[derive(Clone, Debug)]
-pub struct GMWrapAround {
-    pub screen_width: f32,
-    pub screen_height: f32,
+pub struct GMStopAtBounds {
+    pub min_x: f32,
+    pub min_y: f32,
+    pub max_x: f32,
+    pub max_y: f32,
     pub active: bool,
 }
 
-impl GMWrapAround {
-    pub fn new(screen_width: f32, screen_height: f32) -> Self {
+impl GMStopAtBounds {
+    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
         Self {
-            screen_width,
-            screen_height,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
             active: true,
         }
     }
 }
 
-impl GMMovementT for GMWrapAround {
+impl GMMovementT for GMStopAtBounds {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
-        if self.active {
-            let x = movement_inner.x;
-            let y = movement_inner.y;
-            let width = movement_inner.width;
-            let height = movement_inner.height;
+        if movement_inner.x <= self.min_x {
+            movement_inner.x = self.min_x;
+            movement_inner.vx = 0.0;
+        } else if movement_inner.x >= self.max_x - movement_inner.width {
+            movement_inner.x = self.max_x - movement_inner.width;
+            movement_inner.vx = 0.0;
+        }
 
-            if x > self.screen_width {
-                movement_inner.x = -width;
-            } else if x < -width {
-                movement_inner.x = self.screen_width;
-            }
-
-            if y > self.screen_height {
-                movement_inner.y = -height;
-            } else if y < -height {
-                movement_inner.y = self.screen_height;
-            }
+        if movement_inner.y <= self.min_y {
+            movement_inner.y = self.min_y;
+            movement_inner.vy = 0.0;
+        } else if movement_inner.y >= self.max_y - movement_inner.height {
+            movement_inner.y = self.max_y - movement_inner.height;
+            movement_inner.vy = 0.0;
         }
     }
 
@@ -246,60 +273,60 @@ impl GMMovementT for GMWrapAround {
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
-
         Box::new(result)
     }
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
-            GMMovementMessage::SetScreenSize(screen_width, screen_height) => {
-                self.screen_width = screen_width;
-                self.screen_height = screen_height;
+            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
+                self.min_x = min_x;
+                self.min_y = min_y;
+                self.max_x = max_x;
+                self.max_y = max_y;
                 Ok(GMMovementAnswer::None)
             }
             _ => {
                 Err(GMError::UnexpectedMovementMessage(message))
             }
         }
-
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct GMMovementBounce {
-    pub screen_width: f32,
-    pub screen_height: f32,
+pub struct GMWrapAroundBounds {
+    pub min_x: f32,
+    pub min_y: f32,
+    pub max_x: f32,
+    pub max_y: f32,
     pub active: bool,
 }
 
-impl GMMovementBounce {
-    pub fn new(screen_width: f32, screen_height: f32) -> Self {
+impl GMWrapAroundBounds {
+    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
         Self {
-            screen_width,
-            screen_height,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
             active: true,
         }
     }
 }
 
-impl GMMovementT for GMMovementBounce {
+impl GMMovementT for GMWrapAroundBounds {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            let x = movement_inner.x;
-            let y = movement_inner.y;
-            let width = movement_inner.width;
-            let height = movement_inner.height;
 
-            if x + width >= self.screen_width {
-                movement_inner.vx = -movement_inner.vx;
-            } else if x <= 0.0 {
-                movement_inner.vx = -movement_inner.vx;
+            if movement_inner.x > self.max_x {
+                movement_inner.x -= self.max_x - self.min_x;
+            } else if movement_inner.x < self.min_x - movement_inner.width {
+                movement_inner.x += self.max_x - self.min_x;
             }
 
-            if y + height >= self.screen_height {
-                movement_inner.vy = -movement_inner.vy;
-            } else if y <= 0.0 {
-                movement_inner.vy = -movement_inner.vy;
+            if movement_inner.y > self.max_y {
+                movement_inner.y -= self.max_y - self.min_y;
+            } else if movement_inner.y <  self.min_y - movement_inner.height {
+                movement_inner.y += self.max_y - self.min_y;
             }
         }
     }
@@ -316,9 +343,84 @@ impl GMMovementT for GMMovementBounce {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
-            GMMovementMessage::SetScreenSize(screen_width, screen_height) => {
-                self.screen_width = screen_width;
-                self.screen_height = screen_height;
+            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
+                self.min_x = min_x;
+                self.min_y = min_y;
+                self.max_x = max_x;
+                self.max_y = max_y;
+                Ok(GMMovementAnswer::None)
+            }
+            _ => {
+                Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMMovementBounceBounds {
+    pub min_x: f32,
+    pub min_y: f32,
+    pub max_x: f32,
+    pub max_y: f32,
+    pub active: bool,
+}
+
+impl GMMovementBounceBounds {
+    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
+        Self {
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            active: true,
+        }
+    }
+}
+
+impl GMMovementT for GMMovementBounceBounds {
+    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+        if self.active {
+
+            if movement_inner.x > self.max_x - movement_inner.width {
+                movement_inner.x = self.max_x - movement_inner.width;
+                let vx = movement_inner.vx.abs();
+                movement_inner.vx = -vx;
+            } else if movement_inner.x < self.min_x {
+                movement_inner.x = self.min_x;
+                let vx = movement_inner.vx.abs();
+                movement_inner.vx = vx;
+            }
+
+            if movement_inner.y > self.max_y - movement_inner.height {
+                movement_inner.y = self.max_y - movement_inner.height;
+                let vy = movement_inner.vy.abs();
+                movement_inner.vy = -vy;
+            } else if movement_inner.y < self.min_y {
+                movement_inner.y = self.min_y;
+                let vy = movement_inner.vy.abs();
+                movement_inner.vy = vy;
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
+                self.min_x = min_x;
+                self.min_y = min_y;
+                self.max_x = max_x;
+                self.max_y = max_y;
                 Ok(GMMovementAnswer::None)
             }
             _ => {
@@ -375,7 +477,7 @@ impl GMMovementT for GMMovementCircular {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
-            GMMovementMessage::SetCircleCenter(cx, cy) => {
+            GMMovementMessage::SetCircleXY(cx, cy) => {
                 self.cx = cx;
                 self.cy = cy;
             }
@@ -388,8 +490,8 @@ impl GMMovementT for GMMovementCircular {
             GMMovementMessage::SetCircleVAngle(v_angle) => {
                 self.v_angle = v_angle;
             }
-            GMMovementMessage::GetCircleCenter => {
-                return Ok(GMMovementAnswer::CircleCenter(self.cx, self.cy))
+            GMMovementMessage::GetCircleXY => {
+                return Ok(GMMovementAnswer::CircleXY(self.cx, self.cy))
             }
             GMMovementMessage::GetCircleRadius => {
                 return Ok(GMMovementAnswer::CircleRadius(self.radius))
@@ -417,6 +519,8 @@ pub struct GMMovementForce {
     pub duration: f32,
     pub instant: Instant,
     pub active: bool,
+    pub max_ax: f32,
+    pub max_ay: f32,
 }
 
 impl GMMovementForce {
@@ -428,6 +532,8 @@ impl GMMovementForce {
             duration,
             instant: Instant::now(),
             active: true,
+            max_ax: 10.0,
+            max_ay: 10.0,
         }
     }
 }
@@ -435,14 +541,21 @@ impl GMMovementForce {
 impl GMMovementT for GMMovementForce {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            if self.duration <= 0.0 || (self.instant.elapsed().as_secs_f32() < self.duration) {
+            let _dist_x = movement_inner.x - self.fx;
+            let _dist_y = movement_inner.y - self.fy;
 
+            if self.duration > 0.0  && self.instant.elapsed().as_secs_f32() > self.duration {
+                self.active = false;
             }
         }
     }
 
     fn set_active(&mut self, active: bool) {
-        self.active = active
+        self.active = active;
+
+        if self.duration > 0.0 {
+            self.instant = Instant::now();
+        }
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -450,7 +563,7 @@ impl GMMovementT for GMMovementForce {
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+    fn send_message(&mut self, _message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         todo!()
     }
 }
