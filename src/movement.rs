@@ -519,8 +519,6 @@ pub struct GMMovementForce {
     pub duration: f32,
     pub instant: Instant,
     pub active: bool,
-    pub max_ax: f32,
-    pub max_ay: f32,
 }
 
 impl GMMovementForce {
@@ -532,8 +530,6 @@ impl GMMovementForce {
             duration,
             instant: Instant::now(),
             active: true,
-            max_ax: 10.0,
-            max_ay: 10.0,
         }
     }
 }
@@ -541,8 +537,28 @@ impl GMMovementForce {
 impl GMMovementT for GMMovementForce {
     fn update(&mut self, movement_inner: &mut GMMovementInner) {
         if self.active {
-            let _dist_x = movement_inner.x - self.fx;
-            let _dist_y = movement_inner.y - self.fy;
+            let dist_x = movement_inner.x - self.fx;
+            let dist_y = movement_inner.y - self.fy;
+
+            let dist2 = dist_x.powi(2) + dist_y.powi(2);
+
+            if dist2 > 1.0 { // More than one pixel distance
+                let dist3 = dist2.sqrt() * dist2;
+
+                let ax = self.strength * dist_x / dist3;
+                let ay = self.strength * dist_y / dist3;
+
+                movement_inner.vx += ax;
+                movement_inner.vx += ay;
+            } else {
+                // Less than one pixel distance doesn't make sense
+                // So we set dist2 = 1.0
+                let ax = self.strength * dist_x;
+                let ay = self.strength * dist_y;
+
+                movement_inner.vx += ax;
+                movement_inner.vx += ay;
+            }
 
             if self.duration > 0.0  && self.instant.elapsed().as_secs_f32() > self.duration {
                 self.active = false;
@@ -563,7 +579,44 @@ impl GMMovementT for GMMovementForce {
         Box::new(result)
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        todo!()
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetFx(fx) => {
+                self.fx = fx;
+            }
+            GMMovementMessage::SetFy(fy) => {
+                self.fy = fy;
+            }
+            GMMovementMessage::SetFxFy(fx,fy) => {
+                self.fx = fx;
+                self.fy = fy;
+            }
+            GMMovementMessage::SetStrength(strength) => {
+                self.strength = strength;
+            }
+            GMMovementMessage::SetDuration(duration) => {
+                self.duration = duration;
+            }
+            GMMovementMessage::GetFx => {
+                return Ok(GMMovementAnswer::Fx(self.fx))
+            }
+            GMMovementMessage::GetFy => {
+                return Ok(GMMovementAnswer::Fy(self.fy))
+            }
+            GMMovementMessage::GetFxFy => {
+                return Ok(GMMovementAnswer::FxFy(self.fx, self.fy))
+            }
+            GMMovementMessage::GetStrength => {
+                return Ok(GMMovementAnswer::Strength(self.strength))
+            }
+            GMMovementMessage::GetDuration => {
+                return Ok(GMMovementAnswer::Duration(self.duration))
+            }
+            _ => {
+                return Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+
+        Ok(GMMovementAnswer::None)
     }
 }
