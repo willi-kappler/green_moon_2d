@@ -5,7 +5,7 @@ use std::fs::File;
 use log::{debug, info, error};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMApp, GMSceneT, GMContext, GMError};
+use green_moon_2d::{GMApp, GMSceneT, GMContext, GMError, GMDrawContainer};
 
 struct TextScene1 {
 }
@@ -18,15 +18,7 @@ impl TextScene1 {
 }
 
 impl GMSceneT for TextScene1 {
-    fn enter(&mut self, context: &mut GMContext) -> Result<(), GMError> {
-        debug!("Enter scene");
-
-        context.run_scene();
-
-        Ok(())
-    }
-
-    fn update_after(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    fn update_after(&mut self, context: &mut GMContext, draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
         let esc_pressed = context.key_esc_down();
 
         if esc_pressed {

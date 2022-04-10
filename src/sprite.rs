@@ -3,9 +3,10 @@ use std::rc::Rc;
 use std::any::Any;
 use std::fmt::{self, Debug, Formatter};
 
-use crate::GMError;
 use crate::animation::{GMAnimationT};
+use crate::context::GMContext;
 use crate::draw_object::{GMDrawT, GMDrawMessage, GMDrawAnswer};
+use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementInner, GMMovementMessage, GMMovementAnswer};
 use crate::texture::GMTexture;
 
@@ -70,12 +71,12 @@ impl GMSpriteInner {
         self.animation.update();
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, context: &mut GMContext) {
         let index = self.animation.frame_index();
         let x = self.movement_inner.x;
         let y = self.movement_inner.y;
 
-        self.texture.draw(x, y, index)
+        self.texture.draw(x, y, index, context);
     }
 
     pub fn set_active(&mut self, active: bool) {
@@ -116,16 +117,16 @@ impl GMSprite {
 }
 
 impl GMDrawT for GMSprite {
-    fn update(&mut self) -> Result<(), GMError> {
+    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         if self.sprite_inner.active {
             self.sprite_inner.update();
 
             for movement in self.movements.iter_mut() {
-                movement.update(&mut self.sprite_inner.movement_inner);
+                movement.update(&mut self.sprite_inner.movement_inner, context);
             }
 
             for effect in self.effects.iter_mut() {
-                effect.update(&mut self.sprite_inner);
+                effect.update(&mut self.sprite_inner, context);
             }
 
             self.sprite_inner.movement_answers.clear();
@@ -143,7 +144,7 @@ impl GMDrawT for GMSprite {
                         self.movements[index] = new_movement;
                     }
                     GMSpriteMessage::SetMovementActive(index, active) => {
-                        self.movements[index].set_active(active);
+                        self.movements[index].send_message(GMMovementMessage::SetActive(active))?;
                     }
                     GMSpriteMessage::CustomMovementMessage(index, message) => {
                         let answer = self.movements[index].send_message(message)?;
@@ -176,10 +177,10 @@ impl GMDrawT for GMSprite {
         Ok(())
     }
 
-    fn draw(&self) {
+    fn draw(&self, context: &mut GMContext) {
         if self.sprite_inner.active {
             for effect in self.effects.iter() {
-                effect.draw(&self.sprite_inner);
+                effect.draw(&self.sprite_inner, context);
             }
         }
     }
@@ -237,9 +238,9 @@ pub enum GMSpriteEffectAnswer {
 }
 
 pub trait GMSpriteEffectT {
-    fn update(&mut self, sprite_inner: &mut GMSpriteInner);
+    fn update(&mut self, sprite_inner: &mut GMSpriteInner, context: &mut GMContext);
 
-    fn draw(&self, sprite_inner: &GMSpriteInner);
+    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMContext);
 
     fn set_active(&mut self, active: bool);
 
@@ -275,11 +276,11 @@ impl GMSpriteEffectStatic {
 }
 
 impl GMSpriteEffectT for GMSpriteEffectStatic {
-    fn update(&mut self, _sprite_inner: &mut GMSpriteInner) {}
+    fn update(&mut self, _sprite_inner: &mut GMSpriteInner, _context: &mut GMContext) {}
 
-    fn draw(&self, sprite_inner: &GMSpriteInner) {
+    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMContext) {
         if self.active {
-            sprite_inner.draw();
+            sprite_inner.draw(context);
         }
     }
 

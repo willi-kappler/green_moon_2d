@@ -7,9 +7,9 @@ use sdl2::gfx::framerate::FPSManager;
 
 use crate::configuration::GMConfiguration;
 use crate::context::{GMContext, GMSceneState};
+use crate::draw_object::GMDrawContainer;
 use crate::error::GMError;
-use crate::scene_container::GMSceneContainer;
-use crate::scene::GMSceneT;
+use crate::scene::{GMSceneT, GMSceneContainer};
 
 pub struct GMApp {
     scenes: GMSceneContainer,
@@ -56,28 +56,27 @@ impl GMApp {
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
+        let mut draw_objects = GMDrawContainer::new();
+
         loop {
             let scene_state = context.get_scene_state();
 
             match scene_state {
-                GMSceneState::Enter => {
-                    current_scene.enter(&mut context)?;
-                }
                 GMSceneState::Run => {
-                    current_scene.update_before(&mut context)?;
+                    current_scene.update_before(&mut context, &mut draw_objects)?;
                     context.update()?;
-                    current_scene.update_after(&mut context)?;
-                    current_scene.draw_before(&mut context)?;
-                    context.draw()?;
-                    current_scene.draw_after(&mut context)?;
+                    draw_objects.update(&mut context)?;
+                    current_scene.update_after(&mut context, &mut draw_objects)?;
+
+                    current_scene.draw_before(&mut context, &mut draw_objects)?;
+                    draw_objects.draw(&mut context)?;
+                    current_scene.draw_after(&mut context, &mut draw_objects)?;
+
                     context.present();
-                }
-                GMSceneState::Leave => {
-                    current_scene.leave(&mut context)?;
                 }
                 GMSceneState::ChangeToScene(scene_name) => {
                     current_scene = self.scenes.get_scene_mut(scene_name)?;
-                    context.enter_scene();
+                    context.run_scene();
                 }
                 GMSceneState::Quit => {
                     break
@@ -86,10 +85,9 @@ impl GMApp {
 
             // TODO: Add / remove scene via context
 
-            let new_fps = context.get_fps();
-            if new_fps > 0 {
-                fps_manager.set_framerate(new_fps).unwrap();
-                context.set_fps(0);
+            if context.new_fps > 0 {
+                fps_manager.set_framerate(context.new_fps).unwrap();
+                context.new_fps = 0;
             }
 
             fps_manager.delay();

@@ -2,6 +2,8 @@
 
 use sdl2::rect::Rect;
 
+use crate::GMContext;
+
 #[derive(Debug)]
 pub struct GMTexture {
     //width: u32,
@@ -14,7 +16,7 @@ pub struct GMTexture {
 }
 
 impl GMTexture {
-    pub fn draw(&self, dx: f32, dy: f32, index: u32) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, _context: &mut GMContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 

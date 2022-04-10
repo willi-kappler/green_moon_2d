@@ -3,10 +3,11 @@
 use std::rc::Rc;
 //use std::any::Any;
 
+use crate::context::GMContext;
 use crate::draw_object::{GMDrawT, GMDrawMessage, GMDrawAnswer};
+use crate::error::GMError;
 use crate::font::GMFontT;
 use crate::movement::{GMMovementT, GMMovementInner};
-use crate::error::GMError;
 
 
 #[derive(Clone)]
@@ -35,14 +36,14 @@ impl GMTextInner {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, context: &mut GMContext) {
         let mut x = self.movement_inner.x;
         let mut y = self.movement_inner.y;
 
         for c in self.text.chars() {
             let (c_width, c_height) = self.font.get_char_dimensions(c);
 
-            self.font.draw(c, x, y);
+            self.font.draw(c, x, y, context);
 
             if self.horizontal {
                 x += c_width + self.spacing_x;
@@ -54,8 +55,8 @@ impl GMTextInner {
 }
 
 pub trait GMTextEffectT {
-    fn update(&mut self, text_inner: &mut GMTextInner);
-    fn draw(&self, text_inner: &GMTextInner);
+    fn update(&mut self, text_inner: &mut GMTextInner, context: &mut GMContext);
+    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext);
     fn set_active(&mut self, active: bool);
     fn box_clone(&self) -> Box<dyn GMTextEffectT>;
 }
@@ -100,24 +101,24 @@ impl GMText {
 }
 
 impl GMDrawT for GMText {
-    fn update(&mut self) -> Result<(), GMError> {
+    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         if self.text_inner.active {
             for movement in self.movements.iter_mut() {
-                movement.update(&mut self.text_inner.movement_inner);
+                movement.update(&mut self.text_inner.movement_inner, context);
             }
 
             for effect in self.effects.iter_mut() {
-                effect.update(&mut self.text_inner);
+                effect.update(&mut self.text_inner, context);
             }
         }
 
         Ok(())
     }
 
-    fn draw(&self) {
+    fn draw(&self, context: &mut GMContext) {
         if self.text_inner.active {
             for effect in self.effects.iter() {
-                effect.draw(&self.text_inner);
+                effect.draw(&self.text_inner, context);
             }
         }
     }
@@ -155,11 +156,11 @@ impl GMTextEffectStatic {
 }
 
 impl GMTextEffectT for GMTextEffectStatic {
-    fn update(&mut self, _text_inner: &mut GMTextInner) {}
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {}
 
-    fn draw(&self, text_inner: &GMTextInner) {
+    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
         if self.active {
-            text_inner.draw();
+            text_inner.draw(context);
         }
     }
 

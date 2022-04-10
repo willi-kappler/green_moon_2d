@@ -5,6 +5,7 @@ use std::any::Any;
 use std::time::Instant;
 
 use crate::GMError;
+use crate::GMContext;
 
 
 #[derive(Clone, Debug)]
@@ -32,14 +33,11 @@ impl GMMovementInner {
 
 #[derive(Debug)]
 pub enum GMMovementMessage {
+    SetActive(bool),
+
     SetAx(f32),
     SetAy(f32),
     SetAxAy(f32, f32),
-
-    GetAx,
-    GetAy,
-    GetAxAy,
-
 
     SetCircleX(f32, f32),
     SetCircleY(f32, f32),
@@ -56,6 +54,14 @@ pub enum GMMovementMessage {
     SetStrength(f32),
     SetDuration(f32),
 
+    SetCustomProperty(String, Box<dyn Any>),
+
+    GetActive,
+
+    GetAx,
+    GetAy,
+    GetAxAy,
+
     GetCircleX,
     GetCircleY,
     GetCircleXY,
@@ -71,12 +77,14 @@ pub enum GMMovementMessage {
     GetStrength,
     GetDuration,
 
-    CustomProperty(String, Box<dyn Any>),
+    GetCustomProperty(String),
 }
 
 #[derive(Debug)]
 pub enum GMMovementAnswer {
     None,
+
+    Active(bool),
 
     Ax(f32),
     Ay(f32),
@@ -101,9 +109,7 @@ pub enum GMMovementAnswer {
 }
 
 pub trait GMMovementT {
-    fn update(&mut self, movement_inner: &mut GMMovementInner);
-
-    fn set_active(&mut self, active: bool);
+    fn update(&mut self, movement_inner: &mut GMMovementInner, context: &mut GMContext);
 
     fn box_clone(&self) -> Box<dyn GMMovementT>;
 
@@ -136,15 +142,11 @@ impl GMConstVelocity {
 }
 
 impl GMMovementT for GMConstVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
             movement_inner.x += movement_inner.vx;
             movement_inner.y += movement_inner.vy;
         }
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -155,10 +157,17 @@ impl GMMovementT for GMConstVelocity {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
+            }
             _ => {
-                Ok(GMMovementAnswer::None)
             }
         }
+
+        Ok(GMMovementAnswer::None)
     }
 }
 
@@ -180,15 +189,11 @@ impl GMConstAcceleration {
 }
 
 impl GMMovementT for GMConstAcceleration {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
             movement_inner.vx += self.ax;
             movement_inner.vy += self.ay;
         }
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -199,6 +204,9 @@ impl GMMovementT for GMConstAcceleration {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
             GMMovementMessage::SetAx(x) => {
                 self.ax = x;
             }
@@ -208,6 +216,9 @@ impl GMMovementT for GMConstAcceleration {
             GMMovementMessage::SetAxAy(x, y) => {
                 self.ax = x;
                 self.ay = y;
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
             }
             GMMovementMessage::GetAx => {
                 return Ok(GMMovementAnswer::Ax(self.ax))
@@ -249,7 +260,7 @@ impl GMStopAtBounds {
 }
 
 impl GMMovementT for GMStopAtBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if movement_inner.x <= self.min_x {
             movement_inner.x = self.min_x;
             movement_inner.vx = 0.0;
@@ -267,10 +278,6 @@ impl GMMovementT for GMStopAtBounds {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
         Box::new(result)
@@ -278,17 +285,27 @@ impl GMMovementT for GMStopAtBounds {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
             GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
                 self.min_x = min_x;
                 self.min_y = min_y;
                 self.max_x = max_x;
                 self.max_y = max_y;
-                Ok(GMMovementAnswer::None)
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
+            }
+            GMMovementMessage::GetBounds => {
+                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
             }
             _ => {
-                Err(GMError::UnexpectedMovementMessage(message))
+                return Err(GMError::UnexpectedMovementMessage(message))
             }
         }
+
+        Ok(GMMovementAnswer::None)
     }
 }
 
@@ -314,7 +331,7 @@ impl GMWrapAroundBounds {
 }
 
 impl GMMovementT for GMWrapAroundBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
 
             if movement_inner.x > self.max_x {
@@ -331,10 +348,6 @@ impl GMMovementT for GMWrapAroundBounds {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
@@ -343,17 +356,27 @@ impl GMMovementT for GMWrapAroundBounds {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
             GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
                 self.min_x = min_x;
                 self.min_y = min_y;
                 self.max_x = max_x;
                 self.max_y = max_y;
-                Ok(GMMovementAnswer::None)
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
+            }
+            GMMovementMessage::GetBounds => {
+                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
             }
             _ => {
-                Err(GMError::UnexpectedMovementMessage(message))
+                return Err(GMError::UnexpectedMovementMessage(message))
             }
         }
+
+        Ok(GMMovementAnswer::None)
     }
 }
 
@@ -379,7 +402,7 @@ impl GMMovementBounceBounds {
 }
 
 impl GMMovementT for GMMovementBounceBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
 
             if movement_inner.x > self.max_x - movement_inner.width {
@@ -404,10 +427,6 @@ impl GMMovementT for GMMovementBounceBounds {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
@@ -416,17 +435,27 @@ impl GMMovementT for GMMovementBounceBounds {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
             GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
                 self.min_x = min_x;
                 self.min_y = min_y;
                 self.max_x = max_x;
                 self.max_y = max_y;
-                Ok(GMMovementAnswer::None)
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
+            }
+            GMMovementMessage::GetBounds => {
+                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
             }
             _ => {
-                Err(GMError::UnexpectedMovementMessage(message))
+                return Err(GMError::UnexpectedMovementMessage(message))
             }
         }
+
+        Ok(GMMovementAnswer::None)
     }
 }
 
@@ -454,7 +483,7 @@ impl GMMovementCircular {
 }
 
 impl GMMovementT for GMMovementCircular {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
             self.angle += self.v_angle;
             let new_x = self.cx + (self.angle.cos() * self.radius);
@@ -465,10 +494,6 @@ impl GMMovementT for GMMovementCircular {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
@@ -477,6 +502,9 @@ impl GMMovementT for GMMovementCircular {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+            }
             GMMovementMessage::SetCircleXY(cx, cy) => {
                 self.cx = cx;
                 self.cy = cy;
@@ -489,6 +517,9 @@ impl GMMovementT for GMMovementCircular {
             }
             GMMovementMessage::SetCircleVAngle(v_angle) => {
                 self.v_angle = v_angle;
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
             }
             GMMovementMessage::GetCircleXY => {
                 return Ok(GMMovementAnswer::CircleXY(self.cx, self.cy))
@@ -535,7 +566,7 @@ impl GMMovementForce {
 }
 
 impl GMMovementT for GMMovementForce {
-    fn update(&mut self, movement_inner: &mut GMMovementInner) {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
             let dist_x = movement_inner.x - self.fx;
             let dist_y = movement_inner.y - self.fy;
@@ -566,14 +597,6 @@ impl GMMovementT for GMMovementForce {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-
-        if self.duration > 0.0 {
-            self.instant = Instant::now();
-        }
-    }
-
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
         Box::new(result)
@@ -581,6 +604,13 @@ impl GMMovementT for GMMovementForce {
 
     fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
         match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+
+                if self.duration > 0.0 {
+                    self.instant = Instant::now();
+                }
+            }
             GMMovementMessage::SetFx(fx) => {
                 self.fx = fx;
             }
@@ -596,6 +626,9 @@ impl GMMovementT for GMMovementForce {
             }
             GMMovementMessage::SetDuration(duration) => {
                 self.duration = duration;
+            }
+            GMMovementMessage::GetActive => {
+                return Ok(GMMovementAnswer::Active(self.active))
             }
             GMMovementMessage::GetFx => {
                 return Ok(GMMovementAnswer::Fx(self.fx))

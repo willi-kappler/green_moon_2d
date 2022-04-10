@@ -4,9 +4,10 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use crate::texture::GMTexture;
+use crate::context::GMContext;
 
 pub trait GMFontT {
-    fn draw(&self, c: char, x: f32, y: f32);
+    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext);
     fn get_char_dimensions(&self, c: char) -> (f32, f32);
     fn rc_clone(&self) -> Rc<dyn GMFontT>;
 }
@@ -26,9 +27,9 @@ impl GMBitmapFont {
 }
 
 impl GMFontT for GMBitmapFont {
-    fn draw(&self, c: char, x: f32, y: f32) {
+    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext) {
         let index = self.mapping.get(&c).unwrap();
-        self.texture.draw(x, y, *index);
+        self.texture.draw(x, y, *index, context);
     }
 
     fn get_char_dimensions(&self, _c: char) -> (f32, f32) {

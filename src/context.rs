@@ -14,7 +14,6 @@ use log::debug;
 use crate::animation::GMAnimationT;
 use crate::assets::GMAssets;
 use crate::configuration::GMConfiguration;
-use crate::draw_object::GMDrawT;
 use crate::error::GMError;
 use crate::font::GMFontT;
 use crate::texture::GMTexture;
@@ -22,32 +21,25 @@ use crate::texture::GMTexture;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GMSceneState {
-    Enter,
     Run,
-    Leave,
     ChangeToScene(String),
     Quit,
 }
 
-pub struct GMContextInner {
-    // TODO: Move from GMContext to this
-}
-
 pub struct GMContext {
-    // configuration: GMConfiguration,
-    new_fps: u32,
-    scene_state: GMSceneState,
-    canvas: render::Canvas<video::Window>,
-    event_pump: sdl2::EventPump,
+    pub configuration: GMConfiguration,
+    pub new_fps: u32,
+    pub scene_state: GMSceneState,
+    pub canvas: render::Canvas<video::Window>,
+    pub event_pump: sdl2::EventPump,
 
     // Name, Object
-    animations: Vec<(String, Box<dyn GMAnimationT>)>,
-    draw_objects: Vec<(String, Box<dyn GMDrawT>)>,
-    fonts: Vec<(String, Rc<dyn GMFontT>)>,
-    // textures: Vec<Rc<GMTexture>>,
+    pub animations: Vec<(String, Box<dyn GMAnimationT>)>,
+    pub fonts: Vec<(String, Rc<dyn GMFontT>)>,
+    pub textures: Vec<Rc<GMTexture>>,
 
-    key_esc_down_: bool,
-    key_esc_up_: bool,
+    pub key_esc_down_: bool,
+    pub key_esc_up_: bool,
 }
 
 impl GMContext {
@@ -68,28 +60,19 @@ impl GMContext {
         let event_pump = sdl_context.event_pump().unwrap();
 
         Self {
-            //configuration,
+            configuration,
             new_fps: 0,
-            scene_state: GMSceneState::Enter,
+            scene_state: GMSceneState::Run,
             canvas,
             event_pump,
 
             animations: Vec::new(),
-            draw_objects: Vec::new(),
             fonts: Vec::new(),
-            //textures: Vec::new(),
+            textures: Vec::new(),
 
             key_esc_down_: false,
             key_esc_up_: false,
         }
-    }
-
-    pub fn set_fps(&mut self, new_fps: u32) {
-        self.new_fps = new_fps;
-    }
-
-    pub fn get_fps(&self) -> u32 {
-        self.new_fps
     }
 
     pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
@@ -183,86 +166,6 @@ impl GMContext {
         }
     }
 
-    pub fn has_draw_object(&self, name: &str) -> bool {
-        debug!("GMContext::has_draw_object(), name: '{}'", name);
-
-        self.draw_objects.iter().any(|(o_name, _)| o_name == name)
-    }
-
-    pub fn add_draw_object1<D: 'static + GMDrawT>(&mut self, name: &str, object: D) -> Result<(), GMError> {
-        debug!("GMContext::add_draw_object1(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
-        }
-
-        self.draw_objects.push((name.to_string(), Box::new(object)));
-
-        Ok(())
-    }
-
-    pub fn add_draw_object2(&mut self, name: &str, object: Box<dyn GMDrawT>) -> Result<(), GMError> {
-        debug!("GMContext::add_draw_object2(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
-        }
-
-        self.draw_objects.push((name.to_string(), object));
-
-        Ok(())
-    }
-
-    pub fn get_draw_object(&self, name: &str) -> Result<&Box<dyn GMDrawT>, GMError> {
-        debug!("GMContext::get_draw_object(), name: '{}'", name);
-
-        for (o_name, object) in self.draw_objects.iter() {
-            if o_name == name {
-                return Ok(object)
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
-    pub fn get_draw_object_mut(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawT>, GMError> {
-        debug!("GMContext::get_draw_object_mut(), name: '{}'", name);
-
-        for (o_name, object) in self.draw_objects.iter_mut() {
-            if o_name == name {
-                return Ok(object)
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
-    pub fn get_draw_object_clone(&self, name: &str) -> Result<Box<dyn GMDrawT>, GMError> {
-        debug!("GMContext::get_draw_object_clone(), name: '{}'", name);
-
-        for (o_name, object) in self.draw_objects.iter() {
-            if o_name == name {
-                return Ok(object.box_clone())
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
-    pub fn remove_draw_object(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::remove_draw_object(), name: '{}'", name);
-
-        match self.draw_objects.iter().position(|(o_name, _)| o_name == name) {
-            Some(index) => {
-                self.draw_objects.remove(index);
-                Ok(())
-            }
-            None => {
-                Err(GMError::DrawObjectNotFound(name.to_string()))
-            }
-        }
-    }
-
     pub fn add_font(&mut self, name: &str, texture: &str, mapping: &str) -> Result<(), GMError> {
         debug!("GMContext::add_font(), name: '{}', texture: '{}', mapping: '{}'", name, texture, mapping);
 
@@ -295,30 +198,6 @@ impl GMContext {
         }
     }
 
-    pub fn add_sprite(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::add_sprite1(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::SpriteAlreadyExists(name.to_string()))
-        }
-
-        todo!();
-
-        // Ok(())
-    }
-
-    pub fn add_text(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMContext::add_text(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::TextAlreadyExists(name.to_string()))
-        }
-
-        todo!();
-
-        // Ok(())
-    }
-
     pub fn add_texture(&mut self, name: &str, file: &str, _rows: u32, _cols: u32) -> Result<(), GMError> {
         debug!("GMContext::add_texture(), name: '{}', path: '{}'", name, file);
 
@@ -341,16 +220,8 @@ impl GMContext {
         &self.scene_state
     }
 
-    pub fn enter_scene(&mut self) {
-        self.scene_state = GMSceneState::Enter;
-    }
-
     pub fn run_scene(&mut self) {
         self.scene_state = GMSceneState::Run;
-    }
-
-    pub fn leave_scene(&mut self) {
-        self.scene_state = GMSceneState::Leave;
     }
 
     pub fn quit_app(&mut self) {
@@ -361,7 +232,7 @@ impl GMContext {
         self.scene_state = GMSceneState::ChangeToScene(name.to_string());
     }
 
-    pub(crate) fn update(&mut self) -> Result<(), GMError> {
+    pub fn update(&mut self) -> Result<(), GMError> {
         self.key_esc_down_ = false;
         self.key_esc_up_ = false;
 
@@ -381,21 +252,6 @@ impl GMContext {
 
         for (_, animation) in self.animations.iter_mut() {
             animation.update();
-        }
-
-        for (_, object) in self.draw_objects.iter_mut() {
-            object.update()?;
-        }
-
-        Ok(())
-    }
-
-    pub(crate) fn draw(&mut self) -> Result<(), GMError> {
-        // Sort all drawable objects by z order before drawing them
-        self.draw_objects.sort_by_key(|(_, object)| object.get_z_index());
-
-        for (_, object) in self.draw_objects.iter() {
-            object.draw();
         }
 
         Ok(())
@@ -427,5 +283,4 @@ impl GMContext {
     pub fn key_esc_up(&self) -> bool {
         self.key_esc_up_
     }
-
 }
