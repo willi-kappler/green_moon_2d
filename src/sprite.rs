@@ -84,6 +84,7 @@ impl GMSpriteInner {
     }
 }
 
+#[derive(Debug)]
 pub struct GMSprite {
     pub sprite_inner: GMSpriteInner,
     pub movements: Vec<Box<dyn GMMovementT>>,
@@ -189,6 +190,18 @@ impl GMDrawT for GMSprite {
         self.sprite_inner.z_index
     }
 
+    fn set_z_index(&mut self, z_index: i32) {
+        self.sprite_inner.z_index = z_index;
+    }
+
+    fn get_movement_inner_ref(&self) -> &GMMovementInner {
+        &self.sprite_inner.movement_inner
+    }
+
+    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
+        &mut self.sprite_inner.movement_inner
+    }
+
     fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = GMSprite {
             sprite_inner: self.sprite_inner.clone(),
@@ -201,11 +214,11 @@ impl GMDrawT for GMSprite {
 
     fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError> {
         match message {
-            GMDrawMessage::GetMovementInnerRef => {
-                Ok(GMDrawAnswer::MovementInnerRef(&self.sprite_inner.movement_inner))
+            GMDrawMessage::GetMovementsRef => {
+                Ok(GMDrawAnswer::MovementsRef(&self.movements))
             }
-            GMDrawMessage::GetMovementInnerMutRef => {
-                Ok(GMDrawAnswer::MovementInnerMutRef(&mut self.sprite_inner.movement_inner))
+            GMDrawMessage::GetMovementsMutRef => {
+                Ok(GMDrawAnswer::MovementsMutRef(&mut self.movements))
             }
             GMDrawMessage::GetSpriteInnerRef => {
                 Ok(GMDrawAnswer::SpriteInnerRef(&self.sprite_inner))
@@ -213,11 +226,11 @@ impl GMDrawT for GMSprite {
             GMDrawMessage::GetSpriteInnerMutRef => {
                 Ok(GMDrawAnswer::SpriteInnerMutRef(&mut self.sprite_inner))
             }
-            GMDrawMessage::GetAnimationRef => {
-                Ok(GMDrawAnswer::AnimationRef(&self.sprite_inner.animation))
+            GMDrawMessage::GetSpriteEffectsRef => {
+                Ok(GMDrawAnswer::SpriteEffectsRef(&self.effects))
             }
-            GMDrawMessage::GetAnimationMutRef => {
-                Ok(GMDrawAnswer::AnimationMutRef(&mut self.sprite_inner.animation))
+            GMDrawMessage::GetSpriteEffectsMutRef => {
+                Ok(GMDrawAnswer::SpriteEffectsMutRef(&mut self.effects))
             }
             _ => {
                 Err(GMError::UnexpectedDrawMessage(message))

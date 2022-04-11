@@ -5,23 +5,23 @@ use std::any::Any;
 
 use log::debug;
 
-use crate::animation::GMAnimationT;
 use crate::GMContext;
 use crate::GMError;
-use crate::movement::GMMovementInner;
+use crate::movement::{GMMovementT, GMMovementInner};
+use crate::sprite::GMSpriteEffectT;
 use crate::sprite::GMSpriteInner;
 
 
 #[derive(Debug)]
 pub enum GMDrawMessage {
-    GetMovementInnerRef,
-    GetMovementInnerMutRef,
+    GetMovementsRef,
+    GetMovementsMutRef,
 
     GetSpriteInnerRef,
     GetSpriteInnerMutRef,
 
-    GetAnimationRef,
-    GetAnimationMutRef,
+    GetSpriteEffectsRef,
+    GetSpriteEffectsMutRef,
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -30,14 +30,14 @@ pub enum GMDrawMessage {
 pub enum GMDrawAnswer<'a> {
     None,
 
-    MovementInnerRef(&'a GMMovementInner),
-    MovementInnerMutRef(&'a mut GMMovementInner),
+    MovementsRef(&'a Vec<Box<dyn GMMovementT>>),
+    MovementsMutRef(&'a mut Vec<Box<dyn GMMovementT>>),
 
     SpriteInnerRef(&'a GMSpriteInner),
     SpriteInnerMutRef(&'a mut GMSpriteInner),
 
-    AnimationRef(&'a Box<dyn GMAnimationT>),
-    AnimationMutRef(&'a mut Box<dyn GMAnimationT>),
+    SpriteEffectsRef(&'a Vec<Box<dyn GMSpriteEffectT>>),
+    SpriteEffectsMutRef(&'a mut Vec<Box<dyn GMSpriteEffectT>>),
 
     CustomProperty(String, Box<dyn Any>),
 }
@@ -50,9 +50,15 @@ pub trait GMDrawT {
 
     fn draw(&self, context: &mut GMContext);
 
-    fn get_z_index(&self) -> i32 {
-        0
-    }
+    fn get_z_index(&self) -> i32;
+
+    fn set_z_index(&mut self, z_index: i32);
+
+    fn get_movement_inner_ref(&self) -> &GMMovementInner;
+
+    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
+
+    // fn collides_with()
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 

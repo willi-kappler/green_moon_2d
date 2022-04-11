@@ -127,6 +127,18 @@ impl GMDrawT for GMText {
         self.text_inner.z_index
     }
 
+    fn set_z_index(&mut self, z_index: i32) {
+        self.text_inner.z_index = z_index;
+    }
+
+    fn get_movement_inner_ref(&self) -> &GMMovementInner {
+        &self.text_inner.movement_inner
+    }
+
+    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
+        &mut self.text_inner.movement_inner
+    }
+
     fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = GMText {
             text_inner: self.text_inner.clone(),
