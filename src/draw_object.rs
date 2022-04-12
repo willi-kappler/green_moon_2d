@@ -7,39 +7,25 @@ use log::debug;
 
 use crate::GMContext;
 use crate::GMError;
-use crate::movement::{GMMovementT, GMMovementInner};
-use crate::sprite::GMSpriteEffectT;
-use crate::sprite::GMSpriteInner;
+use crate::movement::GMMovementInner;
+use crate::sprite::GMSprite;
+use crate::text::GMText;
 
 
 #[derive(Debug)]
-pub enum GMDrawMessage {
-    GetMovementsRef,
-    GetMovementsMutRef,
+pub enum GMDrawRefType<'a> {
+    Sprite(&'a GMSprite),
+    Text(&'a GMText),
 
-    GetSpriteInnerRef,
-    GetSpriteInnerMutRef,
-
-    GetSpriteEffectsRef,
-    GetSpriteEffectsMutRef,
-
-    CustomProperty(String, Box<dyn Any>),
+    Custom(&'a dyn Any)
 }
 
 #[derive(Debug)]
-pub enum GMDrawAnswer<'a> {
-    None,
+pub enum GMDrawMutRefType<'a> {
+    Sprite(&'a mut GMSprite),
+    Text(&'a mut GMText),
 
-    MovementsRef(&'a Vec<Box<dyn GMMovementT>>),
-    MovementsMutRef(&'a mut Vec<Box<dyn GMMovementT>>),
-
-    SpriteInnerRef(&'a GMSpriteInner),
-    SpriteInnerMutRef(&'a mut GMSpriteInner),
-
-    SpriteEffectsRef(&'a Vec<Box<dyn GMSpriteEffectT>>),
-    SpriteEffectsMutRef(&'a mut Vec<Box<dyn GMSpriteEffectT>>),
-
-    CustomProperty(String, Box<dyn Any>),
+    Custom(&'a mut dyn Any)
 }
 
 
@@ -58,11 +44,13 @@ pub trait GMDrawT {
 
     fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
 
-    // fn collides_with()
+    fn collides_with(&self, other: &GMMovementInner); // TODO: change return type
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 
-    fn send_message(&mut self, message: GMDrawMessage) -> Result<GMDrawAnswer, GMError>;
+    fn cast_ref(&self) -> GMDrawRefType;
+
+    fn cast_mut_ref(&mut self) -> GMDrawMutRefType;
 }
 
 impl Clone for Box<dyn GMDrawT> {

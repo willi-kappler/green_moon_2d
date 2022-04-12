@@ -129,6 +129,48 @@ impl Debug for Box<dyn GMMovementT> {
 }
 
 #[derive(Clone, Debug)]
+pub struct GMResetVelocity {
+    active: bool,
+}
+
+impl GMResetVelocity {
+    pub fn new() -> Self {
+        Self {
+            active: true,
+        }
+    }
+}
+
+impl GMMovementT for GMResetVelocity {
+    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+        if self.active {
+            movement_inner.vx = 0.0;
+            movement_inner.vy = 0.0;
+        }
+    }
+
+    fn box_clone(&self) -> Box<dyn GMMovementT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
+        match message {
+            GMMovementMessage::SetActive(active) => {
+                self.active = active;
+                Ok(GMMovementAnswer::None)
+            }
+            _ => {
+                Err(GMError::UnexpectedMovementMessage(message))
+            }
+        }
+    }
+}
+
+
+
+#[derive(Clone, Debug)]
 pub struct GMConstVelocity {
     active: bool,
 }
