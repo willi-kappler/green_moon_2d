@@ -29,6 +29,11 @@ impl GMMovementInner {
             height,
         }
     }
+
+    pub fn collides(&self, other: &GMMovementInner) -> bool {
+
+        false
+    }
 }
 
 #[derive(Debug)]

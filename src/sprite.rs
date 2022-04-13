@@ -31,6 +31,8 @@ pub struct GMSpriteInner {
     pub active: bool,
     pub animation: Box<dyn GMAnimationT>,
     pub z_index: i32,
+    pub group: u64,
+    pub state: u64,
     pub messages: Vec<GMSpriteMessage>,
     pub movement_answers: Vec<(usize, GMMovementAnswer)>,
     pub sprite_effect_answers: Vec<(usize, GMSpriteEffectAnswer)>,
@@ -44,6 +46,8 @@ impl Clone for GMSpriteInner {
             active: self.active.clone(),
             animation: self.animation.clone(),
             z_index: self.z_index.clone(),
+            group: self.group,
+            state: self.state,
             messages: Vec::new(), // Don't clone messages
             movement_answers: Vec::new(), // Don't clone answers
             sprite_effect_answers: Vec::new(), // Don't clone answers
@@ -59,6 +63,8 @@ impl GMSpriteInner {
             active,
             animation,
             z_index: 0,
+            group: 0,
+            state: 0,
             messages: Vec::new(),
             movement_answers: Vec::new(),
             sprite_effect_answers: Vec::new(),
@@ -79,6 +85,22 @@ impl GMSpriteInner {
 
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn get_group(&self) -> u64 {
+        self.group
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.group = group
+    }
+
+    fn get_state(&self) -> u64 {
+        self.state
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.state = state
     }
 }
 
@@ -194,8 +216,20 @@ impl GMSprite {
         &mut self.sprite_inner.movement_inner
     }
 
-    pub fn collides_with(&self, _other: &GMMovementInner) {
-        todo!()
+    fn get_group(&self) -> u64 {
+        self.sprite_inner.get_group()
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.sprite_inner.set_group(group)
+    }
+
+    fn get_state(&self) -> u64 {
+        self.sprite_inner.get_state()
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.sprite_inner.set_state(state)
     }
 }
 
@@ -228,6 +262,22 @@ impl GMDrawT for GMSpriteObject {
         self.sprite.set_z_index(z_index);
     }
 
+    fn get_group(&self) -> u64 {
+        self.sprite.get_group()
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.sprite.set_group(group)
+    }
+
+    fn get_state(&self) -> u64 {
+        self.sprite.get_state()
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.sprite.set_state(state)
+    }
+
     fn get_movement_inner_ref(&self) -> &GMMovementInner {
         self.sprite.get_movement_inner_ref()
     }
@@ -242,10 +292,6 @@ impl GMDrawT for GMSpriteObject {
         };
 
         Box::new(result)
-    }
-
-    fn collides_with(&self, other: &GMMovementInner) {
-        self.sprite.collides_with(other)
     }
 
     fn cast_ref(&self) -> GMDrawRefType {

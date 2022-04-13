@@ -21,6 +21,8 @@ pub struct GMTextInner {
     pub horizontal: bool,
     pub active: bool,
     pub z_index: i32,
+    pub group: u64,
+    pub state: u64,
 }
 
 impl GMTextInner {
@@ -34,6 +36,8 @@ impl GMTextInner {
             horizontal: true,
             active: true,
             z_index: 0,
+            group: 0,
+            state: 0,
         }
     }
 
@@ -52,6 +56,22 @@ impl GMTextInner {
                 y += c_height + self.spacing_y;
             }
         }
+    }
+
+    fn get_group(&self) -> u64 {
+        self.group
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.group = group
+    }
+
+    fn get_state(&self) -> u64 {
+        self.state
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.state = state
     }
 }
 
@@ -146,8 +166,20 @@ impl GMText {
         &mut self.text_inner.movement_inner
     }
 
-    pub fn collides_with(&self, _other: &GMMovementInner) {
-        todo!()
+    fn get_group(&self) -> u64 {
+        self.text_inner.get_group()
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.text_inner.set_group(group)
+    }
+
+    fn get_state(&self) -> u64 {
+        self.text_inner.get_state()
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.text_inner.set_state(state)
     }
 }
 
@@ -181,6 +213,22 @@ impl GMDrawT for GMTextObject {
         self.text.set_z_index(z_index);
     }
 
+    fn get_group(&self) -> u64 {
+        self.text.get_group()
+    }
+
+    fn set_group(&mut self, group: u64) {
+        self.text.set_group(group)
+    }
+
+    fn get_state(&self) -> u64 {
+        self.text.get_state()
+    }
+
+    fn set_state(&mut self, state: u64) {
+        self.text.set_state(state)
+    }
+
     fn get_movement_inner_ref(&self) -> &GMMovementInner {
         self.text.get_movement_inner_ref()
     }
@@ -193,10 +241,6 @@ impl GMDrawT for GMTextObject {
         let result = self.clone();
 
         Box::new(result)
-    }
-
-    fn collides_with(&self, other: &GMMovementInner) {
-        self.text.collides_with(other)
     }
 
     fn cast_ref(&self) -> GMDrawRefType {
@@ -226,7 +270,7 @@ impl Clone for Box<dyn GMTextEffectT> {
 
 impl Debug for Box<dyn GMTextEffectT> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "GMSpriteEffectT")
+        write!(f, "GMTextEffectT")
     }
 }
 

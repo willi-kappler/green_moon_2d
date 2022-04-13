@@ -40,11 +40,23 @@ pub trait GMDrawT {
 
     fn set_z_index(&mut self, z_index: i32);
 
+    fn get_group(&self) -> u64 {
+        0
+    }
+
+    fn set_group(&mut self, _group: u64) {
+    }
+
+    fn get_state(&self) -> u64 {
+        0
+    }
+
+    fn set_state(&mut self, _state: u64) {
+    }
+
     fn get_movement_inner_ref(&self) -> &GMMovementInner;
 
     fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
-
-    fn collides_with(&self, other: &GMMovementInner); // TODO: change return type
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 
