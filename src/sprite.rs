@@ -86,22 +86,6 @@ impl GMSpriteInner {
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
     }
-
-    fn get_group(&self) -> u64 {
-        self.group
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.group = group
-    }
-
-    fn get_state(&self) -> u64 {
-        self.state
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.state = state
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -215,22 +199,6 @@ impl GMSprite {
     pub fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
         &mut self.sprite_inner.movement_inner
     }
-
-    fn get_group(&self) -> u64 {
-        self.sprite_inner.get_group()
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.sprite_inner.set_group(group)
-    }
-
-    fn get_state(&self) -> u64 {
-        self.sprite_inner.get_state()
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.sprite_inner.set_state(state)
-    }
 }
 
 pub struct GMSpriteObject {
@@ -260,30 +228,6 @@ impl GMDrawT for GMSpriteObject {
 
     fn set_z_index(&mut self, z_index: i32) {
         self.sprite.set_z_index(z_index);
-    }
-
-    fn get_group(&self) -> u64 {
-        self.sprite.get_group()
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.sprite.set_group(group)
-    }
-
-    fn get_state(&self) -> u64 {
-        self.sprite.get_state()
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.sprite.set_state(state)
-    }
-
-    fn get_movement_inner_ref(&self) -> &GMMovementInner {
-        self.sprite.get_movement_inner_ref()
-    }
-
-    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
-        self.sprite.get_movement_inner_mut_ref()
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawT> {

@@ -7,7 +7,6 @@ use log::debug;
 
 use crate::GMContext;
 use crate::GMError;
-use crate::movement::GMMovementInner;
 use crate::sprite::GMSprite;
 use crate::text::GMText;
 
@@ -36,27 +35,11 @@ pub trait GMDrawT {
 
     fn draw(&self, context: &mut GMContext);
 
-    fn get_z_index(&self) -> i32;
+    fn get_z_index(&self) -> i32 {
+        0
+    }
 
     fn set_z_index(&mut self, z_index: i32);
-
-    fn get_group(&self) -> u64 {
-        0
-    }
-
-    fn set_group(&mut self, _group: u64) {
-    }
-
-    fn get_state(&self) -> u64 {
-        0
-    }
-
-    fn set_state(&mut self, _state: u64) {
-    }
-
-    fn get_movement_inner_ref(&self) -> &GMMovementInner;
-
-    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 

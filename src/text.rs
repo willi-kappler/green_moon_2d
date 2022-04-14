@@ -57,22 +57,6 @@ impl GMTextInner {
             }
         }
     }
-
-    fn get_group(&self) -> u64 {
-        self.group
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.group = group
-    }
-
-    fn get_state(&self) -> u64 {
-        self.state
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.state = state
-    }
 }
 
 impl Debug for GMTextInner {
@@ -165,22 +149,6 @@ impl GMText {
     pub fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
         &mut self.text_inner.movement_inner
     }
-
-    fn get_group(&self) -> u64 {
-        self.text_inner.get_group()
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.text_inner.set_group(group)
-    }
-
-    fn get_state(&self) -> u64 {
-        self.text_inner.get_state()
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.text_inner.set_state(state)
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -211,30 +179,6 @@ impl GMDrawT for GMTextObject {
 
     fn set_z_index(&mut self, z_index: i32) {
         self.text.set_z_index(z_index);
-    }
-
-    fn get_group(&self) -> u64 {
-        self.text.get_group()
-    }
-
-    fn set_group(&mut self, group: u64) {
-        self.text.set_group(group)
-    }
-
-    fn get_state(&self) -> u64 {
-        self.text.get_state()
-    }
-
-    fn set_state(&mut self, state: u64) {
-        self.text.set_state(state)
-    }
-
-    fn get_movement_inner_ref(&self) -> &GMMovementInner {
-        self.text.get_movement_inner_ref()
-    }
-
-    fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
-        self.text.get_movement_inner_mut_ref()
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawT> {

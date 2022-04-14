@@ -8,6 +8,10 @@ use crate::GMError;
 use crate::GMContext;
 
 
+pub fn point_inside(x_min: f32, y_min: f32, x_max: f32, y_max: f32, px: f32, py: f32) -> bool {
+    (x_min <= px) && (px <= x_max) && (y_min <= py) && (py <= y_max)
+}
+
 #[derive(Clone, Debug)]
 pub struct GMMovementInner {
     pub x: f32,
@@ -30,7 +34,48 @@ impl GMMovementInner {
         }
     }
 
-    pub fn collides(&self, other: &GMMovementInner) -> bool {
+    pub fn collides_rect(&self, other: &GMMovementInner) -> bool {
+        let vlen1 = self.vx.hypot(self.vy);
+        let vlen2 = other.vx.hypot(other.vy);
+        let vlen_max = vlen1.max(vlen2).max(1.0);
+        let count = vlen_max.ceil() as u32;
+
+        let vx1 = self.vx / vlen_max;
+        let vy1 = self.vy / vlen_max;
+        let vx2 = other.vx / vlen_max;
+        let vy2 = other.vx / vlen_max;
+
+        let mut x_min1 = self.x;
+        let mut y_min1 = self.y;
+        let mut x_max1 = self.x + self.width;
+        let mut y_max1 = self.y + self.height;
+
+        let mut x_min2 = other.x;
+        let mut y_min2 = other.y;
+        let mut x_max2 = other.x + other.width;
+        let mut y_max2 = other.y + other.height;
+
+        for _ in 0..count {
+            if point_inside(x_min1, y_min1, x_max1, y_max1, x_min2, y_min2) { return true };
+            if point_inside(x_min1, y_min1, x_max1, y_max1, x_min2, y_max2) { return true };
+            if point_inside(x_min1, y_min1, x_max1, y_max1, x_max2, y_min2) { return true };
+            if point_inside(x_min1, y_min1, x_max1, y_max1, x_max2, y_max2) { return true };
+
+            if point_inside(x_min2, y_min2, x_max2, y_max2, x_min1, y_min1) { return true };
+            if point_inside(x_min2, y_min2, x_max2, y_max2, x_min1, y_max1) { return true };
+            if point_inside(x_min2, y_min2, x_max2, y_max2, x_max1, y_min1) { return true };
+            if point_inside(x_min2, y_min2, x_max2, y_max2, x_max1, y_max1) { return true };
+
+            x_min1 += vx1;
+            y_min1 += vy1;
+            x_max1 += vx1;
+            y_max1 += vy1;
+
+            x_min2 += vx2;
+            y_min2 += vy2;
+            x_max2 += vx2;
+            y_max2 += vy2;
+        }
 
         false
     }
