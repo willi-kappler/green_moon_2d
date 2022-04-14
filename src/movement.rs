@@ -17,13 +17,16 @@ pub struct GMMovementInner {
     pub y: f32,
     pub vx: f32,
     pub vy: f32,
+    pub angle: f32,
+    pub v_angle: f32,
     pub width: f32,
     pub height: f32,
 }
 
 impl Default for GMMovementInner {
     fn default() -> Self {
-        Self { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, width: 0.0, height: 0.0 }
+        Self { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0,
+            angle: 0.0, v_angle: 0.0, width: 0.0, height: 0.0 }
     }
 }
 

@@ -16,9 +16,11 @@ pub struct GMSpriteInner {
     pub movement_inner: GMMovementInner,
     pub active: bool,
     pub animations: Vec<Box<dyn GMAnimationT>>,
+    pub current_animation: usize,
     pub movements: Vec<Box<dyn GMMovementT>>,
     pub z_index: i32,
-    pub current_animation: usize,
+    pub flip_x: bool,
+    pub flip_y: bool,
 }
 
 impl GMSpriteInner {
@@ -47,7 +49,7 @@ impl GMSpriteInner {
         let x = self.movement_inner.x;
         let y = self.movement_inner.y;
 
-        self.texture.draw(x, y, index, context);
+        self.texture.draw_ex(x, y, index, self.movement_inner.angle, self.flip_x, self.flip_y, context);
     }
 }
 
@@ -58,9 +60,11 @@ impl Default for GMSpriteInner {
             movement_inner: GMMovementInner::default(),
             active: true,
             animations: Vec::new(),
+            current_animation: 0,
             movements: Vec::new(),
             z_index: 0,
-            current_animation: 0
+            flip_x: false,
+            flip_y: false,
         }
     }
 }

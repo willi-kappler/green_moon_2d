@@ -3,11 +3,12 @@ use std::fs::File;
 use std::io::Read;
 use std::rc::Rc;
 
-use sdl2::video;
-use sdl2::render;
+use sdl2::video::{self, Window, WindowContext};
+use sdl2::render::{TextureCreator, Canvas};
 use sdl2::keyboard::Keycode;
 use sdl2::event::Event;
 use sdl2::pixels;
+//use sdl2::surface::Surface;
 
 use log::debug;
 
@@ -30,7 +31,8 @@ pub struct GMContext {
     pub configuration: GMConfiguration,
     pub new_fps: u32,
     pub scene_state: GMSceneState,
-    pub canvas: render::Canvas<video::Window>,
+    pub canvas: Canvas<Window>,
+    pub texture_creator: TextureCreator<WindowContext>,
     pub event_pump: sdl2::EventPump,
 
     // Name, Object
@@ -57,6 +59,7 @@ impl GMContext {
             .accelerated()
             .present_vsync()
             .build().unwrap();
+        let texture_creator = canvas.texture_creator();
         let event_pump = sdl_context.event_pump().unwrap();
 
         Self {
@@ -64,6 +67,7 @@ impl GMContext {
             new_fps: 0,
             scene_state: GMSceneState::Run,
             canvas,
+            texture_creator,
             event_pump,
 
             animations: Vec::new(),

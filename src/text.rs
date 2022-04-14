@@ -269,7 +269,8 @@ impl Default for GMTextEffectWave {
             amplitude: 10.0,
             step: 1.0,
             frequency: 10.0,
-            time: 0.0 }
+            time: 0.0
+        }
     }
 }
 

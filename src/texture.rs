@@ -22,7 +22,11 @@ impl Default for GMTexture {
 }
 
 impl GMTexture {
-    pub fn draw(&self, dx: f32, dy: f32, index: u32, _context: &mut GMContext) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
+        self.draw_ex(dx, dy, index, 0.0, false, false, context)
+    }
+
+    pub fn draw_ex(&self, dx: f32, dy: f32, index: u32, _angle: f32, _flip_x: bool, _flip_y: bool, _context: &mut GMContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 
@@ -32,7 +36,7 @@ impl GMTexture {
         let _src_rect = Rect::new(sx, sy, self.unit_width, self.unit_height);
         let _dst_rect = Rect::new(dx as i32, dy as i32, self.unit_width, self.unit_height);
 
-
+        // context.canvas.copy_ex(self.texture, src_rect, dst_rect, angle as f64, None, flip_x, flip_y);
     }
 
     pub fn get_unit_dimension(&self) -> (f32, f32) {
