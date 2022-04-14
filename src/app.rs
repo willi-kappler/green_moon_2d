@@ -75,15 +75,16 @@ impl GMApp {
                     context.present();
                 }
                 GMSceneState::ChangeToScene(scene_name) => {
-                    current_scene = self.scenes.get_scene_mut(scene_name)?;
+                    let scene_name = scene_name.clone();
+                    current_scene.exit(&mut context, &mut draw_objects)?;
+                    current_scene = self.scenes.get_scene_mut(&scene_name)?;
+                    current_scene.init(&mut context, &mut draw_objects)?;
                     context.run_scene();
                 }
                 GMSceneState::Quit => {
                     break
                 }
             }
-
-            // TODO: Add / remove scene via context
 
             if context.new_fps > 0 {
                 fps_manager.set_framerate(context.new_fps).unwrap();

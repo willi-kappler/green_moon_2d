@@ -7,6 +7,10 @@ use crate::error::GMError;
 use crate::draw_object::GMDrawContainer;
 
 pub trait GMSceneT {
+    fn init(&mut self, context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
+        context.run_scene();
+        Ok(())
+    }
     fn update_before(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
         Ok(())
     }
@@ -17,6 +21,9 @@ pub trait GMSceneT {
         Ok(())
     }
     fn draw_after(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer)  -> Result<(), GMError> {
+        Ok(())
+    }
+    fn exit(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
         Ok(())
     }
 }
