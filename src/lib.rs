@@ -1,4 +1,3 @@
-// #![warn(clippy::pedantic)]
 
 pub mod animation;
 pub mod app;

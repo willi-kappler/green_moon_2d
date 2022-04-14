@@ -21,16 +21,15 @@ pub struct GMMovementInner {
     pub height: f32,
 }
 
+impl Default for GMMovementInner {
+    fn default() -> Self {
+        Self { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0, width: 0.0, height: 0.0 }
+    }
+}
+
 impl GMMovementInner {
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
-        Self {
-            x,
-            y,
-            vx: 0.0,
-            vy: 0.0,
-            width,
-            height,
-        }
+        Self { x, y, width, height, ..Default::default() }
     }
 
     pub fn collides_rect(&self, other: &GMMovementInner) -> bool {
@@ -77,6 +76,14 @@ impl GMMovementInner {
         }
 
         false
+    }
+
+    pub fn bounce_x(&mut self) {
+        self.vx = -self.vx
+    }
+
+    pub fn bounce_y(&mut self) {
+        self.vy = -self.vy
     }
 }
 
@@ -515,14 +522,6 @@ impl GMMovementForce {
             active: true,
         }
     }
-
-    pub fn activate(&mut self) {
-        self.active = true;
-
-        if self.duration > 0.0 {
-            self.instant = Instant::now();
-        }
-    }
 }
 
 impl GMMovementT for GMMovementForce {
@@ -559,6 +558,10 @@ impl GMMovementT for GMMovementForce {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+
+        if active && self.duration > 0.0 {
+            self.instant = Instant::now();
+        }
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {

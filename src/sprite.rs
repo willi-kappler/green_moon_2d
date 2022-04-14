@@ -10,7 +10,6 @@ use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementInner};
 use crate::texture::GMTexture;
 
-
 #[derive(Debug, Clone)]
 pub struct GMSpriteInner {
     pub texture: Rc<GMTexture>,
@@ -23,15 +22,14 @@ pub struct GMSpriteInner {
 }
 
 impl GMSpriteInner {
-    pub fn new(texture: Rc<GMTexture>, movement_inner: GMMovementInner, active: bool, animations: Vec<Box<dyn GMAnimationT>>, movements: Vec<Box<dyn GMMovementT>>) -> Self {
+    pub fn new(texture: Rc<GMTexture>, x: f32, y: f32, animation: Box<dyn GMAnimationT>) -> Self {
+        let (width, height) = texture.get_unit_dimension();
+
         Self {
             texture,
-            movement_inner,
-            active,
-            animations,
-            movements,
-            z_index: 0,
-            current_animation: 0,
+            movement_inner: GMMovementInner::new(x, y, width, height),
+            animations: vec![animation],
+            ..Default::default()
         }
     }
 
@@ -53,34 +51,38 @@ impl GMSpriteInner {
     }
 }
 
+impl Default for GMSpriteInner {
+    fn default() -> Self {
+        Self {
+            texture: Rc::new(GMTexture::default()),
+            movement_inner: GMMovementInner::default(),
+            active: true,
+            animations: Vec::new(),
+            movements: Vec::new(),
+            z_index: 0,
+            current_animation: 0
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct GMSprite {
     pub sprite_inner: GMSpriteInner,
     pub effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
+impl Default for GMSprite {
+    fn default() -> Self {
+        Self { sprite_inner: Default::default(), effects: Vec::new() }
+    }
+}
+
 impl GMSprite {
     pub fn new(texture: Rc<GMTexture>, x: f32, y: f32, animation: Box<dyn GMAnimationT>) -> Self {
-        let (width, height) = texture.get_unit_dimension();
-
-        let movement_inner = GMMovementInner::new(
-            x,
-            y,
-            width,
-            height,
-        );
-
-        let sprite_inner = GMSpriteInner::new(
-            texture,
-            movement_inner,
-            true,
-            vec![animation],
-            Vec::new()
-        );
+        let sprite_inner = GMSpriteInner::new(texture, x, y, animation);
 
         Self {
-            sprite_inner,
-            effects: vec![Box::new(GMSpriteEffectStatic::new())],
+            sprite_inner, effects: Vec::new(),
         }
     }
 }
@@ -176,11 +178,9 @@ pub struct GMSpriteEffectStatic {
     active: bool,
 }
 
-impl GMSpriteEffectStatic {
-    pub fn new() -> Self {
-        Self {
-            active: true,
-        }
+impl Default for GMSpriteEffectStatic {
+    fn default() -> Self {
+        Self { active: true }
     }
 }
 

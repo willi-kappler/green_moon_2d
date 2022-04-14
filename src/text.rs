@@ -7,7 +7,7 @@ use std::any::Any;
 use crate::context::GMContext;
 use crate::draw_object::{GMDrawT, GMDrawRefType, GMDrawMutRefType};
 use crate::error::GMError;
-use crate::font::GMFontT;
+use crate::font::{GMFontT, GMBitmapFont};
 use crate::movement::{GMMovementT, GMMovementInner};
 
 
@@ -22,27 +22,25 @@ pub struct GMTextInner {
     pub horizontal: bool,
     pub active: bool,
     pub z_index: i32,
-    pub group: u64,
-    pub state: u64,
 }
 
-impl GMTextInner {
-    pub fn new(font: Rc<dyn GMFontT>, text: String, movement_inner: GMMovementInner) -> Self {
+impl Default for GMTextInner {
+    fn default() -> Self {
         Self {
-            font,
-            text,
-            movement_inner,
+            font: Rc::new(GMBitmapFont::default()),
+            text: "".to_string(),
+            movement_inner: Default::default(),
             movements: Vec::new(),
             spacing_x: 0.0,
             spacing_y: 0.0,
             horizontal: true,
             active: true,
             z_index: 0,
-            group: 0,
-            state: 0,
         }
     }
+}
 
+impl GMTextInner {
     pub fn draw(&self, context: &mut GMContext) {
         let mut x = self.movement_inner.x;
         let mut y = self.movement_inner.y;
@@ -89,6 +87,15 @@ pub struct GMText {
     pub effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
+impl Default for GMText {
+    fn default() -> Self {
+        Self {
+            text_inner: Default::default(),
+            effects: Vec::new(),
+        }
+    }
+}
+
 impl GMText {
     pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
         let mut width: f32 = 0.0;
@@ -101,22 +108,20 @@ impl GMText {
             height = height.max(c_height);
         }
 
-        let movement_inner = GMMovementInner::new(
-            x,
-            y,
-            width,
-            height,
-        );
+        let movement_inner = GMMovementInner {
+            x, y, width, height, ..Default::default()
+        };
 
-        let text_inner = GMTextInner::new(
-            font.clone(),
-            text.to_string(),
+        let text_inner = GMTextInner {
+            font: font.clone(),
+            text: text.to_string(),
             movement_inner,
-        );
+            .. Default::default()
+        };
 
         Self {
             text_inner,
-            effects: vec![Box::new(GMTextEffectStatic::new())],
+            effects: vec![Box::new(GMTextEffectStatic::default())],
         }
     }
 }
@@ -213,11 +218,9 @@ pub struct GMTextEffectStatic {
     active: bool,
 }
 
-impl GMTextEffectStatic {
-    pub fn new() -> Self {
-        Self {
-            active: true,
-        }
+impl Default for GMTextEffectStatic {
+    fn default() -> Self {
+        Self { active: true }
     }
 }
 
@@ -248,3 +251,4 @@ impl GMTextEffectT for GMTextEffectStatic {
         GMTextEffectMutRefType::Static(self)
     }
 }
+

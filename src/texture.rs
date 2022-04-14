@@ -9,10 +9,16 @@ pub struct GMTexture {
     //width: u32,
     //height: u32,
     //rows: u32,
-    cols: u32,
-    unit_width: u32,
-    unit_height: u32,
+    pub cols: u32,
+    pub unit_width: u32,
+    pub unit_height: u32,
     //data: u8, // TODO
+}
+
+impl Default for GMTexture {
+    fn default() -> Self {
+        Self { cols: 0, unit_width: 0, unit_height: 0 }
+    }
 }
 
 impl GMTexture {
