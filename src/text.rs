@@ -2,7 +2,7 @@
 
 use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
-//use std::any::Any;
+use std::any::Any;
 
 use crate::context::GMContext;
 use crate::draw_object::{GMDrawT, GMDrawRefType, GMDrawMutRefType};
@@ -16,6 +16,7 @@ pub struct GMTextInner {
     pub font: Rc<dyn GMFontT>,
     pub text: String,
     pub movement_inner: GMMovementInner,
+    pub movements: Vec<Box<dyn GMMovementT>>,
     pub spacing_x: f32,
     pub spacing_y: f32,
     pub horizontal: bool,
@@ -31,6 +32,7 @@ impl GMTextInner {
             font,
             text,
             movement_inner,
+            movements: Vec::new(),
             spacing_x: 0.0,
             spacing_y: 0.0,
             horizontal: true,
@@ -57,6 +59,14 @@ impl GMTextInner {
             }
         }
     }
+
+    pub fn update(&mut self, context: &mut GMContext) {
+        if self.active {
+            for movement in self.movements.iter_mut() {
+                movement.update(&mut self.movement_inner, context);
+            }
+        }
+    }
 }
 
 impl Debug for GMTextInner {
@@ -76,7 +86,6 @@ impl Debug for GMTextInner {
 #[derive(Debug, Clone)]
 pub struct GMText {
     pub text_inner: GMTextInner,
-    pub movements: Vec<Box<dyn GMMovementT>>,
     pub effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
@@ -107,16 +116,15 @@ impl GMText {
 
         Self {
             text_inner,
-            movements: Vec::new(),
             effects: vec![Box::new(GMTextEffectStatic::new())],
         }
     }
+}
 
-    pub fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+impl GMDrawT for GMText {
+    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+        self.text_inner.update(context);
         if self.text_inner.active {
-            for movement in self.movements.iter_mut() {
-                movement.update(&mut self.text_inner.movement_inner, context);
-            }
 
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.text_inner, context);
@@ -126,7 +134,7 @@ impl GMText {
         Ok(())
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut GMContext) {
         if self.text_inner.active {
             for effect in self.effects.iter() {
                 effect.draw(&self.text_inner, context);
@@ -134,51 +142,16 @@ impl GMText {
         }
     }
 
-    pub fn get_z_index(&self) -> i32 {
-        self.text_inner.z_index
-    }
-
-    pub fn set_z_index(&mut self, z_index: i32) {
-        self.text_inner.z_index = z_index;
-    }
-
-    pub fn get_movement_inner_ref(&self) -> &GMMovementInner {
-        &self.text_inner.movement_inner
-    }
-
-    pub fn get_movement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
-        &mut self.text_inner.movement_inner
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct GMTextObject {
-    pub text: GMText,
-}
-
-impl GMTextObject {
-    pub fn new(text: GMText) -> Self {
-        Self {
-            text
-        }
-    }
-}
-
-impl GMDrawT for GMTextObject {
-    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
-        self.text.update(context)
-    }
-
-    fn draw(&self, context: &mut GMContext) {
-        self.text.draw(context)
+    fn set_active(&mut self, active: bool) {
+        self.text_inner.active = active;
     }
 
     fn get_z_index(&self) -> i32 {
-        self.text.get_z_index()
+        self.text_inner.z_index
     }
 
     fn set_z_index(&mut self, z_index: i32) {
-        self.text.set_z_index(z_index);
+        self.text_inner.z_index = z_index;
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawT> {
@@ -188,13 +161,26 @@ impl GMDrawT for GMTextObject {
     }
 
     fn cast_ref(&self) -> GMDrawRefType {
-        GMDrawRefType::Text(&self.text)
+        GMDrawRefType::Text(self)
     }
 
     fn cast_mut_ref(&mut self) -> GMDrawMutRefType {
-        GMDrawMutRefType::Text(&mut self.text)
+        GMDrawMutRefType::Text(self)
     }
 }
+
+pub enum GMTextEffectRefType<'a> {
+    Static(&'a GMTextEffectStatic),
+
+    Custom(&'a dyn Any)
+}
+
+pub enum GMTextEffectMutRefType<'a> {
+    Static(&'a mut GMTextEffectStatic),
+
+    Custom(&'a mut dyn Any)
+}
+
 
 pub trait GMTextEffectT {
     fn update(&mut self, text_inner: &mut GMTextInner, context: &mut GMContext);
@@ -204,6 +190,10 @@ pub trait GMTextEffectT {
     fn set_active(&mut self, active: bool);
 
     fn box_clone(&self) -> Box<dyn GMTextEffectT>;
+
+    fn cast_ref(&self) -> GMTextEffectRefType;
+
+    fn cast_mut_ref(&mut self) -> GMTextEffectMutRefType;
 }
 
 impl Clone for Box<dyn GMTextEffectT> {
@@ -248,5 +238,13 @@ impl GMTextEffectT for GMTextEffectStatic {
         let result = self.clone();
 
         Box::new(result)
+    }
+
+    fn cast_ref(&self) -> GMTextEffectRefType {
+        GMTextEffectRefType::Static(self)
+    }
+
+    fn cast_mut_ref(&mut self) -> GMTextEffectMutRefType {
+        GMTextEffectMutRefType::Static(self)
     }
 }

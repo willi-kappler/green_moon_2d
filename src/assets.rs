@@ -2,109 +2,109 @@
 use serde_derive::Deserialize;
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetTexture {
-    pub(crate) name: String,
-    pub(crate) file: String,
-    pub(crate) rows: u32,
-    pub(crate) cols: u32,
+pub struct GMAssetTexture {
+    pub name: String,
+    pub file: String,
+    pub rows: u32,
+    pub cols: u32,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetAnimation {
-    pub(crate) name: String,
-    pub(crate) frames: Vec<(usize, f32)>, // (index, duration)
-    pub(crate) animation_type: u8 // TODO
+pub struct GMAssetAnimation {
+    pub name: String,
+    pub frames: Vec<(usize, f32)>, // (index, duration)
+    pub animation_type: u8 // TODO
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetFont {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) mapping: String,
+pub struct GMAssetFont {
+    pub name: String,
+    pub texture: String,
+    pub mapping: String,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetText {
-    pub(crate) name: String,
-    pub(crate) text: String,
-    pub(crate) font: String,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
+pub struct GMAssetText {
+    pub name: String,
+    pub text: String,
+    pub font: String,
+    pub x: u32,
+    pub y: u32,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetSpriteLine {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) animation: String,
-    pub(crate) x1: u32,
-    pub(crate) y1: u32,
-    pub(crate) x2: u32,
-    pub(crate) y2: u32,
+pub struct GMAssetSpriteLine {
+    pub name: String,
+    pub texture: String,
+    pub animation: String,
+    pub x1: u32,
+    pub y1: u32,
+    pub x2: u32,
+    pub y2: u32,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetSpriteBorder {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
-    pub(crate) width: u32,
-    pub(crate) height: u32,
+pub struct GMAssetSpriteBorder {
+    pub name: String,
+    pub texture: String,
+    pub x: u32,
+    pub y: u32,
+    pub width: u32,
+    pub height: u32,
     // TODO: border type
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetSprite {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) animation: String,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
-    pub(crate) custom_id: u32,
+pub struct GMAssetSprite {
+    pub name: String,
+    pub texture: String,
+    pub animation: String,
+    pub x: u32,
+    pub y: u32,
+    pub custom_id: u32,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetParticleEmitter {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) animation: String,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
+pub struct GMAssetParticleEmitter {
+    pub name: String,
+    pub texture: String,
+    pub animation: String,
+    pub x: u32,
+    pub y: u32,
     // TODO: particle speed range, rotation range, angle, ...
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetBulletEmitter {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) animation: String,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
+pub struct GMAssetBulletEmitter {
+    pub name: String,
+    pub texture: String,
+    pub animation: String,
+    pub x: u32,
+    pub y: u32,
     // TODO: bullet type, direction, speed, ...
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssetTileMap {
-    pub(crate) name: String,
-    pub(crate) texture: String,
-    pub(crate) num_tiles_x: u32,
-    pub(crate) num_tiles_y: u32,
-    pub(crate) x: u32,
-    pub(crate) y: u32,
-    pub(crate) screen_width: u32,
-    pub(crate) screen_height: u32,
-    pub(crate) data: Vec<u32>,
+pub struct GMAssetTileMap {
+    pub name: String,
+    pub texture: String,
+    pub num_tiles_x: u32,
+    pub num_tiles_y: u32,
+    pub x: u32,
+    pub y: u32,
+    pub screen_width: u32,
+    pub screen_height: u32,
+    pub data: Vec<u32>,
 }
 
 #[derive(Clone, Deserialize)]
-pub(crate) struct GMAssets {
+pub struct GMAssets {
     #[serde(default)]
-    pub(crate) textures: Vec<GMAssetTexture>,
+    pub textures: Vec<GMAssetTexture>,
 
     #[serde(default)]
-    pub(crate) animations: Vec<GMAssetAnimation>,
+    pub animations: Vec<GMAssetAnimation>,
 
     #[serde(default)]
-    pub(crate) fonts: Vec<GMAssetFont>,
+    pub fonts: Vec<GMAssetFont>,
 }

@@ -4,7 +4,6 @@ use std::fmt::{self, Debug, Formatter};
 use std::any::Any;
 use std::time::Instant;
 
-use crate::GMError;
 use crate::GMContext;
 
 
@@ -82,88 +81,43 @@ impl GMMovementInner {
 }
 
 #[derive(Debug)]
-pub enum GMMovementMessage {
-    SetActive(bool),
+pub enum GMMovementRefType<'a> {
+    ResetVelocity(&'a GMResetVelocity),
+    ConstVelocity(&'a GMConstVelocity),
+    ConstAcceleration(&'a GMConstAcceleration),
+    StopAtBounds(&'a GMStopAtBounds),
+    WrapAroundBounds(&'a GMWrapAroundBounds),
+    BounceBounds(&'a GMMovementBounceBounds),
+    Circular(&'a GMMovementCircular),
+    Force(&'a GMMovementForce),
 
-    SetAx(f32),
-    SetAy(f32),
-    SetAxAy(f32, f32),
-
-    SetCircleX(f32, f32),
-    SetCircleY(f32, f32),
-    SetCircleXY(f32, f32),
-    SetCircleRadius(f32),
-    SetCircleAngle(f32),
-    SetCircleVAngle(f32),
-
-    SetBounds(f32, f32, f32, f32),
-
-    SetFx(f32),
-    SetFy(f32),
-    SetFxFy(f32, f32),
-    SetStrength(f32),
-    SetDuration(f32),
-
-    SetCustomProperty(String, Box<dyn Any>),
-
-    GetActive,
-
-    GetAx,
-    GetAy,
-    GetAxAy,
-
-    GetCircleX,
-    GetCircleY,
-    GetCircleXY,
-    GetCircleRadius,
-    GetCircleAngle,
-    GetCircleVAngle,
-
-    GetBounds,
-
-    GetFx,
-    GetFy,
-    GetFxFy,
-    GetStrength,
-    GetDuration,
-
-    GetCustomProperty(String),
+    Custom(&'a dyn Any)
 }
 
 #[derive(Debug)]
-pub enum GMMovementAnswer {
-    None,
+pub enum GMMovementMutRefType<'a> {
+    ResetVelocity(&'a mut GMResetVelocity),
+    ConstVelocity(&'a mut GMConstVelocity),
+    ConstAcceleration(&'a mut GMConstAcceleration),
+    StopAtBounds(&'a mut GMStopAtBounds),
+    WrapAroundBounds(&'a mut GMWrapAroundBounds),
+    BounceBounds(&'a mut GMMovementBounceBounds),
+    Circular(&'a mut GMMovementCircular),
+    Force(&'a mut GMMovementForce),
 
-    Active(bool),
-
-    Ax(f32),
-    Ay(f32),
-    AxAy(f32, f32),
-
-    CircleX(f32, f32),
-    Circley(f32, f32),
-    CircleXY(f32, f32),
-    CircleRadius(f32),
-    CircleAngle(f32),
-    CircleVAngle(f32),
-
-    Bounds(f32, f32, f32, f32),
-
-    Fx(f32),
-    Fy(f32),
-    FxFy(f32, f32),
-    Strength(f32),
-    Duration(f32),
-
-    CustomProperty(String, Box<dyn Any>),
+    Custom(&'a mut dyn Any)
 }
 
 pub trait GMMovementT {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, context: &mut GMContext);
+    fn update(&mut self, _movement_inner: &mut GMMovementInner, _context: &mut GMContext) {}
+
+    fn set_active(&mut self, _active: bool) {}
 
     fn box_clone(&self) -> Box<dyn GMMovementT>;
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError>;
+    fn cast_ref(&self) -> GMMovementRefType;
+
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType;
 }
 
 impl Clone for Box<dyn GMMovementT> {
@@ -199,22 +153,22 @@ impl GMMovementT for GMResetVelocity {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-                Ok(GMMovementAnswer::None)
-            }
-            _ => {
-                Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::ResetVelocity(self)
+    }
+
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::ResetVelocity(self)
     }
 }
 
@@ -241,25 +195,22 @@ impl GMMovementT for GMConstVelocity {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            _ => {
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::ConstVelocity(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::ConstVelocity(self)
     }
 }
 
@@ -288,45 +239,22 @@ impl GMMovementT for GMConstAcceleration {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::SetAx(x) => {
-                self.ax = x;
-            }
-            GMMovementMessage::SetAy(y) => {
-                self.ay = y;
-            }
-            GMMovementMessage::SetAxAy(x, y) => {
-                self.ax = x;
-                self.ay = y;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetAx => {
-                return Ok(GMMovementAnswer::Ax(self.ax))
-            }
-            GMMovementMessage::GetAy => {
-                return Ok(GMMovementAnswer::Ay(self.ay))
-            }
-            GMMovementMessage::GetAxAy => {
-                return Ok(GMMovementAnswer::AxAy(self.ax, self.ay))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::ConstAcceleration(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::ConstAcceleration(self)
     }
 }
 
@@ -370,34 +298,21 @@ impl GMMovementT for GMStopAtBounds {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
-                self.min_x = min_x;
-                self.min_y = min_y;
-                self.max_x = max_x;
-                self.max_y = max_y;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetBounds => {
-                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::StopAtBounds(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::StopAtBounds(self)
     }
 }
 
@@ -440,35 +355,22 @@ impl GMMovementT for GMWrapAroundBounds {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
-                self.min_x = min_x;
-                self.min_y = min_y;
-                self.max_x = max_x;
-                self.max_y = max_y;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetBounds => {
-                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::WrapAroundBounds(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::WrapAroundBounds(self)
     }
 }
 
@@ -519,35 +421,22 @@ impl GMMovementT for GMMovementBounceBounds {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::SetBounds(min_x, min_y, max_x, max_y) => {
-                self.min_x = min_x;
-                self.min_y = min_y;
-                self.max_x = max_x;
-                self.max_y = max_y;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetBounds => {
-                return Ok(GMMovementAnswer::Bounds(self.min_x, self.min_y, self.max_x, self.max_y))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::BounceBounds(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::BounceBounds(self)
     }
 }
 
@@ -586,51 +475,22 @@ impl GMMovementT for GMMovementCircular {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
-            }
-            GMMovementMessage::SetCircleXY(cx, cy) => {
-                self.cx = cx;
-                self.cy = cy;
-            }
-            GMMovementMessage::SetCircleRadius(radius) => {
-                self.radius = radius;
-            }
-            GMMovementMessage::SetCircleAngle(angle) => {
-                self.angle = angle;
-            }
-            GMMovementMessage::SetCircleVAngle(v_angle) => {
-                self.v_angle = v_angle;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetCircleXY => {
-                return Ok(GMMovementAnswer::CircleXY(self.cx, self.cy))
-            }
-            GMMovementMessage::GetCircleRadius => {
-                return Ok(GMMovementAnswer::CircleRadius(self.radius))
-            }
-            GMMovementMessage::GetCircleAngle => {
-                return Ok(GMMovementAnswer::CircleAngle(self.angle))
-            }
-            GMMovementMessage::GetCircleVAngle => {
-                return Ok(GMMovementAnswer::CircleVAngle(self.v_angle))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::Circular(self)
+    }
 
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::Circular(self)
     }
 }
 
@@ -653,6 +513,14 @@ impl GMMovementForce {
             duration,
             instant: Instant::now(),
             active: true,
+        }
+    }
+
+    pub fn activate(&mut self) {
+        self.active = true;
+
+        if self.duration > 0.0 {
+            self.instant = Instant::now();
         }
     }
 }
@@ -689,59 +557,20 @@ impl GMMovementT for GMMovementForce {
         }
     }
 
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
         Box::new(result)
     }
 
-    fn send_message(&mut self, message: GMMovementMessage) -> Result<GMMovementAnswer, GMError> {
-        match message {
-            GMMovementMessage::SetActive(active) => {
-                self.active = active;
+    fn cast_ref(&self) -> GMMovementRefType {
+        GMMovementRefType::Force(self)
+    }
 
-                if self.duration > 0.0 {
-                    self.instant = Instant::now();
-                }
-            }
-            GMMovementMessage::SetFx(fx) => {
-                self.fx = fx;
-            }
-            GMMovementMessage::SetFy(fy) => {
-                self.fy = fy;
-            }
-            GMMovementMessage::SetFxFy(fx,fy) => {
-                self.fx = fx;
-                self.fy = fy;
-            }
-            GMMovementMessage::SetStrength(strength) => {
-                self.strength = strength;
-            }
-            GMMovementMessage::SetDuration(duration) => {
-                self.duration = duration;
-            }
-            GMMovementMessage::GetActive => {
-                return Ok(GMMovementAnswer::Active(self.active))
-            }
-            GMMovementMessage::GetFx => {
-                return Ok(GMMovementAnswer::Fx(self.fx))
-            }
-            GMMovementMessage::GetFy => {
-                return Ok(GMMovementAnswer::Fy(self.fy))
-            }
-            GMMovementMessage::GetFxFy => {
-                return Ok(GMMovementAnswer::FxFy(self.fx, self.fy))
-            }
-            GMMovementMessage::GetStrength => {
-                return Ok(GMMovementAnswer::Strength(self.strength))
-            }
-            GMMovementMessage::GetDuration => {
-                return Ok(GMMovementAnswer::Duration(self.duration))
-            }
-            _ => {
-                return Err(GMError::UnexpectedMovementMessage(message))
-            }
-        }
-
-        Ok(GMMovementAnswer::None)
+    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
+        GMMovementMutRefType::Force(self)
     }
 }

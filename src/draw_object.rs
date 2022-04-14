@@ -33,13 +33,15 @@ pub trait GMDrawT {
         Ok(())
     }
 
-    fn draw(&self, context: &mut GMContext);
+    fn draw(&self, _context: &mut GMContext) {}
+
+    fn set_active(&mut self, _active: bool) {}
 
     fn get_z_index(&self) -> i32 {
         0
     }
 
-    fn set_z_index(&mut self, z_index: i32);
+    fn set_z_index(&mut self, _z_index: i32) {}
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 

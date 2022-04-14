@@ -4,8 +4,6 @@ use std::fmt;
 
 use serde_json;
 
-use crate::movement::GMMovementMessage;
-
 #[derive(Debug)]
 pub enum GMError {
     SceneNotFound(String),
@@ -20,7 +18,6 @@ pub enum GMError {
     FontAlreadyExists(String),
     SpriteAlreadyExists(String),
     TextAlreadyExists(String),
-    UnexpectedMovementMessage(GMMovementMessage),
 }
 
 impl std::error::Error for GMError {
@@ -42,7 +39,6 @@ impl fmt::Display for GMError {
             GMError::FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
             GMError::SpriteAlreadyExists(name) => write!(f, "Sprite already exists: '{}'", name),
             GMError::TextAlreadyExists(name) => write!(f, "Text already exists: '{}'", name),
-            GMError::UnexpectedMovementMessage(message) => write!(f, "Unexpected movement message: '{:?}'", message),
         }
     }
 }
