@@ -3,6 +3,7 @@
 use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
 use std::any::Any;
+use std::f32::consts::TAU;
 
 use crate::context::GMContext;
 use crate::draw_object::{GMDrawT, GMDrawRefType, GMDrawMutRefType};
@@ -176,23 +177,25 @@ impl GMDrawT for GMText {
 
 pub enum GMTextEffectRefType<'a> {
     Static(&'a GMTextEffectStatic),
+    Wave(&'a GMTextEffectWave),
 
     Custom(&'a dyn Any)
 }
 
 pub enum GMTextEffectMutRefType<'a> {
     Static(&'a mut GMTextEffectStatic),
+    Wave(&'a mut GMTextEffectWave),
 
     Custom(&'a mut dyn Any)
 }
 
 
 pub trait GMTextEffectT {
-    fn update(&mut self, text_inner: &mut GMTextInner, context: &mut GMContext);
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {}
 
-    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext);
+    fn draw(&self, _text_inner: &GMTextInner, _context: &mut GMContext) {}
 
-    fn set_active(&mut self, active: bool);
+    fn set_active(&mut self, _active: bool) {}
 
     fn box_clone(&self) -> Box<dyn GMTextEffectT>;
 
@@ -225,8 +228,6 @@ impl Default for GMTextEffectStatic {
 }
 
 impl GMTextEffectT for GMTextEffectStatic {
-    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {}
-
     fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
         if self.active {
             text_inner.draw(context);
@@ -252,3 +253,75 @@ impl GMTextEffectT for GMTextEffectStatic {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct GMTextEffectWave {
+    pub active: bool,
+    pub amplitude: f32,
+    pub step: f32,
+    pub frequency: f32,
+    pub time: f32,
+}
+
+impl Default for GMTextEffectWave {
+    fn default() -> Self {
+        Self {
+            active: true,
+            amplitude: 10.0,
+            step: 1.0,
+            frequency: 10.0,
+            time: 0.0 }
+    }
+}
+
+impl GMTextEffectT for GMTextEffectWave {
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {
+        if self.active {
+            self.time += 0.01;
+            if self.time > TAU {
+                self.time -= TAU;
+            }
+        }
+    }
+
+    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
+        if self.active {
+            let mut x = text_inner.movement_inner.x;
+            let mut y = text_inner.movement_inner.y;
+            let mut offset = 0.0;
+
+            for c in text_inner.text.chars() {
+                let (c_width, c_height) = text_inner.font.get_char_dimensions(c);
+                let angle = offset + (self.frequency * self.time);
+                let delta = self.amplitude * angle.sin();
+
+                if text_inner.horizontal {
+                    text_inner.font.draw(c, x, y + delta, context);
+                    x += c_width + text_inner.spacing_x;
+                } else {
+                    text_inner.font.draw(c, x + delta, y, context);
+                    y += c_height + text_inner.spacing_y;
+                }
+
+                offset += self.step;
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn box_clone(&self) -> Box<dyn GMTextEffectT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn cast_ref(&self) -> GMTextEffectRefType {
+        GMTextEffectRefType::Wave(self)
+    }
+
+    fn cast_mut_ref(&mut self) -> GMTextEffectMutRefType {
+        GMTextEffectMutRefType::Wave(self)
+    }
+}
