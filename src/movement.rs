@@ -93,7 +93,7 @@ impl GMMovementInner {
 #[derive(Debug)]
 pub enum GMMovementRefType<'a> {
     ResetVelocity(&'a GMResetVelocity),
-    ConstVelocity(&'a GMConstVelocity),
+    ConstVelocity(&'a GMApplyVelocity),
     ConstAcceleration(&'a GMConstAcceleration),
     StopAtBounds(&'a GMStopAtBounds),
     WrapAroundBounds(&'a GMWrapAroundBounds),
@@ -107,7 +107,7 @@ pub enum GMMovementRefType<'a> {
 #[derive(Debug)]
 pub enum GMMovementMutRefType<'a> {
     ResetVelocity(&'a mut GMResetVelocity),
-    ConstVelocity(&'a mut GMConstVelocity),
+    ApplyVelocity(&'a mut GMApplyVelocity),
     ConstAcceleration(&'a mut GMConstAcceleration),
     StopAtBounds(&'a mut GMStopAtBounds),
     WrapAroundBounds(&'a mut GMWrapAroundBounds),
@@ -183,17 +183,17 @@ impl GMMovementT for GMResetVelocity {
 
 
 #[derive(Clone, Debug)]
-pub struct GMConstVelocity {
+pub struct GMApplyVelocity {
     pub active: bool,
 }
 
-impl Default for GMConstVelocity {
+impl Default for GMApplyVelocity {
     fn default() -> Self {
         Self { active: true }
     }
 }
 
-impl GMMovementT for GMConstVelocity {
+impl GMMovementT for GMApplyVelocity {
     fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
         if self.active {
             movement_inner.x += movement_inner.vx;
@@ -216,7 +216,7 @@ impl GMMovementT for GMConstVelocity {
     }
 
     fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::ConstVelocity(self)
+        GMMovementMutRefType::ApplyVelocity(self)
     }
 }
 
