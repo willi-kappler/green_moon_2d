@@ -42,6 +42,29 @@ impl Default for GMTextInner {
 }
 
 impl GMTextInner {
+    pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
+        let mut width: f32 = 0.0;
+        let mut height: f32 = 0.0;
+
+        for c in text.chars() {
+            let (c_width, c_height) = font.get_char_dimensions(c);
+
+            width += c_width;
+            height = height.max(c_height);
+        }
+
+        let movement_inner = GMMovementInner {
+            x, y, width, height, ..Default::default()
+        };
+
+        Self {
+            font: font.clone(),
+            text: text.to_string(),
+            movement_inner,
+            .. Default::default()
+        }
+    }
+
     pub fn draw(&self, context: &mut GMContext) {
         let mut x = self.movement_inner.x;
         let mut y = self.movement_inner.y;
@@ -99,26 +122,7 @@ impl Default for GMText {
 
 impl GMText {
     pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
-        let mut width: f32 = 0.0;
-        let mut height: f32 = 0.0;
-
-        for c in text.chars() {
-            let (c_width, c_height) = font.get_char_dimensions(c);
-
-            width += c_width;
-            height = height.max(c_height);
-        }
-
-        let movement_inner = GMMovementInner {
-            x, y, width, height, ..Default::default()
-        };
-
-        let text_inner = GMTextInner {
-            font: font.clone(),
-            text: text.to_string(),
-            movement_inner,
-            .. Default::default()
-        };
+        let text_inner = GMTextInner::new(font, text, x, y);
 
         Self {
             text_inner,
@@ -158,6 +162,14 @@ impl GMDrawT for GMText {
 
     fn set_z_index(&mut self, z_index: i32) {
         self.text_inner.z_index = z_index;
+    }
+
+    fn get_movmement_inner_ref(&self) -> & GMMovementInner {
+        &self.text_inner.movement_inner
+    }
+
+    fn get_movmement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
+        &mut self.text_inner.movement_inner
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawT> {

@@ -144,14 +144,12 @@ impl Debug for Box<dyn GMMovementT> {
 
 #[derive(Clone, Debug)]
 pub struct GMResetVelocity {
-    active: bool,
+    pub active: bool,
 }
 
-impl GMResetVelocity {
-    pub fn new() -> Self {
-        Self {
-            active: true,
-        }
+impl Default for GMResetVelocity {
+    fn default() -> Self {
+        Self { active: true }
     }
 }
 
@@ -186,14 +184,12 @@ impl GMMovementT for GMResetVelocity {
 
 #[derive(Clone, Debug)]
 pub struct GMConstVelocity {
-    active: bool,
+    pub active: bool,
 }
 
-impl GMConstVelocity {
-    pub fn new() -> Self {
-        Self {
-            active: true,
-        }
+impl Default for GMConstVelocity {
+    fn default() -> Self {
+        Self { active: true }
     }
 }
 
@@ -231,13 +227,9 @@ pub struct GMConstAcceleration {
     pub active: bool,
 }
 
-impl GMConstAcceleration {
-    pub fn new(ax: f32, ay: f32) -> Self {
-        Self {
-            ax,
-            ay,
-            active: true,
-        }
+impl Default for GMConstAcceleration {
+    fn default() -> Self {
+        Self { ax: 0.0, ay: 0.0, active: true }
     }
 }
 
@@ -277,15 +269,9 @@ pub struct GMStopAtBounds {
     pub active: bool,
 }
 
-impl GMStopAtBounds {
-    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
-        Self {
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-            active: true,
-        }
+impl Default for GMStopAtBounds {
+    fn default() -> Self {
+        Self { min_x: 0.0, min_y: 0.0, max_x: 10.0, max_y: 10.0, active: true }
     }
 }
 
@@ -335,15 +321,9 @@ pub struct GMWrapAroundBounds {
     pub active: bool,
 }
 
-impl GMWrapAroundBounds {
-    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
-        Self {
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-            active: true,
-        }
+impl Default for GMWrapAroundBounds {
+    fn default() -> Self {
+        Self { min_x: 0.0, min_y: 0.0, max_x: 10.0, max_y: 10.0, active: true }
     }
 }
 
@@ -393,15 +373,9 @@ pub struct GMMovementBounceBounds {
     pub active: bool,
 }
 
-impl GMMovementBounceBounds {
-    pub fn new(min_x: f32, min_y: f32, max_x: f32, max_y: f32) -> Self {
-        Self {
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-            active: true,
-        }
+impl Default for GMMovementBounceBounds {
+    fn default() -> Self {
+        Self { min_x: 0.0, min_y: 0.0, max_x: 10.0, max_y: 10.0, active: true }
     }
 }
 
@@ -452,6 +426,7 @@ impl GMMovementT for GMMovementBounceBounds {
 
 #[derive(Clone, Debug)]
 pub struct GMMovementCircular {
+    // TODO: Use movement_inner for center of circle
     pub cx: f32,
     pub cy: f32,
     pub radius: f32,
@@ -460,16 +435,9 @@ pub struct GMMovementCircular {
     pub active: bool,
 }
 
-impl GMMovementCircular {
-    pub fn new(cx: f32, cy: f32, radius: f32, angle: f32, v_angle: f32) -> Self {
-        Self {
-            cx,
-            cy,
-            radius,
-            angle,
-            v_angle,
-            active: true,
-        }
+impl Default for GMMovementCircular {
+    fn default() -> Self {
+        Self { cx: 50.0, cy: 50.0, radius: 10.0, angle: 0.0, v_angle: 1.0, active: true }
     }
 }
 
@@ -480,6 +448,7 @@ impl GMMovementT for GMMovementCircular {
             let new_x = self.cx + (self.angle.cos() * self.radius);
             let new_y = self.cy + (self.angle.sin() * self.radius);
 
+            // TODO: use other method to calculate vx, vy
             movement_inner.vx = new_x - movement_inner.x;
             movement_inner.vy = new_y - movement_inner.y;
         }
@@ -514,16 +483,9 @@ pub struct GMMovementForce {
     pub active: bool,
 }
 
-impl GMMovementForce {
-    pub fn new(fx: f32, fy: f32, strength: f32, duration: f32) -> Self {
-        Self {
-            fx,
-            fy,
-            strength,
-            duration,
-            instant: Instant::now(),
-            active: true,
-        }
+impl Default for GMMovementForce {
+    fn default() -> Self {
+        Self { fx: 0.0, fy: 0.0, strength: 1.0, duration: 0.0, instant: Instant::now(), active: true }
     }
 }
 

@@ -8,6 +8,7 @@ use crate::GMContext;
 use crate::GMError;
 use crate::sprite::GMSprite;
 use crate::text::GMText;
+use crate::movement::GMMovementInner;
 
 
 #[derive(Debug)]
@@ -42,6 +43,10 @@ pub trait GMDrawT {
 
     fn set_z_index(&mut self, _z_index: i32) {}
 
+    fn get_movmement_inner_ref(&self) -> & GMMovementInner;
+
+    fn get_movmement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
+
     fn box_clone(&self) -> Box<dyn GMDrawT>;
 
     fn cast_ref(&self) -> GMDrawRefType;
@@ -67,8 +72,6 @@ impl GMDrawContainer {
     }
 
     pub fn has_draw_object(&self, name: &str) -> bool {
-        debug!("GMDrawContainer::has_draw_object(), name: '{}'", name);
-
         self.draw_objects.iter().any(|(o_name, _)| o_name == name)
     }
 
@@ -96,9 +99,7 @@ impl GMDrawContainer {
         Ok(())
     }
 
-    pub fn get_draw_object(&self, name: &str) -> Result<&Box<dyn GMDrawT>, GMError> {
-        debug!("GMDrawContainer::get_draw_object(), name: '{}'", name);
-
+    pub fn get_draw_object_ref(&self, name: &str) -> Result<&Box<dyn GMDrawT>, GMError> {
         for (o_name, object) in self.draw_objects.iter() {
             if o_name == name {
                 return Ok(object)
@@ -108,9 +109,7 @@ impl GMDrawContainer {
         Err(GMError::DrawObjectNotFound(name.to_string()))
     }
 
-    pub fn get_draw_object_mut(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawT>, GMError> {
-        debug!("GMDrawContainer::get_draw_object_mut(), name: '{}'", name);
-
+    pub fn get_draw_object_mut_ref(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawT>, GMError> {
         for (o_name, object) in self.draw_objects.iter_mut() {
             if o_name == name {
                 return Ok(object)
@@ -146,7 +145,7 @@ impl GMDrawContainer {
         }
     }
 
-    pub fn add_sprite(&mut self, name: &str) -> Result<(), GMError> {
+    pub fn add_sprite(&mut self, name: &str, sprite: GMSprite) -> Result<(), GMError> {
         debug!("GMDrawContainer::add_sprite(), name: '{}'", name);
 
         if self.has_draw_object(name) {
@@ -158,7 +157,7 @@ impl GMDrawContainer {
         // Ok(())
     }
 
-    pub fn add_text(&mut self, name: &str) -> Result<(), GMError> {
+    pub fn add_text(&mut self, name: &str, text: GMText) -> Result<(), GMError> {
         debug!("GMDrawContainer::add_text(), name: '{}'", name);
 
         if self.has_draw_object(name) {

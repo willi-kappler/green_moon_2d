@@ -124,6 +124,14 @@ impl GMDrawT for GMSprite {
         self.sprite_inner.z_index = z_index;
     }
 
+    fn get_movmement_inner_ref(&self) -> & GMMovementInner {
+        &self.sprite_inner.movement_inner
+    }
+
+    fn get_movmement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
+        &mut self.sprite_inner.movement_inner
+    }
+
     fn box_clone(&self) -> Box<dyn GMDrawT> {
         let result = self.clone();
 
