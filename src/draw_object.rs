@@ -152,9 +152,9 @@ impl GMDrawContainer {
             return Err(GMError::SpriteAlreadyExists(name.to_string()))
         }
 
-        todo!();
+        self.draw_objects.push((name.to_string(), Box::new(sprite)));
 
-        // Ok(())
+        Ok(())
     }
 
     pub fn add_text(&mut self, name: &str, text: GMText) -> Result<(), GMError> {
@@ -164,9 +164,9 @@ impl GMDrawContainer {
             return Err(GMError::TextAlreadyExists(name.to_string()))
         }
 
-        todo!();
+        self.draw_objects.push((name.to_string(), Box::new(text)));
 
-        // Ok(())
+        Ok(())
     }
 
     pub fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
