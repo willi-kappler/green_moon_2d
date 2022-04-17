@@ -8,6 +8,7 @@ use serde_json;
 pub enum GMError {
     SceneNotFound(String),
     SceneAlreadyExists(String),
+    CantRemoveCurrentScene(String),
     IO(io::Error),
     JSON(serde_json::Error),
     AnimationNotFound(String),
@@ -29,6 +30,7 @@ impl fmt::Display for GMError {
         match self {
             GMError::SceneNotFound(name) => write!(f, "Scene not found: {}", name),
             GMError::SceneAlreadyExists(name) => write!(f, "Scene already exists: '{}'", name),
+            GMError::CantRemoveCurrentScene(name) => write!(f, "Can't remove current scene: '{}'", name),
             GMError::IO(e) => write!(f, "Could not open file: '{}'", e),
             GMError::JSON(e) => write!(f, "Could not parse JSON: '{}'", e),
             GMError::DrawObjectAlreadyExists(name) => write!(f, "Draw object already exists: '{}'", name),

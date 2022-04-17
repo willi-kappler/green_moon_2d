@@ -5,7 +5,7 @@ use crate::GMContext;
 use crate::GMError;
 
 
-pub trait GMDrawT {
+pub trait GMDrawObjectT {
     fn update(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
         Ok(())
     }
@@ -18,17 +18,50 @@ pub trait GMDrawT {
 
     fn get_name(&self) -> &str;
 
-    fn get_groups(&self) -> &[&str] {
-        &[""]
+    fn get_groups(&self) -> &[String] {
+        &[]
     }
 
-    fn box_clone(&self) -> Box<dyn GMDrawT>;
+    fn box_clone(&self) -> Box<dyn GMDrawObjectT>;
 }
 
-impl Clone for Box<dyn GMDrawT> {
+impl Clone for Box<dyn GMDrawObjectT> {
     fn clone(&self) -> Self {
         self.box_clone()
     }
+}
+
+pub struct GMDrawObjectManager {
+    draw_objects: Vec<Box<dyn GMDrawObjectT>>,
+}
+
+impl GMDrawObjectManager {
+    pub fn new() -> Self {
+        Self {
+            draw_objects: Vec::new(),
+        }
+    }
+
+    pub fn get_draw_object_index(&self, name: &str) -> Option<usize> {
+        self.draw_objects.iter().position(|object| object.get_name() == name)
+    }
+
+    pub fn add_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        let name = object.get_name();
+
+        match self.get_draw_object_index(name) {
+            Some(_) => {
+                Err(GMError::DrawObjectAlreadyExists(name.to_string()))
+            }
+            None => {
+                self.draw_objects.push(Box::new(object));
+
+                Ok(())
+            }
+        }
+    }
+
+
 }
 
 /*

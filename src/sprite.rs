@@ -4,7 +4,7 @@ use std::fmt::{self, Debug, Formatter};
 
 use crate::animation::{GMAnimationT};
 use crate::context::GMContext;
-use crate::draw_object::GMDrawT;
+use crate::draw_object::GMDrawObjectT;
 use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementInner};
 use crate::texture::GMTexture;
@@ -17,10 +17,11 @@ pub struct GMSpriteInner {
     pub animations: Vec<Box<dyn GMAnimationT>>,
     pub current_animation: usize,
     pub movements: Vec<Box<dyn GMMovementT>>,
-    pub z_index: i32,
-    pub name: String,
     pub flip_x: bool,
     pub flip_y: bool,
+    pub z_index: i32,
+    pub name: String,
+    pub groups: Vec<String>,
 }
 
 impl GMSpriteInner {
@@ -62,10 +63,11 @@ impl Default for GMSpriteInner {
             animations: Vec::new(),
             current_animation: 0,
             movements: Vec::new(),
-            z_index: 0,
-            name: "".to_string(),
             flip_x: false,
             flip_y: false,
+            z_index: 0,
+            name: "".to_string(),
+            groups: Vec::new(),
         }
     }
 }
@@ -92,7 +94,7 @@ impl GMSprite {
     }
 }
 
-impl GMDrawT for GMSprite {
+impl GMDrawObjectT for GMSprite {
     fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         self.sprite_inner.update(context);
 
@@ -121,11 +123,11 @@ impl GMDrawT for GMSprite {
         &self.sprite_inner.name
     }
 
-    fn get_groups(&self) -> &[&str] {
-        todo!();
+    fn get_groups(&self) -> &[String] {
+        &self.sprite_inner.groups
     }
 
-    fn box_clone(&self) -> Box<dyn GMDrawT> {
+    fn box_clone(&self) -> Box<dyn GMDrawObjectT> {
         let result = self.clone();
 
         Box::new(result)

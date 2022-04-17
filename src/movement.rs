@@ -1,11 +1,9 @@
 
 
 use std::fmt::{self, Debug, Formatter};
-use std::any::Any;
 use std::time::Instant;
 
 use crate::GMContext;
-
 
 pub fn point_inside(x_min: f32, y_min: f32, x_max: f32, y_max: f32, px: f32, py: f32) -> bool {
     (x_min <= px) && (px <= x_max) && (y_min <= py) && (py <= y_max)
@@ -90,44 +88,12 @@ impl GMMovementInner {
     }
 }
 
-#[derive(Debug)]
-pub enum GMMovementRefType<'a> {
-    ResetVelocity(&'a GMResetVelocity),
-    ConstVelocity(&'a GMApplyVelocity),
-    ConstAcceleration(&'a GMConstAcceleration),
-    StopAtBounds(&'a GMStopAtBounds),
-    WrapAroundBounds(&'a GMWrapAroundBounds),
-    BounceBounds(&'a GMMovementBounceBounds),
-    Circular(&'a GMMovementCircular),
-    Force(&'a GMMovementForce),
-
-    Custom(&'a dyn Any)
-}
-
-#[derive(Debug)]
-pub enum GMMovementMutRefType<'a> {
-    ResetVelocity(&'a mut GMResetVelocity),
-    ApplyVelocity(&'a mut GMApplyVelocity),
-    ConstAcceleration(&'a mut GMConstAcceleration),
-    StopAtBounds(&'a mut GMStopAtBounds),
-    WrapAroundBounds(&'a mut GMWrapAroundBounds),
-    BounceBounds(&'a mut GMMovementBounceBounds),
-    Circular(&'a mut GMMovementCircular),
-    Force(&'a mut GMMovementForce),
-
-    Custom(&'a mut dyn Any)
-}
-
 pub trait GMMovementT {
     fn update(&mut self, _movement_inner: &mut GMMovementInner, _context: &mut GMContext) {}
 
     fn set_active(&mut self, _active: bool) {}
 
     fn box_clone(&self) -> Box<dyn GMMovementT>;
-
-    fn cast_ref(&self) -> GMMovementRefType;
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType;
 }
 
 impl Clone for Box<dyn GMMovementT> {
@@ -170,14 +136,6 @@ impl GMMovementT for GMResetVelocity {
 
         Box::new(result)
     }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::ResetVelocity(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::ResetVelocity(self)
-    }
 }
 
 
@@ -210,14 +168,6 @@ impl GMMovementT for GMApplyVelocity {
 
         Box::new(result)
     }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::ConstVelocity(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::ApplyVelocity(self)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -249,14 +199,6 @@ impl GMMovementT for GMConstAcceleration {
         let result = self.clone();
 
         Box::new(result)
-    }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::ConstAcceleration(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::ConstAcceleration(self)
     }
 }
 
@@ -302,14 +244,6 @@ impl GMMovementT for GMStopAtBounds {
         let result = self.clone();
         Box::new(result)
     }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::StopAtBounds(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::StopAtBounds(self)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -353,14 +287,6 @@ impl GMMovementT for GMWrapAroundBounds {
         let result = self.clone();
 
         Box::new(result)
-    }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::WrapAroundBounds(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::WrapAroundBounds(self)
     }
 }
 
@@ -414,14 +340,6 @@ impl GMMovementT for GMMovementBounceBounds {
 
         Box::new(result)
     }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::BounceBounds(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::BounceBounds(self)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -462,14 +380,6 @@ impl GMMovementT for GMMovementCircular {
         let result = self.clone();
 
         Box::new(result)
-    }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::Circular(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::Circular(self)
     }
 }
 
@@ -532,13 +442,5 @@ impl GMMovementT for GMMovementForce {
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
         Box::new(result)
-    }
-
-    fn cast_ref(&self) -> GMMovementRefType {
-        GMMovementRefType::Force(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMMovementMutRefType {
-        GMMovementMutRefType::Force(self)
     }
 }

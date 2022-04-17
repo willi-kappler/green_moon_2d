@@ -5,7 +5,7 @@ use std::fmt::{self, Debug, Formatter};
 use std::f32::consts::TAU;
 
 use crate::context::GMContext;
-use crate::draw_object::GMDrawT;
+use crate::draw_object::GMDrawObjectT;
 use crate::error::GMError;
 use crate::font::{GMFontT, GMBitmapFont};
 use crate::movement::{GMMovementT, GMMovementInner};
@@ -23,6 +23,7 @@ pub struct GMTextInner {
     pub active: bool,
     pub z_index: i32,
     pub name: String,
+    pub groups: Vec<String>,
 }
 
 impl Default for GMTextInner {
@@ -38,6 +39,7 @@ impl Default for GMTextInner {
             active: true,
             z_index: 0,
             name: "".to_string(),
+            groups: Vec::new(),
         }
     }
 }
@@ -133,7 +135,7 @@ impl GMText {
     }
 }
 
-impl GMDrawT for GMText {
+impl GMDrawObjectT for GMText {
     fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         self.text_inner.update(context);
         if self.text_inner.active {
@@ -162,11 +164,11 @@ impl GMDrawT for GMText {
         &self.text_inner.name
     }
 
-    fn get_groups(&self) -> &[&str] {
-        todo!();
+    fn get_groups(&self) -> &[String] {
+        &self.text_inner.groups
     }
 
-    fn box_clone(&self) -> Box<dyn GMDrawT> {
+    fn box_clone(&self) -> Box<dyn GMDrawObjectT> {
         let result = self.clone();
 
         Box::new(result)

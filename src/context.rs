@@ -1,7 +1,9 @@
 
-use std::fs::File;
-use std::io::Read;
-use std::rc::Rc;
+// use std::fs::File;
+// use std::io::Read;
+// use std::rc::Rc;
+
+use std::collections::VecDeque;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{TextureCreator, Canvas};
@@ -12,32 +14,36 @@ use sdl2::pixels;
 
 use log::debug;
 
-use crate::animation::GMAnimationT;
-use crate::assets::GMAssets;
+// use crate::animation::GMAnimationT;
+// use crate::assets::GMAssets;
 use crate::configuration::GMConfiguration;
+use crate::engine::GMEngineMessage;
 use crate::error::GMError;
-use crate::font::GMFontT;
-use crate::texture::GMTexture;
+// use crate::font::GMFontT;
+use crate::scene::GMSceneT;
+//use crate::texture::GMTexture;
 
-pub struct GMContext {
-    pub configuration: GMConfiguration,
-    pub new_fps: u32,
+pub struct GMContext<'a> {
     pub quit_game: bool,
     pub canvas: Canvas<Window>,
     pub texture_creator: TextureCreator<WindowContext>,
     pub event_pump: sdl2::EventPump,
 
+    pub engine_messages: VecDeque<GMEngineMessage<'a>>,
+
     // Name, Object
+    /*
     pub animations: Vec<(String, Box<dyn GMAnimationT>)>,
     pub fonts: Vec<(String, Rc<dyn GMFontT>)>,
     pub textures: Vec<Rc<GMTexture>>,
+    */
 
     pub key_esc_down_: bool,
     pub key_esc_up_: bool,
 }
 
-impl GMContext {
-    pub fn new(configuration: GMConfiguration) -> Self {
+impl<'a> GMContext<'a> {
+    pub(crate) fn new(configuration: &GMConfiguration) -> Self {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
         let window = video_subsystem.window(
@@ -55,22 +61,49 @@ impl GMContext {
         let event_pump = sdl_context.event_pump().unwrap();
 
         Self {
-            configuration,
-            new_fps: 0,
             quit_game: false,
             canvas,
             texture_creator,
             event_pump,
 
+            engine_messages: VecDeque::new(),
+
+            /*
             animations: Vec::new(),
             fonts: Vec::new(),
             textures: Vec::new(),
+            */
 
             key_esc_down_: false,
             key_esc_up_: false,
         }
     }
 
+    pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
+        debug!("GMContext::add_scene(), name: '{}'", scene.get_name());
+
+        self.engine_messages.push_back(GMEngineMessage::AddScene(Box::new(scene)));
+    }
+
+    pub fn remove_scene(&mut self, name: &'a str) {
+        debug!("GMContext::remove_scene(), name: '{}'", name);
+
+        self.engine_messages.push_back(GMEngineMessage::RemoveScene(name));
+    }
+
+    pub fn change_scene(&mut self, name: &'a str) {
+        debug!("GMContext::change_scene(), name: '{}'", name);
+
+        self.engine_messages.push_back(GMEngineMessage::ChangeScene(name));
+    }
+
+    pub fn change_fps(&mut self, new_fps: u32) {
+        debug!("GMContext::change_fps(), new_fps: '{}'", new_fps);
+
+        self.engine_messages.push_back(GMEngineMessage::ChangeFPS(new_fps));
+    }
+
+    /*
     pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
         debug!("GMContext::load_assets(), from file: '{}'", assets_file);
 
@@ -211,6 +244,7 @@ impl GMContext {
 
         todo!();
     }
+    */
 
     pub fn update(&mut self) -> Result<(), GMError> {
         self.key_esc_down_ = false;
