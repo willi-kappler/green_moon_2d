@@ -1,33 +1,24 @@
 
-use log::{debug};
 
 use crate::context::GMContext;
 use crate::error::GMError;
 
-use crate::draw_object::GMDrawContainer;
-
 pub trait GMSceneT {
-    fn init(&mut self, context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
-        context.run_scene();
+    fn update_before(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
         Ok(())
     }
-    fn update_before(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
+    fn update_after(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
         Ok(())
     }
-    fn update_after(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
+    fn draw_before(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
         Ok(())
     }
-    fn draw_before(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
-        Ok(())
-    }
-    fn draw_after(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer)  -> Result<(), GMError> {
-        Ok(())
-    }
-    fn exit(&mut self, _context: &mut GMContext, _draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
+    fn draw_after(&mut self, _context: &mut GMContext)  -> Result<(), GMError> {
         Ok(())
     }
 }
 
+/*
 pub struct GMSceneContainer {
     scenes: Vec<(String, Box<dyn GMSceneT>)>
 }
@@ -85,3 +76,4 @@ impl GMSceneContainer {
         }
     }
 }
+*/

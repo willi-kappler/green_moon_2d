@@ -1,3 +1,4 @@
+/*
 
 use std::fs::File;
 use std::io::Read;
@@ -6,7 +7,7 @@ use log::debug;
 use sdl2::gfx::framerate::FPSManager;
 
 use crate::configuration::GMConfiguration;
-use crate::context::{GMContext, GMSceneState};
+use crate::context::{GMContext};
 use crate::draw_object::GMDrawContainer;
 use crate::error::GMError;
 use crate::scene::{GMSceneT, GMSceneContainer};
@@ -57,7 +58,6 @@ impl GMApp {
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
         let mut draw_objects = GMDrawContainer::new();
-
         loop {
             let scene_state = context.get_scene_state();
 
@@ -93,7 +93,7 @@ impl GMApp {
 
             fps_manager.delay();
         }
-
         Ok(())
     }
 }
+*/

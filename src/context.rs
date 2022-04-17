@@ -19,18 +19,10 @@ use crate::error::GMError;
 use crate::font::GMFontT;
 use crate::texture::GMTexture;
 
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GMSceneState {
-    Run,
-    ChangeToScene(String),
-    Quit,
-}
-
 pub struct GMContext {
     pub configuration: GMConfiguration,
     pub new_fps: u32,
-    pub scene_state: GMSceneState,
+    pub quit_game: bool,
     pub canvas: Canvas<Window>,
     pub texture_creator: TextureCreator<WindowContext>,
     pub event_pump: sdl2::EventPump,
@@ -65,7 +57,7 @@ impl GMContext {
         Self {
             configuration,
             new_fps: 0,
-            scene_state: GMSceneState::Run,
+            quit_game: false,
             canvas,
             texture_creator,
             event_pump,
@@ -220,22 +212,6 @@ impl GMContext {
         todo!();
     }
 
-    pub fn get_scene_state(&self) -> &GMSceneState {
-        &self.scene_state
-    }
-
-    pub fn run_scene(&mut self) {
-        self.scene_state = GMSceneState::Run;
-    }
-
-    pub fn quit_app(&mut self) {
-        self.scene_state = GMSceneState::Quit;
-    }
-
-    pub fn change_to_scene(&mut self, name: &str) {
-        self.scene_state = GMSceneState::ChangeToScene(name.to_string());
-    }
-
     pub fn update(&mut self) -> Result<(), GMError> {
         self.key_esc_down_ = false;
         self.key_esc_up_ = false;
@@ -252,10 +228,6 @@ impl GMContext {
 
                 }
             }
-        }
-
-        for (_, animation) in self.animations.iter_mut() {
-            animation.update();
         }
 
         Ok(())

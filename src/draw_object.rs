@@ -1,31 +1,8 @@
 
 
-use std::any::Any;
-
-use log::debug;
 
 use crate::GMContext;
 use crate::GMError;
-use crate::sprite::GMSprite;
-use crate::text::GMText;
-use crate::movement::GMMovementInner;
-
-
-#[derive(Debug)]
-pub enum GMDrawRefType<'a> {
-    Sprite(&'a GMSprite),
-    Text(&'a GMText),
-
-    Custom(&'a dyn Any)
-}
-
-#[derive(Debug)]
-pub enum GMDrawMutRefType<'a> {
-    Sprite(&'a mut GMSprite),
-    Text(&'a mut GMText),
-
-    Custom(&'a mut dyn Any)
-}
 
 
 pub trait GMDrawT {
@@ -35,23 +12,17 @@ pub trait GMDrawT {
 
     fn draw(&self, _context: &mut GMContext) {}
 
-    fn set_active(&mut self, _active: bool) {}
-
     fn get_z_index(&self) -> i32 {
         0
     }
 
-    fn set_z_index(&mut self, _z_index: i32) {}
+    fn get_name(&self) -> &str;
 
-    fn get_movmement_inner_ref(&self) -> & GMMovementInner;
-
-    fn get_movmement_inner_mut_ref(&mut self) -> &mut GMMovementInner;
+    fn get_groups(&self) -> &[&str] {
+        &[""]
+    }
 
     fn box_clone(&self) -> Box<dyn GMDrawT>;
-
-    fn cast_ref(&self) -> GMDrawRefType;
-
-    fn cast_mut_ref(&mut self) -> GMDrawMutRefType;
 }
 
 impl Clone for Box<dyn GMDrawT> {
@@ -60,6 +31,7 @@ impl Clone for Box<dyn GMDrawT> {
     }
 }
 
+/*
 pub struct GMDrawContainer {
     pub draw_objects: Vec<(String, Box<dyn GMDrawT>)>,
 }
@@ -189,3 +161,4 @@ impl GMDrawContainer {
         Ok(())
     }
 }
+*/

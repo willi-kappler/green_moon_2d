@@ -1,11 +1,10 @@
 
 use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
-use std::any::Any;
 
 use crate::animation::{GMAnimationT};
 use crate::context::GMContext;
-use crate::draw_object::{GMDrawT, GMDrawRefType, GMDrawMutRefType};
+use crate::draw_object::GMDrawT;
 use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementInner};
 use crate::texture::GMTexture;
@@ -19,6 +18,7 @@ pub struct GMSpriteInner {
     pub current_animation: usize,
     pub movements: Vec<Box<dyn GMMovementT>>,
     pub z_index: i32,
+    pub name: String,
     pub flip_x: bool,
     pub flip_y: bool,
 }
@@ -63,6 +63,7 @@ impl Default for GMSpriteInner {
             current_animation: 0,
             movements: Vec::new(),
             z_index: 0,
+            name: "".to_string(),
             flip_x: false,
             flip_y: false,
         }
@@ -112,24 +113,16 @@ impl GMDrawT for GMSprite {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.sprite_inner.active = active;
-    }
-
     fn get_z_index(&self) -> i32 {
         self.sprite_inner.z_index
     }
 
-    fn set_z_index(&mut self, z_index: i32) {
-        self.sprite_inner.z_index = z_index;
+    fn get_name(&self) -> &str {
+        &self.sprite_inner.name
     }
 
-    fn get_movmement_inner_ref(&self) -> & GMMovementInner {
-        &self.sprite_inner.movement_inner
-    }
-
-    fn get_movmement_inner_mut_ref(&mut self) -> &mut GMMovementInner {
-        &mut self.sprite_inner.movement_inner
+    fn get_groups(&self) -> &[&str] {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawT> {
@@ -137,26 +130,6 @@ impl GMDrawT for GMSprite {
 
         Box::new(result)
     }
-
-    fn cast_ref(&self) -> GMDrawRefType {
-        GMDrawRefType::Sprite(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMDrawMutRefType {
-        GMDrawMutRefType::Sprite(self)
-    }
-}
-
-pub enum GMSpriteEffectRefType<'a> {
-    Static(&'a GMSpriteEffectStatic),
-
-    Custom(&'a dyn Any)
-}
-
-pub enum GMSpriteEffectMutRefType<'a> {
-    Static(&'a mut GMSpriteEffectStatic),
-
-    Custom(&'a mut dyn Any)
 }
 
 pub trait GMSpriteEffectT {
@@ -164,13 +137,7 @@ pub trait GMSpriteEffectT {
 
     fn draw(&self, _sprite_inner: &GMSpriteInner, _context: &mut GMContext) {}
 
-    fn set_active(&mut self, _active: bool) {}
-
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
-
-    fn cast_ref(&self) -> GMSpriteEffectRefType;
-
-    fn cast_mut_ref(&mut self) -> GMSpriteEffectMutRefType;
 }
 
 impl Clone for Box<dyn GMSpriteEffectT> {
@@ -203,21 +170,9 @@ impl GMSpriteEffectT for GMSpriteEffectStatic {
         }
     }
 
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT> {
         let result = self.clone();
 
         Box::new(result)
-    }
-
-    fn cast_ref(&self) -> GMSpriteEffectRefType {
-        GMSpriteEffectRefType::Static(self)
-    }
-
-    fn cast_mut_ref(&mut self) -> GMSpriteEffectMutRefType {
-        GMSpriteEffectMutRefType::Static(self)
     }
 }
