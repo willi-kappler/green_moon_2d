@@ -42,7 +42,7 @@ impl GMDrawObjectManager {
         }
     }
 
-    pub fn get_draw_object_index(&self, name: &str) -> Option<usize> {
+    fn get_draw_object_index(&self, name: &str) -> Option<usize> {
         self.draw_objects.iter().position(|object| object.get_name() == name)
     }
 
@@ -61,87 +61,10 @@ impl GMDrawObjectManager {
         }
     }
 
-
-}
-
-/*
-pub struct GMDrawContainer {
-    pub draw_objects: Vec<(String, Box<dyn GMDrawT>)>,
-}
-
-impl GMDrawContainer {
-    pub fn new() -> Self {
-        Self {
-            draw_objects: Vec::new(),
-        }
-    }
-
-    pub fn has_draw_object(&self, name: &str) -> bool {
-        self.draw_objects.iter().any(|(o_name, _)| o_name == name)
-    }
-
-    pub fn add_draw_object1<D: 'static + GMDrawT>(&mut self, name: &str, object: D) -> Result<(), GMError> {
-        debug!("GMDrawContainer::add_draw_object1(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
-        }
-
-        self.draw_objects.push((name.to_string(), Box::new(object)));
-
-        Ok(())
-    }
-
-    pub fn add_draw_object2(&mut self, name: &str, object: Box<dyn GMDrawT>) -> Result<(), GMError> {
-        debug!("GMDrawContainer::add_draw_object2(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::DrawObjectAlreadyExists(name.to_string()))
-        }
-
-        self.draw_objects.push((name.to_string(), object));
-
-        Ok(())
-    }
-
-    pub fn get_draw_object_ref(&self, name: &str) -> Result<&Box<dyn GMDrawT>, GMError> {
-        for (o_name, object) in self.draw_objects.iter() {
-            if o_name == name {
-                return Ok(object)
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
-    pub fn get_draw_object_mut_ref(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawT>, GMError> {
-        for (o_name, object) in self.draw_objects.iter_mut() {
-            if o_name == name {
-                return Ok(object)
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
-    pub fn get_draw_object_clone(&self, name: &str) -> Result<Box<dyn GMDrawT>, GMError> {
-        debug!("GMDrawContainer::get_draw_object_clone(), name: '{}'", name);
-
-        for (o_name, object) in self.draw_objects.iter() {
-            if o_name == name {
-                return Ok(object.box_clone())
-            }
-        }
-
-        Err(GMError::DrawObjectNotFound(name.to_string()))
-    }
-
     pub fn remove_draw_object(&mut self, name: &str) -> Result<(), GMError> {
-        debug!("GMDrawContainer::remove_draw_object(), name: '{}'", name);
-
-        match self.draw_objects.iter().position(|(o_name, _)| o_name == name) {
+        match self.get_draw_object_index(name) {
             Some(index) => {
-                self.draw_objects.remove(index);
+                self.draw_objects.swap_remove(index);
                 Ok(())
             }
             None => {
@@ -150,32 +73,23 @@ impl GMDrawContainer {
         }
     }
 
-    pub fn add_sprite(&mut self, name: &str, sprite: GMSprite) -> Result<(), GMError> {
-        debug!("GMDrawContainer::add_sprite(), name: '{}'", name);
+    pub fn replace_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        let name = object.get_name();
 
-        if self.has_draw_object(name) {
-            return Err(GMError::SpriteAlreadyExists(name.to_string()))
+        match self.get_draw_object_index(name) {
+            Some(index) => {
+                self.draw_objects[index] = Box::new(object);
+
+                Ok(())
+            }
+            None => {
+                Err(GMError::DrawObjectNotFound(name.to_string()))
+            }
         }
-
-        self.draw_objects.push((name.to_string(), Box::new(sprite)));
-
-        Ok(())
-    }
-
-    pub fn add_text(&mut self, name: &str, text: GMText) -> Result<(), GMError> {
-        debug!("GMDrawContainer::add_text(), name: '{}'", name);
-
-        if self.has_draw_object(name) {
-            return Err(GMError::TextAlreadyExists(name.to_string()))
-        }
-
-        self.draw_objects.push((name.to_string(), Box::new(text)));
-
-        Ok(())
     }
 
     pub fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
-        for (_, object) in self.draw_objects.iter_mut() {
+        for object in self.draw_objects.iter_mut() {
             object.update(context)?;
         }
 
@@ -185,13 +99,12 @@ impl GMDrawContainer {
 
     pub fn draw(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         // Sort all drawable objects by z order before drawing them
-        self.draw_objects.sort_by_key(|(_, object)| object.get_z_index());
+        self.draw_objects.sort_by_key(|object| object.get_z_index());
 
-        for (_, object) in self.draw_objects.iter() {
+        for object in self.draw_objects.iter() {
             object.draw(context);
         }
 
         Ok(())
     }
 }
-*/

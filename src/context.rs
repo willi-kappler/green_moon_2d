@@ -23,6 +23,13 @@ use crate::error::GMError;
 use crate::scene::{GMSceneT, GMSceneMessage};
 //use crate::texture::GMTexture;
 
+
+
+// TODO: Split context into:
+// - Update context
+// - Draw context
+
+
 pub struct GMContext<'a> {
     pub quit_game: bool,
     canvas: Canvas<Window>,
