@@ -1,9 +1,35 @@
 
 
+use std::any::Any;
 
 use crate::GMContext;
 use crate::GMError;
 
+pub enum GMDrawObjectMessage {
+    SetActive(bool),
+    SetState(String),
+    SetName(String),
+    AddGroup(String),
+    RemoveGroup(String),
+
+    Custom(Box<dyn Any>),
+}
+
+pub enum GMDrawObjectResponse {
+    None,
+
+    Custom(Box<dyn Any>),
+}
+
+pub enum GMDrawObjectSender {
+    Scene,
+    DrawObject(String),
+}
+
+pub enum GMDrawObjectReceiver {
+    Single(String),
+    Group(String),
+}
 
 pub trait GMDrawObjectT {
     fn update(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
@@ -20,6 +46,10 @@ pub trait GMDrawObjectT {
 
     fn get_groups(&self) -> &[String] {
         &[]
+    }
+
+    fn send_message(&mut self, _message: GMDrawObjectMessage) -> Result<GMDrawObjectResponse, GMError> {
+        Ok(GMDrawObjectResponse::None)
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawObjectT>;

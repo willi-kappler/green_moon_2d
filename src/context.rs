@@ -30,6 +30,27 @@ use crate::scene::{GMSceneT, GMSceneMessage};
 // - Draw context
 
 
+pub struct GMUpdateContext<'a> {
+    pub quit_game: bool,
+    texture_creator: TextureCreator<WindowContext>,
+    event_pump: sdl2::EventPump,
+    engine_messages: VecDeque<GMEngineMessage>,
+    scene_messages: VecDeque<GMSceneMessage<'a>>,
+}
+
+impl<'a> GMUpdateContext<'a> {
+
+}
+
+pub struct GMDrawContext {
+    canvas: Canvas<Window>,
+
+}
+
+impl GMDrawContext {
+
+}
+
 pub struct GMContext<'a> {
     pub quit_game: bool,
     canvas: Canvas<Window>,
