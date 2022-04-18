@@ -20,16 +20,17 @@ use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::error::GMError;
 // use crate::font::GMFontT;
-use crate::scene::GMSceneT;
+use crate::scene::{GMSceneT, GMSceneMessage};
 //use crate::texture::GMTexture;
 
 pub struct GMContext<'a> {
     pub quit_game: bool,
-    pub canvas: Canvas<Window>,
-    pub texture_creator: TextureCreator<WindowContext>,
-    pub event_pump: sdl2::EventPump,
+    canvas: Canvas<Window>,
+    texture_creator: TextureCreator<WindowContext>,
+    event_pump: sdl2::EventPump,
 
-    pub engine_messages: VecDeque<GMEngineMessage<'a>>,
+    engine_messages: VecDeque<GMEngineMessage>,
+    scene_messages: VecDeque<GMSceneMessage<'a>>,
 
     // Name, Object
     /*
@@ -67,6 +68,7 @@ impl<'a> GMContext<'a> {
             event_pump,
 
             engine_messages: VecDeque::new(),
+            scene_messages: VecDeque::new(),
 
             /*
             animations: Vec::new(),
@@ -82,19 +84,29 @@ impl<'a> GMContext<'a> {
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
         debug!("GMContext::add_scene(), name: '{}'", scene.get_name());
 
-        self.engine_messages.push_back(GMEngineMessage::AddScene(Box::new(scene)));
+        self.scene_messages.push_back(GMSceneMessage::AddScene(Box::new(scene)));
     }
 
     pub fn remove_scene(&mut self, name: &'a str) {
         debug!("GMContext::remove_scene(), name: '{}'", name);
 
-        self.engine_messages.push_back(GMEngineMessage::RemoveScene(name));
+        self.scene_messages.push_back(GMSceneMessage::RemoveScene(name));
     }
 
     pub fn change_scene(&mut self, name: &'a str) {
         debug!("GMContext::change_scene(), name: '{}'", name);
 
-        self.engine_messages.push_back(GMEngineMessage::ChangeScene(name));
+        self.scene_messages.push_back(GMSceneMessage::ChangeToScene(name));
+    }
+
+    pub fn replace_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
+        debug!("GMContext::replace_scene(), name: '{}'", scene.get_name());
+
+        self.scene_messages.push_back(GMSceneMessage::ReplaceScene(Box::new(scene)));
+    }
+
+    pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
+        self.scene_messages.pop_front()
     }
 
     pub fn change_fps(&mut self, new_fps: u32) {
@@ -102,6 +114,62 @@ impl<'a> GMContext<'a> {
 
         self.engine_messages.push_back(GMEngineMessage::ChangeFPS(new_fps));
     }
+
+    pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
+        self.engine_messages.pop_front()
+    }
+
+
+    pub fn update(&mut self) -> Result<(), GMError> {
+        self.key_esc_down_ = false;
+        self.key_esc_up_ = false;
+
+        for event in self.event_pump.poll_iter() {
+            match event {
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                    self.key_esc_down_ = true;
+                }
+                Event::KeyUp { keycode: Some(Keycode::Escape), .. } => {
+                    self.key_esc_up_ = true;
+                }
+                _ => {
+
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn present(&mut self) {
+        self.canvas.present();
+    }
+
+    pub fn clear_black(&mut self) {
+        let black = pixels::Color::BLACK;
+        self.canvas.set_draw_color(black);
+        self.canvas.clear();
+    }
+
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+        debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
+
+        // TODO: Map SDL2 error
+        if fullscreen {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True).ok();
+        } else {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off).ok();
+        }
+    }
+
+    pub fn key_esc_down(&self) -> bool {
+        self.key_esc_down_
+    }
+
+    pub fn key_esc_up(&self) -> bool {
+        self.key_esc_up_
+    }
+}
 
     /*
     pub fn load_assets(&mut self, assets_file: &str) -> Result<(), GMError> {
@@ -245,52 +313,3 @@ impl<'a> GMContext<'a> {
         todo!();
     }
     */
-
-    pub fn update(&mut self) -> Result<(), GMError> {
-        self.key_esc_down_ = false;
-        self.key_esc_up_ = false;
-
-        for event in self.event_pump.poll_iter() {
-            match event {
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    self.key_esc_down_ = true;
-                }
-                Event::KeyUp { keycode: Some(Keycode::Escape), .. } => {
-                    self.key_esc_up_ = true;
-                }
-                _ => {
-
-                }
-            }
-        }
-
-        Ok(())
-    }
-
-    pub(crate) fn present(&mut self) {
-        self.canvas.present();
-    }
-
-    pub fn clear_black(&mut self) {
-        let black = pixels::Color::BLACK;
-        self.canvas.set_draw_color(black);
-        self.canvas.clear();
-    }
-
-    pub fn set_fullscreen(&mut self, fullscreen: bool) {
-        // TODO: Map SDL2 error
-        if fullscreen {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True).ok();
-        } else {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off).ok();
-        }
-    }
-
-    pub fn key_esc_down(&self) -> bool {
-        self.key_esc_down_
-    }
-
-    pub fn key_esc_up(&self) -> bool {
-        self.key_esc_up_
-    }
-}

@@ -5,6 +5,13 @@ use log::debug;
 use crate::context::GMContext;
 use crate::error::GMError;
 
+pub(crate) enum GMSceneMessage<'a> {
+    AddScene(Box<dyn GMSceneT>),
+    RemoveScene(&'a str),
+    ChangeToScene(&'a str),
+    ReplaceScene(Box<dyn GMSceneT>),
+}
+
 pub trait GMSceneT {
     fn update(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
         Ok(())
@@ -92,8 +99,43 @@ impl GMSceneManager {
         }
     }
 
+    pub(crate) fn replace_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
+        let name = scene.get_name();
+
+        debug!("GMSceneManager::replace_scene(), name: '{}'", name);
+
+        match self.get_scene_index(name) {
+            Some(index) => {
+                self.scenes[index] = scene;
+                Ok(())
+            }
+            None => {
+                Err(GMError::SceneNotFound(name.to_string()))
+            }
+        }
+    }
+
     pub(crate) fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
-        self.scenes[self.current_scene].update(context)
+        self.scenes[self.current_scene].update(context)?;
+
+        while let Some(message) = context.next_scene_message() {
+            match message {
+                GMSceneMessage::AddScene(scene) => {
+                    self.add_scene(scene)?
+                }
+                GMSceneMessage::RemoveScene(name) => {
+                    self.remove_scene(name)?
+                }
+                GMSceneMessage::ChangeToScene(name) => {
+                    self.change_scene(name)?
+                }
+                GMSceneMessage::ReplaceScene(scene) => {
+                    self.replace_scene(scene)?
+                }
+            }
+        }
+
+        Ok(())
     }
 
     pub(crate) fn draw(&mut self, context: &mut GMContext) -> Result<(), GMError> {
