@@ -31,7 +31,6 @@ use crate::scene::{GMSceneT, GMSceneMessage};
 
 
 pub struct GMUpdateContext<'a> {
-    pub quit_game: bool,
     texture_creator: TextureCreator<WindowContext>,
     event_pump: sdl2::EventPump,
     engine_messages: VecDeque<GMEngineMessage>,
@@ -52,7 +51,6 @@ impl GMDrawContext {
 }
 
 pub struct GMContext<'a> {
-    pub quit_game: bool,
     canvas: Canvas<Window>,
     texture_creator: TextureCreator<WindowContext>,
     event_pump: sdl2::EventPump,
@@ -90,7 +88,6 @@ impl<'a> GMContext<'a> {
         let event_pump = sdl_context.event_pump().unwrap();
 
         Self {
-            quit_game: false,
             canvas,
             texture_creator,
             event_pump,
@@ -135,6 +132,12 @@ impl<'a> GMContext<'a> {
 
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
         self.scene_messages.pop_front()
+    }
+
+    pub fn quit(&mut self) {
+        debug!("GMContext::quit()");
+
+        self.engine_messages.push_back(GMEngineMessage::Quit);
     }
 
     pub fn change_fps(&mut self, new_fps: u32) {

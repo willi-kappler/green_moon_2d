@@ -10,6 +10,7 @@ use crate::configuration::GMConfiguration;
 use crate::error::GMError;
 
 pub(crate) enum GMEngineMessage {
+    Quit,
     ChangeFPS(u32),
 }
 
@@ -55,7 +56,7 @@ impl GMEngine {
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
-        while !context.quit_game {
+        'quit: loop {
             // Update everything
             self.scene_manager.update(&mut context)?;
 
@@ -66,6 +67,9 @@ impl GMEngine {
 
             while let Some(message) = context.next_engine_message() {
                 match message {
+                    GMEngineMessage::Quit => {
+                        break 'quit;
+                    }
                     GMEngineMessage::ChangeFPS(new_fps) => {
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
