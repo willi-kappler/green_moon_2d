@@ -30,14 +30,14 @@ use crate::scene::{GMSceneT, GMSceneMessage};
 // - Draw context
 
 
-pub struct GMUpdateContext<'a> {
+pub struct GMUpdateContext {
     texture_creator: TextureCreator<WindowContext>,
     event_pump: sdl2::EventPump,
     engine_messages: VecDeque<GMEngineMessage>,
-    scene_messages: VecDeque<GMSceneMessage<'a>>,
+    scene_messages: VecDeque<GMSceneMessage>,
 }
 
-impl<'a> GMUpdateContext<'a> {
+impl GMUpdateContext {
 
 }
 
@@ -50,13 +50,13 @@ impl GMDrawContext {
 
 }
 
-pub struct GMContext<'a> {
+pub struct GMContext {
     canvas: Canvas<Window>,
     texture_creator: TextureCreator<WindowContext>,
     event_pump: sdl2::EventPump,
 
     engine_messages: VecDeque<GMEngineMessage>,
-    scene_messages: VecDeque<GMSceneMessage<'a>>,
+    scene_messages: VecDeque<GMSceneMessage>,
 
     // Name, Object
     /*
@@ -69,7 +69,7 @@ pub struct GMContext<'a> {
     pub key_esc_up_: bool,
 }
 
-impl<'a> GMContext<'a> {
+impl GMContext {
     pub(crate) fn new(configuration: &GMConfiguration) -> Self {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
@@ -112,16 +112,16 @@ impl<'a> GMContext<'a> {
         self.scene_messages.push_back(GMSceneMessage::AddScene(Box::new(scene)));
     }
 
-    pub fn remove_scene(&mut self, name: &'a str) {
+    pub fn remove_scene(&mut self, name: &str) {
         debug!("GMContext::remove_scene(), name: '{}'", name);
 
-        self.scene_messages.push_back(GMSceneMessage::RemoveScene(name));
+        self.scene_messages.push_back(GMSceneMessage::RemoveScene(name.to_string()));
     }
 
-    pub fn change_scene(&mut self, name: &'a str) {
+    pub fn change_scene(&mut self, name: &str) {
         debug!("GMContext::change_scene(), name: '{}'", name);
 
-        self.scene_messages.push_back(GMSceneMessage::ChangeToScene(name));
+        self.scene_messages.push_back(GMSceneMessage::ChangeToScene(name.to_string()));
     }
 
     pub fn replace_scene<S: 'static + GMSceneT>(&mut self, scene: S) {

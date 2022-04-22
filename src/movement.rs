@@ -2,15 +2,19 @@
 
 use std::fmt::{self, Debug, Formatter};
 use std::time::Instant;
+use std::any::Any;
+use std::rc::Rc;
 
 use crate::GMContext;
+
+type GMMovementMessage = Rc<dyn Any>;
 
 pub fn point_inside(x_min: f32, y_min: f32, x_max: f32, y_max: f32, px: f32, py: f32) -> bool {
     (x_min <= px) && (px <= x_max) && (y_min <= py) && (py <= y_max)
 }
 
 #[derive(Clone, Debug)]
-pub struct GMMovementInner {
+pub struct GMMovementCommon {
     pub x: f32,
     pub y: f32,
     pub vx: f32,
@@ -21,19 +25,19 @@ pub struct GMMovementInner {
     pub height: f32,
 }
 
-impl Default for GMMovementInner {
+impl Default for GMMovementCommon {
     fn default() -> Self {
         Self { x: 0.0, y: 0.0, vx: 0.0, vy: 0.0,
             angle: 0.0, v_angle: 0.0, width: 0.0, height: 0.0 }
     }
 }
 
-impl GMMovementInner {
+impl GMMovementCommon {
     pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
         Self { x, y, width, height, ..Default::default() }
     }
 
-    pub fn collides_rect(&self, other: &GMMovementInner) -> bool {
+    pub fn collides_rect(&self, other: &GMMovementCommon) -> bool {
         let vlen1 = self.vx.hypot(self.vy);
         let vlen2 = other.vx.hypot(other.vy);
         let vlen_max = vlen1.max(vlen2).max(1.0);
@@ -89,9 +93,11 @@ impl GMMovementInner {
 }
 
 pub trait GMMovementT {
-    fn update(&mut self, _movement_inner: &mut GMMovementInner, _context: &mut GMContext) {}
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, context: &mut GMContext);
 
-    fn set_active(&mut self, _active: bool) {}
+    fn set_active(&mut self, active: bool);
+
+    fn send_message(&mut self, message: GMMovementMessage);
 
     fn box_clone(&self) -> Box<dyn GMMovementT>;
 }
@@ -120,7 +126,7 @@ impl Default for GMResetVelocity {
 }
 
 impl GMMovementT for GMResetVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
             movement_inner.vx = 0.0;
             movement_inner.vy = 0.0;
@@ -129,6 +135,10 @@ impl GMMovementT for GMResetVelocity {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -152,7 +162,7 @@ impl Default for GMApplyVelocity {
 }
 
 impl GMMovementT for GMApplyVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
             movement_inner.x += movement_inner.vx;
             movement_inner.y += movement_inner.vy;
@@ -161,6 +171,10 @@ impl GMMovementT for GMApplyVelocity {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -184,7 +198,7 @@ impl Default for GMConstAcceleration {
 }
 
 impl GMMovementT for GMConstAcceleration {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
             movement_inner.vx += self.ax;
             movement_inner.vy += self.ay;
@@ -193,6 +207,10 @@ impl GMMovementT for GMConstAcceleration {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -218,7 +236,7 @@ impl Default for GMStopAtBounds {
 }
 
 impl GMMovementT for GMStopAtBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if movement_inner.x <= self.min_x {
             movement_inner.x = self.min_x;
             movement_inner.vx = 0.0;
@@ -238,6 +256,10 @@ impl GMMovementT for GMStopAtBounds {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -262,7 +284,7 @@ impl Default for GMWrapAroundBounds {
 }
 
 impl GMMovementT for GMWrapAroundBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
 
             if movement_inner.x > self.max_x {
@@ -281,6 +303,10 @@ impl GMMovementT for GMWrapAroundBounds {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -306,7 +332,7 @@ impl Default for GMMovementBounceBounds {
 }
 
 impl GMMovementT for GMMovementBounceBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
 
             if movement_inner.x > self.max_x - movement_inner.width {
@@ -335,6 +361,10 @@ impl GMMovementT for GMMovementBounceBounds {
         self.active = active;
     }
 
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
+    }
+
     fn box_clone(&self) -> Box<dyn GMMovementT> {
         let result = self.clone();
 
@@ -360,7 +390,7 @@ impl Default for GMMovementCircular {
 }
 
 impl GMMovementT for GMMovementCircular {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
             self.angle += self.v_angle;
             let new_x = self.cx + (self.angle.cos() * self.radius);
@@ -374,6 +404,10 @@ impl GMMovementT for GMMovementCircular {
 
     fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {
@@ -400,7 +434,7 @@ impl Default for GMMovementForce {
 }
 
 impl GMMovementT for GMMovementForce {
-    fn update(&mut self, movement_inner: &mut GMMovementInner, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
         if self.active {
             let dist_x = movement_inner.x - self.fx;
             let dist_y = movement_inner.y - self.fy;
@@ -437,6 +471,10 @@ impl GMMovementT for GMMovementForce {
         if active && self.duration > 0.0 {
             self.instant = Instant::now();
         }
+    }
+
+    fn send_message(&mut self, _message: GMMovementMessage) {
+        todo!();
     }
 
     fn box_clone(&self) -> Box<dyn GMMovementT> {

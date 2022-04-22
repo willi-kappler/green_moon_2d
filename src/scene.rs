@@ -5,10 +5,10 @@ use log::debug;
 use crate::context::GMContext;
 use crate::error::GMError;
 
-pub(crate) enum GMSceneMessage<'a> {
+pub(crate) enum GMSceneMessage {
     AddScene(Box<dyn GMSceneT>),
-    RemoveScene(&'a str),
-    ChangeToScene(&'a str),
+    RemoveScene(String),
+    ChangeToScene(String),
     ReplaceScene(Box<dyn GMSceneT>),
 }
 
@@ -124,10 +124,10 @@ impl GMSceneManager {
                     self.add_scene(scene)?
                 }
                 GMSceneMessage::RemoveScene(name) => {
-                    self.remove_scene(name)?
+                    self.remove_scene(&name)?
                 }
                 GMSceneMessage::ChangeToScene(name) => {
-                    self.change_scene(name)?
+                    self.change_scene(&name)?
                 }
                 GMSceneMessage::ReplaceScene(scene) => {
                     self.replace_scene(scene)?

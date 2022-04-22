@@ -5,25 +5,19 @@ use std::fmt::{self, Debug, Formatter};
 use std::f32::consts::TAU;
 
 use crate::context::GMContext;
-use crate::draw_object::GMDrawObjectT;
+use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::error::GMError;
 use crate::font::{GMFontT, GMBitmapFont};
-use crate::movement::{GMMovementT, GMMovementInner};
 
 
 #[derive(Clone)]
 pub struct GMTextInner {
     pub font: Rc<dyn GMFontT>,
     pub text: String,
-    pub movement_inner: GMMovementInner,
-    pub movements: Vec<Box<dyn GMMovementT>>,
     pub spacing_x: f32,
     pub spacing_y: f32,
     pub horizontal: bool,
-    pub active: bool,
-    pub z_index: i32,
-    pub name: String,
-    pub groups: Vec<String>,
+    pub draw_object_common: GMDrawObjectCommon,
 }
 
 impl Default for GMTextInner {
@@ -31,21 +25,16 @@ impl Default for GMTextInner {
         Self {
             font: Rc::new(GMBitmapFont::default()),
             text: "".to_string(),
-            movement_inner: Default::default(),
-            movements: Vec::new(),
             spacing_x: 0.0,
             spacing_y: 0.0,
             horizontal: true,
-            active: true,
-            z_index: 0,
-            name: "".to_string(),
-            groups: Vec::new(),
+            draw_object_common: GMDrawObjectCommon::default(),
         }
     }
 }
 
 impl GMTextInner {
-    pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
+    pub fn new(font: Rc<dyn GMFontT>, text: &str, name: &str, x: f32, y: f32) -> Self {
         let mut width: f32 = 0.0;
         let mut height: f32 = 0.0;
 
@@ -56,21 +45,17 @@ impl GMTextInner {
             height = height.max(c_height);
         }
 
-        let movement_inner = GMMovementInner {
-            x, y, width, height, ..Default::default()
-        };
-
         Self {
             font: font.clone(),
             text: text.to_string(),
-            movement_inner,
+            draw_object_common: GMDrawObjectCommon::new(name, x, y, width, height),
             .. Default::default()
         }
     }
 
     pub fn draw(&self, context: &mut GMContext) {
-        let mut x = self.movement_inner.x;
-        let mut y = self.movement_inner.y;
+        let mut x = self.draw_object_common.movement_common.x;
+        let mut y = self.draw_object_common.movement_common.y;
 
         for c in self.text.chars() {
             let (c_width, c_height) = self.font.get_char_dimensions(c);
@@ -86,11 +71,7 @@ impl GMTextInner {
     }
 
     pub fn update(&mut self, context: &mut GMContext) {
-        if self.active {
-            for movement in self.movements.iter_mut() {
-                movement.update(&mut self.movement_inner, context);
-            }
-        }
+        self.draw_object_common.update(context);
     }
 }
 
@@ -98,13 +79,10 @@ impl Debug for GMTextInner {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("GMTextInner")
             .field("text", &self.text)
-            .field("movement_inner", &self.movement_inner)
             .field("spacing_x", &self.spacing_x)
             .field("spacing_y", &self.spacing_y)
             .field("horizontal", &self.horizontal)
-            .field("active", &self.active)
-            .field("z_index", &self.z_index)
-            .field("name", &self.name)
+            .field("draw_object_common", &self.draw_object_common)
             .finish()
     }
 }
@@ -125,8 +103,8 @@ impl Default for GMText {
 }
 
 impl GMText {
-    pub fn new(font: Rc<dyn GMFontT>, text: &str, x: f32, y: f32) -> Self {
-        let text_inner = GMTextInner::new(font, text, x, y);
+    pub fn new(font: Rc<dyn GMFontT>, text: &str, name: &str, x: f32, y: f32) -> Self {
+        let text_inner = GMTextInner::new(font, text, name, x, y);
 
         Self {
             text_inner,
@@ -138,7 +116,7 @@ impl GMText {
 impl GMDrawObjectT for GMText {
     fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
         self.text_inner.update(context);
-        if self.text_inner.active {
+        if self.text_inner.draw_object_common.active {
 
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.text_inner, context);
@@ -148,24 +126,22 @@ impl GMDrawObjectT for GMText {
         Ok(())
     }
 
-    fn draw(&self, context: &mut GMContext) {
-        if self.text_inner.active {
+    fn draw(&self, context: &mut GMContext) -> Result<(), GMError> {
+        if self.text_inner.draw_object_common.active {
             for effect in self.effects.iter() {
                 effect.draw(&self.text_inner, context);
             }
         }
+
+        Ok(())
     }
 
-    fn get_z_index(&self) -> i32 {
-        self.text_inner.z_index
+    fn get_common_ref(&self) -> &GMDrawObjectCommon {
+        &self.text_inner.draw_object_common
     }
 
-    fn get_name(&self) -> &str {
-        &self.text_inner.name
-    }
-
-    fn get_groups(&self) -> &[String] {
-        &self.text_inner.groups
+    fn get_common_mut_ref(&mut self) -> &mut GMDrawObjectCommon {
+        &mut self.text_inner.draw_object_common
     }
 
     fn box_clone(&self) -> Box<dyn GMDrawObjectT> {
@@ -253,8 +229,8 @@ impl GMTextEffectT for GMTextEffectWave {
 
     fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
         if self.active {
-            let mut x = text_inner.movement_inner.x;
-            let mut y = text_inner.movement_inner.y;
+            let mut x = text_inner.draw_object_common.movement_common.x;
+            let mut y = text_inner.draw_object_common.movement_common.y;
             let mut offset = 0.0;
 
             for c in text_inner.text.chars() {
