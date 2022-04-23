@@ -2,12 +2,9 @@
 
 use std::fmt::{self, Debug, Formatter};
 use std::time::Instant;
-use std::any::Any;
-use std::rc::Rc;
 
 use crate::GMUpdateContext;
-
-type GMMovementMessage = Rc<dyn Any>;
+use crate::draw_object::GMDrawObjectMessage;
 
 pub fn point_inside(x_min: f32, y_min: f32, x_max: f32, y_max: f32, px: f32, py: f32) -> bool {
     (x_min <= px) && (px <= x_max) && (y_min <= py) && (py <= y_max)
@@ -93,11 +90,11 @@ impl GMMovementCommon {
 }
 
 pub trait GMMovementT {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, context: &mut GMUpdateContext);
+    fn update(&mut self, movement_common: &mut GMMovementCommon, context: &mut GMUpdateContext);
 
     fn set_active(&mut self, active: bool);
 
-    fn send_message(&mut self, message: GMMovementMessage);
+    fn send_message(&mut self, message: GMDrawObjectMessage);
 
     fn box_clone(&self) -> Box<dyn GMMovementT>;
 }
@@ -126,10 +123,10 @@ impl Default for GMResetVelocity {
 }
 
 impl GMMovementT for GMResetVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
-            movement_inner.vx = 0.0;
-            movement_inner.vy = 0.0;
+            movement_common.vx = 0.0;
+            movement_common.vy = 0.0;
         }
     }
 
@@ -137,7 +134,7 @@ impl GMMovementT for GMResetVelocity {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -162,10 +159,10 @@ impl Default for GMApplyVelocity {
 }
 
 impl GMMovementT for GMApplyVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
-            movement_inner.x += movement_inner.vx;
-            movement_inner.y += movement_inner.vy;
+            movement_common.x += movement_common.vx;
+            movement_common.y += movement_common.vy;
         }
     }
 
@@ -173,7 +170,7 @@ impl GMMovementT for GMApplyVelocity {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -198,10 +195,10 @@ impl Default for GMConstAcceleration {
 }
 
 impl GMMovementT for GMConstAcceleration {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
-            movement_inner.vx += self.ax;
-            movement_inner.vy += self.ay;
+            movement_common.vx += self.ax;
+            movement_common.vy += self.ay;
         }
     }
 
@@ -209,7 +206,7 @@ impl GMMovementT for GMConstAcceleration {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -236,21 +233,21 @@ impl Default for GMStopAtBounds {
 }
 
 impl GMMovementT for GMStopAtBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
-        if movement_inner.x <= self.min_x {
-            movement_inner.x = self.min_x;
-            movement_inner.vx = 0.0;
-        } else if movement_inner.x >= self.max_x - movement_inner.width {
-            movement_inner.x = self.max_x - movement_inner.width;
-            movement_inner.vx = 0.0;
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+        if movement_common.x <= self.min_x {
+            movement_common.x = self.min_x;
+            movement_common.vx = 0.0;
+        } else if movement_common.x >= self.max_x - movement_common.width {
+            movement_common.x = self.max_x - movement_common.width;
+            movement_common.vx = 0.0;
         }
 
-        if movement_inner.y <= self.min_y {
-            movement_inner.y = self.min_y;
-            movement_inner.vy = 0.0;
-        } else if movement_inner.y >= self.max_y - movement_inner.height {
-            movement_inner.y = self.max_y - movement_inner.height;
-            movement_inner.vy = 0.0;
+        if movement_common.y <= self.min_y {
+            movement_common.y = self.min_y;
+            movement_common.vy = 0.0;
+        } else if movement_common.y >= self.max_y - movement_common.height {
+            movement_common.y = self.max_y - movement_common.height;
+            movement_common.vy = 0.0;
         }
     }
 
@@ -258,7 +255,7 @@ impl GMMovementT for GMStopAtBounds {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -284,19 +281,19 @@ impl Default for GMWrapAroundBounds {
 }
 
 impl GMMovementT for GMWrapAroundBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
 
-            if movement_inner.x > self.max_x {
-                movement_inner.x -= self.max_x - self.min_x;
-            } else if movement_inner.x < self.min_x - movement_inner.width {
-                movement_inner.x += self.max_x - self.min_x;
+            if movement_common.x > self.max_x {
+                movement_common.x -= self.max_x - self.min_x;
+            } else if movement_common.x < self.min_x - movement_common.width {
+                movement_common.x += self.max_x - self.min_x;
             }
 
-            if movement_inner.y > self.max_y {
-                movement_inner.y -= self.max_y - self.min_y;
-            } else if movement_inner.y <  self.min_y - movement_inner.height {
-                movement_inner.y += self.max_y - self.min_y;
+            if movement_common.y > self.max_y {
+                movement_common.y -= self.max_y - self.min_y;
+            } else if movement_common.y <  self.min_y - movement_common.height {
+                movement_common.y += self.max_y - self.min_y;
             }
         }
     }
@@ -305,7 +302,7 @@ impl GMMovementT for GMWrapAroundBounds {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -332,27 +329,27 @@ impl Default for GMMovementBounceBounds {
 }
 
 impl GMMovementT for GMMovementBounceBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
 
-            if movement_inner.x > self.max_x - movement_inner.width {
-                movement_inner.x = self.max_x - movement_inner.width;
-                let vx = movement_inner.vx.abs();
-                movement_inner.vx = -vx;
-            } else if movement_inner.x < self.min_x {
-                movement_inner.x = self.min_x;
-                let vx = movement_inner.vx.abs();
-                movement_inner.vx = vx;
+            if movement_common.x > self.max_x - movement_common.width {
+                movement_common.x = self.max_x - movement_common.width;
+                let vx = movement_common.vx.abs();
+                movement_common.vx = -vx;
+            } else if movement_common.x < self.min_x {
+                movement_common.x = self.min_x;
+                let vx = movement_common.vx.abs();
+                movement_common.vx = vx;
             }
 
-            if movement_inner.y > self.max_y - movement_inner.height {
-                movement_inner.y = self.max_y - movement_inner.height;
-                let vy = movement_inner.vy.abs();
-                movement_inner.vy = -vy;
-            } else if movement_inner.y < self.min_y {
-                movement_inner.y = self.min_y;
-                let vy = movement_inner.vy.abs();
-                movement_inner.vy = vy;
+            if movement_common.y > self.max_y - movement_common.height {
+                movement_common.y = self.max_y - movement_common.height;
+                let vy = movement_common.vy.abs();
+                movement_common.vy = -vy;
+            } else if movement_common.y < self.min_y {
+                movement_common.y = self.min_y;
+                let vy = movement_common.vy.abs();
+                movement_common.vy = vy;
             }
         }
     }
@@ -361,7 +358,7 @@ impl GMMovementT for GMMovementBounceBounds {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -374,7 +371,7 @@ impl GMMovementT for GMMovementBounceBounds {
 
 #[derive(Clone, Debug)]
 pub struct GMMovementCircular {
-    // TODO: Use movement_inner for center of circle
+    // TODO: Use movement_common for center of circle
     pub cx: f32,
     pub cy: f32,
     pub radius: f32,
@@ -390,15 +387,15 @@ impl Default for GMMovementCircular {
 }
 
 impl GMMovementT for GMMovementCircular {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             self.angle += self.v_angle;
             let new_x = self.cx + (self.angle.cos() * self.radius);
             let new_y = self.cy + (self.angle.sin() * self.radius);
 
             // TODO: use other method to calculate vx, vy
-            movement_inner.vx = new_x - movement_inner.x;
-            movement_inner.vy = new_y - movement_inner.y;
+            movement_common.vx = new_x - movement_common.x;
+            movement_common.vy = new_y - movement_common.y;
         }
     }
 
@@ -406,7 +403,7 @@ impl GMMovementT for GMMovementCircular {
         self.active = active;
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 
@@ -434,10 +431,10 @@ impl Default for GMMovementForce {
 }
 
 impl GMMovementT for GMMovementForce {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
+    fn update(&mut self, movement_common: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
-            let dist_x = movement_inner.x - self.fx;
-            let dist_y = movement_inner.y - self.fy;
+            let dist_x = movement_common.x - self.fx;
+            let dist_y = movement_common.y - self.fy;
 
             let dist2 = dist_x.powi(2) + dist_y.powi(2);
 
@@ -447,16 +444,16 @@ impl GMMovementT for GMMovementForce {
                 let ax = self.strength * dist_x / dist3;
                 let ay = self.strength * dist_y / dist3;
 
-                movement_inner.vx += ax;
-                movement_inner.vx += ay;
+                movement_common.vx += ax;
+                movement_common.vx += ay;
             } else {
                 // Less than one pixel distance doesn't make sense
                 // So we set dist2 = 1.0
                 let ax = self.strength * dist_x;
                 let ay = self.strength * dist_y;
 
-                movement_inner.vx += ax;
-                movement_inner.vx += ay;
+                movement_common.vx += ax;
+                movement_common.vx += ay;
             }
 
             if self.duration > 0.0  && self.instant.elapsed().as_secs_f32() > self.duration {
@@ -473,7 +470,7 @@ impl GMMovementT for GMMovementForce {
         }
     }
 
-    fn send_message(&mut self, _message: GMMovementMessage) {
+    fn send_message(&mut self, _message: GMDrawObjectMessage) {
         todo!();
     }
 

@@ -84,7 +84,7 @@ impl GMSceneManager {
         }
     }
 
-    pub(crate) fn change_scene(&mut self, name: &str) -> Result<(), GMError> {
+    pub(crate) fn change_to_scene(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMSceneManager::change_scene(), name: '{}'", name);
 
         match self.get_scene_index(name) {
@@ -127,7 +127,7 @@ impl GMSceneManager {
                     self.remove_scene(&name)?
                 }
                 GMSceneMessage::ChangeToScene(name) => {
-                    self.change_scene(&name)?
+                    self.change_to_scene(&name)?
                 }
                 GMSceneMessage::ReplaceScene(scene) => {
                     self.replace_scene(scene)?

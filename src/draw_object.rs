@@ -4,12 +4,18 @@ use std::any::Any;
 use std::collections::VecDeque;
 use std::collections::HashSet;
 use std::rc::Rc;
+//use std::fmt::Debug;
 
 use crate::{GMUpdateContext, GMDrawContext};
 use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementCommon};
 
-type GMDrawMessage = Rc<dyn Any>;
+#[derive(Debug, Clone)]
+pub struct GMDrawObjectMessage {
+    pub from: String,
+    pub tag: String,
+    pub value: Rc<dyn Any>,
+}
 
 #[derive(Debug)]
 pub struct GMDrawObjectCommon {
@@ -17,7 +23,7 @@ pub struct GMDrawObjectCommon {
     pub active: bool,
     pub z_index: i32,
     groups: HashSet<String>,
-    messages: VecDeque<GMDrawMessage>,
+    messages: VecDeque<GMDrawObjectMessage>,
     pub movement_common: GMMovementCommon,
     movements: Vec<Box<dyn GMMovementT>>,
 }
@@ -31,8 +37,10 @@ impl GMDrawObjectCommon {
         }
     }
 
-    pub fn update(&mut self, _context: &mut GMUpdateContext) {
-        todo!();
+    pub fn update(&mut self, context: &mut GMUpdateContext) {
+        for movement in self.movements.iter_mut() {
+            movement.update(&mut self.movement_common, context);
+        }
     }
 
     pub fn add_group(&mut self, group: &str) -> bool {
@@ -47,17 +55,17 @@ impl GMDrawObjectCommon {
         self.groups.contains(group)
     }
 
-    pub fn send_message(&mut self, message: GMDrawMessage) {
+    pub fn send_message(&mut self, message: GMDrawObjectMessage) {
         self.messages.push_back(message);
     }
 
-    pub fn send_message_group(&mut self, group: &str, message: GMDrawMessage) {
+    pub fn send_message_group(&mut self, group: &str, message: GMDrawObjectMessage) {
         if self.groups.contains(group) {
             self.send_message(message);
         }
     }
 
-    pub fn get_next_message(&mut self) -> Option<GMDrawMessage> {
+    pub fn get_next_message(&mut self) -> Option<GMDrawObjectMessage> {
         self.messages.pop_front()
     }
 
@@ -69,7 +77,7 @@ impl GMDrawObjectCommon {
         self.movements.remove(index);
     }
 
-    pub fn send_message_movement(&mut self, index: usize, message: GMDrawMessage) {
+    pub fn send_message_movement(&mut self, index: usize, message: GMDrawObjectMessage) {
         self.movements[index].send_message(message);
     }
 }
@@ -120,6 +128,14 @@ impl Clone for Box<dyn GMDrawObjectT> {
     }
 }
 
+pub(crate) enum GMDrawObjectManagerMessage {
+    AddDrawObject(Box<dyn GMDrawObjectT>),
+    RemoveDrawObject(String),
+    ReplaceDrawObject(Box<dyn GMDrawObjectT>),
+    SendMessage(String, GMDrawObjectMessage),
+    SendMessageGroup(String, GMDrawObjectMessage),
+}
+
 pub struct GMDrawObjectManager {
     draw_objects: Vec<Box<dyn GMDrawObjectT>>,
 }
@@ -135,7 +151,7 @@ impl GMDrawObjectManager {
         self.draw_objects.iter().position(|object| object.get_common_ref().name == name)
     }
 
-    pub fn add_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+    pub fn add_draw_object_box(&mut self, object: Box<dyn GMDrawObjectT>) -> Result<(), GMError> {
         let name = &object.get_common_ref().name;
 
         match self.get_draw_object_index(name) {
@@ -143,11 +159,15 @@ impl GMDrawObjectManager {
                 Err(GMError::DrawObjectAlreadyExists(name.to_string()))
             }
             None => {
-                self.draw_objects.push(Box::new(object));
+                self.draw_objects.push(object);
 
                 Ok(())
             }
         }
+    }
+
+    pub fn add_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        self.add_draw_object_box(Box::new(object))
     }
 
     pub fn remove_draw_object(&mut self, name: &str) -> Result<(), GMError> {
@@ -162,12 +182,12 @@ impl GMDrawObjectManager {
         }
     }
 
-    pub fn replace_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+    pub fn replace_draw_object_box(&mut self, object: Box<dyn GMDrawObjectT>) -> Result<(), GMError> {
         let name = &object.get_common_ref().name;
 
         match self.get_draw_object_index(name) {
             Some(index) => {
-                self.draw_objects[index] = Box::new(object);
+                self.draw_objects[index] = object;
 
                 Ok(())
             }
@@ -177,13 +197,37 @@ impl GMDrawObjectManager {
         }
     }
 
+    pub fn replace_draw_object<O: 'static + GMDrawObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        self.replace_draw_object_box(Box::new(object))
+    }
+
     pub fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         for object in self.draw_objects.iter_mut() {
             object.update(context)?;
         }
 
-        Ok(())
+        while let Some(message) = context.next_draw_manager_message() {
+            match message {
+                GMDrawObjectManagerMessage::AddDrawObject(object) => {
+                    self.add_draw_object_box(object)?;
+                }
+                GMDrawObjectManagerMessage::RemoveDrawObject(name) => {
+                    self.remove_draw_object(&name)?;
+                }
+                GMDrawObjectManagerMessage::ReplaceDrawObject(object) => {
+                    self.replace_draw_object_box(object)?;
+                }
+                GMDrawObjectManagerMessage::SendMessage(receiver, message) => {
+                    let common = self.get_common_mut_ref(&receiver)?;
+                    common.send_message(message);
+                }
+                GMDrawObjectManagerMessage::SendMessageGroup(group, message) => {
+                    self.send_message_group(&group, message)?;
+                }
+            }
+        }
 
+        Ok(())
     }
 
     pub fn draw(&mut self, context: &mut GMDrawContext) -> Result<(), GMError> {
@@ -197,7 +241,7 @@ impl GMDrawObjectManager {
         Ok(())
     }
 
-    pub fn send_message_group(&mut self, group: &str, message: GMDrawMessage) -> Result<(), GMError> {
+    pub fn send_message_group(&mut self, group: &str, message: GMDrawObjectMessage) -> Result<(), GMError> {
         for object in self.draw_objects.iter_mut() {
             object.get_common_mut_ref().send_message_group(group, message.clone());
         }
@@ -205,10 +249,10 @@ impl GMDrawObjectManager {
         Ok(())
     }
 
-    pub fn get_ref(&self, name: &str) -> Result<&Box<dyn GMDrawObjectT>, GMError> {
+    pub fn get_common_ref(&self, name: &str) -> Result<&GMDrawObjectCommon, GMError> {
         match self.get_draw_object_index(name) {
             Some(index) => {
-                Ok(&self.draw_objects[index])
+                Ok(self.draw_objects[index].get_common_ref())
             }
             None => {
                 Err(GMError::DrawObjectNotFound(name.to_string()))
@@ -216,10 +260,10 @@ impl GMDrawObjectManager {
         }
     }
 
-    pub fn get_mut_ref(&mut self, name: &str) -> Result<&mut Box<dyn GMDrawObjectT>, GMError> {
+    pub fn get_common_mut_ref(&mut self, name: &str) -> Result<&mut GMDrawObjectCommon, GMError> {
         match self.get_draw_object_index(name) {
             Some(index) => {
-                Ok(&mut self.draw_objects[index])
+                Ok(self.draw_objects[index].get_common_mut_ref())
             }
             None => {
                 Err(GMError::DrawObjectNotFound(name.to_string()))

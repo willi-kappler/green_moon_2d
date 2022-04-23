@@ -7,6 +7,7 @@ pub mod draw_object;
 pub mod engine;
 pub mod error;
 pub mod font;
+pub mod input;
 pub mod movement;
 pub mod property;
 pub mod scene;

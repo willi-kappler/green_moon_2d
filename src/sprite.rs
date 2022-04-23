@@ -41,8 +41,9 @@ impl GMSpriteInner {
         let index = self.animations[self.current_animation].frame_index();
         let x = self.draw_object_common.movement_common.x;
         let y = self.draw_object_common.movement_common.y;
+        let angle = self.draw_object_common.movement_common.angle;
 
-        self.texture.draw_ex(x, y, index, self.draw_object_common.movement_common.angle, self.flip_x, self.flip_y, context);
+        self.texture.draw_ex(x, y, index, angle, self.flip_x, self.flip_y, context);
     }
 }
 

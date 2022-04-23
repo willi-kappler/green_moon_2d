@@ -58,6 +58,7 @@ impl GMEngine {
 
         'quit: loop {
             // Update everything
+            update_context.update()?;
             self.scene_manager.update(&mut update_context)?;
 
 

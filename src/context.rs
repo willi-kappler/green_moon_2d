@@ -7,22 +7,18 @@ use std::collections::VecDeque;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{TextureCreator, Canvas};
-use sdl2::keyboard::Keycode;
-use sdl2::event::Event;
 use sdl2::pixels;
 //use sdl2::surface::Surface;
 
 use log::debug;
 
-// use crate::animation::GMAnimationT;
-// use crate::assets::GMAssets;
+use crate::GMDrawObjectT;
 use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::error::GMError;
-// use crate::font::GMFontT;
 use crate::scene::{GMSceneT, GMSceneMessage};
-//use crate::texture::GMTexture;
-
+use crate::input::GMInput;
+use crate::draw_object::{GMDrawObjectMessage, GMDrawObjectManagerMessage};
 
 pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContext, GMDrawContext) {
     let sdl_context = sdl2::init().unwrap();
@@ -49,22 +45,26 @@ pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContex
 
 pub struct GMUpdateContext {
     texture_creator: TextureCreator<WindowContext>,
-    event_pump: sdl2::EventPump,
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
+    draw_manager_messages: VecDeque<GMDrawObjectManagerMessage>,
+    pub input: GMInput,
 }
 
 impl GMUpdateContext {
     pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump) -> Self {
+        let input = GMInput::new(event_pump);
+
         Self {
             texture_creator,
-            event_pump,
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
-
+            draw_manager_messages: VecDeque::new(),
+            input,
         }
     }
 
+    // Scene messages:
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
         debug!("GMContext::add_scene(), name: '{}'", scene.get_name());
 
@@ -93,6 +93,32 @@ impl GMUpdateContext {
         self.scene_messages.pop_front()
     }
 
+    // Draw object messages:
+    pub fn add_draw_object(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::AddDrawObject(draw_object));
+    }
+
+    pub fn remove_draw_object(&mut self, name: &str) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::RemoveDrawObject(name.to_string()))
+    }
+
+    pub fn replace_draw_object(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::ReplaceDrawObject(draw_object));
+    }
+
+    pub fn send_message_draw_object(&mut self, receiver: &str, message: GMDrawObjectMessage) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::SendMessage(receiver.to_string(), message));
+    }
+
+    pub fn send_message_draw_group(&mut self, group: &str, message: GMDrawObjectMessage) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::SendMessageGroup(group.to_string(), message));
+    }
+
+    pub(crate) fn next_draw_manager_message(&mut self) -> Option<GMDrawObjectManagerMessage> {
+        self.draw_manager_messages.pop_front()
+    }
+
+    // Engine messages:
     pub fn quit(&mut self) {
         debug!("GMContext::quit()");
 
@@ -109,38 +135,11 @@ impl GMUpdateContext {
         self.engine_messages.pop_front()
     }
 
+    pub(crate) fn update(&mut self) -> Result<(), GMError> {
+        self.input.update();
 
-    pub fn update(&mut self) -> Result<(), GMError> {
-/*
-        self.key_esc_down_ = false;
-        self.key_esc_up_ = false;
-
-        for event in self.event_pump.poll_iter() {
-            match event {
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    self.key_esc_down_ = true;
-                }
-                Event::KeyUp { keycode: Some(Keycode::Escape), .. } => {
-                    self.key_esc_up_ = true;
-                }
-                _ => {
-
-                }
-            }
-        }
-*/
         Ok(())
     }
-
-/*
-    pub fn key_esc_down(&self) -> bool {
-        self.key_esc_down_
-    }
-
-    pub fn key_esc_up(&self) -> bool {
-        self.key_esc_up_
-    }
-*/
 }
 
 pub struct GMDrawContext {
