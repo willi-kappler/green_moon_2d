@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
 
 use crate::animation::{GMAnimationT};
-use crate::context::GMContext;
+use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::GMError;
 use crate::texture::GMTexture;
@@ -30,14 +30,14 @@ impl GMSpriteInner {
         }
     }
 
-    pub fn update(&mut self, context: &mut GMContext) {
+    pub fn update(&mut self, context: &mut GMUpdateContext) {
         if self.draw_object_common.active {
             self.animations[self.current_animation].update();
             self.draw_object_common.update(context);
         }
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    pub fn draw(&self, context: &mut GMDrawContext) {
         let index = self.animations[self.current_animation].frame_index();
         let x = self.draw_object_common.movement_common.x;
         let y = self.draw_object_common.movement_common.y;
@@ -82,7 +82,7 @@ impl GMSprite {
 }
 
 impl GMDrawObjectT for GMSprite {
-    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.sprite_inner.update(context);
 
         if self.sprite_inner.draw_object_common.active {
@@ -94,7 +94,7 @@ impl GMDrawObjectT for GMSprite {
         Ok(())
     }
 
-    fn draw(&self, context: &mut GMContext) -> Result<(), GMError> {
+    fn draw(&self, context: &mut GMDrawContext) -> Result<(), GMError> {
         if self.sprite_inner.draw_object_common.active {
             for effect in self.effects.iter() {
                 effect.draw(&self.sprite_inner, context);
@@ -120,9 +120,9 @@ impl GMDrawObjectT for GMSprite {
 }
 
 pub trait GMSpriteEffectT {
-    fn update(&mut self, sprite_inner: &mut GMSpriteInner, context: &mut GMContext);
+    fn update(&mut self, sprite_inner: &mut GMSpriteInner, context: &mut GMUpdateContext);
 
-    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMContext);
+    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMDrawContext);
 
     fn box_clone(&self) -> Box<dyn GMSpriteEffectT>;
 }
@@ -151,13 +151,13 @@ impl Default for GMSpriteEffectStatic {
 }
 
 impl GMSpriteEffectT for GMSpriteEffectStatic {
-    fn update(&mut self, sprite_inner: &mut GMSpriteInner, context: &mut GMContext) {
+    fn update(&mut self, sprite_inner: &mut GMSpriteInner, context: &mut GMUpdateContext) {
         if self.active {
             sprite_inner.update(context)
         }
     }
 
-    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMContext) {
+    fn draw(&self, sprite_inner: &GMSpriteInner, context: &mut GMDrawContext) {
         if self.active {
             sprite_inner.draw(context);
         }

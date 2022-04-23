@@ -3,11 +3,11 @@
 
 Next TODO:
 - GMTimer
-- Split Context into GMUpdateContext and GMDrawContext
-- Load assets from JSON file
-- Remove assets
-- More text effects
+- GMInput
 - Bitblit for sprites and texts
+- Load assets from JSON file
+- Remove assets: GMResourceManager
+- More text effects
 - GMParticleManager
 - GMBulletManager
 - GMLine
@@ -17,7 +17,6 @@ Next TODO:
 - GMTileMap
 - GMMenuEntry
 - GMMenu
-- GMInput
 
 
 

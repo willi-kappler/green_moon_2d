@@ -1,7 +1,8 @@
 
 
-use std::{time::Instant};
 use std::fmt::{self, Debug, Formatter};
+
+use crate::timer::GMTimer;
 
 pub trait GMAnimationT {
     fn set_active(&mut self, active: bool);
@@ -59,8 +60,8 @@ impl GMAnimationT for GMAnimationStatic {
 pub struct GMAnimationForwardOnce {
     pub active: bool,
     pub current_frame: usize,
-    pub frames: Vec<(u32, f32)>,
-    instant: Instant,
+    pub frames: Vec<(u32, f32)>, // index, duration
+    timer: GMTimer,
 }
 
 impl GMAnimationForwardOnce {
@@ -69,7 +70,7 @@ impl GMAnimationForwardOnce {
             active: true,
             current_frame: 0,
             frames: frames.to_vec(),
-            instant: Instant::now(),
+            timer: GMTimer::new(frames[0].1),
         }
     }
 }
@@ -81,9 +82,10 @@ impl GMAnimationT for GMAnimationForwardOnce {
 
     fn update(&mut self) {
         if self.active {
-            if self.instant.elapsed().as_secs_f32() >= self.frames[self.current_frame].1 {
+            if self.timer.finished() {
                 if self.current_frame < self.frames.len() - 1 {
                     self.current_frame += 1;
+                    self.timer.set_duration(self.frames[self.current_frame].1);
                 } else {
                     self.active = false;
                 }
@@ -110,7 +112,7 @@ pub struct GMAnimationForwardLoop {
     pub active: bool,
     pub current_frame: usize,
     pub frames: Vec<(u32, f32)>,
-    instant: Instant,
+    timer: GMTimer,
 }
 
 impl GMAnimationForwardLoop {
@@ -119,7 +121,7 @@ impl GMAnimationForwardLoop {
             active: true,
             current_frame: 0,
             frames: frames.to_vec(),
-            instant: Instant::now(),
+            timer: GMTimer::new(frames[0].1),
         }
     }
 }
@@ -131,11 +133,12 @@ impl GMAnimationT for GMAnimationForwardLoop {
 
     fn update(&mut self) {
         if self.active {
-            if self.instant.elapsed().as_secs_f32() >= self.frames[self.current_frame].1 {
+            if self.timer.finished() {
                 self.current_frame += 1;
                 if self.current_frame >= self.frames.len() {
                     self.current_frame = 0;
                 }
+                self.timer.set_duration(self.frames[self.current_frame].1)
             }
         }
     }
@@ -159,7 +162,7 @@ pub struct GMAnimationPingPong {
     pub active: bool,
     pub current_frame: usize,
     pub frames: Vec<(u32, f32)>,
-    instant: Instant,
+    timer: GMTimer,
     foreward: bool,
 }
 
@@ -169,7 +172,7 @@ impl GMAnimationPingPong {
             active: true,
             current_frame: 0,
             frames: frames.to_vec(),
-            instant: Instant::now(),
+            timer: GMTimer::new(frames[0].1),
             foreward: true,
         }
     }
@@ -182,7 +185,7 @@ impl GMAnimationT for GMAnimationPingPong {
 
     fn update(&mut self) {
         if self.active {
-            if self.instant.elapsed().as_secs_f32() >= self.frames[self.current_frame].1 {
+            if self.timer.finished() {
                 if self.foreward {
                     self.current_frame += 1;
                     if self.current_frame >= self.frames.len() {
@@ -196,6 +199,7 @@ impl GMAnimationT for GMAnimationPingPong {
                         self.foreward = true;
                     }
                 }
+                self.timer.set_duration(self.frames[self.current_frame].1)
             }
         }
     }

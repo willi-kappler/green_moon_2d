@@ -5,7 +5,7 @@ use sdl2::gfx::framerate::FPSManager;
 use log::debug;
 
 use crate::scene::{GMSceneT, GMSceneManager};
-use crate::context::GMContext;
+use crate::context::create_context;
 use crate::configuration::GMConfiguration;
 use crate::error::GMError;
 
@@ -51,21 +51,21 @@ impl GMEngine {
     pub fn run(&mut self) -> Result<(), GMError> {
         debug!("GMEngine::run()");
 
-        let mut context = GMContext::new(&self.configuration);
+        let (mut update_context, mut draw_context) = create_context(&self.configuration);
 
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
         'quit: loop {
             // Update everything
-            self.scene_manager.update(&mut context)?;
+            self.scene_manager.update(&mut update_context)?;
 
 
             // Draw everything
-            self.scene_manager.draw(&mut context)?;
-            context.present();
+            self.scene_manager.draw(&mut draw_context)?;
+            draw_context.present();
 
-            while let Some(message) = context.next_engine_message() {
+            while let Some(message) = update_context.next_engine_message() {
                 match message {
                     GMEngineMessage::Quit => {
                         break 'quit;

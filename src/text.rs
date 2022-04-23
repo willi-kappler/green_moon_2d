@@ -4,7 +4,7 @@ use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
 use std::f32::consts::TAU;
 
-use crate::context::GMContext;
+use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::error::GMError;
 use crate::font::{GMFontT, GMBitmapFont};
@@ -53,7 +53,11 @@ impl GMTextInner {
         }
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    pub fn update(&mut self, context: &mut GMUpdateContext) {
+        self.draw_object_common.update(context);
+    }
+
+    pub fn draw(&self, context: &mut GMDrawContext) {
         let mut x = self.draw_object_common.movement_common.x;
         let mut y = self.draw_object_common.movement_common.y;
 
@@ -68,10 +72,6 @@ impl GMTextInner {
                 y += c_height + self.spacing_y;
             }
         }
-    }
-
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.draw_object_common.update(context);
     }
 }
 
@@ -114,7 +114,7 @@ impl GMText {
 }
 
 impl GMDrawObjectT for GMText {
-    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.text_inner.update(context);
         if self.text_inner.draw_object_common.active {
 
@@ -126,7 +126,7 @@ impl GMDrawObjectT for GMText {
         Ok(())
     }
 
-    fn draw(&self, context: &mut GMContext) -> Result<(), GMError> {
+    fn draw(&self, context: &mut GMDrawContext) -> Result<(), GMError> {
         if self.text_inner.draw_object_common.active {
             for effect in self.effects.iter() {
                 effect.draw(&self.text_inner, context);
@@ -152,9 +152,9 @@ impl GMDrawObjectT for GMText {
 }
 
 pub trait GMTextEffectT {
-    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {}
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMUpdateContext);
 
-    fn draw(&self, _text_inner: &GMTextInner, _context: &mut GMContext) {}
+    fn draw(&self, _text_inner: &GMTextInner, _context: &mut GMDrawContext);
 
     fn box_clone(&self) -> Box<dyn GMTextEffectT>;
 }
@@ -183,7 +183,10 @@ impl Default for GMTextEffectStatic {
 }
 
 impl GMTextEffectT for GMTextEffectStatic {
-    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMUpdateContext) {
+    }
+
+    fn draw(&self, text_inner: &GMTextInner, context: &mut GMDrawContext) {
         if self.active {
             text_inner.draw(context);
         }
@@ -218,7 +221,7 @@ impl Default for GMTextEffectWave {
 }
 
 impl GMTextEffectT for GMTextEffectWave {
-    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMContext) {
+    fn update(&mut self, _text_inner: &mut GMTextInner, _context: &mut GMUpdateContext) {
         if self.active {
             self.time += 0.01;
             if self.time > TAU {
@@ -227,7 +230,7 @@ impl GMTextEffectT for GMTextEffectWave {
         }
     }
 
-    fn draw(&self, text_inner: &GMTextInner, context: &mut GMContext) {
+    fn draw(&self, text_inner: &GMTextInner, context: &mut GMDrawContext) {
         if self.active {
             let mut x = text_inner.draw_object_common.movement_common.x;
             let mut y = text_inner.draw_object_common.movement_common.y;

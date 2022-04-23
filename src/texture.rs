@@ -2,7 +2,7 @@
 
 use sdl2::rect::Rect;
 
-use crate::GMContext;
+use crate::GMDrawContext;
 
 #[derive(Debug)]
 pub struct GMTexture {
@@ -22,11 +22,11 @@ impl Default for GMTexture {
 }
 
 impl GMTexture {
-    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMDrawContext) {
         self.draw_ex(dx, dy, index, 0.0, false, false, context)
     }
 
-    pub fn draw_ex(&self, dx: f32, dy: f32, index: u32, _angle: f32, _flip_x: bool, _flip_y: bool, _context: &mut GMContext) {
+    pub fn draw_ex(&self, dx: f32, dy: f32, index: u32, _angle: f32, _flip_x: bool, _flip_y: bool, _context: &mut GMDrawContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 

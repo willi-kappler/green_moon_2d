@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use std::collections::HashSet;
 use std::rc::Rc;
 
-use crate::GMContext;
+use crate::{GMUpdateContext, GMDrawContext};
 use crate::GMError;
 use crate::movement::{GMMovementT, GMMovementCommon};
 
@@ -31,7 +31,7 @@ impl GMDrawObjectCommon {
         }
     }
 
-    pub fn update(&mut self, _context: &mut GMContext) {
+    pub fn update(&mut self, _context: &mut GMUpdateContext) {
         todo!();
     }
 
@@ -103,9 +103,9 @@ impl Default for GMDrawObjectCommon {
 }
 
 pub trait GMDrawObjectT {
-    fn update(&mut self, context: &mut GMContext) -> Result<(), GMError>;
+    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError>;
 
-    fn draw(&self, context: &mut GMContext) -> Result<(), GMError>;
+    fn draw(&self, context: &mut GMDrawContext) -> Result<(), GMError>;
 
     fn get_common_ref(&self) -> &GMDrawObjectCommon;
 
@@ -177,7 +177,7 @@ impl GMDrawObjectManager {
         }
     }
 
-    pub fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    pub fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         for object in self.draw_objects.iter_mut() {
             object.update(context)?;
         }
@@ -186,7 +186,7 @@ impl GMDrawObjectManager {
 
     }
 
-    pub fn draw(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    pub fn draw(&mut self, context: &mut GMDrawContext) -> Result<(), GMError> {
         // Sort all drawable objects by z order before drawing them
         self.draw_objects.sort_by_key(|object| object.get_common_ref().z_index);
 

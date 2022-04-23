@@ -5,7 +5,7 @@ use std::time::Instant;
 use std::any::Any;
 use std::rc::Rc;
 
-use crate::GMContext;
+use crate::GMUpdateContext;
 
 type GMMovementMessage = Rc<dyn Any>;
 
@@ -93,7 +93,7 @@ impl GMMovementCommon {
 }
 
 pub trait GMMovementT {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, context: &mut GMContext);
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, context: &mut GMUpdateContext);
 
     fn set_active(&mut self, active: bool);
 
@@ -126,7 +126,7 @@ impl Default for GMResetVelocity {
 }
 
 impl GMMovementT for GMResetVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             movement_inner.vx = 0.0;
             movement_inner.vy = 0.0;
@@ -162,7 +162,7 @@ impl Default for GMApplyVelocity {
 }
 
 impl GMMovementT for GMApplyVelocity {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             movement_inner.x += movement_inner.vx;
             movement_inner.y += movement_inner.vy;
@@ -198,7 +198,7 @@ impl Default for GMConstAcceleration {
 }
 
 impl GMMovementT for GMConstAcceleration {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             movement_inner.vx += self.ax;
             movement_inner.vy += self.ay;
@@ -236,7 +236,7 @@ impl Default for GMStopAtBounds {
 }
 
 impl GMMovementT for GMStopAtBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if movement_inner.x <= self.min_x {
             movement_inner.x = self.min_x;
             movement_inner.vx = 0.0;
@@ -284,7 +284,7 @@ impl Default for GMWrapAroundBounds {
 }
 
 impl GMMovementT for GMWrapAroundBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
 
             if movement_inner.x > self.max_x {
@@ -332,7 +332,7 @@ impl Default for GMMovementBounceBounds {
 }
 
 impl GMMovementT for GMMovementBounceBounds {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
 
             if movement_inner.x > self.max_x - movement_inner.width {
@@ -390,7 +390,7 @@ impl Default for GMMovementCircular {
 }
 
 impl GMMovementT for GMMovementCircular {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             self.angle += self.v_angle;
             let new_x = self.cx + (self.angle.cos() * self.radius);
@@ -434,7 +434,7 @@ impl Default for GMMovementForce {
 }
 
 impl GMMovementT for GMMovementForce {
-    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMContext) {
+    fn update(&mut self, movement_inner: &mut GMMovementCommon, _context: &mut GMUpdateContext) {
         if self.active {
             let dist_x = movement_inner.x - self.fx;
             let dist_y = movement_inner.y - self.fy;

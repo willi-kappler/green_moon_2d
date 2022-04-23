@@ -13,9 +13,10 @@ pub mod scene;
 pub mod sprite;
 pub mod text;
 pub mod texture;
+pub mod timer;
 
-// pub use app::GMApp;
-pub use context::GMContext;
-pub use scene::GMSceneT;
+pub use context::{GMUpdateContext, GMDrawContext};
+pub use draw_object::{GMDrawObjectManager, GMDrawObjectT, GMDrawObjectCommon};
+pub use engine::GMEngine;
 pub use error::GMError;
-// pub use draw_object::GMDrawContainer;
+pub use scene::GMSceneT;

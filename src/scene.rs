@@ -2,7 +2,7 @@
 
 use log::debug;
 
-use crate::context::GMContext;
+use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::error::GMError;
 
 pub(crate) enum GMSceneMessage {
@@ -13,11 +13,11 @@ pub(crate) enum GMSceneMessage {
 }
 
 pub trait GMSceneT {
-    fn update(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
+    fn update(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
         Ok(())
     }
 
-    fn draw(&mut self, _context: &mut GMContext) -> Result<(), GMError> {
+    fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError> {
         Ok(())
     }
 
@@ -115,7 +115,7 @@ impl GMSceneManager {
         }
     }
 
-    pub(crate) fn update(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    pub(crate) fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.scenes[self.current_scene].update(context)?;
 
         while let Some(message) = context.next_scene_message() {
@@ -138,7 +138,7 @@ impl GMSceneManager {
         Ok(())
     }
 
-    pub(crate) fn draw(&mut self, context: &mut GMContext) -> Result<(), GMError> {
+    pub(crate) fn draw(&mut self, context: &mut GMDrawContext) -> Result<(), GMError> {
         self.scenes[self.current_scene].draw(context)
     }
 }
