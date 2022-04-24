@@ -20,15 +20,6 @@ pub struct GMBitmapFont {
     mapping: HashMap<char, u32>,
 }
 
-impl Default for GMBitmapFont {
-    fn default() -> Self {
-        Self {
-            texture: Rc::new(GMTexture::default()),
-            mapping: HashMap::new()
-        }
-    }
-}
-
 impl GMBitmapFont {
     pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
         let mut mapping = HashMap::new();

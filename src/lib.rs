@@ -1,6 +1,5 @@
 
 pub mod animation;
-pub mod assets;
 pub mod configuration;
 pub mod context;
 pub mod draw_object;
@@ -10,6 +9,7 @@ pub mod font;
 pub mod input;
 pub mod movement;
 pub mod property;
+pub mod resources;
 pub mod scene;
 pub mod sprite;
 pub mod text;

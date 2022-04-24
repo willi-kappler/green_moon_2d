@@ -25,8 +25,10 @@ impl GMSpriteInner {
         Self {
             texture,
             animations: vec![animation],
+            current_animation: 0,
+            flip_x: false,
+            flip_y: false,
             draw_object_common: GMDrawObjectCommon::new(name, x, y, width, height),
-            ..Default::default()
         }
     }
 
@@ -47,29 +49,10 @@ impl GMSpriteInner {
     }
 }
 
-impl Default for GMSpriteInner {
-    fn default() -> Self {
-        Self {
-            texture: Rc::new(GMTexture::default()),
-            animations: Vec::new(),
-            current_animation: 0,
-            flip_x: false,
-            flip_y: false,
-            draw_object_common: GMDrawObjectCommon::default(),
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct GMSprite {
     pub sprite_inner: GMSpriteInner,
     pub effects: Vec<Box<dyn GMSpriteEffectT>>,
-}
-
-impl Default for GMSprite {
-    fn default() -> Self {
-        Self { sprite_inner: Default::default(), effects: Vec::new() }
-    }
 }
 
 impl GMSprite {

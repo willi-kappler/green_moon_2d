@@ -16,6 +16,7 @@ use crate::GMDrawObjectT;
 use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::error::GMError;
+use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
 use crate::draw_object::{GMDrawObjectMessage, GMDrawObjectManagerMessage};
@@ -44,23 +45,24 @@ pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContex
 }
 
 pub struct GMUpdateContext {
-    texture_creator: TextureCreator<WindowContext>,
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
     draw_manager_messages: VecDeque<GMDrawObjectManagerMessage>,
     pub input: GMInput,
+    pub resources: GMResources,
 }
 
 impl GMUpdateContext {
     pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump) -> Self {
         let input = GMInput::new(event_pump);
+        let resources = GMResources::new(texture_creator);
 
         Self {
-            texture_creator,
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             draw_manager_messages: VecDeque::new(),
             input,
+            resources,
         }
     }
 

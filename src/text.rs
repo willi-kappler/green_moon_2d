@@ -7,7 +7,7 @@ use std::f32::consts::TAU;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::error::GMError;
-use crate::font::{GMFontT, GMBitmapFont};
+use crate::font::GMFontT;
 
 
 #[derive(Clone)]
@@ -18,19 +18,6 @@ pub struct GMTextInner {
     pub spacing_y: f32,
     pub horizontal: bool,
     pub draw_object_common: GMDrawObjectCommon,
-}
-
-impl Default for GMTextInner {
-    fn default() -> Self {
-        Self {
-            font: Rc::new(GMBitmapFont::default()),
-            text: "".to_string(),
-            spacing_x: 0.0,
-            spacing_y: 0.0,
-            horizontal: true,
-            draw_object_common: GMDrawObjectCommon::default(),
-        }
-    }
 }
 
 impl GMTextInner {
@@ -48,8 +35,10 @@ impl GMTextInner {
         Self {
             font: font.clone(),
             text: text.to_string(),
+            spacing_x: 0.0,
+            spacing_y: 0.0,
+            horizontal: true,
             draw_object_common: GMDrawObjectCommon::new(name, x, y, width, height),
-            .. Default::default()
         }
     }
 
@@ -91,15 +80,6 @@ impl Debug for GMTextInner {
 pub struct GMText {
     pub text_inner: GMTextInner,
     pub effects: Vec<Box<dyn GMTextEffectT>>,
-}
-
-impl Default for GMText {
-    fn default() -> Self {
-        Self {
-            text_inner: Default::default(),
-            effects: Vec::new(),
-        }
-    }
 }
 
 impl GMText {
