@@ -5,7 +5,7 @@ use std::fs::File;
 use log::{debug, info, error};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMApp, GMSceneT, GMContext, GMError, GMDrawContainer};
+use green_moon_2d::{GMEngine, GMSceneT, GMUpdateContext, GMDrawContext, GMError};
 
 struct TextScene1 {
 }
@@ -18,15 +18,21 @@ impl TextScene1 {
 }
 
 impl GMSceneT for TextScene1 {
-    fn update_after(&mut self, context: &mut GMContext, draw_objects: &mut GMDrawContainer) -> Result<(), GMError> {
-        let esc_pressed = context.key_esc_down();
-
-        if esc_pressed {
+    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
+        if context.input.key_esc_down() {
             debug!("ESC key pressed");
-            context.quit_app();
+            context.quit();
         }
 
         Ok(())
+    }
+
+    fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError> {
+        Ok(())
+    }
+
+    fn get_name(&self) -> &str {
+        "Text1"
     }
 }
 
@@ -35,9 +41,10 @@ fn main() {
     let config = ConfigBuilder::new().build();
     let _simple_log = WriteLogger::init(LevelFilter::Debug, config, File::create("test1.log").unwrap());
 
-    let first_scene = TextScene1::new();
+    let text1_scene = TextScene1::new();
 
-    let mut app = GMApp::new("TextScene1", first_scene);
+    let mut app = GMEngine::new();
+    app.add_scene(text1_scene).unwrap();
 
     match app.run() {
         Ok(_) => {

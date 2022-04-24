@@ -13,13 +13,9 @@ pub(crate) enum GMSceneMessage {
 }
 
 pub trait GMSceneT {
-    fn update(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
-        Ok(())
-    }
+    fn update(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError>;
 
-    fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError> {
-        Ok(())
-    }
+    fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError>;
 
     fn get_name(&self) -> &str;
 }
@@ -47,7 +43,7 @@ impl GMSceneManager {
     pub(crate) fn add_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
         let name = scene.get_name();
 
-        debug!("GMSceneManager::add_sc(), name: '{}'", name);
+        debug!("GMSceneManager::add_scene(), name: '{}'", name);
 
         match self.get_scene_index(name) {
             Some(_) => {
