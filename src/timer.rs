@@ -4,6 +4,7 @@ use std::time::Instant;
 
 #[derive(Clone, Debug)]
 pub struct GMTimer {
+    active: bool,
     duration: f32,
     instant: Instant,
 }
@@ -11,21 +12,33 @@ pub struct GMTimer {
 impl GMTimer {
     pub fn new(duration: f32) -> Self {
         Self {
+            active: true,
             duration,
             instant: Instant::now(),
         }
     }
 
     pub fn finished(&self) -> bool {
-        self.instant.elapsed().as_secs_f32() >= self.duration
+        if self.active {
+            self.instant.elapsed().as_secs_f32() >= self.duration
+        } else {
+            false
+        }
     }
 
     pub fn set_duration(&mut self, duration: f32) {
         self.duration = duration;
-        self.instant = Instant::now();
+        if self.active {
+            self.instant = Instant::now();
+        }
     }
 
     pub fn start(&mut self) {
         self.instant = Instant::now();
+        self.active = true;
+    }
+
+    pub fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 }
