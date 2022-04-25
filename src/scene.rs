@@ -13,9 +13,17 @@ pub(crate) enum GMSceneMessage {
 }
 
 pub trait GMSceneT {
+    fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
+        Ok(())
+    }
+
     fn update(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError>;
 
     fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError>;
+
+    fn exit(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
+        Ok(())
+    }
 
     fn get_name(&self) -> &str;
 }
