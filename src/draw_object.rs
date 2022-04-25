@@ -4,6 +4,8 @@ use std::any::Any;
 use std::collections::VecDeque;
 use std::collections::HashSet;
 use std::rc::Rc;
+use std::fmt::{self, Debug, Formatter};
+
 //use std::fmt::Debug;
 
 use crate::{GMUpdateContext, GMDrawContext};
@@ -13,7 +15,7 @@ use crate::movement::{GMMovementT, GMMovementCommon};
 #[derive(Debug, Clone)]
 pub struct GMDrawObjectMessage {
     pub from: String,
-    pub tag: String,
+    pub description: String,
     pub value: Rc<dyn Any>,
 }
 
@@ -76,10 +78,6 @@ impl GMDrawObjectCommon {
     pub fn remove_movement(&mut self, index: usize) {
         self.movements.remove(index);
     }
-
-    pub fn send_message_movement(&mut self, index: usize, message: GMDrawObjectMessage) {
-        self.movements[index].send_message(message);
-    }
 }
 
 impl Clone for GMDrawObjectCommon {
@@ -125,6 +123,12 @@ pub trait GMDrawObjectT {
 impl Clone for Box<dyn GMDrawObjectT> {
     fn clone(&self) -> Self {
         self.box_clone()
+    }
+}
+
+impl Debug for Box<dyn GMDrawObjectT> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "GMDrawObject: '{}'", self.get_common_ref().name)
     }
 }
 
