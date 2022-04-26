@@ -1,5 +1,6 @@
 
 
+/*
 use std::fmt::{self, Debug, Formatter};
 use std::time::Instant;
 
@@ -479,3 +480,4 @@ impl GMMovementT for GMMovementForce {
         Box::new(result)
     }
 }
+*/

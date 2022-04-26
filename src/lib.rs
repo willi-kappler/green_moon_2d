@@ -1,5 +1,6 @@
 
 pub mod animation;
+pub mod collision;
 pub mod configuration;
 pub mod context;
 pub mod draw_object;
@@ -15,6 +16,7 @@ pub mod sprite;
 pub mod text;
 pub mod texture;
 pub mod timer;
+pub mod math;
 
 pub use context::{GMUpdateContext, GMDrawContext};
 pub use draw_object::{GMDrawObjectManager, GMDrawObjectT, GMDrawObjectCommon};

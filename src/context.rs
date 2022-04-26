@@ -73,6 +73,12 @@ impl GMUpdateContext {
         self.scene_messages.push_back(GMSceneMessage::AddScene(Box::new(scene)));
     }
 
+    pub fn add_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
+        debug!("GMContext::add_scene_box(), name: '{}'", scene.get_name());
+
+        self.scene_messages.push_back(GMSceneMessage::AddScene(scene));
+    }
+
     pub fn remove_scene(&mut self, name: &str) {
         debug!("GMContext::remove_scene(), name: '{}'", name);
 
@@ -91,12 +97,22 @@ impl GMUpdateContext {
         self.scene_messages.push_back(GMSceneMessage::ReplaceScene(Box::new(scene)));
     }
 
+    pub fn replace_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
+        debug!("GMContext::replace_scene_box(), name: '{}'", scene.get_name());
+
+        self.scene_messages.push_back(GMSceneMessage::ReplaceScene(scene));
+    }
+
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
         self.scene_messages.pop_front()
     }
 
     // Draw object messages:
-    pub fn add_draw_object(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
+    pub fn add_draw_object<O: 'static + GMDrawObjectT>(&mut self, draw_object: O) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::AddDrawObject(Box::new(draw_object)));
+    }
+
+    pub fn add_draw_object_box(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
         self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::AddDrawObject(draw_object));
     }
 
@@ -104,7 +120,11 @@ impl GMUpdateContext {
         self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::RemoveDrawObject(name.to_string()))
     }
 
-    pub fn replace_draw_object(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
+    pub fn replace_draw_object<O: 'static + GMDrawObjectT>(&mut self, draw_object: O) {
+        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::ReplaceDrawObject(Box::new(draw_object)));
+    }
+
+    pub fn replace_draw_object_box(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
         self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::ReplaceDrawObject(draw_object));
     }
 

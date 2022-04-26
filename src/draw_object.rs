@@ -6,16 +6,14 @@ use std::collections::HashSet;
 use std::rc::Rc;
 use std::fmt::{self, Debug, Formatter};
 
-//use std::fmt::Debug;
-
+use crate::collision::GMCollisionShape;
+use crate::math::GMVec2D;
 use crate::{GMUpdateContext, GMDrawContext};
 use crate::GMError;
-use crate::movement::{GMMovementT, GMMovementCommon};
 
 #[derive(Debug, Clone)]
 pub struct GMDrawObjectMessage {
     pub from: String,
-    pub description: String,
     pub value: Rc<dyn Any>,
 }
 
@@ -24,25 +22,30 @@ pub struct GMDrawObjectCommon {
     pub name: String,
     pub active: bool,
     pub z_index: i32,
-    groups: HashSet<String>,
-    messages: VecDeque<GMDrawObjectMessage>,
-    pub movement_common: GMMovementCommon,
-    movements: Vec<Box<dyn GMMovementT>>,
+    pub groups: HashSet<String>,
+    pub messages: VecDeque<GMDrawObjectMessage>,
+    pub position: GMVec2D,
+    pub velocity: GMVec2D,
+    pub acceleration: GMVec2D,
+    pub rotation: f32,
+    pub rotation_velocity: f32,
+    pub collision_shape: GMCollisionShape,
 }
 
 impl GMDrawObjectCommon {
-    pub fn new(name: &str, x: f32, y: f32, width: f32, height: f32) -> Self {
+    pub fn new(name: &str, _x: f32, _y: f32, _width: f32, _height: f32) -> Self {
         Self {
             name: name.to_string(),
-            movement_common: GMMovementCommon::new(x, y, width, height),
             .. Default::default()
         }
     }
 
-    pub fn update(&mut self, context: &mut GMUpdateContext) {
-        for movement in self.movements.iter_mut() {
-            movement.update(&mut self.movement_common, context);
-        }
+    // TODO: add getter and setter
+
+    pub fn update(&mut self) {
+        self.velocity.add2(&self.acceleration);
+        self.position.add2(&self.velocity);
+        self.rotation += self.rotation_velocity;
     }
 
     pub fn add_group(&mut self, group: &str) -> bool {
@@ -70,14 +73,6 @@ impl GMDrawObjectCommon {
     pub fn get_next_message(&mut self) -> Option<GMDrawObjectMessage> {
         self.messages.pop_front()
     }
-
-    pub fn add_movement(&mut self, movement: Box<dyn GMMovementT>) {
-        self.movements.push(movement);
-    }
-
-    pub fn remove_movement(&mut self, index: usize) {
-        self.movements.remove(index);
-    }
 }
 
 impl Clone for GMDrawObjectCommon {
@@ -88,8 +83,12 @@ impl Clone for GMDrawObjectCommon {
             z_index: self.z_index.clone(),
             groups: self.groups.clone(),
             messages: VecDeque::new(), // Don't clone all the messages
-            movement_common: self.movement_common.clone(),
-            movements: self.movements.clone()
+            position: self.position.clone(),
+            velocity: self.velocity.clone(),
+            acceleration: self.acceleration.clone(),
+            rotation: self.rotation,
+            rotation_velocity: self.rotation_velocity,
+            collision_shape: self.collision_shape.clone(),
         }
     }
 }
@@ -102,8 +101,12 @@ impl Default for GMDrawObjectCommon {
             z_index: 0,
             groups: HashSet::new(),
             messages: VecDeque::new(),
-            movement_common: Default::default(),
-            movements: Vec::new()
+            position: GMVec2D::default(),
+            velocity: GMVec2D::default(),
+            acceleration: GMVec2D::default(),
+            rotation: 0.0,
+            rotation_velocity: 0.0,
+            collision_shape: GMCollisionShape::default(),
         }
     }
 }
@@ -211,21 +214,23 @@ impl GMDrawObjectManager {
         }
 
         while let Some(message) = context.next_draw_manager_message() {
+            use GMDrawObjectManagerMessage::*;
+
             match message {
-                GMDrawObjectManagerMessage::AddDrawObject(object) => {
+                AddDrawObject(object) => {
                     self.add_draw_object_box(object)?;
                 }
-                GMDrawObjectManagerMessage::RemoveDrawObject(name) => {
+                RemoveDrawObject(name) => {
                     self.remove_draw_object(&name)?;
                 }
-                GMDrawObjectManagerMessage::ReplaceDrawObject(object) => {
+                ReplaceDrawObject(object) => {
                     self.replace_draw_object_box(object)?;
                 }
-                GMDrawObjectManagerMessage::SendMessage(receiver, message) => {
+                SendMessage(receiver, message) => {
                     let common = self.get_common_mut_ref(&receiver)?;
                     common.send_message(message);
                 }
-                GMDrawObjectManagerMessage::SendMessageGroup(group, message) => {
+                SendMessageGroup(group, message) => {
                     self.send_message_group(&group, message)?;
                 }
             }
