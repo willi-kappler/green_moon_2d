@@ -1,4 +1,5 @@
 
+/*
 
 use std::any::Any;
 use std::collections::VecDeque;
@@ -280,3 +281,5 @@ impl GMDrawObjectManager {
         }
     }
 }
+
+*/

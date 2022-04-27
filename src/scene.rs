@@ -10,6 +10,8 @@ pub(crate) enum GMSceneMessage {
     RemoveScene(String),
     ChangeToScene(String),
     ReplaceScene(Box<dyn GMSceneT>),
+    Push,
+    Pop,
 }
 
 pub trait GMSceneT {
@@ -31,6 +33,7 @@ pub trait GMSceneT {
 
 pub struct GMSceneManager {
     scenes: Vec<Box<dyn GMSceneT>>,
+    scene_stack: Vec<String>,
     current_scene: usize,
 }
 
@@ -38,6 +41,7 @@ impl GMSceneManager {
     pub(crate) fn new() -> Self {
         Self {
             scenes: Vec::new(),
+            scene_stack: Vec::new(),
             current_scene: 0,
         }
     }
@@ -65,7 +69,7 @@ impl GMSceneManager {
         }
     }
 
-    pub(crate) fn remove_scene(&mut self, name: &str) -> Result<(), GMError> {
+    fn remove_scene(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMSceneManager::remove_scene(), name: '{}'", name);
 
         match self.get_scene_index(name) {
@@ -88,7 +92,7 @@ impl GMSceneManager {
         }
     }
 
-    pub(crate) fn change_to_scene(&mut self, name: &str) -> Result<(), GMError> {
+    fn change_to_scene(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMSceneManager::change_scene(), name: '{}'", name);
 
         match self.get_scene_index(name) {
@@ -103,7 +107,7 @@ impl GMSceneManager {
         }
     }
 
-    pub(crate) fn replace_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
+    fn replace_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
         let name = scene.get_name();
 
         debug!("GMSceneManager::replace_scene(), name: '{}'", name);
@@ -119,22 +123,47 @@ impl GMSceneManager {
         }
     }
 
+    fn push(&mut self) {
+        let name = self.scenes[self.current_scene].get_name();
+
+        self.scene_stack.push(name.to_string());
+    }
+
+    fn pop(&mut self) -> Result<(), GMError> {
+        match self.scene_stack.pop() {
+            Some(name) => {
+                self.change_to_scene(&name)
+            }
+            None => {
+                Err(GMError::SceneStackEmpty)
+            }
+        }
+    }
+
     pub(crate) fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.scenes[self.current_scene].update(context)?;
 
+        use GMSceneMessage::*;
+
         while let Some(message) = context.next_scene_message() {
             match message {
-                GMSceneMessage::AddScene(scene) => {
+                AddScene(scene) => {
                     self.add_scene(scene)?
                 }
-                GMSceneMessage::RemoveScene(name) => {
+                RemoveScene(name) => {
                     self.remove_scene(&name)?
                 }
-                GMSceneMessage::ChangeToScene(name) => {
+                ChangeToScene(name) => {
                     self.change_to_scene(&name)?
                 }
-                GMSceneMessage::ReplaceScene(scene) => {
+                ReplaceScene(scene) => {
                     self.replace_scene(scene)?
+                }
+                Push => {
+                    self.push()
+                }
+                Pop => {
+                    self.pop()?
                 }
             }
         }

@@ -3,9 +3,12 @@ use std::rc::Rc;
 
 use crate::animation::{GMAnimationT};
 use crate::context::{GMUpdateContext, GMDrawContext};
-use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::GMError;
 use crate::texture::GMTexture;
+
+
+/*
+
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteCommon {
@@ -119,3 +122,5 @@ pub enum GMSpriteMessage {
     FlipX(bool),
     FlipY(bool),
 }
+
+*/

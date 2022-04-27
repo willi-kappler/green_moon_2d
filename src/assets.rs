@@ -1,4 +1,5 @@
 
+/*
 use serde_derive::Deserialize;
 
 #[derive(Clone, Deserialize)]
@@ -108,3 +109,4 @@ pub struct GMAssets {
     #[serde(default)]
     pub fonts: Vec<GMAssetFont>,
 }
+*/

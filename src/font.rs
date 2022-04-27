@@ -11,20 +11,17 @@ pub trait GMFontT {
 
     fn get_char_dimensions(&self, c: char) -> (f32, f32);
 
-    fn get_name(&self) -> &str;
-
     fn rc_clone(&self) -> Rc<dyn GMFontT>;
 }
 
 #[derive(Clone)]
 pub struct GMBitmapFont {
-    name: String,
     texture: Rc<GMTexture>,
     mapping: HashMap<char, u32>,
 }
 
 impl GMBitmapFont {
-    pub fn new(name: &str, texture: Rc<GMTexture>, char_mapping: &str) -> Self {
+    pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
         let mut mapping = HashMap::new();
 
         for (i, c) in char_mapping.chars().enumerate() {
@@ -32,7 +29,6 @@ impl GMBitmapFont {
         }
 
         Self {
-            name: name.to_string(),
             texture,
             mapping,
         }
@@ -47,10 +43,6 @@ impl GMFontT for GMBitmapFont {
 
     fn get_char_dimensions(&self, _c: char) -> (f32, f32) {
         self.texture.get_unit_dimension()
-    }
-
-    fn get_name(&self) -> &str {
-        &self.name
     }
 
     fn rc_clone(&self) -> Rc<dyn GMFontT> {

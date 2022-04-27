@@ -5,11 +5,14 @@ use std::fmt::{self, Debug, Formatter};
 // use std::f32::consts::TAU;
 
 use crate::context::{GMUpdateContext, GMDrawContext};
-use crate::draw_object::{GMDrawObjectT, GMDrawObjectCommon};
 use crate::error::GMError;
 use crate::font::GMFontT;
 use crate::math::GMVec2D;
 
+
+
+
+/*
 #[derive(Clone)]
 pub struct GMTextCommon {
     pub font: Rc<dyn GMFontT>,
@@ -244,3 +247,6 @@ impl GMTextEffectT for GMTextEffectWave {
     }
 }
 */
+
+*/
+

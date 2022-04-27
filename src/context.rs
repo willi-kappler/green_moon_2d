@@ -12,14 +12,12 @@ use sdl2::pixels;
 
 use log::debug;
 
-use crate::GMDrawObjectT;
 use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::error::GMError;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
-use crate::draw_object::{GMDrawObjectMessage, GMDrawObjectManagerMessage};
 
 pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContext, GMDrawContext) {
     let sdl_context = sdl2::init().unwrap();
@@ -47,7 +45,6 @@ pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContex
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
-    draw_manager_messages: VecDeque<GMDrawObjectManagerMessage>,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -60,7 +57,6 @@ impl GMUpdateContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
-            draw_manager_messages: VecDeque::new(),
             input,
             resources,
         }
@@ -68,87 +64,66 @@ impl GMUpdateContext {
 
     // Scene messages:
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
-        debug!("GMContext::add_scene(), name: '{}'", scene.get_name());
+        debug!("GMUpdateContext::add_scene(), name: '{}'", scene.get_name());
 
         self.scene_messages.push_back(GMSceneMessage::AddScene(Box::new(scene)));
     }
 
     pub fn add_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
-        debug!("GMContext::add_scene_box(), name: '{}'", scene.get_name());
+        debug!("GMUpdateContext::add_scene_box(), name: '{}'", scene.get_name());
 
         self.scene_messages.push_back(GMSceneMessage::AddScene(scene));
     }
 
     pub fn remove_scene(&mut self, name: &str) {
-        debug!("GMContext::remove_scene(), name: '{}'", name);
+        debug!("GMUpdateContext::remove_scene(), name: '{}'", name);
 
         self.scene_messages.push_back(GMSceneMessage::RemoveScene(name.to_string()));
     }
 
     pub fn change_scene(&mut self, name: &str) {
-        debug!("GMContext::change_scene(), name: '{}'", name);
+        debug!("GMUpdateContext::change_scene(), name: '{}'", name);
 
         self.scene_messages.push_back(GMSceneMessage::ChangeToScene(name.to_string()));
     }
 
     pub fn replace_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
-        debug!("GMContext::replace_scene(), name: '{}'", scene.get_name());
+        debug!("GMUpdateContext::replace_scene(), name: '{}'", scene.get_name());
 
         self.scene_messages.push_back(GMSceneMessage::ReplaceScene(Box::new(scene)));
     }
 
     pub fn replace_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
-        debug!("GMContext::replace_scene_box(), name: '{}'", scene.get_name());
+        debug!("GMUpdateContext::replace_scene_box(), name: '{}'", scene.get_name());
 
         self.scene_messages.push_back(GMSceneMessage::ReplaceScene(scene));
+    }
+
+    pub fn push_scene(&mut self) {
+        debug!("GMUpdateContext::push_scene()");
+
+        self.scene_messages.push_back(GMSceneMessage::Push);
+    }
+
+    pub fn pop_scene(&mut self) {
+        debug!("GMUpdateContext::pop_scene()");
+
+        self.scene_messages.push_back(GMSceneMessage::Pop);
     }
 
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
         self.scene_messages.pop_front()
     }
 
-    // Draw object messages:
-    pub fn add_draw_object<O: 'static + GMDrawObjectT>(&mut self, draw_object: O) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::AddDrawObject(Box::new(draw_object)));
-    }
-
-    pub fn add_draw_object_box(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::AddDrawObject(draw_object));
-    }
-
-    pub fn remove_draw_object(&mut self, name: &str) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::RemoveDrawObject(name.to_string()))
-    }
-
-    pub fn replace_draw_object<O: 'static + GMDrawObjectT>(&mut self, draw_object: O) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::ReplaceDrawObject(Box::new(draw_object)));
-    }
-
-    pub fn replace_draw_object_box(&mut self, draw_object: Box<dyn GMDrawObjectT>) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::ReplaceDrawObject(draw_object));
-    }
-
-    pub fn send_message_draw_object(&mut self, receiver: &str, message: GMDrawObjectMessage) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::SendMessage(receiver.to_string(), message));
-    }
-
-    pub fn send_message_draw_group(&mut self, group: &str, message: GMDrawObjectMessage) {
-        self.draw_manager_messages.push_back(GMDrawObjectManagerMessage::SendMessageGroup(group.to_string(), message));
-    }
-
-    pub(crate) fn next_draw_manager_message(&mut self) -> Option<GMDrawObjectManagerMessage> {
-        self.draw_manager_messages.pop_front()
-    }
-
     // Engine messages:
     pub fn quit(&mut self) {
-        debug!("GMContext::quit()");
+        debug!("GMUpdateContext::quit()");
 
         self.engine_messages.push_back(GMEngineMessage::Quit);
     }
 
     pub fn change_fps(&mut self, new_fps: u32) {
-        debug!("GMContext::change_fps(), new_fps: '{}'", new_fps);
+        debug!("GMUpdateContext::change_fps(), new_fps: '{}'", new_fps);
 
         self.engine_messages.push_back(GMEngineMessage::ChangeFPS(new_fps));
     }
@@ -166,7 +141,6 @@ impl GMUpdateContext {
 
 pub struct GMDrawContext {
     canvas: Canvas<Window>,
-
 }
 
 impl GMDrawContext {
@@ -181,13 +155,16 @@ impl GMDrawContext {
     }
 
     pub fn clear_black(&mut self) {
-        let black = pixels::Color::BLACK;
-        self.canvas.set_draw_color(black);
+        self.clear(pixels::Color::BLACK);
+    }
+
+    pub fn clear(&mut self, color: pixels::Color) {
+        self.canvas.set_draw_color(color);
         self.canvas.clear();
     }
 
     pub fn set_fullscreen(&mut self, fullscreen: bool) {
-        debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
+        debug!("GMDrawContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
 
         // TODO: Map SDL2 error
         if fullscreen {
