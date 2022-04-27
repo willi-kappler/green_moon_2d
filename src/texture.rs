@@ -1,27 +1,24 @@
 
 
 use sdl2::rect::Rect;
+use sdl2::render::Texture;
 
 use crate::GMDrawContext;
 
-#[derive(Debug)]
 pub struct GMTexture {
-    //width: u32,
-    //height: u32,
-    //rows: u32,
     cols: u32,
     unit_width: u32,
     unit_height: u32,
-    data: u8, // TODO
+    texture: Texture,
 }
 
 impl GMTexture {
-    pub fn new(cols: u32, unit_width: u32, unit_height: u32, data: u8) -> Self {
+    pub fn new(cols: u32, unit_width: u32, unit_height: u32, texture: Texture) -> Self {
         Self {
             cols,
             unit_width,
             unit_height,
-            data,
+            texture,
         }
     }
 
@@ -39,7 +36,7 @@ impl GMTexture {
         let src_rect = Rect::new(sx, sy, self.unit_width, self.unit_height);
         let dst_rect = Rect::new(dx as i32, dy as i32, self.unit_width, self.unit_height);
 
-        // context.canvas.copy_ex(self.data, src_rect, dst_rect, angle as f64, None, flip_x, flip_y);
+        context.draw_ex(&self.texture, src_rect, dst_rect, angle as f64, flip_x, flip_y);
     }
 
     pub fn get_unit_dimension(&self) -> (f32, f32) {

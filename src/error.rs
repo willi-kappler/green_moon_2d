@@ -16,6 +16,7 @@ pub enum GMError {
     AnimationAlreadyExists(String),
     FontNotFound(String),
     FontAlreadyExists(String),
+    CouldNotLoadTexture(String),
     TextureNotFound(String),
     TextureAlreadyExists(String),
 }
@@ -37,6 +38,7 @@ impl fmt::Display for GMError {
             GMError::AnimationAlreadyExists(name) => write!(f, "Animation already exists: '{}'", name),
             GMError::FontNotFound(name) => write!(f, "Font not found: '{}'", name),
             GMError::FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
+            GMError::CouldNotLoadTexture(name) => write!(f, "Texture could not be loaded: '{}'", name),
             GMError::TextureNotFound(name) => write!(f, "Texture not found: '{}'", name),
             GMError::TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
         }

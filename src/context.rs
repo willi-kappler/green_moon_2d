@@ -6,8 +6,10 @@
 use std::collections::VecDeque;
 
 use sdl2::video::{self, Window, WindowContext};
-use sdl2::render::{TextureCreator, Canvas};
+use sdl2::render::{TextureCreator, Canvas, Texture};
 use sdl2::pixels;
+use sdl2::rect::Rect;
+
 //use sdl2::surface::Surface;
 
 use log::debug;
@@ -172,6 +174,10 @@ impl GMDrawContext {
         } else {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off).ok();
         }
+    }
+
+    pub fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
     }
 }
 
