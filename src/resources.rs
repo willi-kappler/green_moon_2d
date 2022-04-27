@@ -1,32 +1,56 @@
 
 use std::rc::Rc;
+use std::fs;
+use std::collections::HashMap;
 
 use sdl2::render::TextureCreator;
 use sdl2::video::WindowContext;
 
+use nanoserde::DeJson;
 
+use crate::animation::GMAnimationT;
 use crate::texture::GMTexture;
-use crate::font::GMFontT;
+use crate::font::{GMFontT, GMBitmapFont};
 use crate::error::GMError;
 
 
 pub struct GMResources {
     texture_creator: TextureCreator<WindowContext>,
-    textures: Vec<Rc<GMTexture>>,
-    fonts: Vec<Rc<dyn GMFontT>>,
+    textures: HashMap<String, Rc<GMTexture>>,
+    fonts: HashMap<String, Rc<dyn GMFontT>>,
+    animations: HashMap<String, Rc<dyn GMAnimationT>>,
 }
 
 impl GMResources {
     pub fn new(texture_creator: TextureCreator<WindowContext>) -> Self {
         Self {
             texture_creator,
-            textures: Vec::new(),
-            fonts: Vec::new(),
+            textures: HashMap::new(),
+            fonts: HashMap::new(),
+            animations: HashMap::new(),
         }
     }
 
     pub fn load_resources(&mut self, file_name: &str) -> Result<(), GMError> {
-        todo!();
+        let json_string = fs::read_to_string(file_name)?;
+        let resource: GMResourceFormat = DeJson::deserialize_json(&json_string)?;
+
+        for texture in resource.textures {
+            let new_texture = self.create_texture(&texture.file_name, texture.cols, texture.unit_width, texture.unit_height)?;
+            self.add_texture(&texture.texture_name, new_texture)?;
+        }
+
+        for font in resource.fonts {
+            let new_font = self.create_bitmap_font(&font.texture_name, &font.char_mapping)?;
+            self.add_font(&font.font_name, new_font)?;
+        }
+
+        for animation in resource.animations {
+            let new_animation = self.create_animation(&animation.animation_type, &animation.frames)?;
+            self.add_animation(&animation.animation_name, new_animation)?;
+        }
+
+        Ok(())
     }
 
     pub fn clear_resources(&mut self) {
@@ -35,58 +59,158 @@ impl GMResources {
     }
 
     // Textures:
-    pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> Result<GMTexture, GMError> {
-        todo!();
-    }
-
     pub fn clear_textures(&mut self) {
         self.textures.clear();
     }
 
-    fn get_texture_index(&self, name: &str) -> Option<usize> {
+    pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> Result<GMTexture, GMError> {
         todo!();
     }
 
-    pub fn add_texture(&mut self, texture: GMTexture) -> Result<(), GMError> {
-        todo!();
-
-        // Ok(())
+    pub fn add_texture(&mut self, name: &str, texture: GMTexture) -> Result<(), GMError> {
+        if self.textures.contains_key(name) {
+            Err(GMError::TextureAlreadyExists(name.to_string()))
+        } else {
+            self.textures.insert(name.to_string(), Rc::new(texture));
+            Ok(())
+        }
     }
 
     pub fn remove_texture(&mut self, name: &str) -> Result<(), GMError> {
-        todo!();
+        self.textures.remove(name)
+            .map(|_| ())
+            .ok_or(GMError::TextureNotFound(name.to_string()))
     }
 
-    pub fn replace_texture(&mut self, texture: GMTexture) -> Result<(), GMError> {
-        todo!();
+    pub fn replace_texture(&mut self, name: &str, texture: GMTexture) -> Result<(), GMError> {
+        if self.textures.contains_key(name) {
+            self.textures.insert(name.to_string(), Rc::new(texture));
+            Ok(())
+        } else {
+            Err(GMError::TextureNotFound(name.to_string()))
+        }
     }
 
     pub fn get_texture_clone(&self, name: &str) -> Result<Rc<GMTexture>, GMError> {
-        todo!();
+        self.textures.get(name)
+            .map(|texture| texture.clone())
+            .ok_or(GMError::TextureNotFound(name.to_string()))
     }
 
     // Fonts:
+    pub fn clear_fonts(&mut self) {
+        self.fonts.clear();
+    }
+
+    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+        let texture = self.get_texture_clone(texture)?;
+        let font = GMBitmapFont::new(texture, char_mapping);
+
+        Ok(Rc::new(font))
+    }
+
+    pub fn add_font(&mut self, name: &str, font: Rc<dyn GMFontT>) -> Result<(), GMError> {
+        if self.fonts.contains_key(name) {
+            Err(GMError::FontAlreadyExists(name.to_string()))
+        } else {
+            self.fonts.insert(name.to_string(), font);
+            Ok(())
+        }
+    }
+
+    pub fn remove_font(&mut self, name: &str) -> Result<(), GMError> {
+        self.fonts.remove(name)
+            .map(|_| ())
+            .ok_or(GMError::FontNotFound(name.to_string()))
+    }
+
+    pub fn replace_font(&mut self, name: &str, font: Rc<dyn GMFontT>) -> Result<(), GMError> {
+        if self.fonts.contains_key(name) {
+            self.fonts.insert(name.to_string(), font);
+            Ok(())
+        } else {
+            Err(GMError::FontNotFound(name.to_string()))
+        }
+    }
+
+    pub fn get_font_clone(&self, name: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+        self.fonts.get(name)
+            .map(|font| font.clone())
+            .ok_or(GMError::FontNotFound(name.to_string()))
+    }
+
 
     // Animations:
+    pub fn clear_animations(&mut self) {
+        self.animations.clear();
+    }
+
+    pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Result<Rc<dyn GMAnimationT>, GMError> {
+        todo!();
+    }
+
+    pub fn add_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) -> Result<(), GMError> {
+        if self.animations.contains_key(name) {
+            Err(GMError::AnimationAlreadyExists(name.to_string()))
+        } else {
+            self.animations.insert(name.to_string(), animation);
+            Ok(())
+        }
+    }
+
+    pub fn remove_animation(&mut self, name: &str) -> Result<(), GMError> {
+        self.animations.remove(name)
+            .map(|_| ())
+            .ok_or(GMError::AnimationNotFound(name.to_string()))
+    }
+
+    pub fn replace_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) -> Result<(), GMError> {
+        if self.animations.contains_key(name) {
+            self.animations.insert(name.to_string(), animation);
+            Ok(())
+        } else {
+            Err(GMError::AnimationNotFound(name.to_string()))
+        }
+    }
+
+    pub fn get_animation_clone(&self, name: &str) -> Result<Rc<dyn GMAnimationT>, GMError> {
+        self.animations.get(name)
+            .map(|animation| animation.clone())
+            .ok_or(GMError::AnimationNotFound(name.to_string()))
+    }
+
 
     // Sounds:
 
     // Musics:
 }
 
+#[derive(Debug, DeJson)]
 struct GMResourceFormat {
     textures: Vec<GMTextureFormat>,
     fonts: Vec<GMFontFormat>,
+    animations: Vec<GMAnimationFormat>,
 }
 
+#[derive(Debug, DeJson)]
 struct GMTextureFormat {
+    texture_name: String,
     file_name: String,
     cols: u32,
     unit_width: u32,
     unit_height: u32,
 }
 
+#[derive(Debug, DeJson)]
 struct GMFontFormat {
+    font_name: String,
     texture_name: String,
     char_mapping: String,
+}
+
+#[derive(Debug, DeJson)]
+struct GMAnimationFormat {
+    animation_type: String,
+    animation_name: String,
+    frames: Vec<(usize, f32)>, // texture index, duration in seconds
 }

@@ -6,7 +6,6 @@ use crate::GMDrawContext;
 
 #[derive(Debug)]
 pub struct GMTexture {
-    name: String,
     //width: u32,
     //height: u32,
     //rows: u32,
@@ -17,9 +16,8 @@ pub struct GMTexture {
 }
 
 impl GMTexture {
-    pub fn new(name: &str, cols: u32, unit_width: u32, unit_height: u32, data: u8) -> Self {
+    pub fn new(cols: u32, unit_width: u32, unit_height: u32, data: u8) -> Self {
         Self {
-            name: name.to_string(),
             cols,
             unit_width,
             unit_height,
@@ -46,10 +44,6 @@ impl GMTexture {
 
     pub fn get_unit_dimension(&self) -> (f32, f32) {
         (self.unit_width as f32, self.unit_height as f32)
-    }
-
-    pub fn get_name(&self) -> &str {
-        &self.name
     }
 
     pub fn get_cols(&self) -> u32 {

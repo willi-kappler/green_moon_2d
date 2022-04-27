@@ -12,9 +12,7 @@ categories = ["Game"]
 edition = "2021"
 
 [dependencies]
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
+nanoserde = "0.1"
 log = "0.4"
 nanorand = "0.7.0"
 

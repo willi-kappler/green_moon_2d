@@ -2,7 +2,7 @@
 use std::io;
 use std::fmt;
 
-use serde_json;
+use nanoserde::DeJsonErr;
 
 #[derive(Debug)]
 pub enum GMError {
@@ -11,11 +11,13 @@ pub enum GMError {
     SceneStackEmpty,
     CantRemoveCurrentScene(String),
     IO(io::Error),
-    JSON(serde_json::Error),
+    JSON(DeJsonErr),
     AnimationNotFound(String),
     AnimationAlreadyExists(String),
     FontNotFound(String),
     FontAlreadyExists(String),
+    TextureNotFound(String),
+    TextureAlreadyExists(String),
 }
 
 impl std::error::Error for GMError {
@@ -35,6 +37,8 @@ impl fmt::Display for GMError {
             GMError::AnimationAlreadyExists(name) => write!(f, "Animation already exists: '{}'", name),
             GMError::FontNotFound(name) => write!(f, "Font not found: '{}'", name),
             GMError::FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
+            GMError::TextureNotFound(name) => write!(f, "Texture not found: '{}'", name),
+            GMError::TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
         }
     }
 }
@@ -45,8 +49,8 @@ impl From<io::Error> for GMError {
     }
 }
 
-impl From<serde_json::Error> for GMError {
-    fn from(e: serde_json::Error) -> Self {
+impl From<DeJsonErr> for GMError {
+    fn from(e: DeJsonErr) -> Self {
       GMError::JSON(e)
     }
 }

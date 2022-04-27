@@ -1,7 +1,7 @@
 
-use serde_derive::Deserialize;
+use nanoserde::DeJson;
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, DeJson)]
 pub struct GMConfiguration {
     pub fps: u32,
     pub window_title: String,
