@@ -6,36 +6,15 @@ use crate::timer::GMTimer;
 
 
 pub trait GMAnimationT {
-    fn update(&mut self) {
-    }
+    fn update(&mut self);
 
-    fn finished(&self) -> bool {
-        true
-    }
+    fn finished(&self) -> bool;
 
     fn texture_index(&self) -> u32;
 
     fn box_clone(&self) -> Box<dyn GMAnimationT>;
 
     fn set_active(&mut self, active: bool);
-
-    fn get_active(&self) -> bool;
-
-    fn set_frame(&mut self, index: usize);
-
-    fn get_frame(&self) -> usize;
-
-    fn inc_frame(&mut self, amount: usize);
-
-    fn dec_frame(&mut self, amount: usize);
-
-    fn frame_at_end(&self) -> bool;
-
-    fn frame_at_start(&self) -> bool;
-
-    fn timer_finished(&self) -> bool;
-
-    fn set_new_timer_duration(&mut self);
 }
 
 impl Clone for Box<dyn GMAnimationT> {
@@ -67,17 +46,9 @@ impl GMAnimationBase {
             timer: GMTimer::new(frames[0].1),
         }
     }
-}
 
-impl GMAnimationT for GMAnimationBase {
     fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
-    }
-
-    fn box_clone(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
     }
 
     fn set_active(&mut self, active: bool) {
@@ -121,6 +92,7 @@ impl GMAnimationT for GMAnimationBase {
     }
 }
 
+
 #[derive(Clone, Debug)]
 pub struct GMAnimationForwardOnce {
     base: GMAnimationBase,
@@ -136,13 +108,13 @@ impl GMAnimationForwardOnce {
 
 impl GMAnimationT for GMAnimationForwardOnce {
     fn update(&mut self) {
-        if self.get_active() {
-            if self.timer_finished() {
-                if self.frame_at_end() {
+        if self.base.get_active() {
+            if self.base.timer_finished() {
+                if self.base.frame_at_end() {
                     self.set_active(false);
                 } else {
-                    self.inc_frame(1);
-                    self.set_new_timer_duration();
+                    self.base.inc_frame(1);
+                    self.base.set_new_timer_duration();
                 }
             }
         }
@@ -165,42 +137,6 @@ impl GMAnimationT for GMAnimationForwardOnce {
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
     }
-
-    fn get_active(&self) -> bool {
-        self.base.get_active()
-    }
-
-    fn set_frame(&mut self, index: usize) {
-        self.base.set_frame(index);
-    }
-
-    fn get_frame(&self) -> usize {
-        self.base.get_frame()
-    }
-
-    fn inc_frame(&mut self, amount: usize) {
-        self.base.inc_frame(amount);
-    }
-
-    fn dec_frame(&mut self, amount: usize) {
-        self.base.dec_frame(amount);
-    }
-
-    fn frame_at_end(&self) -> bool {
-        self.base.frame_at_end()
-    }
-
-    fn frame_at_start(&self) -> bool {
-        self.base.frame_at_start()
-    }
-
-    fn timer_finished(&self) -> bool {
-        self.base.timer_finished()
-    }
-
-    fn set_new_timer_duration(&mut self) {
-        self.base.set_new_timer_duration();
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -218,15 +154,15 @@ impl GMAnimationForwardLoop {
 
 impl GMAnimationT for GMAnimationForwardLoop {
     fn update(&mut self) {
-        if self.get_active() {
-            if self.timer_finished() {
-                if self.frame_at_end() {
+        if self.base.get_active() {
+            if self.base.timer_finished() {
+                if self.base.frame_at_end() {
                     // Restart animation
-                    self.set_frame(0);
+                    self.base.set_frame(0);
                 } else {
-                    self.inc_frame(1);
+                    self.base.inc_frame(1);
                 }
-                self.set_new_timer_duration();
+                self.base.set_new_timer_duration();
             }
         }
     }
@@ -247,42 +183,6 @@ impl GMAnimationT for GMAnimationForwardLoop {
 
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
-    }
-
-    fn get_active(&self) -> bool {
-        self.base.get_active()
-    }
-
-    fn set_frame(&mut self, index: usize) {
-        self.base.set_frame(index);
-    }
-
-    fn get_frame(&self) -> usize {
-        self.base.get_frame()
-    }
-
-    fn inc_frame(&mut self, amount: usize) {
-        self.base.inc_frame(amount);
-    }
-
-    fn dec_frame(&mut self, amount: usize) {
-        self.base.dec_frame(amount);
-    }
-
-    fn frame_at_end(&self) -> bool {
-        self.base.frame_at_end()
-    }
-
-    fn frame_at_start(&self) -> bool {
-        self.base.frame_at_start()
-    }
-
-    fn timer_finished(&self) -> bool {
-        self.base.timer_finished()
-    }
-
-    fn set_new_timer_duration(&mut self) {
-        self.base.set_new_timer_duration();
     }
 }
 
@@ -303,22 +203,22 @@ impl GMAnimationPingPong {
 
 impl GMAnimationT for GMAnimationPingPong {
     fn update(&mut self) {
-        if self.get_active() {
-            if self.timer_finished() {
+        if self.base.get_active() {
+            if self.base.timer_finished() {
                 if self.forward {
-                    if self.frame_at_end() {
+                    if self.base.frame_at_end() {
                         self.forward = false;
                     } else {
-                        self.inc_frame(1);
+                        self.base.inc_frame(1);
                     }
                 } else {
-                    if self.frame_at_start() {
+                    if self.base.frame_at_start() {
                         self.forward = true;
                     } else {
-                        self.dec_frame(1)
+                        self.base.dec_frame(1)
                     }
                 }
-                self.set_new_timer_duration();
+                self.base.set_new_timer_duration();
             }
         }
     }
@@ -339,41 +239,5 @@ impl GMAnimationT for GMAnimationPingPong {
 
     fn set_active(&mut self, active: bool) {
         self.base.set_active(active);
-    }
-
-    fn get_active(&self) -> bool {
-        self.base.get_active()
-    }
-
-    fn set_frame(&mut self, index: usize) {
-        self.base.set_frame(index);
-    }
-
-    fn get_frame(&self) -> usize {
-        self.base.get_frame()
-    }
-
-    fn inc_frame(&mut self, amount: usize) {
-        self.base.inc_frame(amount);
-    }
-
-    fn dec_frame(&mut self, amount: usize) {
-        self.base.dec_frame(amount);
-    }
-
-    fn frame_at_end(&self) -> bool {
-        self.base.frame_at_end()
-    }
-
-    fn frame_at_start(&self) -> bool {
-        self.base.frame_at_start()
-    }
-
-    fn timer_finished(&self) -> bool {
-        self.base.timer_finished()
-    }
-
-    fn set_new_timer_duration(&mut self) {
-        self.base.set_new_timer_duration();
     }
 }
