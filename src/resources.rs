@@ -38,21 +38,25 @@ impl GMResources {
         debug!("GMResources::load_resources(), file_name: '{}'", file_name);
 
         let json_string = fs::read_to_string(file_name)?;
-        let resource: GMResourceFormat = DeJson::deserialize_json(&json_string)?;
+        let resources: GMResourceFormat = DeJson::deserialize_json(&json_string)?;
 
-        for texture in resource.textures {
+        for texture in resources.textures {
             let new_texture = self.create_texture(&texture.file_name, texture.cols, texture.unit_width, texture.unit_height)?;
-            self.add_texture(&texture.texture_name, new_texture)?;
+            self.add_texture(&texture.name, new_texture)?;
         }
 
-        for font in resource.fonts {
+        for font in resources.fonts {
             let new_font = self.create_bitmap_font(&font.texture_name, &font.char_mapping)?;
-            self.add_font(&font.font_name, new_font)?;
+            self.add_font(&font.name, new_font)?;
         }
 
-        for animation in resource.animations {
+        for animation in resources.animations {
             let new_animation = self.create_animation(&animation.animation_type, &animation.frames)?;
-            self.add_animation(&animation.animation_name, new_animation)?;
+            self.add_animation(&animation.name, new_animation)?;
+        }
+
+        for sound in resources.sounds {
+            todo!();
         }
 
         Ok(())
@@ -244,7 +248,7 @@ struct GMResourceFormat {
 
 #[derive(Debug, DeJson)]
 struct GMTextureFormat {
-    texture_name: String,
+    name: String,
     file_name: String,
     cols: u32,
     unit_width: u32,
@@ -253,26 +257,26 @@ struct GMTextureFormat {
 
 #[derive(Debug, DeJson)]
 struct GMFontFormat {
-    font_name: String,
+    name: String,
     texture_name: String,
     char_mapping: String,
 }
 
 #[derive(Debug, DeJson)]
 struct GMAnimationFormat {
+    name: String,
     animation_type: String,
-    animation_name: String,
     frames: Vec<(usize, f32)>, // (texture index, duration in seconds)
 }
 
 #[derive(Debug, DeJson)]
 struct GMSoundFormat {
-    sound_name: String,
+    name: String,
     file_name: String,
 }
 
 #[derive(Debug, DeJson)]
 struct GMMusicFormat {
-    sound_name: String,
+    name: String,
     file_name: String,
 }

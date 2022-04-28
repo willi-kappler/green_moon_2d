@@ -1,58 +1,32 @@
 
-// use std::fs::File;
-// use std::io::Read;
-// use std::rc::Rc;
 
 use std::collections::VecDeque;
+use std::rc::Rc;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{TextureCreator, Canvas, Texture};
 use sdl2::pixels;
 use sdl2::rect::Rect;
 
-//use sdl2::surface::Surface;
-
 use log::debug;
 
-use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::error::GMError;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
-
-pub(crate) fn create_context(configuration: &GMConfiguration) -> (GMUpdateContext, GMDrawContext) {
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-    let window = video_subsystem.window(
-        &configuration.window_title,
-        configuration.screen_width,
-        configuration.screen_height)
-        .position_centered()
-        .build()
-        .unwrap();
-    let canvas = window.into_canvas()
-        .accelerated()
-        .present_vsync()
-        .build().unwrap();
-    let texture_creator = canvas.texture_creator();
-    let event_pump = sdl_context.event_pump().unwrap();
-
-    let update_context = GMUpdateContext::new(texture_creator, event_pump);
-    let draw_context = GMDrawContext::new(canvas);
-
-    (update_context, draw_context)
-}
+use crate::object::GMObjectManager;
 
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
     pub input: GMInput,
     pub resources: GMResources,
+    pub object_manager: Rc<GMObjectManager>,
 }
 
 impl GMUpdateContext {
-    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump) -> Self {
+    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump, object_manager: Rc<GMObjectManager>) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -61,6 +35,7 @@ impl GMUpdateContext {
             scene_messages: VecDeque::new(),
             input,
             resources,
+            object_manager,
         }
     }
 
@@ -114,6 +89,8 @@ impl GMUpdateContext {
     }
 
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
+        debug!("GMUpdateContext::next_scene_message()");
+
         self.scene_messages.pop_front()
     }
 
@@ -131,9 +108,12 @@ impl GMUpdateContext {
     }
 
     pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
+        debug!("GMUpdateContext::next_engine_message()");
+
         self.engine_messages.pop_front()
     }
 
+    // Update context
     pub(crate) fn update(&mut self) -> Result<(), GMError> {
         self.input.update();
 

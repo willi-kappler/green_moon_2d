@@ -7,13 +7,14 @@ pub mod engine;
 pub mod error;
 pub mod font;
 pub mod input;
+pub mod math;
+pub mod object;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
 pub mod text;
 pub mod texture;
 pub mod timer;
-pub mod math;
 
 pub use context::{GMUpdateContext, GMDrawContext};
 pub use engine::GMEngine;

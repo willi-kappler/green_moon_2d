@@ -6,6 +6,7 @@ use nanoserde::DeJsonErr;
 
 #[derive(Debug)]
 pub enum GMError {
+    EngineNotInitialized,
     SceneNotFound(String),
     SceneAlreadyExists(String),
     SceneStackEmpty,
@@ -27,20 +28,23 @@ impl std::error::Error for GMError {
 
 impl fmt::Display for GMError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GMError::*;
+
         match self {
-            GMError::SceneNotFound(name) => write!(f, "Scene not found: {}", name),
-            GMError::SceneAlreadyExists(name) => write!(f, "Scene already exists: '{}'", name),
-            GMError::SceneStackEmpty => write!(f, "The scene stack is empty"),
-            GMError::CantRemoveCurrentScene(name) => write!(f, "Can't remove current scene: '{}'", name),
-            GMError::IO(e) => write!(f, "Could not open file: '{}'", e),
-            GMError::JSON(e) => write!(f, "Could not parse JSON: '{}'", e),
-            GMError::AnimationNotFound(name) => write!(f, "Animation not found: '{}'", name),
-            GMError::AnimationAlreadyExists(name) => write!(f, "Animation already exists: '{}'", name),
-            GMError::FontNotFound(name) => write!(f, "Font not found: '{}'", name),
-            GMError::FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
-            GMError::CouldNotLoadTexture(name) => write!(f, "Texture could not be loaded: '{}'", name),
-            GMError::TextureNotFound(name) => write!(f, "Texture not found: '{}'", name),
-            GMError::TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
+            EngineNotInitialized => write!(f, "The engine was not initialized, please call the init() method before the run() method."),
+            SceneNotFound(name) => write!(f, "Scene not found: {}", name),
+            SceneAlreadyExists(name) => write!(f, "Scene already exists: '{}'", name),
+            SceneStackEmpty => write!(f, "The scene stack is empty"),
+            CantRemoveCurrentScene(name) => write!(f, "Can't remove current scene: '{}'", name),
+            IO(e) => write!(f, "Could not open file: '{}'", e),
+            JSON(e) => write!(f, "Could not parse JSON: '{}'", e),
+            AnimationNotFound(name) => write!(f, "Animation not found: '{}'", name),
+            AnimationAlreadyExists(name) => write!(f, "Animation already exists: '{}'", name),
+            FontNotFound(name) => write!(f, "Font not found: '{}'", name),
+            FontAlreadyExists(name) => write!(f, "Font already exists: '{}'", name),
+            CouldNotLoadTexture(name) => write!(f, "Texture could not be loaded: '{}'", name),
+            TextureNotFound(name) => write!(f, "Texture not found: '{}'", name),
+            TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
         }
     }
 }
