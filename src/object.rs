@@ -12,12 +12,17 @@ pub enum GMObjectMessage {
     AddPosition(GMVec2D),
     GetPosition(GMVec2D),
 
+    SetActive(bool),
+    GetActive,
+
     Custom(Box<dyn Any>),
 }
 
 pub enum GMObjectAnswer {
     None,
     Position(GMVec2D),
+
+    Active(bool),
 
     Custom(Box<dyn Any>),
 }
@@ -32,6 +37,7 @@ pub trait GMObjectT {
 
 struct GMObjectWrapper {
     name: String,
+    // Maybe use UnsafeCell ?
     object: RefCell<Box<dyn GMObjectT>>,
     z_index: i32,
     groups: HashSet<String>,
