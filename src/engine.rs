@@ -1,13 +1,11 @@
 
 
 use std::fs;
-use std::rc::Rc;
 
 use sdl2::gfx::framerate::FPSManager;
 use log::debug;
 use nanoserde::DeJson;
 
-use crate::object::GMObjectManager;
 use crate::resources::GMResources;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::scene::{GMSceneT, GMSceneManager};
@@ -24,7 +22,6 @@ pub struct GMEngine {
     scene_manager: GMSceneManager,
     update_context: Option<GMUpdateContext>,
     draw_context: Option<GMDrawContext>,
-    object_manager: Rc<GMObjectManager>,
 }
 
 impl GMEngine {
@@ -35,7 +32,6 @@ impl GMEngine {
             scene_manager: GMSceneManager::new(),
             update_context: None,
             draw_context: None,
-            object_manager: Rc::new(GMObjectManager::new()),
         }
     }
 
@@ -82,7 +78,7 @@ impl GMEngine {
         let texture_creator = canvas.texture_creator();
         let event_pump = sdl_context.event_pump().unwrap();
 
-        self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump, self.object_manager.clone()));
+        self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump));
         self.draw_context = Some(GMDrawContext::new(canvas));
 
         Ok(())
@@ -125,12 +121,10 @@ impl GMEngine {
             // Update everything
             update_context.update()?;
             self.scene_manager.update(update_context)?;
-            self.object_manager.update(update_context);
 
 
             // Draw everything
             self.scene_manager.draw(draw_context)?;
-            self.object_manager.draw(draw_context);
             draw_context.present();
 
             while let Some(message) = update_context.next_engine_message() {

@@ -20,6 +20,8 @@ pub enum GMError {
     CouldNotLoadTexture(String),
     TextureNotFound(String),
     TextureAlreadyExists(String),
+    ObjectNotFound(String),
+    ObjectAlreadyExists(String),
 }
 
 impl std::error::Error for GMError {
@@ -45,6 +47,8 @@ impl fmt::Display for GMError {
             CouldNotLoadTexture(name) => write!(f, "Texture could not be loaded: '{}'", name),
             TextureNotFound(name) => write!(f, "Texture not found: '{}'", name),
             TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
+            ObjectNotFound(name) => write!(f, "Object not found: '{}'", name),
+            ObjectAlreadyExists(name) => write!(f, "Object already exists: '{}'", name),
         }
     }
 }

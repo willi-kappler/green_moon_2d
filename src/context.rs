@@ -1,7 +1,6 @@
 
 
 use std::collections::VecDeque;
-use std::rc::Rc;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{TextureCreator, Canvas, Texture};
@@ -15,18 +14,16 @@ use crate::error::GMError;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
-use crate::object::GMObjectManager;
 
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
     pub input: GMInput,
     pub resources: GMResources,
-    pub object_manager: Rc<GMObjectManager>,
 }
 
 impl GMUpdateContext {
-    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump, object_manager: Rc<GMObjectManager>) -> Self {
+    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -35,7 +32,6 @@ impl GMUpdateContext {
             scene_messages: VecDeque::new(),
             input,
             resources,
-            object_manager,
         }
     }
 
