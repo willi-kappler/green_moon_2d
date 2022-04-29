@@ -26,7 +26,7 @@ pub trait GMObjectT {
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
 
-    // May be implemented:    
+    // May be implemented:
     fn set_active(&mut self, _active: bool) {
     }
 
@@ -159,8 +159,8 @@ impl GMObjectBase {
         self.child = Some(child);
     }
 
-    pub fn get_child(&mut self) -> &Option<Box<dyn GMObjectT>> {
-        &self.child
+    pub fn get_child(&mut self) -> Option<Box<dyn GMObjectT>> {
+        self.child.take()
     }
 }
 
@@ -259,7 +259,7 @@ impl GMObjectManager {
                     None => {
                         Err(GMError::ObjectNotFound(name.to_string()))
                     }
-                }        
+                }
             }
             ObjectGroup(name) => {
                 let message = Rc::new(message);

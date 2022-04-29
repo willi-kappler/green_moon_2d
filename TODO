@@ -2,9 +2,6 @@
 - Start with examples and top down approach
 
 Next TODO:
-- Bitblit for sprites and texts
-- Load assets from JSON file
-- Remove assets: GMResourceManager
 - More text effects
 - GMParticleManager
 - GMBulletManager

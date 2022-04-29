@@ -2,6 +2,7 @@
 
 use std::collections::{HashSet, HashMap};
 use std::any::Any;
+use std::rc::Rc;
 
 use log::debug;
 
@@ -18,9 +19,9 @@ pub trait GMSceneT {
 
     fn get_name(&self) -> &str;
 
-    fn send_message(&mut self, message: GMObjectMessage, context: &mut GMUpdateContext);
+    fn send_message(&mut self, message: Rc<GMObjectMessage>, context: &mut GMUpdateContext);
 
-    // May be implemented:    
+    // May be implemented:
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
         Ok(())
     }
@@ -35,7 +36,7 @@ pub trait GMSceneT {
     fn remove_group(&mut self, _group: &str) {
     }
 
-    fn is_in_group(&self) -> bool {
+    fn is_in_group(&self, _name: &str) -> bool {
         false
     }
 
@@ -113,8 +114,8 @@ impl GMSceneBase {
         self.child = Some(child);
     }
 
-    pub fn get_child(&mut self) -> &Option<Box<dyn GMSceneT>> {
-        &self.child
+    pub fn get_child(&mut self) -> Option<Box<dyn GMSceneT>> {
+        self.child.take()
     }
 }
 
@@ -244,13 +245,13 @@ impl GMSceneManager {
 
         match receiver {
             CurrentScene => {
-                self.scenes[self.current_scene].send_message(message, context);
+                self.scenes[self.current_scene].send_message(Rc::new(message), context);
                 Ok(())
             }
             Scene(name) => {
                 match self.get_index(&name) {
                     Some(index) => {
-                        self.scenes[index].send_message(message, context);
+                        self.scenes[index].send_message(Rc::new(message), context);
                         Ok(())
                     }
                     None => {
@@ -259,7 +260,14 @@ impl GMSceneManager {
                 }
             }
             SceneGroup(name) => {
-                todo!();
+                let message = Rc::new(message);
+
+                for scene in self.scenes.iter_mut() {
+                    if scene.is_in_group(&name) {
+                        scene.send_message(message.clone(), context)
+                    }
+                }
+
                 Ok(())
             }
             _ => {
