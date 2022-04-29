@@ -4,6 +4,8 @@ use std::fmt;
 
 use nanoserde::DeJsonErr;
 
+use crate::message::GMObjectMessage;
+
 #[derive(Debug)]
 pub enum GMError {
     EngineNotInitialized,
@@ -22,6 +24,8 @@ pub enum GMError {
     TextureAlreadyExists(String),
     ObjectNotFound(String),
     ObjectAlreadyExists(String),
+    CantSendSceneMessageToObject(GMObjectMessage),
+    CantSendObjectMessageToScene(GMObjectMessage),
 }
 
 impl std::error::Error for GMError {
@@ -49,6 +53,8 @@ impl fmt::Display for GMError {
             TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
             ObjectNotFound(name) => write!(f, "Object not found: '{}'", name),
             ObjectAlreadyExists(name) => write!(f, "Object already exists: '{}'", name),
+            CantSendSceneMessageToObject(message) => write!(f, "Can't send scene message to object: '{:?}'", message),
+            CantSendObjectMessageToScene(message) => write!(f, "Can't send object message to scene: '{:?}'", message),
         }
     }
 }

@@ -8,6 +8,7 @@ pub mod error;
 pub mod font;
 pub mod input;
 pub mod math;
+pub mod message;
 pub mod object;
 pub mod resources;
 pub mod scene;

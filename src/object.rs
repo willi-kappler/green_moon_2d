@@ -1,10 +1,10 @@
-use std::any::Any;
 use std::collections::HashSet;
 use std::rc::Rc;
 
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
+use crate::message::{GMObjectMessage, GMReceiver};
 
 
 pub trait GMObjectT {
@@ -47,35 +47,6 @@ pub trait GMObjectT {
     fn send_message(&mut self, message: Rc<GMObjectMessage>);
 }
 
-pub struct GMObjectMessage {
-    pub sender: GMSender,
-    pub data: GMObjectMessageData,
-}
-
-#[derive(Clone, Debug)]
-pub enum GMSender {
-    Object(String),
-    CurrentScene,
-}
-
-#[derive(Clone, Debug)]
-pub enum GMObjectReceiver {
-    Object(String),
-    Group(String),
-}
-
-pub enum GMObjectMessageData {
-    SetPosition(GMVec2D),
-    AddPosition(GMVec2D),
-    GetPosition(GMVec2D),
-    Position(GMVec2D),
-
-    SetActive(bool),
-    GetActive,
-    Active(bool),
-
-    Custom(Box<dyn Any>),
-}
 
 pub struct GMObjectBase {
     pub name: String,
@@ -206,8 +177,8 @@ impl GMObjectManager {
             object.update(context);
         }
 
-        while let Some((receiver, message)) = context.next_object_message() {
-            self.send_message(&receiver, message)?;
+        while let Some(message) = context.next_object_message() {
+            self.send_message(message)?;
         }
 
         Ok(())
@@ -222,8 +193,10 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message(&mut self, receiver: &GMObjectReceiver, message: GMObjectMessage) -> Result<(), GMError> {
-        use GMObjectReceiver::*;
+    pub fn send_message(&mut self, message: GMObjectMessage) -> Result<(), GMError> {
+        use GMReceiver::*;
+
+        let receiver = message.receiver.clone();
 
         match receiver {
             Object(name) => {
@@ -247,6 +220,9 @@ impl GMObjectManager {
                 }
 
                 Ok(())
+            }
+            Scene(_) => {
+                Err(GMError::CantSendSceneMessageToObject(message))
             }
         }
 
