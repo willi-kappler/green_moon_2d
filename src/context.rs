@@ -14,10 +14,12 @@ use crate::error::GMError;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
+use crate::object::{GMObjectReceiver, GMObjectMessage};
 
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneMessage>,
+    object_messages: VecDeque<(GMObjectReceiver, GMObjectMessage)>,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -30,6 +32,7 @@ impl GMUpdateContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
+            object_messages: VecDeque::new(),
             input,
             resources,
         }
@@ -84,6 +87,10 @@ impl GMUpdateContext {
         self.scene_messages.push_back(GMSceneMessage::Pop);
     }
 
+    pub fn send_scene_message(&mut self, message: GMObjectMessage) {
+        self.scene_messages.push_back(GMSceneMessage::ObjectMessage(message));
+    }
+
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
         debug!("GMUpdateContext::next_scene_message()");
 
@@ -108,6 +115,17 @@ impl GMUpdateContext {
 
         self.engine_messages.pop_front()
     }
+
+    // Object messages:
+    pub fn send_object_message(&mut self, receiver: GMObjectReceiver, message: GMObjectMessage) {
+        self.object_messages.push_back((receiver, message));
+    }
+
+    pub(crate) fn next_object_message(&mut self) -> Option<(GMObjectReceiver, GMObjectMessage)> {
+        self.object_messages.pop_front()
+    }
+
+
 
     // Update context
     pub(crate) fn update(&mut self) -> Result<(), GMError> {

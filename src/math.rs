@@ -1,6 +1,6 @@
 
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
     pub y: f32,

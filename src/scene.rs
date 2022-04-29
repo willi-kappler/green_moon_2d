@@ -4,15 +4,8 @@ use log::debug;
 
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::error::GMError;
+use crate::object::GMObjectMessage;
 
-pub(crate) enum GMSceneMessage {
-    AddScene(Box<dyn GMSceneT>),
-    RemoveScene(String),
-    ChangeToScene(String),
-    ReplaceScene(Box<dyn GMSceneT>),
-    Push,
-    Pop,
-}
 
 pub trait GMSceneT {
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
@@ -28,8 +21,19 @@ pub trait GMSceneT {
     }
 
     fn get_name(&self) -> &str;
+
+    fn send_message(&mut self, message: GMObjectMessage);
 }
 
+pub(crate) enum GMSceneMessage {
+    AddScene(Box<dyn GMSceneT>),
+    RemoveScene(String),
+    ChangeToScene(String),
+    ReplaceScene(Box<dyn GMSceneT>),
+    Push,
+    Pop,
+    ObjectMessage(GMObjectMessage),
+}
 
 pub struct GMSceneManager {
     scenes: Vec<Box<dyn GMSceneT>>,
@@ -164,6 +168,9 @@ impl GMSceneManager {
                 }
                 Pop => {
                     self.pop()?
+                }
+                ObjectMessage(message) => {
+                    self.scenes[self.current_scene].send_message(message);
                 }
             }
         }
