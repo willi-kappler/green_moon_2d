@@ -1,5 +1,6 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::rc::Rc;
+use std::any::Any;
 
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
@@ -8,8 +9,24 @@ use crate::message::{GMObjectMessage, GMReceiver};
 
 
 pub trait GMObjectT {
+    // Must be implemented:
     fn get_name(&self) -> &str;
 
+    fn set_position(&mut self, position: &GMVec2D);
+
+    fn add_position(&mut self, position: &GMVec2D);
+
+    fn get_position(&self) -> &GMVec2D;
+
+    fn update(&mut self, context: &mut GMUpdateContext);
+
+    fn draw(&self, context: &mut GMDrawContext);
+
+    fn send_message(&mut self, message: Rc<GMObjectMessage>, context: &mut GMUpdateContext);
+
+    fn clone_box(&self) -> Box<dyn GMObjectT>;
+
+    // May be implemented:    
     fn set_active(&mut self, _active: bool) {
     }
 
@@ -34,19 +51,26 @@ pub trait GMObjectT {
         false
     }
 
-    fn set_position(&mut self, position: GMVec2D);
+    fn add_property(&mut self, _name: &str, _property: Box<dyn Any>) {
+    }
 
-    fn add_position(&mut self, position: GMVec2D);
+    fn add_tag(&mut self, _name: &str) {
+    }
 
-    fn get_position(&self) -> GMVec2D;
+    fn remove_property(&mut self, _name: &str) {
+    }
 
-    fn update(&mut self, context: &mut GMUpdateContext);
+    fn get_property(&self, _name: &str) -> Option<Box<dyn Any>> {
+        None
+    }
 
-    fn draw(&self, context: &mut GMDrawContext);
+    fn set_child(&mut self, _child: Box<dyn GMObjectT>) {
+    }
 
-    fn send_message(&mut self, message: Rc<GMObjectMessage>);
+    fn get_child(&mut self) -> Option<Box<dyn GMObjectT>> {
+        None
+    }
 }
-
 
 pub struct GMObjectBase {
     pub name: String,
@@ -54,6 +78,8 @@ pub struct GMObjectBase {
     pub z_index: i32,
     pub groups: HashSet<String>,
     pub position: GMVec2D,
+    pub properties: HashMap<String, Box<dyn Any>>,
+    pub child: Option<Box<dyn GMObjectT>>,
 }
 
 impl GMObjectBase {
@@ -63,7 +89,9 @@ impl GMObjectBase {
             active: true,
             z_index: 0,
             groups: HashSet::new(),
-            position
+            position,
+            properties: HashMap::new(),
+            child: None,
         }
     }
 
@@ -111,6 +139,29 @@ impl GMObjectBase {
         &self.position
     }
 
+    pub fn add_property(&mut self, name: &str, property: Box<dyn Any>) {
+        self.properties.insert(name.to_string(), property);
+    }
+
+    pub fn add_tag(&mut self, name: &str) {
+        self.properties.insert(name.to_string(), Box::new(()));
+    }
+
+    pub fn remove_property(&mut self, name: &str) {
+        self.properties.remove(name);
+    }
+
+    pub fn get_property(&self, name: &str) -> Option<&Box<dyn Any>> {
+        self.properties.get(name)
+    }
+
+    pub fn set_child(&mut self, child: Box<dyn GMObjectT>) {
+        self.child = Some(child);
+    }
+
+    pub fn get_child(&mut self) -> &Option<Box<dyn GMObjectT>> {
+        &self.child
+    }
 }
 
 pub struct GMObjectManager {
@@ -178,7 +229,7 @@ impl GMObjectManager {
         }
 
         while let Some(message) = context.next_object_message() {
-            self.send_message(message)?;
+            self.send_message(message, context)?;
         }
 
         Ok(())
@@ -193,7 +244,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message(&mut self, message: GMObjectMessage) -> Result<(), GMError> {
+    pub fn send_message(&mut self, message: GMObjectMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
         use GMReceiver::*;
 
         let receiver = message.receiver.clone();
@@ -202,7 +253,7 @@ impl GMObjectManager {
             Object(name) => {
                 match self.get_index(&name) {
                     Some(index) => {
-                        self.objects[index].send_message(Rc::new(message));
+                        self.objects[index].send_message(Rc::new(message), context);
                         Ok(())
                     }
                     None => {
@@ -210,18 +261,18 @@ impl GMObjectManager {
                     }
                 }        
             }
-            Group(name) => {
+            ObjectGroup(name) => {
                 let message = Rc::new(message);
 
                 for object in self.objects.iter_mut() {
                     if object.is_in_group(&name) {
-                        object.send_message(message.clone());
+                        object.send_message(message.clone(), context);
                     }
                 }
 
                 Ok(())
             }
-            Scene(_) => {
+            _ => {
                 Err(GMError::CantSendSceneMessageToObject(message))
             }
         }

@@ -33,14 +33,17 @@ impl Debug for GMObjectMessage {
 #[derive(Clone, Debug)]
 pub enum GMSender {
     Object(String),
+    CurrentScene,
     Scene(String),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMReceiver {
     Object(String),
-    Group(String),
+    ObjectGroup(String),
+    CurrentScene,
     Scene(String),
+    SceneGroup(String),
 }
 
 pub enum GMObjectMessageData {

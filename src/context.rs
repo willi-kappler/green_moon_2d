@@ -126,10 +126,10 @@ impl GMUpdateContext {
         let receiver = message.receiver.clone();
 
         match receiver {
-            Object(_) | Group(_) => {
+            Object(_) | ObjectGroup(_) => {
                 self.object_messages.push_back(message);
             }
-            Scene(_) => {
+            _ => {
                 self.scene_messages.push_back(GMSceneMessage::ObjectMessage(message));
             }
         }
