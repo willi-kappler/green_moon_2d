@@ -10,6 +10,7 @@ pub mod input;
 pub mod math;
 pub mod message;
 pub mod object;
+pub mod property;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
@@ -20,7 +21,6 @@ pub mod timer;
 pub use context::{GMUpdateContext, GMDrawContext};
 pub use engine::GMEngine;
 pub use error::GMError;
-pub use scene::GMSceneT;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;

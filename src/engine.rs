@@ -8,14 +8,11 @@ use nanoserde::DeJson;
 
 use crate::resources::GMResources;
 use crate::context::{GMUpdateContext, GMDrawContext};
-use crate::scene::{GMSceneT, GMSceneManager};
+use crate::scene::{GMSceneManager};
 use crate::configuration::GMConfiguration;
 use crate::error::GMError;
-
-pub(crate) enum GMEngineMessage {
-    Quit,
-    ChangeFPS(u32),
-}
+use crate::message::{GMMessageData};
+use crate::scene::GMSceneT;
 
 pub struct GMEngine {
     configuration: GMConfiguration,
@@ -128,13 +125,16 @@ impl GMEngine {
             draw_context.present();
 
             while let Some(message) = update_context.next_engine_message() {
-                match message {
-                    GMEngineMessage::Quit => {
+                match message.data {
+                    GMMessageData::Quit => {
                         break 'quit;
                     }
-                    GMEngineMessage::ChangeFPS(new_fps) => {
+                    GMMessageData::ChangeFPS(new_fps) => {
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
+                    }
+                    _ => {
+                        return Err(GMError::UnknownMessageToEngine(message))
                     }
                 }
             }

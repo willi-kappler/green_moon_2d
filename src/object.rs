@@ -1,85 +1,54 @@
-use std::collections::{HashSet, HashMap};
-use std::rc::Rc;
-use std::any::Any;
+
+use std::collections::HashSet;
+use std::fmt::{self, Debug};
 
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
-use crate::message::{GMObjectMessage, GMReceiver};
-
+use crate::message::{GMMessage, GMReceiver};
+use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMObjectT {
     // Must be implemented:
     fn get_name(&self) -> &str;
 
-    fn set_position(&mut self, position: &GMVec2D);
-
-    fn add_position(&mut self, position: &GMVec2D);
-
-    fn get_position(&self) -> &GMVec2D;
-
     fn update(&mut self, context: &mut GMUpdateContext);
 
     fn draw(&self, context: &mut GMDrawContext);
 
-    fn send_message(&mut self, message: Rc<GMObjectMessage>, context: &mut GMUpdateContext);
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
 
     // May be implemented:
-    fn set_active(&mut self, _active: bool) {
-    }
-
-    fn get_active(&self) -> bool {
-        true
-    }
-
-    fn set_z_index(&mut self, _z_index: i32) {
+    fn is_in_group(&self, _group: &str) -> bool {
+        false
     }
 
     fn get_z_index(&self) -> i32 {
         0
     }
+}
 
-    fn add_group(&mut self, _group: &str) {
-    }
-
-    fn remove_group(&mut self, _group: &str) {
-    }
-
-    fn is_in_group(&self, _group: &str) -> bool {
-        false
-    }
-
-    fn add_property(&mut self, _name: &str, _property: Box<dyn Any>) {
-    }
-
-    fn add_tag(&mut self, _name: &str) {
-    }
-
-    fn remove_property(&mut self, _name: &str) {
-    }
-
-    fn get_property(&self, _name: &str) -> Option<Box<dyn Any>> {
-        None
-    }
-
-    fn set_child(&mut self, _child: Box<dyn GMObjectT>) {
-    }
-
-    fn get_child(&mut self) -> Option<Box<dyn GMObjectT>> {
-        None
+impl Clone for Box<dyn GMObjectT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
     }
 }
 
+impl Debug for Box<dyn GMObjectT> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Object: {}", self.get_name())
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct GMObjectBase {
     pub name: String,
     pub active: bool,
-    pub z_index: i32,
     pub groups: HashSet<String>,
-    pub position: GMVec2D,
-    pub properties: HashMap<String, Box<dyn Any>>,
-    pub child: Option<Box<dyn GMObjectT>>,
+    pub properties: GMPropertyManager,
+    pub sub_objects: Vec<Box<dyn GMObjectT>>,
 }
 
 impl GMObjectBase {
@@ -87,11 +56,9 @@ impl GMObjectBase {
         Self {
             name: name.to_string(),
             active: true,
-            z_index: 0,
             groups: HashSet::new(),
-            position,
-            properties: HashMap::new(),
-            child: None,
+            properties: GMPropertyManager::new(),
+            sub_objects: Vec::new(),
         }
     }
 
@@ -107,14 +74,6 @@ impl GMObjectBase {
         self.active
     }
 
-    pub fn set_z_index(&mut self, z_index: i32) {
-        self.z_index = z_index;
-    }
-
-    pub fn get_z_index(&self) -> i32 {
-        self.z_index
-    }
-
     pub fn add_group(&mut self, group: &str) {
         self.groups.insert(group.to_string());
     }
@@ -127,41 +86,23 @@ impl GMObjectBase {
         self.groups.contains(group)
     }
 
-    pub fn set_position(&mut self, position: &GMVec2D) {
-        self.position = *position;
-    }
-
-    pub fn add_position(&mut self, position: &GMVec2D) {
-        self.position.add2(position);
-    }
-
-    pub fn get_position(&self) -> &GMVec2D {
-        &self.position
-    }
-
-    pub fn add_property(&mut self, name: &str, property: Box<dyn Any>) {
-        self.properties.insert(name.to_string(), property);
+    pub fn add_property(&mut self, name: &str, value: GMValue) {
+        self.properties.add_property(name, value);
     }
 
     pub fn add_tag(&mut self, name: &str) {
-        self.properties.insert(name.to_string(), Box::new(()));
+        self.properties.add_tag(name);
     }
 
     pub fn remove_property(&mut self, name: &str) {
-        self.properties.remove(name);
+        self.properties.remove_property(name);
     }
 
-    pub fn get_property(&self, name: &str) -> Option<&Box<dyn Any>> {
-        self.properties.get(name)
+    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
+        self.properties.get_property(name)
     }
 
-    pub fn set_child(&mut self, child: Box<dyn GMObjectT>) {
-        self.child = Some(child);
-    }
-
-    pub fn get_child(&mut self) -> Option<Box<dyn GMObjectT>> {
-        self.child.take()
-    }
+    // TODO: add sub_object, remove_sub_object, ...
 }
 
 pub struct GMObjectManager {
@@ -169,7 +110,7 @@ pub struct GMObjectManager {
 }
 
 impl GMObjectManager {
-    pub fn new() -> Self {
+    pub fn new(sort_objects: bool) -> Self {
         Self {
             objects: Vec::new(),
         }
@@ -244,7 +185,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message(&mut self, message: GMObjectMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
+    pub fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
         use GMReceiver::*;
 
         let receiver = message.receiver.clone();
@@ -253,7 +194,7 @@ impl GMObjectManager {
             Object(name) => {
                 match self.get_index(&name) {
                     Some(index) => {
-                        self.objects[index].send_message(Rc::new(message), context);
+                        self.objects[index].send_message(message, context);
                         Ok(())
                     }
                     None => {
@@ -262,8 +203,6 @@ impl GMObjectManager {
                 }
             }
             ObjectGroup(name) => {
-                let message = Rc::new(message);
-
                 for object in self.objects.iter_mut() {
                     if object.is_in_group(&name) {
                         object.send_message(message.clone(), context);
@@ -272,8 +211,12 @@ impl GMObjectManager {
 
                 Ok(())
             }
+            ObjectManager => {
+                // TODO:
+                todo!();
+            }
             _ => {
-                Err(GMError::CantSendSceneMessageToObject(message))
+                Err(GMError::UnknownMessageToObject(message))
             }
         }
 

@@ -9,17 +9,16 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
-use crate::engine::GMEngineMessage;
 use crate::error::GMError;
 use crate::resources::GMResources;
-use crate::scene::{GMSceneT, GMSceneMessage};
 use crate::input::GMInput;
-use crate::message::{GMReceiver, GMObjectMessage};
+use crate::message::{GMReceiver, GMMessage, GMMessageData};
+use crate::scene::GMSceneT;
 
 pub struct GMUpdateContext {
-    engine_messages: VecDeque<GMEngineMessage>,
-    scene_messages: VecDeque<GMSceneMessage>,
-    object_messages: VecDeque<GMObjectMessage>,
+    engine_messages: VecDeque<GMMessage>,
+    scene_messages: VecDeque<GMMessage>,
+    object_messages: VecDeque<GMMessage>,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -42,52 +41,60 @@ impl GMUpdateContext {
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
         debug!("GMUpdateContext::add_scene(), name: '{}'", scene.get_name());
 
-        self.scene_messages.push_back(GMSceneMessage::AddScene(Box::new(scene)));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::AddScene(Box::new(scene)));
+        self.scene_messages.push_back(message);
     }
 
     pub fn add_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
         debug!("GMUpdateContext::add_scene_box(), name: '{}'", scene.get_name());
 
-        self.scene_messages.push_back(GMSceneMessage::AddScene(scene));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::AddScene(scene));
+        self.scene_messages.push_back(message);
     }
 
     pub fn remove_scene(&mut self, name: &str) {
         debug!("GMUpdateContext::remove_scene(), name: '{}'", name);
 
-        self.scene_messages.push_back(GMSceneMessage::RemoveScene(name.to_string()));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::RemoveScene(name.to_string()));
+        self.scene_messages.push_back(message);
     }
 
     pub fn change_scene(&mut self, name: &str) {
         debug!("GMUpdateContext::change_scene(), name: '{}'", name);
 
-        self.scene_messages.push_back(GMSceneMessage::ChangeToScene(name.to_string()));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::ChangeToScene(name.to_string()));
+        self.scene_messages.push_back(message);
     }
 
     pub fn replace_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
         debug!("GMUpdateContext::replace_scene(), name: '{}'", scene.get_name());
 
-        self.scene_messages.push_back(GMSceneMessage::ReplaceScene(Box::new(scene)));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::ReplaceScene(Box::new(scene)));
+        self.scene_messages.push_back(message);
     }
 
     pub fn replace_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
         debug!("GMUpdateContext::replace_scene_box(), name: '{}'", scene.get_name());
 
-        self.scene_messages.push_back(GMSceneMessage::ReplaceScene(scene));
+        let message = GMMessage::new_to_scene_manager(GMMessageData::ReplaceScene(scene));
+        self.scene_messages.push_back(message);
     }
 
     pub fn push_scene(&mut self) {
         debug!("GMUpdateContext::push_scene()");
 
-        self.scene_messages.push_back(GMSceneMessage::Push);
+        let message = GMMessage::new_to_scene_manager(GMMessageData::PushCurrentScene);
+        self.scene_messages.push_back(message);
     }
 
     pub fn pop_scene(&mut self) {
         debug!("GMUpdateContext::pop_scene()");
 
-        self.scene_messages.push_back(GMSceneMessage::Pop);
+        let message = GMMessage::new_to_scene_manager(GMMessageData::PopCurrentScene);
+        self.scene_messages.push_back(message);
     }
 
-    pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneMessage> {
+    pub(crate) fn next_scene_message(&mut self) -> Option<GMMessage> {
         debug!("GMUpdateContext::next_scene_message()");
 
         self.scene_messages.pop_front()
@@ -97,16 +104,18 @@ impl GMUpdateContext {
     pub fn quit(&mut self) {
         debug!("GMUpdateContext::quit()");
 
-        self.engine_messages.push_back(GMEngineMessage::Quit);
+        let message = GMMessage::new_to_engine(GMMessageData::Quit);
+        self.engine_messages.push_back(message);
     }
 
     pub fn change_fps(&mut self, new_fps: u32) {
         debug!("GMUpdateContext::change_fps(), new_fps: '{}'", new_fps);
 
-        self.engine_messages.push_back(GMEngineMessage::ChangeFPS(new_fps));
+        let message = GMMessage::new_to_engine(GMMessageData::ChangeFPS(new_fps));
+        self.engine_messages.push_back(message);
     }
 
-    pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
+    pub(crate) fn next_engine_message(&mut self) -> Option<GMMessage> {
         debug!("GMUpdateContext::next_engine_message()");
 
         self.engine_messages.pop_front()
@@ -114,23 +123,29 @@ impl GMUpdateContext {
 
     // Object messages:
 
-    pub(crate) fn next_object_message(&mut self) -> Option<GMObjectMessage> {
+    // TODO:
+    // set_z_index, set_z_index_group, set_position, add_position, set_velocity, add_velocity, set_acceleration, add_acceleration, ...
+
+    pub(crate) fn next_object_message(&mut self) -> Option<GMMessage> {
         self.object_messages.pop_front()
     }
 
-    // Messages to scene or object:
+    // Messages to anything:
 
-    pub fn send_message(&mut self, message: GMObjectMessage) {
+    pub fn send_message(&mut self, message: GMMessage) {
         use GMReceiver::*;
 
         let receiver = message.receiver.clone();
 
         match receiver {
-            Object(_) | ObjectGroup(_) => {
-                self.object_messages.push_back(message);
+            Engine => {
+                self.engine_messages.push_back(message);
             }
-            _ => {
-                self.scene_messages.push_back(GMSceneMessage::ObjectMessage(message));
+            CurrentScene | Scene(_) | SceneGroup(_) | SceneManager => {
+                self.scene_messages.push_back(message);
+            }
+            Object(_) | ObjectGroup(_) | ObjectManager => {
+                self.object_messages.push_back(message);
             }
         }
     }

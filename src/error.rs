@@ -4,7 +4,7 @@ use std::fmt;
 
 use nanoserde::DeJsonErr;
 
-use crate::message::GMObjectMessage;
+use crate::message::GMMessage;
 
 #[derive(Debug)]
 pub enum GMError {
@@ -24,8 +24,11 @@ pub enum GMError {
     TextureAlreadyExists(String),
     ObjectNotFound(String),
     ObjectAlreadyExists(String),
-    CantSendSceneMessageToObject(GMObjectMessage),
-    CantSendObjectMessageToScene(GMObjectMessage),
+    UnknownMessageToEngine(GMMessage),
+    UnknownMessageToScene(GMMessage),
+    UnknownMessageToSceneModifier(GMMessage),
+    UnknownMessageToObject(GMMessage),
+    UnknownMessageToObjectModifier(GMMessage),
 }
 
 impl std::error::Error for GMError {
@@ -53,8 +56,11 @@ impl fmt::Display for GMError {
             TextureAlreadyExists(name) => write!(f, "Texture already exists: '{}'", name),
             ObjectNotFound(name) => write!(f, "Object not found: '{}'", name),
             ObjectAlreadyExists(name) => write!(f, "Object already exists: '{}'", name),
-            CantSendSceneMessageToObject(message) => write!(f, "Can't send scene message to object: '{:?}'", message),
-            CantSendObjectMessageToScene(message) => write!(f, "Can't send object message to scene: '{:?}'", message),
+            UnknownMessageToEngine(message) => write!(f, "Unknown message to engine: '{:?}'", message),
+            UnknownMessageToScene(message) => write!(f, "Unknown message to engine: '{:?}'", message),
+            UnknownMessageToSceneModifier(message) => write!(f, "Unknown message to engine: '{:?}'", message),
+            UnknownMessageToObject(message) => write!(f, "Unknown message to engine: '{:?}'", message),
+            UnknownMessageToObjectModifier(message) => write!(f, "Unknown message to engine: '{:?}'", message),
         }
     }
 }

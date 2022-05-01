@@ -1,75 +1,101 @@
 
 use std::any::Any;
+use std::rc::Rc;
 
-use std::fmt::{self, Debug};
 use crate::math::GMVec2D;
+use crate::object::GMObjectT;
+use crate::scene::GMSceneT;
 
-
-pub struct GMObjectMessage {
+#[derive(Clone, Debug)]
+pub struct GMMessage {
     pub sender: GMSender,
     pub receiver: GMReceiver,
-    pub data: GMObjectMessageData,
+    pub data: GMMessageData,
 }
 
-impl GMObjectMessage {
-    pub fn new(sender: GMSender, receiver: GMReceiver, data: GMObjectMessageData) -> Self {
+impl GMMessage {
+    pub fn new(sender: GMSender, receiver: GMReceiver, data: GMMessageData) -> Self {
         Self {
             sender,
             receiver,
             data,
         }
     }
-}
 
-impl Debug for GMObjectMessage {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("GMObjectMessage")
-            .field("sender", &self.sender)
-            .field("receiver", &self.receiver)
-            .field("data", &self.data).finish()
+    pub fn new_to_scene_manager(data: GMMessageData) -> Self {
+        Self {
+            sender: GMSender::Unknown,
+            receiver: GMReceiver::SceneManager,
+            data,
+        }
+    }
+
+    pub fn new_to_engine(data: GMMessageData) -> Self {
+        Self {
+            sender: GMSender::Unknown,
+            receiver: GMReceiver::Engine,
+            data,
+        }
     }
 }
 
 #[derive(Clone, Debug)]
 pub enum GMSender {
-    Object(String),
-    CurrentScene,
+    Unknown,
+
+    Engine,
+
+    SceneModifier(String),
     Scene(String),
+    CurrentScene,
+
+    ObjectModifier(String),
+    Object(String),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMReceiver {
-    Object(String),
-    ObjectGroup(String),
+    Engine,
+
     CurrentScene,
     Scene(String),
     SceneGroup(String),
+    SceneManager,
+
+    Object(String),
+    ObjectGroup(String),
+    ObjectManager,
 }
 
-pub enum GMObjectMessageData {
+#[derive(Clone, Debug)]
+pub enum GMMessageData {
+    // Engine messages
+    Quit,
+    ChangeFPS(u32),
+
+    // Scene messages
+    InitScene,
+    ExitScene,
+    AddScene(Box<dyn GMSceneT>),
+    RemoveScene(String),
+    ChangeToScene(String),
+    ReplaceScene(Box<dyn GMSceneT>),
+    PushCurrentScene,
+    PopCurrentScene,
+
+    // Other messages
+    SetActive(bool),
+    GetActive,
+    Active(bool),
+
+    SetZIndex(i32),
+    GetZindex,
+    ZIndex(i32),
+
     SetPosition(GMVec2D),
     AddPosition(GMVec2D),
     GetPosition,
     Position(GMVec2D),
 
-    SetActive(bool),
-    GetActive,
-    Active(bool),
-
-    Custom(Box<dyn Any>),
-}
-
-impl Debug for GMObjectMessageData {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::SetPosition(position) => f.debug_tuple("SetPosition").field(position).finish(),
-            Self::AddPosition(position) => f.debug_tuple("AddPosition").field(position).finish(),
-            Self::GetPosition => write!(f, "GetPosition"),
-            Self::Position(position) => f.debug_tuple("Position").field(position).finish(),
-            Self::SetActive(active) => f.debug_tuple("SetActive").field(active).finish(),
-            Self::GetActive => write!(f, "GetActive"),
-            Self::Active(active) => f.debug_tuple("Active").field(active).finish(),
-            Self::Custom(custom) => f.debug_tuple("Custom").field(custom).finish(),
-        }
-    }
+    Custom(Rc<dyn Any>),
 }

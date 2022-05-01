@@ -1,15 +1,13 @@
 
-
-use std::collections::{HashSet, HashMap};
-use std::any::Any;
-use std::rc::Rc;
+use std::collections::HashSet;
+use std::fmt::{self, Debug};
 
 use log::debug;
 
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::error::GMError;
-use crate::message::{GMReceiver, GMObjectMessage};
-
+use crate::message::{GMReceiver, GMMessage, GMMessageData};
+use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMSceneT {
     // Must be implemented:
@@ -19,7 +17,9 @@ pub trait GMSceneT {
 
     fn get_name(&self) -> &str;
 
-    fn send_message(&mut self, message: Rc<GMObjectMessage>, context: &mut GMUpdateContext);
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
+
+    fn clone_box(&self) -> Box<dyn GMSceneT>;
 
     // May be implemented:
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
@@ -30,42 +30,29 @@ pub trait GMSceneT {
         Ok(())
     }
 
-    fn add_group(&mut self, _group: &str) {
-    }
-
-    fn remove_group(&mut self, _group: &str) {
-    }
-
     fn is_in_group(&self, _name: &str) -> bool {
         false
     }
+}
 
-    fn add_property(&mut self, _name: &str, _property: Box<dyn Any>) {
-    }
-
-    fn add_tag(&mut self, _name: &str) {
-    }
-
-    fn remove_property(&mut self, _name: &str) {
-    }
-
-    fn get_property(&self, _name: &str) -> Option<Box<dyn Any>> {
-        None
-    }
-
-    fn set_child(&mut self, _child: Box<dyn GMSceneT>) {
-    }
-
-    fn get_child(&mut self) -> Option<Box<dyn GMSceneT>> {
-        None
+impl Clone for Box<dyn GMSceneT> {
+    fn clone(&self) -> Box<dyn GMSceneT> {
+        self.clone_box()
     }
 }
 
+impl Debug for Box<dyn GMSceneT> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Scene: {}", self.get_name())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMSceneBase {
     pub name: String,
     pub groups: HashSet<String>,
-    pub properties: HashMap<String, Box<dyn Any>>,
-    pub child: Option<Box<dyn GMSceneT>>,
+    pub properties: GMPropertyManager,
+    pub sub_scenes: Vec<Box<dyn GMSceneT>>,
 }
 
 impl GMSceneBase {
@@ -73,8 +60,8 @@ impl GMSceneBase {
         Self {
             name: name.to_string(),
             groups: HashSet::new(),
-            properties: HashMap::new(),
-            child: None,
+            properties: GMPropertyManager::new(),
+            sub_scenes: Vec::new(),
         }
     }
 
@@ -94,41 +81,27 @@ impl GMSceneBase {
         self.groups.contains(group)
     }
 
-    pub fn add_property(&mut self, name: &str, property: Box<dyn Any>) {
-        self.properties.insert(name.to_string(), property);
+    pub fn add_property(&mut self, name: &str, property: GMValue) {
+        self.properties.add_property(name, property);
     }
 
     pub fn add_tag(&mut self, name: &str) {
-        self.properties.insert(name.to_string(), Box::new(()));
+        self.properties.add_tag(name);
     }
 
     pub fn remove_property(&mut self, name: &str) {
-        self.properties.remove(name);
+        self.properties.remove_property(name);
     }
 
-    pub fn get_property(&self, name: &str) -> Option<&Box<dyn Any>> {
-        self.properties.get(name)
+    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
+        self.properties.get_property(name)
     }
 
-    pub fn set_child(&mut self, child: Box<dyn GMSceneT>) {
-        self.child = Some(child);
-    }
-
-    pub fn get_child(&mut self) -> Option<Box<dyn GMSceneT>> {
-        self.child.take()
-    }
+    // TODO: get_sub_scene, set_sub_scene
 }
 
-pub(crate) enum GMSceneMessage {
-    AddScene(Box<dyn GMSceneT>),
-    RemoveScene(String),
-    ChangeToScene(String),
-    ReplaceScene(Box<dyn GMSceneT>),
-    Push,
-    Pop,
-    ObjectMessage(GMObjectMessage),
-}
 
+#[derive(Debug, Clone)]
 pub struct GMSceneManager {
     scenes: Vec<Box<dyn GMSceneT>>,
     scene_stack: Vec<String>,
@@ -238,20 +211,20 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message(&mut self, message: GMObjectMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
         use GMReceiver::*;
 
         let receiver = message.receiver.clone();
 
         match receiver {
             CurrentScene => {
-                self.scenes[self.current_scene].send_message(Rc::new(message), context);
+                self.scenes[self.current_scene].send_message(message, context);
                 Ok(())
             }
             Scene(name) => {
                 match self.get_index(&name) {
                     Some(index) => {
-                        self.scenes[index].send_message(Rc::new(message), context);
+                        self.scenes[index].send_message(message, context);
                         Ok(())
                     }
                     None => {
@@ -260,18 +233,16 @@ impl GMSceneManager {
                 }
             }
             SceneGroup(name) => {
-                let message = Rc::new(message);
-
                 for scene in self.scenes.iter_mut() {
                     if scene.is_in_group(&name) {
-                        scene.send_message(message.clone(), context)
+                        scene.send_message(message.clone(), context)?;
                     }
                 }
 
                 Ok(())
             }
             _ => {
-                Err(GMError::CantSendObjectMessageToScene(message))
+                Err(GMError::UnknownMessageToScene(message))
             }
         }
     }
@@ -279,10 +250,10 @@ impl GMSceneManager {
     pub(crate) fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.scenes[self.current_scene].update(context)?;
 
-        use GMSceneMessage::*;
+        use GMMessageData::*;
 
         while let Some(message) = context.next_scene_message() {
-            match message {
+            match message.data {
                 AddScene(scene) => {
                     self.add_scene(scene)?
                 }
@@ -295,14 +266,14 @@ impl GMSceneManager {
                 ReplaceScene(scene) => {
                     self.replace_scene(scene)?
                 }
-                Push => {
+                PushCurrentScene => {
                     self.push()
                 }
-                Pop => {
+                PopCurrentScene => {
                     self.pop()?
                 }
-                ObjectMessage(message) => {
-                    self.send_message(message, context)?;
+                _ => {
+                    return Err(GMError::UnknownMessageToScene(message))
                 }
             }
         }
