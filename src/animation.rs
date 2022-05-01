@@ -47,47 +47,47 @@ impl GMAnimationBase {
         }
     }
 
-    fn texture_index(&self) -> u32 {
+    pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
     }
 
-    fn set_active(&mut self, active: bool) {
+    pub fn set_active(&mut self, active: bool) {
         self.active = active;
     }
 
-    fn get_active(&self) -> bool {
+    pub fn get_active(&self) -> bool {
         self.active
     }
 
-    fn set_frame(&mut self, index: usize) {
+    pub fn set_frame(&mut self, index: usize) {
         self.current_frame = index;
     }
 
-    fn get_frame(&self) -> usize {
+    pub fn get_frame(&self) -> usize {
         self.current_frame
     }
 
-    fn inc_frame(&mut self, amount: usize) {
+    pub fn inc_frame(&mut self, amount: usize) {
         self.current_frame += amount;
     }
 
-    fn dec_frame(&mut self, amount: usize) {
+    pub fn dec_frame(&mut self, amount: usize) {
         self.current_frame -= amount;
     }
 
-    fn frame_at_end(&self) -> bool {
+    pub fn frame_at_end(&self) -> bool {
         self.current_frame >= self.frames.len() - 1
     }
 
-    fn frame_at_start(&self) -> bool {
+    pub fn frame_at_start(&self) -> bool {
         self.current_frame == 0
     }
 
-    fn timer_finished(&self) -> bool {
+    pub fn timer_finished(&self) -> bool {
         self.timer.finished()
     }
 
-    fn set_new_timer_duration(&mut self) {
+    pub fn set_new_timer_duration(&mut self) {
         self.timer.set_duration(self.frames[self.current_frame].1);
     }
 }

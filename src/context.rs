@@ -141,10 +141,10 @@ impl GMUpdateContext {
             Engine => {
                 self.engine_messages.push_back(message);
             }
-            CurrentScene | Scene(_) | SceneGroup(_) | SceneManager => {
+            CurrentScene | Scene(_) | SceneGroup(_) | SceneModifier(_) | SceneManager => {
                 self.scene_messages.push_back(message);
             }
-            Object(_) | ObjectGroup(_) | ObjectManager => {
+            Object(_) | ObjectGroup(_) | ObjectModifier(_) | ObjectManager => {
                 self.object_messages.push_back(message);
             }
         }

@@ -1,6 +1,5 @@
 
-use std::any::Any;
-use std::rc::Rc;
+// use std::any::Any;
 
 use crate::math::GMVec2D;
 // use crate::object::GMObjectT;
@@ -60,10 +59,12 @@ pub enum GMReceiver {
     CurrentScene,
     Scene(String),
     SceneGroup(String),
+    SceneModifier(String),
     SceneManager,
 
     Object(String),
     ObjectGroup(String),
+    ObjectModifier(String),
     ObjectManager,
 }
 
@@ -89,7 +90,7 @@ pub enum GMMessageData {
     Active(bool),
 
     SetZIndex(i32),
-    GetZindex,
+    GetZIndex,
     ZIndex(i32),
 
     SetPosition(GMVec2D),
@@ -97,5 +98,5 @@ pub enum GMMessageData {
     GetPosition,
     Position(GMVec2D),
 
-    Custom(Rc<dyn Any>),
+    // Custom(Box<dyn Any>),
 }

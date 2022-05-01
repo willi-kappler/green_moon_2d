@@ -53,9 +53,9 @@ pub struct GMObjectBase {
     pub name: String,
     pub active: bool,
     pub position: GMVec2D,
-    pub groups: HashSet<String>,
-    pub properties: GMPropertyManager,
-    pub sub_objects: Vec<Box<dyn GMObjectT>>,
+    groups: HashSet<String>,
+    properties: GMPropertyManager,
+    // sub_objects: Vec<Box<dyn GMObjectT>>,
 }
 
 impl GMObjectBase {
@@ -66,7 +66,7 @@ impl GMObjectBase {
             position,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
-            sub_objects: Vec::new(),
+            // sub_objects: Vec::new(),
         }
     }
 
