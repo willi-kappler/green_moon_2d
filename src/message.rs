@@ -3,7 +3,7 @@ use std::any::Any;
 use std::rc::Rc;
 
 use crate::math::GMVec2D;
-use crate::object::GMObjectT;
+// use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
 
 #[derive(Clone, Debug)]

@@ -12,6 +12,12 @@ pub trait GMObjectT {
     // Must be implemented:
     fn get_name(&self) -> &str;
 
+    fn get_position(&self) -> GMVec2D;
+
+    fn set_position(&mut self, position: GMVec2D);
+
+    fn add_position(&mut self, position: GMVec2D);
+
     fn update(&mut self, context: &mut GMUpdateContext);
 
     fn draw(&self, context: &mut GMDrawContext);
@@ -46,6 +52,7 @@ impl Debug for Box<dyn GMObjectT> {
 pub struct GMObjectBase {
     pub name: String,
     pub active: bool,
+    pub position: GMVec2D,
     pub groups: HashSet<String>,
     pub properties: GMPropertyManager,
     pub sub_objects: Vec<Box<dyn GMObjectT>>,
@@ -56,6 +63,7 @@ impl GMObjectBase {
         Self {
             name: name.to_string(),
             active: true,
+            position,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
             sub_objects: Vec::new(),
@@ -73,6 +81,8 @@ impl GMObjectBase {
     pub fn get_active(&self) -> bool {
         self.active
     }
+
+    // TODO: add set_position, get_position, ...
 
     pub fn add_group(&mut self, group: &str) {
         self.groups.insert(group.to_string());
@@ -110,7 +120,7 @@ pub struct GMObjectManager {
 }
 
 impl GMObjectManager {
-    pub fn new(sort_objects: bool) -> Self {
+    pub fn new() -> Self {
         Self {
             objects: Vec::new(),
         }
@@ -194,7 +204,7 @@ impl GMObjectManager {
             Object(name) => {
                 match self.get_index(&name) {
                     Some(index) => {
-                        self.objects[index].send_message(message, context);
+                        self.objects[index].send_message(message, context)?;
                         Ok(())
                     }
                     None => {
@@ -205,7 +215,7 @@ impl GMObjectManager {
             ObjectGroup(name) => {
                 for object in self.objects.iter_mut() {
                     if object.is_in_group(&name) {
-                        object.send_message(message.clone(), context);
+                        object.send_message(message.clone(), context)?;
                     }
                 }
 

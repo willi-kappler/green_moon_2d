@@ -50,9 +50,9 @@ impl Debug for Box<dyn GMSceneT> {
 #[derive(Debug, Clone)]
 pub struct GMSceneBase {
     pub name: String,
-    pub groups: HashSet<String>,
-    pub properties: GMPropertyManager,
-    pub sub_scenes: Vec<Box<dyn GMSceneT>>,
+    groups: HashSet<String>,
+    properties: GMPropertyManager,
+    // sub_scenes: Vec<Box<dyn GMSceneT>>,
 }
 
 impl GMSceneBase {
@@ -61,7 +61,7 @@ impl GMSceneBase {
             name: name.to_string(),
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
-            sub_scenes: Vec::new(),
+            // sub_scenes: Vec::new(),
         }
     }
 
@@ -211,67 +211,61 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<(), GMError> {
-        use GMReceiver::*;
-
-        let receiver = message.receiver.clone();
-
-        match receiver {
-            CurrentScene => {
-                self.scenes[self.current_scene].send_message(message, context);
-                Ok(())
-            }
-            Scene(name) => {
-                match self.get_index(&name) {
-                    Some(index) => {
-                        self.scenes[index].send_message(message, context);
-                        Ok(())
-                    }
-                    None => {
-                        Err(GMError::SceneNotFound(name))
-                    }
-                }
-            }
-            SceneGroup(name) => {
-                for scene in self.scenes.iter_mut() {
-                    if scene.is_in_group(&name) {
-                        scene.send_message(message.clone(), context)?;
-                    }
-                }
-
-                Ok(())
-            }
-            _ => {
-                Err(GMError::UnknownMessageToScene(message))
-            }
-        }
-    }
-
     pub(crate) fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
         self.scenes[self.current_scene].update(context)?;
 
+        use GMReceiver::*;
         use GMMessageData::*;
 
         while let Some(message) = context.next_scene_message() {
-            match message.data {
-                AddScene(scene) => {
-                    self.add_scene(scene)?
+            let receiver = message.receiver.clone();
+
+            match receiver {
+                CurrentScene => {
+                    self.scenes[self.current_scene].send_message(message, context)?;
                 }
-                RemoveScene(name) => {
-                    self.remove_scene(&name)?
+                Scene(name) => {
+                    match self.get_index(&name) {
+                        Some(index) => {
+                            self.scenes[index].send_message(message, context)?;
+                        }
+                        None => {
+                            return Err(GMError::SceneNotFound(name))
+                        }
+                    }
                 }
-                ChangeToScene(name) => {
-                    self.change_to_scene(&name)?
+                SceneGroup(name) => {
+                    for scene in self.scenes.iter_mut() {
+                        if scene.is_in_group(&name) {
+                            scene.send_message(message.clone(), context)?;
+                        }
+                    }
                 }
-                ReplaceScene(scene) => {
-                    self.replace_scene(scene)?
-                }
-                PushCurrentScene => {
-                    self.push()
-                }
-                PopCurrentScene => {
-                    self.pop()?
-                }
+                SceneManager => {
+                    match message.data {
+                        AddScene(scene) => {
+                            self.add_scene(scene)?
+                        }
+                        RemoveScene(name) => {
+                            self.remove_scene(&name)?
+                        }
+                        ChangeToScene(name) => {
+                            self.change_to_scene(&name)?
+                        }
+                        ReplaceScene(scene) => {
+                            self.replace_scene(scene)?
+                        }
+                        PushCurrentScene => {
+                            self.push()
+                        }
+                        PopCurrentScene => {
+                            self.pop()?
+                        }
+                        _ => {
+                            return Err(GMError::UnknownMessageToScene(message))
+                        }
+                    }
+                        }
                 _ => {
                     return Err(GMError::UnknownMessageToScene(message))
                 }
