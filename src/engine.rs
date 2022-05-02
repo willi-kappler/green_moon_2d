@@ -102,7 +102,7 @@ impl GMEngine {
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) -> Result<(), GMError> {
         debug!("GMEngine::add_scene(), name: '{}'", scene.get_name());
 
-        self.scene_manager.add_scene(Box::new(scene))
+        self.scene_manager.add(Box::new(scene))
     }
 
     pub fn run(&mut self) -> Result<(), GMError> {

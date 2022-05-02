@@ -126,16 +126,16 @@ impl GMObjectManager {
         }
     }
 
-    fn get_index(&self, name: &str) -> Option<usize> {
+    fn index(&self, name: &str) -> Option<usize> {
         self.objects.iter().position(|object| object.get_name() == name)
     }
 
-    pub fn add_object<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
-        self.add_object_box(name, Box::new(object))
+    pub fn add<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
+        self.add_box(name, Box::new(object))
     }
 
-    pub fn add_object_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
-        match self.get_index(name) {
+    pub fn add_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        match self.index(name) {
             Some(_) => {
                 Err(GMError::ObjectAlreadyExists(name.to_string()))
             }
@@ -146,11 +146,10 @@ impl GMObjectManager {
         }
     }
 
-    pub fn remove_object(&mut self, name: &str) -> Result<(), GMError> {
-        match self.get_index(name) {
+    pub fn take(&mut self, name: &str) -> Result<Box<dyn GMObjectT>, GMError> {
+        match self.index(name) {
             Some(index) => {
-                self.objects.swap_remove(index);
-                Ok(())
+                Ok(self.objects.swap_remove(index))
             }
             None => {
                 Err(GMError::ObjectNotFound(name.to_string()))
@@ -158,12 +157,12 @@ impl GMObjectManager {
         }
     }
 
-    pub fn replace_object<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
-        self.replace_object_box(name, Box::new(object))
+    pub fn replace<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
+        self.replace_box(name, Box::new(object))
     }
 
-    pub fn replace_object_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
-        match self.get_index(name) {
+    pub fn replace_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        match self.index(name) {
             Some(index) => {
                 self.objects[index] = object;
                 Ok(())
@@ -202,7 +201,7 @@ impl GMObjectManager {
 
         match receiver {
             Object(name) => {
-                match self.get_index(&name) {
+                match self.index(&name) {
                     Some(index) => {
                         self.objects[index].send_message(message, context)?;
                         Ok(())
@@ -233,7 +232,7 @@ impl GMObjectManager {
     }
 
     pub fn get_ref(&self, name: &str) -> Result<&Box<dyn GMObjectT>, GMError> {
-        match self.get_index(name) {
+        match self.index(name) {
             Some(index) => {
                 Ok(&self.objects[index])
             }
@@ -244,7 +243,7 @@ impl GMObjectManager {
     }
 
     pub fn get_mut_ref(&mut self, name: &str) -> Result<&mut Box<dyn GMObjectT>, GMError> {
-        match self.get_index(name) {
+        match self.index(name) {
             Some(index) => {
                 Ok(&mut self.objects[index])
             }
@@ -253,4 +252,13 @@ impl GMObjectManager {
             }
         }
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Box<dyn GMObjectT>>  {
+        self.objects.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn GMObjectT>>  {
+        self.objects.iter_mut()
+    }
+
 }

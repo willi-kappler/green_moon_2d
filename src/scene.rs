@@ -117,18 +117,18 @@ impl GMSceneManager {
         }
     }
 
-    fn get_index(&self, name: &str) -> Option<usize> {
+    fn index(&self, name: &str) -> Option<usize> {
         debug!("GMSceneManager::get_scene_index(), name: '{}'", name);
 
         self.scenes.iter().position(|scene| scene.get_name() == name)
     }
 
-    pub(crate) fn add_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
+    pub(crate) fn add(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
         let name = scene.get_name();
 
         debug!("GMSceneManager::add_scene(), name: '{}'", name);
 
-        match self.get_index(name) {
+        match self.index(name) {
             Some(_) => {
                 Err(GMError::SceneAlreadyExists(name.to_string()))
             }
@@ -140,10 +140,10 @@ impl GMSceneManager {
         }
     }
 
-    fn remove_scene(&mut self, name: &str) -> Result<(), GMError> {
+    fn take(&mut self, name: &str) -> Result<Box<dyn GMSceneT>, GMError> {
         debug!("GMSceneManager::remove_scene(), name: '{}'", name);
 
-        match self.get_index(name) {
+        match self.index(name) {
             Some(index) => {
                 if self.current_scene == index {
                     Err(GMError::CantRemoveCurrentScene(name.to_string()))
@@ -152,9 +152,7 @@ impl GMSceneManager {
                         self.current_scene = index;
                     }
 
-                    self.scenes.swap_remove(index);
-
-                    Ok(())
+                    Ok(self.scenes.swap_remove(index))
                 }
             }
             None => {
@@ -163,10 +161,10 @@ impl GMSceneManager {
         }
     }
 
-    fn change_to_scene(&mut self, name: &str) -> Result<(), GMError> {
+    fn change_to(&mut self, name: &str) -> Result<(), GMError> {
         debug!("GMSceneManager::change_scene(), name: '{}'", name);
 
-        match self.get_index(name) {
+        match self.index(name) {
             Some(index) => {
                 self.current_scene = index;
 
@@ -178,12 +176,12 @@ impl GMSceneManager {
         }
     }
 
-    fn replace_scene(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
+    fn replace(&mut self, scene: Box<dyn GMSceneT>) -> Result<(), GMError> {
         let name = scene.get_name();
 
         debug!("GMSceneManager::replace_scene(), name: '{}'", name);
 
-        match self.get_index(name) {
+        match self.index(name) {
             Some(index) => {
                 self.scenes[index] = scene;
                 Ok(())
@@ -203,7 +201,7 @@ impl GMSceneManager {
     fn pop(&mut self) -> Result<(), GMError> {
         match self.scene_stack.pop() {
             Some(name) => {
-                self.change_to_scene(&name)
+                self.change_to(&name)
             }
             None => {
                 Err(GMError::SceneStackEmpty)
@@ -225,7 +223,7 @@ impl GMSceneManager {
                     self.scenes[self.current_scene].send_message(message, context)?;
                 }
                 Scene(name) => {
-                    match self.get_index(&name) {
+                    match self.index(&name) {
                         Some(index) => {
                             self.scenes[index].send_message(message, context)?;
                         }
@@ -244,16 +242,16 @@ impl GMSceneManager {
                 SceneManager => {
                     match message.data {
                         AddScene(scene) => {
-                            self.add_scene(scene)?
+                            self.add(scene)?
                         }
                         RemoveScene(name) => {
-                            self.remove_scene(&name)?
+                            self.take(&name).map(|_| ())?
                         }
                         ChangeToScene(name) => {
-                            self.change_to_scene(&name)?
+                            self.change_to(&name)?
                         }
                         ReplaceScene(scene) => {
-                            self.replace_scene(scene)?
+                            self.replace(scene)?
                         }
                         PushCurrentScene => {
                             self.push()
