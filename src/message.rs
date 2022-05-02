@@ -1,6 +1,7 @@
 
 // use std::any::Any;
 
+use crate::GMUpdateContext;
 use crate::math::GMVec2D;
 // use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
@@ -35,6 +36,44 @@ impl GMMessage {
             receiver: GMReceiver::Engine,
             data,
         }
+    }
+}
+
+pub struct GMMessageFactory {
+    sender: GMSender,
+    receiver: GMReceiver,
+}
+
+impl GMMessageFactory {
+    pub fn new(sender: GMSender, receiver: GMReceiver) -> Self {
+        Self {
+            sender,
+            receiver,
+        }
+    }
+
+    pub fn send(&self, data: GMMessageData, context: &mut GMUpdateContext) {
+        context.send_message(self.create(data));
+    }
+
+    pub fn create(&self, data: GMMessageData) -> GMMessage {
+        GMMessage::new(
+            self.sender.clone(),
+            self.receiver.clone(),
+            data,
+        )
+    }
+
+    pub fn send_to(&self, receiver: GMReceiver, data: GMMessageData, context: &mut GMUpdateContext) {
+        context.send_message(self.create_to(receiver, data))
+    }
+
+    pub fn create_to(&self, receiver: GMReceiver, data: GMMessageData) -> GMMessage {
+        GMMessage::new(
+            self.sender.clone(),
+            receiver,
+            data,
+        )
     }
 }
 
