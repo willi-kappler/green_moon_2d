@@ -1,10 +1,14 @@
 
-// use std::any::Any;
+use std::rc::Rc;
 
-use crate::GMUpdateContext;
+use crate::animation::GMAnimationT;
+use crate::context::GMUpdateContext;
 use crate::math::GMVec2D;
 // use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
+use crate::texture::GMTexture;
+use crate::property::GMValue;
+
 
 #[derive(Clone, Debug)]
 pub struct GMMessage {
@@ -137,5 +141,20 @@ pub enum GMMessageData {
     GetPosition,
     Position(GMVec2D),
 
-    // Custom(Box<dyn Any>),
+    SetVelocity(GMVec2D),
+    AddVelocity(GMVec2D),
+    GetVelocity,
+    Velocity(GMVec2D),
+
+    SetAcceleration(GMVec2D),
+    AddAcceleration(GMVec2D),
+    GetAcceleration,
+    Acceleration(GMVec2D),
+
+    SetAnimation(Box<dyn GMAnimationT>),
+    SetTexture(Rc<GMTexture>),
+
+    SetText(String),
+
+    Property(String, GMValue),
 }

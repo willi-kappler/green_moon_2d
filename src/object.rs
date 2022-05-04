@@ -12,6 +12,8 @@ pub trait GMObjectT {
     // Must be implemented:
     fn get_name(&self) -> &str;
 
+    fn set_name(&mut self, name: &str);
+
     fn get_position(&self) -> GMVec2D;
 
     fn set_position(&mut self, position: GMVec2D);
@@ -74,6 +76,10 @@ impl GMObjectBase {
         &self.name
     }
 
+    pub fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
     }
@@ -82,7 +88,17 @@ impl GMObjectBase {
         self.active
     }
 
-    // TODO: add set_position, get_position, ...
+    pub fn set_position(&mut self, position: GMVec2D) {
+        self.position = position;
+    }
+
+    pub fn add_position(&mut self, position: &GMVec2D) {
+        self.position.add2(&position);
+    }
+
+    pub fn get_position(&self) -> &GMVec2D {
+        &self.position
+    }
 
     pub fn add_group(&mut self, group: &str) {
         self.groups.insert(group.to_string());

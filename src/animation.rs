@@ -12,14 +12,14 @@ pub trait GMAnimationT {
 
     fn texture_index(&self) -> u32;
 
-    fn box_clone(&self) -> Box<dyn GMAnimationT>;
+    fn clone_box(&self) -> Box<dyn GMAnimationT>;
 
     fn set_active(&mut self, active: bool);
 }
 
 impl Clone for Box<dyn GMAnimationT> {
     fn clone(&self) -> Self {
-        self.box_clone()
+        self.clone_box()
     }
 }
 
@@ -128,7 +128,7 @@ impl GMAnimationT for GMAnimationForwardOnce {
         self.base.texture_index()
     }
 
-    fn box_clone(&self) -> Box<dyn GMAnimationT> {
+    fn clone_box(&self) -> Box<dyn GMAnimationT> {
         let result = self.clone();
 
         Box::new(result)
@@ -175,7 +175,7 @@ impl GMAnimationT for GMAnimationForwardLoop {
         self.base.texture_index()
     }
 
-    fn box_clone(&self) -> Box<dyn GMAnimationT> {
+    fn clone_box(&self) -> Box<dyn GMAnimationT> {
         let result = self.clone();
 
         Box::new(result)
@@ -231,7 +231,7 @@ impl GMAnimationT for GMAnimationPingPong {
         self.base.texture_index()
     }
 
-    fn box_clone(&self) -> Box<dyn GMAnimationT> {
+    fn clone_box(&self) -> Box<dyn GMAnimationT> {
         let result = self.clone();
 
         Box::new(result)

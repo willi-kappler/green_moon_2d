@@ -9,10 +9,12 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
+use crate::animation::GMAnimationT;
 use crate::error::GMError;
+use crate::math::GMVec2D;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMReceiver, GMMessage, GMMessageData};
+use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
 use crate::scene::GMSceneT;
 
 pub struct GMUpdateContext {
@@ -124,13 +126,117 @@ impl GMUpdateContext {
     // Object messages:
 
     // TODO:
-    // set_z_index, set_z_index_group, set_position, add_position, set_velocity, add_velocity, set_acceleration, add_acceleration, ...
+    // set_velocity, add_velocity, set_acceleration, add_acceleration, ...
+
+    pub fn unknown_to_object(&mut self, name: &str, data: GMMessageData) {
+        let sender = GMSender::Unknown;
+        let receiver = GMReceiver::Object(name.to_string());
+        let message = GMMessage::new(sender, receiver, data);
+        self.send_message(message);
+    }
+
+    pub fn unknown_to_object_group(&mut self, group: &str, data: GMMessageData) {
+        let sender = GMSender::Unknown;
+        let receiver = GMReceiver::ObjectGroup(group.to_string());
+        let message = GMMessage::new(sender, receiver, data);
+        self.send_message(message);
+    }
+
+    pub fn set_z_index(&mut self, name: &str, z_index: i32) {
+        let data = GMMessageData::SetZIndex(z_index);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_z_index_group(&mut self, group: &str, z_index: i32) {
+        let data = GMMessageData::SetZIndex(z_index);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn set_active(&mut self, name: &str, active: bool) {
+        let data = GMMessageData::SetActive(active);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_position(&mut self, name: &str, position: GMVec2D) {
+        let data = GMMessageData::SetPosition(position);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_position_group(&mut self, group: &str, position: GMVec2D) {
+        let data = GMMessageData::SetPosition(position);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn add_position(&mut self, name: &str, position: GMVec2D) {
+        let data = GMMessageData::AddPosition(position);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn add_position_group(&mut self, group: &str, position: GMVec2D) {
+        let data = GMMessageData::AddPosition(position);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn set_velocity(&mut self, name: &str, velocity: GMVec2D) {
+        let data = GMMessageData::SetVelocity(velocity);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_velocity_group(&mut self, group: &str, velocity: GMVec2D) {
+        let data = GMMessageData::SetVelocity(velocity);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn add_velocity(&mut self, name: &str, velocity: GMVec2D) {
+        let data = GMMessageData::AddVelocity(velocity);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn add_velocity_group(&mut self, group: &str, velocity: GMVec2D) {
+        let data = GMMessageData::AddVelocity(velocity);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn set_acceleration(&mut self, name: &str, acceleration: GMVec2D) {
+        let data = GMMessageData::SetAcceleration(acceleration);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_acceleration_group(&mut self, group: &str, acceleration: GMVec2D) {
+        let data = GMMessageData::SetAcceleration(acceleration);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn add_acceleration(&mut self, name: &str, acceleration: GMVec2D) {
+        let data = GMMessageData::AddAcceleration(acceleration);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn add_acceleration_group(&mut self, group: &str, acceleration: GMVec2D) {
+        let data = GMMessageData::AddAcceleration(acceleration);
+        self.unknown_to_object_group(group, data);
+    }
+
+    pub fn set_animation(&mut self, name: &str, animation: Box<dyn GMAnimationT>) {
+        let data = GMMessageData::SetAnimation(animation);
+        self.unknown_to_object(name, data);
+    }
+
+    pub fn set_animation_group(&mut self, group: &str, animation: Box<dyn GMAnimationT>) {
+        let data = GMMessageData::SetAnimation(animation);
+        self.unknown_to_object(group, data);
+    }
+
+
+
+
+
 
     pub(crate) fn next_object_message(&mut self) -> Option<GMMessage> {
         self.object_messages.pop_front()
     }
 
-    // Messages to anything:
+    // General messages:
 
     pub fn send_message(&mut self, message: GMMessage) {
         use GMReceiver::*;

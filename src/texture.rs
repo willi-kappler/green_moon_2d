@@ -1,4 +1,5 @@
 
+use std::fmt::{self, Debug, Formatter};
 
 use sdl2::rect::Rect;
 use sdl2::render::Texture;
@@ -10,6 +11,12 @@ pub struct GMTexture {
     unit_width: u32,
     unit_height: u32,
     texture: Texture,
+}
+
+impl Debug for GMTexture {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "GMTexture, cols: {}, unit_width: {}, uni_height: {}", self.cols, self.unit_width, self.unit_height)
+    }
 }
 
 impl GMTexture {

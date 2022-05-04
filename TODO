@@ -2,6 +2,7 @@
 - Start with examples and top down approach
 
 Next TODO:
+- Try to use &str instead of String if possible
 - More text effects
 - GMParticleManager
 - GMBulletManager
