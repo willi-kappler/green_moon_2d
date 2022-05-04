@@ -9,16 +9,39 @@ use crate::message::{GMMessage, GMReceiver};
 use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMObjectT {
-    // Must be implemented:
     fn get_name(&self) -> &str;
 
     fn set_name(&mut self, name: &str);
+
+    fn get_z_index(&self) -> i32;
+
+    fn set_z_index(&mut self, z_index: i32);
+
+    fn get_active(&self) -> bool;
+
+    fn set_active(&mut self, active: bool);
 
     fn get_position(&self) -> GMVec2D;
 
     fn set_position(&mut self, position: GMVec2D);
 
     fn add_position(&mut self, position: GMVec2D);
+
+    fn is_in_group(&self, _group: &str) -> bool;
+
+    fn add_group(&mut self, _group: &str);
+
+    fn remove_group(&mut self, _group: &str);
+
+    fn get_property(&self, name: &str) -> Option<&GMValue>;
+
+    fn has_property(&self, name: &str) -> bool;
+
+    fn add_property(&mut self, name: &str, value: GMValue);
+
+    fn add_tag(&mut self, name: &str);
+
+    fn remove_property(&mut self, name: &str);
 
     fn update(&mut self, context: &mut GMUpdateContext);
 
@@ -27,15 +50,6 @@ pub trait GMObjectT {
     fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
-
-    // May be implemented:
-    fn is_in_group(&self, _group: &str) -> bool {
-        false
-    }
-
-    fn get_z_index(&self) -> i32 {
-        0
-    }
 }
 
 impl Clone for Box<dyn GMObjectT> {
@@ -53,22 +67,22 @@ impl Debug for Box<dyn GMObjectT> {
 #[derive(Clone, Debug)]
 pub struct GMObjectBase {
     pub name: String,
+    pub z_index: i32,
     pub active: bool,
     pub position: GMVec2D,
     groups: HashSet<String>,
     properties: GMPropertyManager,
-    // sub_objects: Vec<Box<dyn GMObjectT>>,
 }
 
 impl GMObjectBase {
     pub fn new(name: &str, position: GMVec2D) -> Self {
         Self {
             name: name.to_string(),
+            z_index: 0,
             active: true,
             position,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
-            // sub_objects: Vec::new(),
         }
     }
 
@@ -80,12 +94,24 @@ impl GMObjectBase {
         self.name = name.to_string();
     }
 
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
+    pub fn get_z_index(&self) -> i32 {
+        self.z_index
+    }
+
+    pub fn set_z_index(&mut self, z_index: i32) {
+        self.z_index = z_index;
     }
 
     pub fn get_active(&self) -> bool {
         self.active
+    }
+
+    pub fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    pub fn get_position(&self) -> &GMVec2D {
+        &self.position
     }
 
     pub fn set_position(&mut self, position: GMVec2D) {
@@ -96,8 +122,8 @@ impl GMObjectBase {
         self.position.add2(&position);
     }
 
-    pub fn get_position(&self) -> &GMVec2D {
-        &self.position
+    pub fn is_in_group(&self, group: &str) -> bool {
+        self.groups.contains(group)
     }
 
     pub fn add_group(&mut self, group: &str) {
@@ -108,8 +134,12 @@ impl GMObjectBase {
         self.groups.remove(group);
     }
 
-    pub fn is_in_group(&self, group: &str) -> bool {
-        self.groups.contains(group)
+    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
+        self.properties.get_property(name)
+    }
+
+    pub fn has_property(&self, name: &str) -> bool {
+        self.properties.has_property(name)
     }
 
     pub fn add_property(&mut self, name: &str, value: GMValue) {
@@ -123,12 +153,6 @@ impl GMObjectBase {
     pub fn remove_property(&mut self, name: &str) {
         self.properties.remove_property(name);
     }
-
-    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
-        self.properties.get_property(name)
-    }
-
-    // TODO: add sub_object, remove_sub_object, ...
 }
 
 pub struct GMObjectManager {
