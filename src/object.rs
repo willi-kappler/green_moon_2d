@@ -8,8 +8,23 @@ use crate::math::GMVec2D;
 use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
+// TODO:
+// - add angle, angle velocity
+// - add get_angle, set_angle, add_angle
+// - add get_angle_velocity, set_angle_velocity, add_angle_velocity
+// - add collision_shape
+
 pub trait GMObjectT : Debug {
     // Must be implemented:
+
+    fn update(&mut self, context: &mut GMUpdateContext);
+
+    fn draw(&self, context: &mut GMDrawContext);
+
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
+
+    fn clone_box(&self) -> Box<dyn GMObjectT>;
+
     fn get_name(&self) -> &str;
 
     fn set_name(&mut self, name: &str);
@@ -26,22 +41,9 @@ pub trait GMObjectT : Debug {
 
     fn set_position(&mut self, position: GMVec2D);
 
-    fn add_position(&mut self, position: GMVec2D);
+    fn add_position(&mut self, position: &GMVec2D);
 
-    fn get_velocity(&self) -> GMVec2D;
-
-    fn set_velocity(&mut self, velocity: GMVec2D);
-
-    fn add_velocity(&mut self, velocity: GMVec2D);
-
-    fn update(&mut self, context: &mut GMUpdateContext);
-
-    fn draw(&self, context: &mut GMDrawContext);
-
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
-
-    fn clone_box(&self) -> Box<dyn GMObjectT>;
-
+    fn get_next_position(&self) -> GMVec2D;
 
     // May be implemented:
     fn is_in_group(&self, _group: &str) -> bool {
@@ -77,7 +79,7 @@ pub trait GMObjectT : Debug {
     fn remove_child(&mut self) {
     }
 
-    fn take_child(&mut self) -> Option<Box<dyn GMObjectT>> {
+    fn take_child(&self) -> Option<Box<dyn GMObjectT>> {
         None
     }
 }
@@ -94,8 +96,6 @@ pub struct GMObjectBase {
     pub z_index: i32,
     pub active: bool,
     pub position: GMVec2D,
-    pub velocity: GMVec2D,
-    pub child: Option<Box<dyn GMObjectT>>,
     groups: HashSet<String>,
     properties: GMPropertyManager,
 }
@@ -107,19 +107,13 @@ impl GMObjectBase {
             z_index: 0,
             active: true,
             position,
-            velocity: GMVec2D::new(0.0, 0.0),
-            child: None,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
         }
     }
 
     pub fn get_name(&self) -> &str {
-        if let Some(child) = &self.child {
-            child.get_name()
-        } else {
-            &self.name
-        }
+        &self.name
     }
 
     pub fn set_name(&mut self, name: &str) {
@@ -154,16 +148,8 @@ impl GMObjectBase {
         self.position.add2(&position);
     }
 
-    pub fn get_velocity(&self) -> &GMVec2D {
-        &self.velocity
-    }
-
-    pub fn set_velocity(&mut self, velocity: GMVec2D) {
-        self.velocity = velocity;
-    }
-
-    pub fn add_velocity(&mut self, velocity: &GMVec2D) {
-        self.velocity.add2(&velocity);
+    pub fn get_next_position(&self) -> GMVec2D {
+        self.position
     }
 
     pub fn is_in_group(&self, group: &str) -> bool {
@@ -196,18 +182,6 @@ impl GMObjectBase {
 
     pub fn remove_property(&mut self, name: &str) {
         self.properties.remove_property(name);
-    }
-
-    pub fn set_child(&mut self, child: Box<dyn GMObjectT>) {
-        self.child = Some(child);
-    }
-
-    pub fn remove_child(&mut self) {
-        self.child = None;
-    }
-
-    pub fn take_child(&mut self) -> Option<Box<dyn GMObjectT>> {
-        self.child.take()
     }
 }
 
