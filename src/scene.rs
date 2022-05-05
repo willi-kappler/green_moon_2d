@@ -17,6 +17,8 @@ pub trait GMSceneT {
 
     fn get_name(&self) -> &str;
 
+
+
     fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
 
     fn clone_box(&self) -> Box<dyn GMSceneT>;
@@ -30,8 +32,37 @@ pub trait GMSceneT {
         Ok(())
     }
 
-    fn is_in_group(&self, _name: &str) -> bool {
+    fn is_in_group(&self, _group: &str) -> bool {
         false
+    }
+
+    fn add_group(&mut self, _group: &str) {
+    }
+
+    fn remove_group(&mut self, _group: &str) {
+    }
+
+    fn get_property(&self, _name: &str) -> Option<&GMValue> {
+        None
+    }
+
+    fn has_property(&self, _name: &str) -> bool {
+        false
+    }
+
+    fn add_property(&mut self, _name: &str, _value: GMValue) {
+    }
+
+    fn add_tag(&mut self, _name: &str) {
+    }
+
+    fn remove_property(&mut self, _name: &str) {
+    }
+
+    fn set_child(&mut self, _child: Box<dyn GMSceneT>) {
+    }
+
+    fn remove_child(&mut self) {
     }
 }
 
@@ -50,23 +81,27 @@ impl Debug for Box<dyn GMSceneT> {
 #[derive(Debug, Clone)]
 pub struct GMSceneBase {
     pub name: String,
+    pub child: Option<Box<dyn GMSceneT>>,
     groups: HashSet<String>,
     properties: GMPropertyManager,
-    // sub_scenes: Vec<Box<dyn GMSceneT>>,
 }
 
 impl GMSceneBase {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
+            child: None,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
-            // sub_scenes: Vec::new(),
         }
     }
 
     pub fn get_name(&self) -> &str {
-        &self.name
+        if let Some(child) = &self.child {
+            child.get_name()
+        } else {
+            &self.name
+        }
     }
 
     pub fn add_group(&mut self, group: &str) {
@@ -97,7 +132,13 @@ impl GMSceneBase {
         self.properties.get_property(name)
     }
 
-    // TODO: get_sub_scene, set_sub_scene
+    pub fn set_child(&mut self, child: Box<dyn GMSceneT>) {
+        self.child = Some(child);
+    }
+
+    pub fn remove_child(&mut self) {
+        self.child = None;
+    }
 }
 
 
@@ -141,7 +182,7 @@ impl GMSceneManager {
     }
 
     fn take(&mut self, name: &str) -> Result<Box<dyn GMSceneT>, GMError> {
-        debug!("GMSceneManager::remove_scene(), name: '{}'", name);
+        debug!("GMSceneManager::take(), name: '{}'", name);
 
         match self.index(name) {
             Some(index) => {
@@ -156,7 +197,7 @@ impl GMSceneManager {
                 }
             }
             None => {
-                Err(GMError::SceneAlreadyExists(name.to_string()))
+                Err(GMError::SceneNotFound(name.to_string()))
             }
         }
     }
@@ -240,13 +281,14 @@ impl GMSceneManager {
                     }
                 }
                 SceneManager => {
-                    match message.data {
+                    match message.message_data {
                         AddScene(scene) => {
                             self.add(scene)?
                         }
                         RemoveScene(name) => {
                             self.take(&name).map(|_| ())?
                         }
+                        // TODO: Maybe add TakeScene message
                         ChangeToScene(name) => {
                             self.change_to(&name)?
                         }

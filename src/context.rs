@@ -96,6 +96,9 @@ impl GMUpdateContext {
         self.scene_messages.push_back(message);
     }
 
+    // TODO: Properties
+
+
     pub(crate) fn next_scene_message(&mut self) -> Option<GMMessage> {
         debug!("GMUpdateContext::next_scene_message()");
 
@@ -123,23 +126,33 @@ impl GMUpdateContext {
         self.engine_messages.pop_front()
     }
 
+    // Object manager messages:
+
+
+
+
     // Object messages:
 
-    // TODO:
-    // set_velocity, add_velocity, set_acceleration, add_acceleration, ...
 
     pub fn unknown_to_object(&mut self, name: &str, data: GMMessageData) {
         let sender = GMSender::Unknown;
         let receiver = GMReceiver::Object(name.to_string());
         let message = GMMessage::new(sender, receiver, data);
-        self.send_message(message);
+        self.object_messages.push_back(message);
     }
 
     pub fn unknown_to_object_group(&mut self, group: &str, data: GMMessageData) {
         let sender = GMSender::Unknown;
         let receiver = GMReceiver::ObjectGroup(group.to_string());
         let message = GMMessage::new(sender, receiver, data);
-        self.send_message(message);
+        self.object_messages.push_back(message);
+    }
+
+    pub fn unknown_to_object_manager(&mut self, data: GMMessageData) {
+        let sender = GMSender::Unknown;
+        let receiver = GMReceiver::ObjectManager;
+        let message = GMMessage::new(sender, receiver, data);
+        self.object_messages.push_back(message);
     }
 
     pub fn set_z_index(&mut self, name: &str, z_index: i32) {

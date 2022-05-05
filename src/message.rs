@@ -4,7 +4,7 @@ use std::rc::Rc;
 use crate::animation::GMAnimationT;
 use crate::context::GMUpdateContext;
 use crate::math::GMVec2D;
-// use crate::object::GMObjectT;
+use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
@@ -14,7 +14,7 @@ use crate::property::GMValue;
 pub struct GMMessage {
     pub sender: GMSender,
     pub receiver: GMReceiver,
-    pub data: GMMessageData,
+    pub message_data: GMMessageData,
 }
 
 impl GMMessage {
@@ -22,15 +22,7 @@ impl GMMessage {
         Self {
             sender,
             receiver,
-            data,
-        }
-    }
-
-    pub fn new_to_scene_manager(data: GMMessageData) -> Self {
-        Self {
-            sender: GMSender::Unknown,
-            receiver: GMReceiver::SceneManager,
-            data,
+            message_data: data,
         }
     }
 
@@ -38,7 +30,56 @@ impl GMMessage {
         Self {
             sender: GMSender::Unknown,
             receiver: GMReceiver::Engine,
-            data,
+            message_data: data,
+        }
+    }
+
+    pub fn new_to_scene_manager(data: GMMessageData) -> Self {
+        Self {
+            sender: GMSender::Unknown,
+            receiver: GMReceiver::SceneManager,
+            message_data: data,
+        }
+    }
+
+    pub fn new_to_object_manager(data: GMMessageData) -> Self {
+        Self {
+            sender: GMSender::Unknown,
+            receiver: GMReceiver::ObjectManager,
+            message_data: data,
+        }
+    }
+
+    pub fn sender2receiver(sender: &GMSender) -> Option<GMReceiver> {
+        match sender {
+            GMSender::Unknown => {
+                None
+            }
+            GMSender::Engine => {
+                Some(GMReceiver::Engine)
+            }
+            GMSender::CurrentScene => {
+                Some(GMReceiver::CurrentScene)
+            }
+            GMSender::Scene(name) => {
+                Some(GMReceiver::Scene(name.to_string()))
+            }
+            GMSender::SceneModifier(name) => {
+                Some(GMReceiver::SceneModifier(name.to_string()))
+            }
+            GMSender::SceneManager => {
+                Some(GMReceiver::SceneManager)
+            }
+            GMSender::Object(name) => {
+                Some(GMReceiver::Object(name.to_string()))
+            }
+            GMSender::ObjectModifier(name) => {
+                Some(GMReceiver::ObjectModifier(name.to_string()))
+            }
+            GMSender::ObjectManager => {
+                Some(GMReceiver::ObjectManager)
+            }
+
         }
     }
 }
@@ -56,27 +97,27 @@ impl GMMessageFactory {
         }
     }
 
-    pub fn send(&self, data: GMMessageData, context: &mut GMUpdateContext) {
-        context.send_message(self.create(data));
+    pub fn send(&self, message_data: GMMessageData, context: &mut GMUpdateContext) {
+        context.send_message(self.create(message_data));
     }
 
-    pub fn create(&self, data: GMMessageData) -> GMMessage {
+    pub fn send_to(&self, receiver: GMReceiver, message_data: GMMessageData, context: &mut GMUpdateContext) {
+        context.send_message(self.create_to(receiver, message_data))
+    }
+
+    pub fn create(&self, message_data: GMMessageData) -> GMMessage {
         GMMessage::new(
             self.sender.clone(),
             self.receiver.clone(),
-            data,
+            message_data,
         )
     }
 
-    pub fn send_to(&self, receiver: GMReceiver, data: GMMessageData, context: &mut GMUpdateContext) {
-        context.send_message(self.create_to(receiver, data))
-    }
-
-    pub fn create_to(&self, receiver: GMReceiver, data: GMMessageData) -> GMMessage {
+    pub fn create_to(&self, receiver: GMReceiver, message_data: GMMessageData) -> GMMessage {
         GMMessage::new(
             self.sender.clone(),
             receiver,
-            data,
+            message_data,
         )
     }
 }
@@ -87,12 +128,14 @@ pub enum GMSender {
 
     Engine,
 
-    SceneModifier(String),
-    Scene(String),
     CurrentScene,
+    Scene(String),
+    SceneModifier(String),
+    SceneManager,
 
-    ObjectModifier(String),
     Object(String),
+    ObjectModifier(String),
+    ObjectManager,
 }
 
 #[derive(Clone, Debug)]
@@ -122,10 +165,23 @@ pub enum GMMessageData {
     ExitScene,
     AddScene(Box<dyn GMSceneT>),
     RemoveScene(String),
+    // TODO: Maybe add TakeScene message
     ChangeToScene(String),
     ReplaceScene(Box<dyn GMSceneT>),
     PushCurrentScene,
     PopCurrentScene,
+
+    // Object manager
+    AddObject(Box<dyn GMObjectT>),
+    ReplaceObject(Box<dyn GMObjectT>),
+    RemoveObject(String),
+    TakeObject(String),
+    Object(Box<dyn GMObjectT>),
+    SetParent(String, Box<dyn GMObjectT>),
+    RemoveParent(String),
+    SetChild(String, Box<dyn GMObjectT>),
+    RemoveChild(String),
+
 
     // Other messages
     SetActive(bool),

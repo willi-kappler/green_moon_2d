@@ -5,10 +5,11 @@ use std::fmt::{self, Debug};
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
-use crate::message::{GMMessage, GMReceiver};
+use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMObjectT {
+    // Must be implemented:
     fn get_name(&self) -> &str;
 
     fn set_name(&mut self, name: &str);
@@ -27,21 +28,11 @@ pub trait GMObjectT {
 
     fn add_position(&mut self, position: GMVec2D);
 
-    fn is_in_group(&self, _group: &str) -> bool;
+    fn get_velocity(&self) -> GMVec2D;
 
-    fn add_group(&mut self, _group: &str);
+    fn set_velocity(&mut self, velocity: GMVec2D);
 
-    fn remove_group(&mut self, _group: &str);
-
-    fn get_property(&self, name: &str) -> Option<&GMValue>;
-
-    fn has_property(&self, name: &str) -> bool;
-
-    fn add_property(&mut self, name: &str, value: GMValue);
-
-    fn add_tag(&mut self, name: &str);
-
-    fn remove_property(&mut self, name: &str);
+    fn add_velocity(&mut self, velocity: GMVec2D);
 
     fn update(&mut self, context: &mut GMUpdateContext);
 
@@ -50,6 +41,41 @@ pub trait GMObjectT {
     fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
+
+
+    // May be implemented:
+    fn is_in_group(&self, _group: &str) -> bool {
+        false
+    }
+
+    fn add_group(&mut self, _group: &str) {
+    }
+
+    fn remove_group(&mut self, _group: &str) {
+    }
+
+    fn get_property(&self, _name: &str) -> Option<&GMValue> {
+        None
+    }
+
+    fn has_property(&self, _name: &str) -> bool {
+        false
+    }
+
+    fn add_property(&mut self, _name: &str, _value: GMValue) {
+    }
+
+    fn add_tag(&mut self, _name: &str) {
+    }
+
+    fn remove_property(&mut self, _name: &str) {
+    }
+
+    fn set_child(&mut self, _child: Box<dyn GMObjectT>) {
+    }
+
+    fn remove_child(&mut self) {
+    }
 }
 
 impl Clone for Box<dyn GMObjectT> {
@@ -70,6 +96,8 @@ pub struct GMObjectBase {
     pub z_index: i32,
     pub active: bool,
     pub position: GMVec2D,
+    pub velocity: GMVec2D,
+    pub child: Option<Box<dyn GMObjectT>>,
     groups: HashSet<String>,
     properties: GMPropertyManager,
 }
@@ -81,13 +109,19 @@ impl GMObjectBase {
             z_index: 0,
             active: true,
             position,
+            velocity: GMVec2D::new(0.0, 0.0),
+            child: None,
             groups: HashSet::new(),
             properties: GMPropertyManager::new(),
         }
     }
 
     pub fn get_name(&self) -> &str {
-        &self.name
+        if let Some(child) = &self.child {
+            child.get_name()
+        } else {
+            &self.name
+        }
     }
 
     pub fn set_name(&mut self, name: &str) {
@@ -122,6 +156,18 @@ impl GMObjectBase {
         self.position.add2(&position);
     }
 
+    pub fn get_velocity(&self) -> &GMVec2D {
+        &self.velocity
+    }
+
+    pub fn set_velocity(&mut self, velocity: GMVec2D) {
+        self.velocity = velocity;
+    }
+
+    pub fn add_velocity(&mut self, velocity: &GMVec2D) {
+        self.velocity.add2(&velocity);
+    }
+
     pub fn is_in_group(&self, group: &str) -> bool {
         self.groups.contains(group)
     }
@@ -153,6 +199,14 @@ impl GMObjectBase {
     pub fn remove_property(&mut self, name: &str) {
         self.properties.remove_property(name);
     }
+
+    pub fn set_child(&mut self, child: Box<dyn GMObjectT>) {
+        self.child = Some(child);
+    }
+
+    pub fn remove_child(&mut self) {
+        self.child = None;
+    }
 }
 
 pub struct GMObjectManager {
@@ -170,11 +224,13 @@ impl GMObjectManager {
         self.objects.iter().position(|object| object.get_name() == name)
     }
 
-    pub fn add<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
-        self.add_box(name, Box::new(object))
+    pub fn add<O: 'static + GMObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        self.add_box(Box::new(object))
     }
 
-    pub fn add_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+    pub fn add_box(&mut self, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        let name = object.get_name();
+
         match self.index(name) {
             Some(_) => {
                 Err(GMError::ObjectAlreadyExists(name.to_string()))
@@ -197,14 +253,54 @@ impl GMObjectManager {
         }
     }
 
-    pub fn replace<O: 'static + GMObjectT>(&mut self, name: &str, object: O) -> Result<(), GMError> {
-        self.replace_box(name, Box::new(object))
+    pub fn remove(&mut self, name: &str) -> Result<(), GMError> {
+        self.take(name).map(|_| ())
     }
 
-    pub fn replace_box(&mut self, name: &str, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+    pub fn replace<O: 'static + GMObjectT>(&mut self, object: O) -> Result<(), GMError> {
+        self.replace_box(Box::new(object))
+    }
+
+    pub fn replace_box(&mut self, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        let name = object.get_name();
+
         match self.index(name) {
             Some(index) => {
                 self.objects[index] = object;
+                Ok(())
+            }
+            None => {
+                Err(GMError::ObjectNotFound(name.to_string()))
+            }
+        }
+    }
+
+    pub fn set_parent(&mut self, name: &str, mut parent: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        let child = self.take(name)?;
+        parent.set_child(child);
+        self.add_box(parent)
+    }
+
+    pub fn remove_parent(&mut self, name: &str) -> Result<(), GMError> {
+        todo!();
+    }
+
+    pub fn set_child(&mut self, name: &str, child: Box<dyn GMObjectT>) -> Result<(), GMError> {
+        match self.index(name) {
+            Some(index) => {
+                self.objects[index].set_child(child);
+                Ok(())
+            }
+            None => {
+                Err(GMError::ObjectNotFound(name.to_string()))
+            }
+        }
+    }
+
+    pub fn remove_child(&mut self, name: &str) -> Result<(), GMError> {
+        match self.index(name) {
+            Some(index) => {
+                self.objects[index].remove_child();
                 Ok(())
             }
             None => {
@@ -261,8 +357,50 @@ impl GMObjectManager {
                 Ok(())
             }
             ObjectManager => {
-                // TODO:
-                todo!();
+                use GMMessageData::*;
+
+                match message.message_data {
+                    AddObject(object) => {
+                        self.add_box(object)
+                    }
+                    ReplaceObject(object) => {
+                        self.replace_box(object)
+                    }
+                    RemoveObject(ref name) => {
+                        self.remove(name)
+                    }
+                    TakeObject(ref name) => {
+                        let object = self.take(name)?;
+                        let message_data = Object(object);
+                        let sender = GMSender::ObjectManager;
+                        if let Some(receiver) = GMMessage::sender2receiver(&message.sender) {
+                            let message = GMMessage::new(sender, receiver, message_data);
+                            context.send_message(message);
+
+                            Ok(())
+                        } else {
+                            Err(GMError::SenderUnknown(message))
+                        }
+
+                    }
+                    SetParent(ref name, parent) => {
+                        self.set_parent(name, parent)
+                    }
+                    RemoveParent(ref name) => {
+                        self.remove_parent(name)
+                    }
+                    SetChild(ref name, child) => {
+                        self.set_child(name, child)
+                    }
+                    RemoveChild(ref name) => {
+                        self.remove_child(name)
+                    }
+
+                    _ => {
+                        Err(GMError::UnknownMessageToObject(message))
+                    }
+
+                }
             }
             _ => {
                 Err(GMError::UnknownMessageToObject(message))

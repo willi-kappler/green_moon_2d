@@ -125,7 +125,7 @@ impl GMEngine {
             draw_context.present();
 
             while let Some(message) = update_context.next_engine_message() {
-                match message.data {
+                match message.message_data {
                     GMMessageData::Quit => {
                         break 'quit;
                     }
