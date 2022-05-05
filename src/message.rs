@@ -9,6 +9,7 @@ use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
 use crate::font::GMFontT;
+use crate::error::GMError;
 
 
 #[derive(Clone, Debug)]
@@ -49,6 +50,18 @@ impl GMMessage {
             receiver: GMReceiver::ObjectManager,
             message_data: data,
         }
+    }
+
+    pub fn empty_message() -> Self {
+        Self {
+            sender: GMSender::Unknown,
+            receiver: GMReceiver::Engine,
+            message_data: GMMessageData::Empty,
+        }
+    }
+
+    pub fn empty_message_ok() -> Result<Self, GMError> {
+        Ok(Self::empty_message())
     }
 
     pub fn sender2receiver(sender: &GMSender) -> Option<GMReceiver> {
@@ -157,9 +170,13 @@ pub enum GMReceiver {
 
 #[derive(Clone, Debug)]
 pub enum GMMessageData {
+    Empty,
+
     // Engine messages
     Quit,
     ChangeFPS(u32),
+    ChangeResolution(u32, u32),
+    ChangeTitle(String),
 
     // Scene messages
     InitScene,

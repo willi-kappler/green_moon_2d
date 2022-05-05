@@ -21,6 +21,8 @@ pub mod timer;
 pub use context::{GMUpdateContext, GMDrawContext};
 pub use engine::GMEngine;
 pub use error::GMError;
+pub use scene::GMSceneT;
+pub use message::GMMessage;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;

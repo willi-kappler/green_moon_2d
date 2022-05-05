@@ -100,8 +100,6 @@ impl GMUpdateContext {
 
 
     pub(crate) fn next_scene_message(&mut self) -> Option<GMMessage> {
-        debug!("GMUpdateContext::next_scene_message()");
-
         self.scene_messages.pop_front()
     }
 
@@ -121,8 +119,6 @@ impl GMUpdateContext {
     }
 
     pub(crate) fn next_engine_message(&mut self) -> Option<GMMessage> {
-        debug!("GMUpdateContext::next_engine_message()");
-
         self.engine_messages.pop_front()
     }
 

@@ -5,8 +5,9 @@ use std::fs::File;
 use log::{debug, info, error};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMUpdateContext, GMDrawContext, GMError};
+use green_moon_2d::{GMEngine, GMSceneT, GMUpdateContext, GMDrawContext, GMError, GMMessage};
 
+#[derive(Clone, Debug)]
 struct TextScene1 {
 }
 
@@ -34,8 +35,11 @@ impl GMSceneT for TextScene1 {
     fn get_name(&self) -> &str {
         "Text1"
     }
-}
 
+    fn clone_box(&self) -> Box<dyn GMSceneT> {
+        Box::new(self.clone())
+    }
+}
 
 fn main() {
     let config = ConfigBuilder::new().build();
@@ -44,6 +48,7 @@ fn main() {
     let text1_scene = TextScene1::new();
 
     let mut app = GMEngine::new();
+    app.init().unwrap();
     app.add_scene(text1_scene).unwrap();
 
     match app.run() {

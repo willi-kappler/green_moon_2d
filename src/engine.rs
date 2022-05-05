@@ -127,9 +127,11 @@ impl GMEngine {
             while let Some(message) = update_context.next_engine_message() {
                 match message.message_data {
                     GMMessageData::Quit => {
+                        debug!("GMEngine message: Quit");
                         break 'quit;
                     }
                     GMMessageData::ChangeFPS(new_fps) => {
+                        debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
                     }

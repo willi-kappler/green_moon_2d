@@ -9,7 +9,7 @@ use crate::error::GMError;
 use crate::message::{GMReceiver, GMMessage, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
-pub trait GMSceneT :Debug {
+pub trait GMSceneT : Debug {
     // Must be implemented:
     fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError>;
 
@@ -17,13 +17,13 @@ pub trait GMSceneT :Debug {
 
     fn get_name(&self) -> &str;
 
-
-
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
-
     fn clone_box(&self) -> Box<dyn GMSceneT>;
 
     // May be implemented:
+    fn send_message(&mut self, _message: GMMessage, _context: &mut GMUpdateContext) -> Result<GMMessage, GMError> {
+        GMMessage::empty_message_ok()
+    }
+
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
         Ok(())
     }
@@ -238,12 +238,16 @@ impl GMSceneManager {
     fn push(&mut self) {
         let name = self.scenes[self.current_scene].get_name();
 
+        debug!("GMSceneManager::push(), current scene: '{}'", name);
+
         self.scene_stack.push(name.to_string());
     }
 
     fn pop(&mut self) -> Result<(), GMError> {
         match self.scene_stack.pop() {
             Some(name) => {
+                debug!("GMSceneManager::pop(), scene: '{}'", name);
+
                 self.change_to(&name)
             }
             None => {
