@@ -1,6 +1,6 @@
 
 use std::collections::HashSet;
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 
 use log::debug;
 
@@ -9,7 +9,7 @@ use crate::error::GMError;
 use crate::message::{GMReceiver, GMMessage, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
-pub trait GMSceneT {
+pub trait GMSceneT :Debug {
     // Must be implemented:
     fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError>;
 
@@ -64,17 +64,15 @@ pub trait GMSceneT {
 
     fn remove_child(&mut self) {
     }
+
+    fn take_child(&mut self) -> Option<Box<dyn GMSceneT>> {
+        None
+    }
 }
 
 impl Clone for Box<dyn GMSceneT> {
     fn clone(&self) -> Box<dyn GMSceneT> {
         self.clone_box()
-    }
-}
-
-impl Debug for Box<dyn GMSceneT> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Scene: {}", self.get_name())
     }
 }
 
@@ -138,6 +136,10 @@ impl GMSceneBase {
 
     pub fn remove_child(&mut self) {
         self.child = None;
+    }
+
+    pub fn take_child(&mut self) -> Option<Box<dyn GMSceneT>> {
+        self.child.take()
     }
 }
 
@@ -301,6 +303,7 @@ impl GMSceneManager {
                         PopCurrentScene => {
                             self.pop()?
                         }
+                        // TODO: SetSceneParent, RemoveSceneParent, ...
                         _ => {
                             return Err(GMError::UnknownMessageToScene(message))
                         }

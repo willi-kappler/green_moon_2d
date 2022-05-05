@@ -1,11 +1,11 @@
 
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 use std::any::Any;
 
 use std::collections::HashMap;
 // use std::any::Any;
 
-pub trait GMCustomT {
+pub trait GMCustomT : Debug {
     fn clone_box(&self) -> Box<dyn GMCustomT>;
 
     fn to_any(&self) -> Box<dyn Any>;
@@ -14,12 +14,6 @@ pub trait GMCustomT {
 impl Clone for Box<dyn GMCustomT> {
     fn clone(&self) -> Self {
         self.clone_box()
-    }
-}
-
-impl Debug for Box<dyn GMCustomT> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "GMCustomT")
     }
 }
 

@@ -1,7 +1,7 @@
 
 use nanoserde::DeJson;
 
-#[derive(Clone, DeJson)]
+#[derive(Debug, Clone, DeJson)]
 pub struct GMConfiguration {
     pub fps: u32,
     pub window_title: String,

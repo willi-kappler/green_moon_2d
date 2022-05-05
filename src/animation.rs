@@ -1,11 +1,10 @@
 
-
-use std::fmt::{self, Debug, Formatter};
+use std::fmt::Debug;
 
 use crate::timer::GMTimer;
 
 
-pub trait GMAnimationT {
+pub trait GMAnimationT : Debug {
     fn update(&mut self);
 
     fn finished(&self) -> bool;
@@ -20,12 +19,6 @@ pub trait GMAnimationT {
 impl Clone for Box<dyn GMAnimationT> {
     fn clone(&self) -> Self {
         self.clone_box()
-    }
-}
-
-impl Debug for Box<dyn GMAnimationT> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "GMAnimationT")
     }
 }
 

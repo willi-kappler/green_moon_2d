@@ -2,19 +2,18 @@
 
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::fmt::Debug;
 
 use crate::texture::GMTexture;
 use crate::context::GMDrawContext;
 
-pub trait GMFontT {
+pub trait GMFontT : Debug {
     fn draw(&self, c: char, x: f32, y: f32, context: &mut GMDrawContext);
 
     fn get_char_dimensions(&self, c: char) -> (f32, f32);
-
-    fn rc_clone(&self) -> Rc<dyn GMFontT>;
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct GMBitmapFont {
     texture: Rc<GMTexture>,
     mapping: HashMap<char, u32>,
@@ -43,11 +42,5 @@ impl GMFontT for GMBitmapFont {
 
     fn get_char_dimensions(&self, _c: char) -> (f32, f32) {
         self.texture.get_unit_dimension()
-    }
-
-    fn rc_clone(&self) -> Rc<dyn GMFontT> {
-        let result = self.clone();
-
-        Rc::new(result)
     }
 }

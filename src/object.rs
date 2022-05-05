@@ -1,6 +1,6 @@
 
 use std::collections::HashSet;
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
@@ -8,7 +8,7 @@ use crate::math::GMVec2D;
 use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
-pub trait GMObjectT {
+pub trait GMObjectT : Debug {
     // Must be implemented:
     fn get_name(&self) -> &str;
 
@@ -76,17 +76,15 @@ pub trait GMObjectT {
 
     fn remove_child(&mut self) {
     }
+
+    fn take_child(&mut self) -> Option<Box<dyn GMObjectT>> {
+        None
+    }
 }
 
 impl Clone for Box<dyn GMObjectT> {
     fn clone(&self) -> Self {
         self.clone_box()
-    }
-}
-
-impl Debug for Box<dyn GMObjectT> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Object: {}", self.get_name())
     }
 }
 
@@ -207,6 +205,10 @@ impl GMObjectBase {
     pub fn remove_child(&mut self) {
         self.child = None;
     }
+
+    pub fn take_child(&mut self) -> Option<Box<dyn GMObjectT>> {
+        self.child.take()
+    }
 }
 
 pub struct GMObjectManager {
@@ -282,6 +284,7 @@ impl GMObjectManager {
     }
 
     pub fn remove_parent(&mut self, name: &str) -> Result<(), GMError> {
+        // TODO: Remove parent from object
         todo!();
     }
 
@@ -302,6 +305,17 @@ impl GMObjectManager {
             Some(index) => {
                 self.objects[index].remove_child();
                 Ok(())
+            }
+            None => {
+                Err(GMError::ObjectNotFound(name.to_string()))
+            }
+        }
+    }
+
+    pub fn take_child(&mut self, name: &str) -> Result<Option<Box<dyn GMObjectT>>, GMError> {
+        match self.index(name) {
+            Some(index) => {
+                Ok(self.objects[index].take_child())
             }
             None => {
                 Err(GMError::ObjectNotFound(name.to_string()))
@@ -383,17 +397,22 @@ impl GMObjectManager {
                         }
 
                     }
-                    SetParent(ref name, parent) => {
+                    SetObjectParent(ref name, parent) => {
                         self.set_parent(name, parent)
                     }
-                    RemoveParent(ref name) => {
+                    RemoveObjectParent(ref name) => {
                         self.remove_parent(name)
                     }
-                    SetChild(ref name, child) => {
+                    SetObjectChild(ref name, child) => {
                         self.set_child(name, child)
                     }
-                    RemoveChild(ref name) => {
+                    RemoveObjectChild(ref name) => {
                         self.remove_child(name)
+                    }
+                    TakeObjectChild(ref name) => {
+                        let child = self.take_child(name)?;
+                        //TODO: send response to original sender of message
+                        Ok(())
                     }
 
                     _ => {

@@ -8,6 +8,7 @@ use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
+use crate::font::GMFontT;
 
 
 #[derive(Clone, Debug)]
@@ -170,6 +171,11 @@ pub enum GMMessageData {
     ReplaceScene(Box<dyn GMSceneT>),
     PushCurrentScene,
     PopCurrentScene,
+    SetSceneParent(String, Box<dyn GMSceneT>),
+    RemoveSceneParent(String),
+    SetSceneChild(String, Box<dyn GMSceneT>),
+    RemoveSceneChild(String),
+    TakeSceneChild(String),
 
     // Object manager
     AddObject(Box<dyn GMObjectT>),
@@ -177,11 +183,11 @@ pub enum GMMessageData {
     RemoveObject(String),
     TakeObject(String),
     Object(Box<dyn GMObjectT>),
-    SetParent(String, Box<dyn GMObjectT>),
-    RemoveParent(String),
-    SetChild(String, Box<dyn GMObjectT>),
-    RemoveChild(String),
-
+    SetObjectParent(String, Box<dyn GMObjectT>),
+    RemoveObjectParent(String),
+    SetObjectChild(String, Box<dyn GMObjectT>),
+    RemoveObjectChild(String),
+    TakeObjectChild(String),
 
     // Other messages
     SetActive(bool),
@@ -208,9 +214,14 @@ pub enum GMMessageData {
     Acceleration(GMVec2D),
 
     SetAnimation(Box<dyn GMAnimationT>),
+    SetAnimationName(String),
     SetTexture(Rc<GMTexture>),
+    SetTextureName(String),
+    AnimationDone,
 
     SetText(String),
+    SetFont(Rc<dyn GMFontT>),
+    SetFontName(String),
 
     Property(String, GMValue),
 }

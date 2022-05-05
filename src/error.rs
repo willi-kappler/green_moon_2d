@@ -33,7 +33,6 @@ pub enum GMError {
 }
 
 impl std::error::Error for GMError {
-
 }
 
 impl fmt::Display for GMError {

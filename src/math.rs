@@ -77,7 +77,7 @@ impl Default for GMVec2D {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct GMSize {
     pub width: f32,
     pub height: f32,
@@ -101,6 +101,7 @@ impl Default for GMSize {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMRectangle {
     pub x1: f32,
     pub x2: f32,
@@ -128,7 +129,7 @@ impl GMRectangle {
     pub fn new3(point: &GMVec2D, size: &GMSize) -> Self {
         let w2 = size.width / 2.0;
         let h2 = size.height / 2.0;
-    
+
         Self {
             x1: point.x - w2,
             x2: point.x + w2,
@@ -155,6 +156,7 @@ impl GMRectangle {
     // TODO: intersect return points
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMCircle {
     pub x: f32,
     pub y: f32,
