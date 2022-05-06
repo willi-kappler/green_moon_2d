@@ -2,6 +2,8 @@
 use std::collections::HashSet;
 use std::fmt::Debug;
 
+use delegate::delegate;
+
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
@@ -164,24 +166,14 @@ impl GMObjectBase {
         self.groups.remove(group);
     }
 
-    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
-        self.properties.get_property(name)
-    }
-
-    pub fn has_property(&self, name: &str) -> bool {
-        self.properties.has_property(name)
-    }
-
-    pub fn add_property(&mut self, name: &str, value: GMValue) {
-        self.properties.add_property(name, value);
-    }
-
-    pub fn add_tag(&mut self, name: &str) {
-        self.properties.add_tag(name);
-    }
-
-    pub fn remove_property(&mut self, name: &str) {
-        self.properties.remove_property(name);
+    delegate! {
+        to self.properties {
+            pub fn get_property(&self, name: &str) -> Option<&GMValue>;
+            pub fn has_property(&self, name: &str) -> bool;
+            pub fn add_property(&mut self, name: &str, value: GMValue);
+            pub fn add_tag(&mut self, name: &str);
+            pub fn remove_property(&mut self, name: &str);
+        }
     }
 }
 
