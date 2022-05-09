@@ -2,6 +2,7 @@
 
 use delegate::delegate;
 
+use crate::GMError;
 use crate::math::GMVec2D;
 use crate::object::{GMObjectT, GMObjectBase};
 use crate::message::{GMMessage, GMMessageData, GMSender, GMReceiver, GMMessageFactory};
@@ -15,13 +16,10 @@ pub struct GMParentCircular {
     angle: f32,
     angle_velocity: f32,
     child: Box<dyn GMObjectT>,
-    message_factory: GMMessageFactory,
 }
 
 impl GMParentCircular {
     pub fn new(center: GMVec2D, radius: f32, start_angle: f32, angle_velocity: f32, child: Box<dyn GMObjectT>) -> Self {
-        let name = child.get_name().to_string();
-        let sender = GMSender::Object(name);
 
         Self {
             center,
@@ -29,7 +27,6 @@ impl GMParentCircular {
             angle: start_angle,
             angle_velocity,
             child,
-            message_factory: GMMessageFactory::new(sender),
         }
     }
 
@@ -47,40 +44,38 @@ impl GMObjectT for GMParentCircular {
         self.child.update(context);
     }
 
-    fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) {
+    fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
         match message.message_data {
             SetPosition(position) => {
                 self.center = position;
+                Ok(None)
             }
             // GetPosition is handled by child
             SetRadius(radius) => {
                 self.radius = radius;
+                Ok(None)
             }
             GetRadius => {
-                let receiver = message.receiver;
                 let message_data = Radius(self.radius);
-                self.message_factory.sender_from_object(&self.child);
-                self.message_factory.send_to(receiver, message_data, context);
+                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
             }
             SetAngle(angle) => {
                 self.angle = angle;
+                Ok(None)
             }
             GetAngle => {
-                let receiver = message.receiver;
                 let message_data = Angle(self.radius);
-                self.message_factory.sender_from_object(&self.child);
-                self.message_factory.send_to(receiver, message_data, context);
+                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
             }
             SetChild(child) => {
                 self.set_child(child);
+                Ok(None)
             }
             GetChildClone => {
-                let receiver = message.receiver;
                 let message_data = Child(self.get_child());
-                self.message_factory.sender_from_object(&self.child);
-                self.message_factory.send_to(receiver, message_data, context);
+                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
             }
             _ => {
                 self.child.send_message(message, context)

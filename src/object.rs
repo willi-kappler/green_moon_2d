@@ -17,22 +17,15 @@ use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMObjectT : Debug {
     // Must be implemented:
-
     fn update(&mut self, context: &mut GMUpdateContext);
 
     fn draw(&self, context: &mut GMDrawContext);
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext);
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError>;
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
 
     fn get_name(&self) -> &str;
-
-    fn set_name(&self, name: &str);
-
-    fn get_z_index(&self) -> i32;
-
-    fn set_z_index(&mut self, z_index: i32);
 
     fn get_active(&self) -> bool;
 
@@ -46,6 +39,16 @@ pub trait GMObjectT : Debug {
 
 
     // May be implemented:
+    fn set_name(&self, _name: &str) {
+    }
+
+    fn get_z_index(&self) -> i32 {
+        0
+    }
+
+    fn set_z_index(&mut self, _z_index: i32) {
+    }
+
     fn get_next_position(&self) -> GMVec2D {
         self.get_position()
     }
@@ -75,6 +78,14 @@ pub trait GMObjectT : Debug {
 
     fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
         None
+    }
+
+    fn as_sender(&self) -> GMSender {
+        GMSender::Object(self.get_name().to_string())
+    }
+
+    fn as_receiver(&self) -> GMReceiver {
+        GMReceiver::Object(self.get_name().to_string())
     }
 }
 
@@ -313,7 +324,10 @@ impl GMObjectManager {
             Object(name) => {
                 match self.index(&name) {
                     Some(index) => {
-                        self.objects[index].send_message(message, context);
+                        if let Some(message) = self.objects[index].send_message(message, context)? {
+                            context.send_message(message);
+                        }
+
                         Ok(())
                     }
                     None => {
@@ -324,7 +338,9 @@ impl GMObjectManager {
             ObjectWithProperty(name) => {
                 for object in self.objects.iter_mut() {
                     if object.has_property(&name) {
-                        object.send_message(message.clone(), context)
+                        if let Some(message) = object.send_message(message.clone(), context)? {
+                            context.send_message(message)
+                        }
                     }
                 }
 
@@ -346,10 +362,9 @@ impl GMObjectManager {
                     TakeObject(ref name) => {
                         let object = self.take(name)?;
                         let message_data = Object(object);
-                        self.message_factory.reply(&message, message_data, context);
+                        context.send_message(self.message_factory.create_reply(&message, message_data));
 
                         Ok(())
-
                     }
                     SetObjectParent(ref name, parent) => {
                         self.set_parent(name, parent)
@@ -367,7 +382,7 @@ impl GMObjectManager {
                         match self.take_child(name)? {
                             Some(child) => {
                                 let message_data = Object(child);
-                                self.message_factory.reply(&message, message_data, context);
+                                context.send_message(self.message_factory.create_reply(&message, message_data));
 
                                 Ok(())
                             }
@@ -418,5 +433,4 @@ impl GMObjectManager {
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn GMObjectT>>  {
         self.objects.iter_mut()
     }
-
 }

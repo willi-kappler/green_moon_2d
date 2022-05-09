@@ -4,7 +4,7 @@ use std::rc::Rc;
 use log::{debug};
 
 use crate::animation::GMAnimationT;
-use crate::context::GMUpdateContext;
+// use crate::context::GMUpdateContext;
 use crate::math::GMVec2D;
 use crate::object::GMObjectT;
 use crate::scene::GMSceneT;
@@ -18,49 +18,26 @@ use crate::font::GMFontT;
 pub struct GMMessage {
     pub sender: GMSender,
     pub receiver: GMReceiver,
-    pub message_data: GMMessageData,
+    pub message_data: GMMessageData, // TODO: Vec<GMMessageData>
 }
 
 impl GMMessage {
-    pub fn new(sender: GMSender, receiver: GMReceiver, data: GMMessageData) -> Self {
+    pub fn new(sender: GMSender, receiver: GMReceiver, message_data: GMMessageData) -> Self {
         Self {
             sender,
             receiver,
-            message_data: data,
+            message_data,
         }
     }
 
-    pub fn sender2receiver(sender: &GMSender) -> GMReceiver {
-        match sender {
-            GMSender::Engine => {
-                GMReceiver::Engine
-            }
-            GMSender::CurrentScene => {
-                GMReceiver::CurrentScene
-            }
-            GMSender::Scene(name) => {
-                GMReceiver::Scene(name.to_string())
-            }
-            /*
-            GMSender::SceneModifier(name) => {
-                GMReceiver::SceneModifier(name.to_string())
-            }
-            */
-            GMSender::SceneManager => {
-                GMReceiver::SceneManager
-            }
-            GMSender::Object(name) => {
-                GMReceiver::Object(name.to_string())
-            }
-            /*
-            GMSender::ObjectModifier(name) => {
-                GMReceiver::ObjectModifier(name.to_string())
-            }
-            */
-            GMSender::ObjectManager => {
-                GMReceiver::ObjectManager
-            }
+    pub fn new_object_reply(object: &Box<dyn GMObjectT>, message: &GMMessage, message_data: GMMessageData) -> Self {
+        let sender = object.as_sender();
+        let receiver = message.sender.as_receiver();
 
+        Self {
+            sender,
+            receiver,
+            message_data,
         }
     }
 }
@@ -88,19 +65,6 @@ impl GMMessageFactory {
         self.sender = GMSender::Object(name.to_string());
     }
 
-    pub fn send(&self, message_data: GMMessageData, context: &mut GMUpdateContext) {
-        context.send_message(self.create(message_data));
-    }
-
-    pub fn send_to(&self, receiver: GMReceiver, message_data: GMMessageData, context: &mut GMUpdateContext) {
-        context.send_message(self.create_to(receiver, message_data))
-    }
-
-    pub fn reply(&self, message: &GMMessage, message_data: GMMessageData, context: &mut GMUpdateContext) {
-        let receiver = GMMessage::sender2receiver(&message.sender);
-        self.send_to(receiver, message_data, context)
-    }
-
     pub fn create(&self, message_data: GMMessageData) -> GMMessage {
         GMMessage::new(
             self.sender.clone(),
@@ -118,7 +82,7 @@ impl GMMessageFactory {
     }
 
     pub fn create_reply(&self, message: &GMMessage, message_data: GMMessageData) -> GMMessage {
-        let receiver = GMMessage::sender2receiver(&message.sender);
+        let receiver = message.sender.as_receiver();
         self.create_to(receiver, message_data)
     }
 
@@ -134,6 +98,10 @@ impl GMMessageFactory {
         self.create_to(GMReceiver::Scene(scene.to_string()), message_data)
     }
 
+    pub fn create_to_scene_with_property(&self, property: &str, message_data: GMMessageData) -> GMMessage {
+        self.create_to(GMReceiver::SceneWithProperty(property.to_string()), message_data)
+    }
+
     pub fn create_to_current_scene(&self, message_data: GMMessageData) -> GMMessage {
         self.create_to(GMReceiver::CurrentScene, message_data)
     }
@@ -146,69 +114,141 @@ impl GMMessageFactory {
         self.create_to(GMReceiver::Object(object.to_string()), message_data)
     }
 
+    pub fn create_to_object_with_property(&self, property: &str, message_data: GMMessageData) -> GMMessage {
+        self.create_to(GMReceiver::ObjectWithProperty(property.to_string()), message_data)
+    }
 
     // Engine messages:
 
-    pub fn engine_quit(&self, context: &mut GMUpdateContext) {
+    pub fn engine_quit(&self) -> GMMessage {
         debug!("GMMessageFactory::engine_quit()");
-        context.send_message(self.create_to_engine(GMMessageData::Quit));
+        self.create_to_engine(GMMessageData::Quit)
     }
 
-    pub fn engine_change_fps(&self, new_fps: u32, context: &mut GMUpdateContext) {
+    pub fn engine_change_fps(&self, new_fps: u32) -> GMMessage {
         debug!("GMMessageFactory::engine_change_fps(), new_fps: '{}'", new_fps);
-        context.send_message(self.create_to_engine(GMMessageData::ChangeFPS(new_fps)));
+        self.create_to_engine(GMMessageData::ChangeFPS(new_fps))
     }
 
 
     // Scene manager messages:
 
-    pub fn scene_add<S: 'static + GMSceneT>(&self, scene: S, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::add_scene(), name: '{}'", scene.get_name());
-        self.scene_add_box(Box::new(scene), context);
+    pub fn scene_add<S: 'static + GMSceneT>(&self, scene: S) -> GMMessage {
+        debug!("GMMessageFactory::scene_add(), name: '{}'", scene.get_name());
+        self.scene_add_box(Box::new(scene))
     }
 
-    pub fn scene_add_box(&self, scene: Box<dyn GMSceneT>, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::add_scene_box(), name: '{}'", scene.get_name());
-        context.send_message(self.create_to_scene_manager(GMMessageData::AddScene(scene)));
+    pub fn scene_add_box(&self, scene: Box<dyn GMSceneT>) -> GMMessage {
+        debug!("GMMessageFactory::scene_add_box(), name: '{}'", scene.get_name());
+        self.create_to_scene_manager(GMMessageData::AddScene(scene))
     }
 
-    pub fn scene_remove(&self, name: &str, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::remove_scene(), name: '{}'", name);
-        context.send_message(self.create_to_scene_manager(GMMessageData::RemoveScene(name.to_string())));
+    pub fn scene_remove(&self, name: &str) -> GMMessage {
+        debug!("GMMessageFactory::scene_remove(), name: '{}'", name);
+        self.create_to_scene_manager(GMMessageData::RemoveScene(name.to_string()))
     }
 
-    pub fn scene_change(&self, name: &str, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::change_scene(), name: '{}'", name);
-        context.send_message(self.create_to_scene_manager(GMMessageData::ChangeToScene(name.to_string())));
+    pub fn scene_change(&self, name: &str) -> GMMessage {
+        debug!("GMMessageFactory::scene_change(), name: '{}'", name);
+        self.create_to_scene_manager(GMMessageData::ChangeToScene(name.to_string()))
     }
 
-    pub fn replace_replace<S: 'static + GMSceneT>(&self, scene: S, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::replace_scene(), name: '{}'", scene.get_name());
-        self.scene_replace_box(Box::new(scene), context);
+    pub fn scene_replace<S: 'static + GMSceneT>(&self, scene: S) -> GMMessage {
+        debug!("GMMessageFactory::scene_replace(), name: '{}'", scene.get_name());
+        self.scene_replace_box(Box::new(scene))
     }
 
-    pub fn scene_replace_box(&self, scene: Box<dyn GMSceneT>, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::replace_scene_box(), name: '{}'", scene.get_name());
-        context.send_message(self.create_to_scene_manager(GMMessageData::ReplaceScene(scene)));
+    pub fn scene_replace_box(&self, scene: Box<dyn GMSceneT>) -> GMMessage {
+        debug!("GMMessageFactory::scene_replace_box(), name: '{}'", scene.get_name());
+        self.create_to_scene_manager(GMMessageData::ReplaceScene(scene))
     }
 
-    pub fn scene_push(&self, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::push_scene()");
-        context.send_message(self.create_to_scene_manager(GMMessageData::PushCurrentScene));
+    pub fn scene_push(&self) -> GMMessage {
+        debug!("GMMessageFactory::scene_push()");
+        self.create_to_scene_manager(GMMessageData::PushCurrentScene)
     }
 
-    pub fn scene_pop(&self, context: &mut GMUpdateContext) {
-        debug!("GMMessageFactory::pop_scene()");
-        context.send_message(self.create_to_scene_manager(GMMessageData::PopCurrentScene));
+    pub fn scene_pop(&self) -> GMMessage {
+        debug!("GMMessageFactory::scene_pop()");
+        self.create_to_scene_manager(GMMessageData::PopCurrentScene)
     }
 
 
+    // Object messages:
 
+    pub fn object_set_z_index(&self, name: &str, z_index: i32) -> GMMessage {
+        self.create_to_object(name, GMMessageData::SetZIndex(z_index))
+    }
+
+    pub fn object_set_z_index_with_property(&self, property: &str, z_index: i32) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetZIndex(z_index))
+    }
+
+    pub fn object_set_active(&self, name: &str, active: bool) -> GMMessage {
+        self.create_to_object(name, GMMessageData::SetActive(active))
+    }
+
+    pub fn object_set_active_with_property(&self, property: &str, active: bool) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetActive(active))
+    }
+
+    pub fn object_set_position(&self, name: &str, position: GMVec2D) -> GMMessage {
+       self.create_to_object(name, GMMessageData::SetPosition(position))
+    }
+
+    pub fn object_set_position_with_property(&self, property: &str, position: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetPosition(position))
+    }
+
+    pub fn object_add_position(&self, name: &str, position: GMVec2D) -> GMMessage {
+        self.create_to_object(name, GMMessageData::AddPosition(position))
+    }
+
+    pub fn object_add_position_with_property(&self, property: &str, position: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::AddPosition(position))
+    }
+
+    pub fn object_set_velocity(&self, name: &str, velocity: GMVec2D) -> GMMessage {
+        self.create_to_object(name, GMMessageData::SetVelocity(velocity))
+    }
+
+    pub fn object_set_velocity_with_property(&self, property: &str, velocity: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetVelocity(velocity))
+    }
+
+    pub fn object_add_velocity(&self, name: &str, velocity: GMVec2D) -> GMMessage {
+        self.create_to_object(name, GMMessageData::AddVelocity(velocity))
+    }
+
+    pub fn object_add_velocity_with_property(&self, property: &str, velocity: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::AddVelocity(velocity))
+    }
+
+    pub fn object_set_acceleration(&self, name: &str, acceleration: GMVec2D) -> GMMessage {
+        self.create_to_object(name, GMMessageData::SetAcceleration(acceleration))
+    }
+
+    pub fn object_set_acceleration_with_property(&self, property: &str, acceleration: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetAcceleration(acceleration))
+    }
+
+    pub fn object_add_acceleration(&self, name: &str, acceleration: GMVec2D) -> GMMessage {
+        self.create_to_object(name, GMMessageData::AddAcceleration(acceleration))
+    }
+
+    pub fn object_add_acceleration_with_property(&self, property: &str, acceleration: GMVec2D) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::AddAcceleration(acceleration))
+    }
+
+    pub fn object_set_animation(&self, name: &str, animation: Box<dyn GMAnimationT>) -> GMMessage {
+        self.create_to_object(name, GMMessageData::SetAnimation(animation))
+    }
+
+    pub fn object_set_animation_property(&self, property: &str, animation: Box<dyn GMAnimationT>) -> GMMessage {
+        self.create_to_object_with_property(property, GMMessageData::SetAnimation(animation))
+    }
 
 }
-
-
-
 
 #[derive(Clone, Debug)]
 pub enum GMSender {
@@ -216,12 +256,35 @@ pub enum GMSender {
 
     CurrentScene,
     Scene(String),
-    // SceneModifier(String), // TODO: maybe add later
     SceneManager,
 
     Object(String),
-    // ObjectModifier(String), // TODO: maybe add later
     ObjectManager,
+}
+
+impl GMSender {
+    pub fn as_receiver(&self) -> GMReceiver {
+        match self {
+            GMSender::Engine => {
+                GMReceiver::Engine
+            }
+            GMSender::CurrentScene => {
+                GMReceiver::CurrentScene
+            }
+            GMSender::Scene(name) => {
+                GMReceiver::Scene(name.to_string())
+            }
+            GMSender::SceneManager => {
+                GMReceiver::SceneManager
+            }
+            GMSender::Object(name) => {
+                GMReceiver::Object(name.to_string())
+            }
+            GMSender::ObjectManager => {
+                GMReceiver::ObjectManager
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -231,12 +294,10 @@ pub enum GMReceiver {
     CurrentScene,
     Scene(String),
     SceneWithProperty(String),
-    // SceneModifier(String), // TODO: maybe add later
     SceneManager,
 
     Object(String),
     ObjectWithProperty(String),
-    // ObjectModifier(String), // TODO: maybe add later
     ObjectManager,
 }
 

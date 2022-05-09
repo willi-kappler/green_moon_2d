@@ -19,7 +19,7 @@ pub trait GMSceneT : Debug {
 
     fn clone_box(&self) -> Box<dyn GMSceneT>;
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext);
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError>;
 
     // May be implemented:
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
@@ -240,7 +240,9 @@ impl GMSceneManager {
                 Scene(name) => {
                     match self.index(&name) {
                         Some(index) => {
-                            self.scenes[index].send_message(message, context);
+                            if let Some(message) = self.scenes[index].send_message(message, context)? {
+                                context.send_message(message);
+                            }
                         }
                         None => {
                             return Err(GMError::SceneNotFound(name))
@@ -250,7 +252,9 @@ impl GMSceneManager {
                 SceneWithProperty(name) => {
                     for scene in self.scenes.iter_mut() {
                         if scene.has_property(&name) {
-                            scene.send_message(message.clone(), context);
+                            if let Some(message) = scene.send_message(message.clone(), context)? {
+                                context.send_message(message);
+                            }
                         }
                     }
                 }
