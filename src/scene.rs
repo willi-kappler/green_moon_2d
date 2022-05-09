@@ -1,8 +1,8 @@
 
-use std::collections::HashSet;
 use std::fmt::Debug;
 
 use log::debug;
+use delegate::delegate;
 
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::error::GMError;
@@ -19,27 +19,15 @@ pub trait GMSceneT : Debug {
 
     fn clone_box(&self) -> Box<dyn GMSceneT>;
 
-    // May be implemented:
-    fn send_message(&mut self, _message: GMMessage, _context: &mut GMUpdateContext) -> Result<GMMessage, GMError> {
-        GMMessage::empty_message_ok()
-    }
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext);
 
+    // May be implemented:
     fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
         Ok(())
     }
 
     fn exit(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
         Ok(())
-    }
-
-    fn is_in_group(&self, _group: &str) -> bool {
-        false
-    }
-
-    fn add_group(&mut self, _group: &str) {
-    }
-
-    fn remove_group(&mut self, _group: &str) {
     }
 
     fn get_property(&self, _name: &str) -> Option<&GMValue> {
@@ -80,7 +68,6 @@ impl Clone for Box<dyn GMSceneT> {
 pub struct GMSceneBase {
     pub name: String,
     pub child: Option<Box<dyn GMSceneT>>,
-    groups: HashSet<String>,
     properties: GMPropertyManager,
 }
 
@@ -89,7 +76,6 @@ impl GMSceneBase {
         Self {
             name: name.to_string(),
             child: None,
-            groups: HashSet::new(),
             properties: GMPropertyManager::new(),
         }
     }
@@ -102,34 +88,6 @@ impl GMSceneBase {
         }
     }
 
-    pub fn add_group(&mut self, group: &str) {
-        self.groups.insert(group.to_string());
-    }
-
-    pub fn remove_group(&mut self, group: &str) {
-        self.groups.remove(group);
-    }
-
-    pub fn is_in_group(&self, group: &str) -> bool {
-        self.groups.contains(group)
-    }
-
-    pub fn add_property(&mut self, name: &str, property: GMValue) {
-        self.properties.add_property(name, property);
-    }
-
-    pub fn add_tag(&mut self, name: &str) {
-        self.properties.add_tag(name);
-    }
-
-    pub fn remove_property(&mut self, name: &str) {
-        self.properties.remove_property(name);
-    }
-
-    pub fn get_property(&self, name: &str) -> Option<&GMValue> {
-        self.properties.get_property(name)
-    }
-
     pub fn set_child(&mut self, child: Box<dyn GMSceneT>) {
         self.child = Some(child);
     }
@@ -140,6 +98,16 @@ impl GMSceneBase {
 
     pub fn take_child(&mut self) -> Option<Box<dyn GMSceneT>> {
         self.child.take()
+    }
+
+    delegate! {
+        to self.properties {
+            pub fn get_property(&self, name: &str) -> Option<&GMValue>;
+            pub fn has_property(&self, name: &str) -> bool;
+            pub fn add_property(&mut self, name: &str, value: GMValue);
+            pub fn add_tag(&mut self, name: &str);
+            pub fn remove_property(&mut self, name: &str);
+        }
     }
 }
 
@@ -267,22 +235,22 @@ impl GMSceneManager {
 
             match receiver {
                 CurrentScene => {
-                    self.scenes[self.current_scene].send_message(message, context)?;
+                    self.scenes[self.current_scene].send_message(message, context);
                 }
                 Scene(name) => {
                     match self.index(&name) {
                         Some(index) => {
-                            self.scenes[index].send_message(message, context)?;
+                            self.scenes[index].send_message(message, context);
                         }
                         None => {
                             return Err(GMError::SceneNotFound(name))
                         }
                     }
                 }
-                SceneGroup(name) => {
+                SceneWithProperty(name) => {
                     for scene in self.scenes.iter_mut() {
-                        if scene.is_in_group(&name) {
-                            scene.send_message(message.clone(), context)?;
+                        if scene.has_property(&name) {
+                            scene.send_message(message.clone(), context);
                         }
                     }
                 }

@@ -1,5 +1,4 @@
 
-use std::collections::HashSet;
 use std::fmt::Debug;
 
 use delegate::delegate;
@@ -7,7 +6,7 @@ use delegate::delegate;
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
-use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData};
+use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData, GMMessageFactory};
 use crate::property::{GMPropertyManager, GMValue};
 
 // TODO:
@@ -23,13 +22,13 @@ pub trait GMObjectT : Debug {
 
     fn draw(&self, context: &mut GMDrawContext);
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<GMMessage, GMError>;
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext);
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
 
     fn get_name(&self) -> &str;
 
-    fn set_name(&mut self, name: &str);
+    fn set_name(&self, name: &str);
 
     fn get_z_index(&self) -> i32;
 
@@ -45,17 +44,10 @@ pub trait GMObjectT : Debug {
 
     fn add_position(&mut self, position: &GMVec2D);
 
-    fn get_next_position(&self) -> GMVec2D;
 
     // May be implemented:
-    fn is_in_group(&self, _group: &str) -> bool {
-        false
-    }
-
-    fn add_group(&mut self, _group: &str) {
-    }
-
-    fn remove_group(&mut self, _group: &str) {
+    fn get_next_position(&self) -> GMVec2D {
+        self.get_position()
     }
 
     fn get_property(&self, _name: &str) -> Option<&GMValue> {
@@ -81,7 +73,7 @@ pub trait GMObjectT : Debug {
     fn remove_child(&mut self) {
     }
 
-    fn take_child(&self) -> Option<Box<dyn GMObjectT>> {
+    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
         None
     }
 }
@@ -98,7 +90,6 @@ pub struct GMObjectBase {
     pub z_index: i32,
     pub active: bool,
     pub position: GMVec2D,
-    groups: HashSet<String>,
     properties: GMPropertyManager,
 }
 
@@ -109,7 +100,6 @@ impl GMObjectBase {
             z_index: 0,
             active: true,
             position,
-            groups: HashSet::new(),
             properties: GMPropertyManager::new(),
         }
     }
@@ -154,18 +144,6 @@ impl GMObjectBase {
         self.position
     }
 
-    pub fn is_in_group(&self, group: &str) -> bool {
-        self.groups.contains(group)
-    }
-
-    pub fn add_group(&mut self, group: &str) {
-        self.groups.insert(group.to_string());
-    }
-
-    pub fn remove_group(&mut self, group: &str) {
-        self.groups.remove(group);
-    }
-
     delegate! {
         to self.properties {
             pub fn get_property(&self, name: &str) -> Option<&GMValue>;
@@ -179,12 +157,14 @@ impl GMObjectBase {
 
 pub struct GMObjectManager {
     objects: Vec<Box<dyn GMObjectT>>,
+    message_factory: GMMessageFactory,
 }
 
 impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            message_factory: GMMessageFactory::new(GMSender::ObjectManager),
         }
     }
 
@@ -250,8 +230,22 @@ impl GMObjectManager {
     }
 
     pub fn remove_parent(&mut self, name: &str) -> Result<(), GMError> {
-        // TODO: Remove parent from object
-        todo!();
+        match self.index(name) {
+            Some(index) => {
+                match self.objects[index].get_child() {
+                    Some(child) => {
+                        self.objects[index] = child;
+                        Ok(())
+                    }
+                    None => {
+                        Err(GMError::ObjectHasNoChild(name.to_string()))
+                    }
+                }
+            }
+            None => {
+                Err(GMError::ObjectNotFound(name.to_string()))
+            }
+        }
     }
 
     pub fn set_child(&mut self, name: &str, child: Box<dyn GMObjectT>) -> Result<(), GMError> {
@@ -281,7 +275,7 @@ impl GMObjectManager {
     pub fn take_child(&mut self, name: &str) -> Result<Option<Box<dyn GMObjectT>>, GMError> {
         match self.index(name) {
             Some(index) => {
-                Ok(self.objects[index].take_child())
+                Ok(self.objects[index].get_child())
             }
             None => {
                 Err(GMError::ObjectNotFound(name.to_string()))
@@ -319,7 +313,7 @@ impl GMObjectManager {
             Object(name) => {
                 match self.index(&name) {
                     Some(index) => {
-                        self.objects[index].send_message(message, context)?;
+                        self.objects[index].send_message(message, context);
                         Ok(())
                     }
                     None => {
@@ -327,10 +321,10 @@ impl GMObjectManager {
                     }
                 }
             }
-            ObjectGroup(name) => {
+            ObjectWithProperty(name) => {
                 for object in self.objects.iter_mut() {
-                    if object.is_in_group(&name) {
-                        object.send_message(message.clone(), context)?;
+                    if object.has_property(&name) {
+                        object.send_message(message.clone(), context)
                     }
                 }
 
@@ -352,15 +346,9 @@ impl GMObjectManager {
                     TakeObject(ref name) => {
                         let object = self.take(name)?;
                         let message_data = Object(object);
-                        let sender = GMSender::ObjectManager;
-                        if let Some(receiver) = GMMessage::sender2receiver(&message.sender) {
-                            let message = GMMessage::new(sender, receiver, message_data);
-                            context.send_message(message);
+                        self.message_factory.reply(&message, message_data, context);
 
-                            Ok(())
-                        } else {
-                            Err(GMError::SenderUnknown(message))
-                        }
+                        Ok(())
 
                     }
                     SetObjectParent(ref name, parent) => {
@@ -376,9 +364,17 @@ impl GMObjectManager {
                         self.remove_child(name)
                     }
                     TakeObjectChild(ref name) => {
-                        let child = self.take_child(name)?;
-                        //TODO: send response to original sender of message
-                        Ok(())
+                        match self.take_child(name)? {
+                            Some(child) => {
+                                let message_data = Object(child);
+                                self.message_factory.reply(&message, message_data, context);
+
+                                Ok(())
+                            }
+                            None => {
+                                Err(GMError::ObjectHasNoChild(name.to_string()))
+                            }
+                        }
                     }
 
                     _ => {
@@ -391,7 +387,6 @@ impl GMObjectManager {
                 Err(GMError::UnknownMessageToObject(message))
             }
         }
-
     }
 
     pub fn get_ref(&self, name: &str) -> Result<&Box<dyn GMObjectT>, GMError> {

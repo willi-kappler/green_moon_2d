@@ -9,13 +9,13 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
-use crate::animation::GMAnimationT;
+// use crate::animation::GMAnimationT;
 use crate::error::GMError;
-use crate::math::GMVec2D;
+// use crate::math::GMVec2D;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
-use crate::scene::GMSceneT;
+use crate::message::{GMReceiver, GMMessage};
+// use crate::scene::GMSceneT;
 
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMMessage>,
@@ -40,117 +40,24 @@ impl GMUpdateContext {
     }
 
     // Scene messages:
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
-        debug!("GMUpdateContext::add_scene(), name: '{}'", scene.get_name());
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::AddScene(Box::new(scene)));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn add_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
-        debug!("GMUpdateContext::add_scene_box(), name: '{}'", scene.get_name());
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::AddScene(scene));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn remove_scene(&mut self, name: &str) {
-        debug!("GMUpdateContext::remove_scene(), name: '{}'", name);
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::RemoveScene(name.to_string()));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn change_scene(&mut self, name: &str) {
-        debug!("GMUpdateContext::change_scene(), name: '{}'", name);
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::ChangeToScene(name.to_string()));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn replace_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
-        debug!("GMUpdateContext::replace_scene(), name: '{}'", scene.get_name());
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::ReplaceScene(Box::new(scene)));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn replace_scene_box(&mut self, scene: Box<dyn GMSceneT>) {
-        debug!("GMUpdateContext::replace_scene_box(), name: '{}'", scene.get_name());
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::ReplaceScene(scene));
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn push_scene(&mut self) {
-        debug!("GMUpdateContext::push_scene()");
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::PushCurrentScene);
-        self.scene_messages.push_back(message);
-    }
-
-    pub fn pop_scene(&mut self) {
-        debug!("GMUpdateContext::pop_scene()");
-
-        let message = GMMessage::new_to_scene_manager(GMMessageData::PopCurrentScene);
-        self.scene_messages.push_back(message);
-    }
-
-    // TODO: Properties
-
-
     pub(crate) fn next_scene_message(&mut self) -> Option<GMMessage> {
         self.scene_messages.pop_front()
     }
 
     // Engine messages:
-    pub fn quit(&mut self) {
-        debug!("GMUpdateContext::quit()");
-
-        let message = GMMessage::new_to_engine(GMMessageData::Quit);
-        self.engine_messages.push_back(message);
-    }
-
-    pub fn change_fps(&mut self, new_fps: u32) {
-        debug!("GMUpdateContext::change_fps(), new_fps: '{}'", new_fps);
-
-        let message = GMMessage::new_to_engine(GMMessageData::ChangeFPS(new_fps));
-        self.engine_messages.push_back(message);
-    }
-
     pub(crate) fn next_engine_message(&mut self) -> Option<GMMessage> {
         self.engine_messages.pop_front()
     }
 
     // Object manager messages:
-
-
+    pub(crate) fn next_object_message(&mut self) -> Option<GMMessage> {
+        self.object_messages.pop_front()
+    }
 
 
     // Object messages:
 
-
-    pub fn unknown_to_object(&mut self, name: &str, data: GMMessageData) {
-        let sender = GMSender::Unknown;
-        let receiver = GMReceiver::Object(name.to_string());
-        let message = GMMessage::new(sender, receiver, data);
-        self.object_messages.push_back(message);
-    }
-
-    pub fn unknown_to_object_group(&mut self, group: &str, data: GMMessageData) {
-        let sender = GMSender::Unknown;
-        let receiver = GMReceiver::ObjectGroup(group.to_string());
-        let message = GMMessage::new(sender, receiver, data);
-        self.object_messages.push_back(message);
-    }
-
-    pub fn unknown_to_object_manager(&mut self, data: GMMessageData) {
-        let sender = GMSender::Unknown;
-        let receiver = GMReceiver::ObjectManager;
-        let message = GMMessage::new(sender, receiver, data);
-        self.object_messages.push_back(message);
-    }
-
+/*
     pub fn set_z_index(&mut self, name: &str, z_index: i32) {
         let data = GMMessageData::SetZIndex(z_index);
         self.unknown_to_object(name, data);
@@ -236,30 +143,27 @@ impl GMUpdateContext {
         self.unknown_to_object(group, data);
     }
 
+*/
 
 
 
 
-
-    pub(crate) fn next_object_message(&mut self) -> Option<GMMessage> {
-        self.object_messages.pop_front()
-    }
 
     // General messages:
 
     pub fn send_message(&mut self, message: GMMessage) {
         use GMReceiver::*;
 
-        let receiver = message.receiver.clone();
+        let receiver = &message.receiver;
 
         match receiver {
             Engine => {
                 self.engine_messages.push_back(message);
             }
-            CurrentScene | Scene(_) | SceneGroup(_) | SceneModifier(_) | SceneManager => {
+            CurrentScene | Scene(_) | SceneWithProperty(_) | SceneManager => {
                 self.scene_messages.push_back(message);
             }
-            Object(_) | ObjectGroup(_) | ObjectModifier(_) | ObjectManager => {
+            Object(_) | ObjectWithProperty(_) | ObjectManager => {
                 self.object_messages.push_back(message);
             }
         }

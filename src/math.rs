@@ -1,3 +1,5 @@
+use std::ops::{Add, Sub};
+
 
 
 #[derive(Copy, Clone, Debug)]
@@ -38,7 +40,7 @@ impl GMVec2D {
         }
     }
 
-    pub fn add(&mut self, x: f32, y: f32) {
+    pub fn add1(&mut self, x: f32, y: f32) {
         self.x += x;
         self.y += y;
     }
@@ -48,7 +50,7 @@ impl GMVec2D {
         self.y += other.y;
     }
 
-    pub fn sub(&mut self, x: f32, y: f32) {
+    pub fn sub1(&mut self, x: f32, y: f32) {
         self.x -= x;
         self.y -= y;
     }
@@ -76,6 +78,23 @@ impl Default for GMVec2D {
         }
     }
 }
+
+impl Add for GMVec2D {
+    type Output = GMVec2D;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        GMVec2D::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl Sub for GMVec2D {
+    type Output = GMVec2D;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        GMVec2D::new(self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMSize {
@@ -198,12 +217,11 @@ impl GMCircle {
         let mut vec = GMVec2D::new(x - self.x, y - self.y);
         vec.norm();
         vec.mul(self.radius);
-        vec.add(self.x, self.y);
+        vec.add1(self.x, self.y);
         vec
     }
 
     pub fn circ_point2(&self, point: &GMVec2D) -> GMVec2D {
         self.circ_point(point.x, point.y)
     }
-
 }

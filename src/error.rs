@@ -29,7 +29,7 @@ pub enum GMError {
     UnknownMessageToSceneModifier(GMMessage),
     UnknownMessageToObject(GMMessage),
     UnknownMessageToObjectModifier(GMMessage),
-    SenderUnknown(GMMessage),
+    ObjectHasNoChild(String),
 }
 
 impl std::error::Error for GMError {
@@ -61,7 +61,7 @@ impl fmt::Display for GMError {
             UnknownMessageToSceneModifier(message) => write!(f, "Unknown message to engine: '{:?}'", message),
             UnknownMessageToObject(message) => write!(f, "Unknown message to engine: '{:?}'", message),
             UnknownMessageToObjectModifier(message) => write!(f, "Unknown message to engine: '{:?}'", message),
-            SenderUnknown(message) => write!(f, "Sender unknown in message: '{:?}', could not create a receiver", message),
+            ObjectHasNoChild(name) => write!(f, "Object has no child: '{}'", name),
         }
     }
 }
