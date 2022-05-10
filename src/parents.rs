@@ -49,7 +49,11 @@ impl GMObjectT for GMParentCircular {
 
         match message.message_data {
             SetPosition(position) => {
-                self.center = position;
+                self.set_position(position);
+                Ok(None)
+            }
+            AddPosition(position) => {
+                self.add_position(&position);
                 Ok(None)
             }
             // GetPosition is handled by child
@@ -59,7 +63,7 @@ impl GMObjectT for GMParentCircular {
             }
             GetRadius => {
                 let message_data = Radius(self.radius);
-                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
+                Ok(Some(GMMessage::new_reply(&self.child, &message, message_data)))
             }
             SetAngle(angle) => {
                 self.angle = angle;
@@ -67,7 +71,7 @@ impl GMObjectT for GMParentCircular {
             }
             GetAngle => {
                 let message_data = Angle(self.radius);
-                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
+                Ok(Some(GMMessage::new_reply(&self.child, &message, message_data)))
             }
             SetChild(child) => {
                 self.set_child(child);
@@ -75,7 +79,7 @@ impl GMObjectT for GMParentCircular {
             }
             GetChildClone => {
                 let message_data = Child(self.get_child());
-                Ok(Some(GMMessage::new_object_reply(&self.child, &message, message_data)))
+                Ok(Some(GMMessage::new_reply(&self.child, &message, message_data)))
             }
             _ => {
                 self.child.send_message(message, context)
@@ -121,6 +125,98 @@ impl GMObjectT for GMParentCircular {
             fn get_active(&self) -> bool;
             fn set_active(&mut self, active: bool);
             fn get_position(&self) -> GMVec2D;
+            fn get_property(&self, name: &str) -> Option<&crate::property::GMValue>;
+            fn has_property(&self, name: &str) -> bool;
+            fn add_property(&mut self, name: &str, value: crate::property::GMValue);
+            fn add_tag(&mut self, name: &str);
+            fn remove_property(&mut self, name: &str);
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMParentTimer {
+    timer: GMTimer,
+    looping: bool,
+    child: Box<dyn GMObjectT>,
+}
+
+impl GMParentTimer {
+    pub fn new(duration: f32, child: Box<dyn GMObjectT>) -> Self {
+        Self {
+            timer: GMTimer::new(duration),
+            looping: false,
+            child,
+        }
+    }
+
+    pub fn new_looping(duration: f32, child: Box<dyn GMObjectT>) -> Self {
+        let mut result = Self::new(duration, child);
+        result.looping = true;
+        result
+    }
+}
+
+impl GMObjectT for GMParentTimer {
+    fn update(&mut self, context: &mut crate::GMUpdateContext) {
+        if self.timer.finished() {
+            if self.looping {
+                self.timer.start();
+            }
+        }
+    }
+
+    fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        use GMMessageData::*;
+
+        match message.message_data {
+            SetChild(child) => {
+                self.set_child(child);
+                Ok(None)
+            }
+            GetChildClone => {
+                let message_data = Child(self.get_child());
+                Ok(Some(GMMessage::new_reply(&self.child, &message, message_data)))
+            }
+            SetDuration(duration) => {
+                self.timer.set_duration(duration);
+                Ok(None)
+            }
+            GetDuration => {
+                let message_data = Duration(self.timer.get_duration());
+                Ok(Some(GMMessage::new_reply(&self.child, &message, message_data)))
+            }
+            _ => {
+                self.child.send_message(message, context)
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+
+    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
+        Some(self.child.clone_box())
+    }
+
+    fn set_child(&mut self, child: Box<dyn GMObjectT>) {
+        self.child = child;
+    }
+
+    // Delegate methods:
+    delegate! {
+        to self.child {
+            fn draw(&self, context: &mut crate::GMDrawContext);
+            fn get_name(&self) -> &str;
+            fn set_name(&self, name: &str);
+            fn get_z_index(&self) -> i32;
+            fn set_z_index(&mut self, z_index: i32);
+            fn get_active(&self) -> bool;
+            fn set_active(&mut self, active: bool);
+            fn get_position(&self) -> GMVec2D;
+            fn set_position(&mut self, position: GMVec2D);
+            fn add_position(&mut self, position: &GMVec2D);
             fn get_property(&self, name: &str) -> Option<&crate::property::GMValue>;
             fn has_property(&self, name: &str) -> bool;
             fn add_property(&mut self, name: &str, value: crate::property::GMValue);

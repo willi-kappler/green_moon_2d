@@ -26,6 +26,10 @@ impl GMTimer {
         }
     }
 
+    pub fn get_duration(&self) -> f32 {
+        self.duration
+    }
+
     pub fn set_duration(&mut self, duration: f32) {
         self.duration = duration;
         if self.active {

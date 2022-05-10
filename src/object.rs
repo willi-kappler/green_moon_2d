@@ -27,18 +27,20 @@ pub trait GMObjectT : Debug {
 
     fn get_name(&self) -> &str;
 
-    fn get_active(&self) -> bool;
-
-    fn set_active(&mut self, active: bool);
-
     fn get_position(&self) -> GMVec2D;
 
     fn set_position(&mut self, position: GMVec2D);
 
     fn add_position(&mut self, position: &GMVec2D);
 
-
     // May be implemented:
+    fn get_active(&self) -> bool {
+        true
+    }
+
+    fn set_active(&mut self, _active: bool) {
+    }
+
     fn set_name(&self, _name: &str) {
     }
 
@@ -175,7 +177,7 @@ impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
-            message_factory: GMMessageFactory::new(GMSender::ObjectManager),
+            message_factory: GMMessageFactory::new_sender(GMSender::ObjectManager),
         }
     }
 
@@ -362,7 +364,7 @@ impl GMObjectManager {
                     TakeObject(ref name) => {
                         let object = self.take(name)?;
                         let message_data = Object(object);
-                        context.send_message(self.message_factory.create_reply(&message, message_data));
+                        context.send_message(self.message_factory.create_data_reply(&message, message_data));
 
                         Ok(())
                     }
@@ -382,7 +384,7 @@ impl GMObjectManager {
                         match self.take_child(name)? {
                             Some(child) => {
                                 let message_data = Object(child);
-                                context.send_message(self.message_factory.create_reply(&message, message_data));
+                                context.send_message(self.message_factory.create_data_reply(&message, message_data));
 
                                 Ok(())
                             }
