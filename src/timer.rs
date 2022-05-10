@@ -18,9 +18,14 @@ impl GMTimer {
         }
     }
 
-    pub fn finished(&self) -> bool {
+    pub fn finished(&mut self) -> bool {
         if self.active {
-            self.instant.elapsed().as_secs_f32() >= self.duration
+            if self.instant.elapsed().as_secs_f32() >= self.duration {
+                self.active = false;
+                true
+            } else {
+                false
+            }
         } else {
             false
         }
@@ -44,5 +49,9 @@ impl GMTimer {
 
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
+    }
+
+    pub fn get_active(&self) -> bool {
+        self.active
     }
 }

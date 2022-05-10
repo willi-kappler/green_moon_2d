@@ -153,6 +153,14 @@ impl GMMessageFactory {
         )
     }
 
+    pub fn create_data(&self, message_data: GMMessageData) -> GMMessage {
+        GMMessage::new(
+            self.sender.clone().unwrap(),
+            self.receiver.clone().unwrap(),
+            message_data,
+        )
+    }
+
     pub fn create_to_engine(&self) -> GMMessage {
         self.create_to(GMReceiver::Engine)
     }
@@ -459,6 +467,7 @@ pub enum GMMessageData {
     SetChild(Box<dyn GMObjectT>),
     GetChildClone,
     Child(Option<Box<dyn GMObjectT>>),
+    MessageToChild(Box<GMMessageData>),
 
     SetZIndex(i32),
     GetZIndex,
@@ -468,6 +477,8 @@ pub enum GMMessageData {
     AddPosition(GMVec2D),
     GetPosition,
     Position(GMVec2D),
+    GetNextPosition,
+    NextPosition(GMVec2D),
 
     SetVelocity(GMVec2D),
     AddVelocity(GMVec2D),
@@ -501,5 +512,12 @@ pub enum GMMessageData {
     GetDuration,
     Duration(f32),
 
+    AddProperty(String, GMValue),
+    AddTag(String),
+    GetProperty(String),
     Property(String, GMValue),
+    HasProperty(String),
+    PropertyFound(String),
+    PropertyNotFound(String),
+    RemoveProperty(String),
 }

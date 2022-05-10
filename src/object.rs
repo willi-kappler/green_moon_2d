@@ -166,6 +166,80 @@ impl GMObjectBase {
             pub fn remove_property(&mut self, name: &str);
         }
     }
+
+    pub fn send_message(&mut self, message: GMMessage, _context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        use GMMessageData::*;
+
+        let message_factory = GMMessageFactory::new_sender_receiver(
+            GMSender::Object(self.name.to_string()), &message.sender);
+
+        match message.message_data {
+            GetZIndex => {
+                Ok(Some(message_factory.create_data(GMMessageData::ZIndex(self.z_index))))
+            }
+            SetZIndex(z_index) => {
+                self.set_z_index(z_index);
+                Ok(None)
+            }
+            GetActive => {
+                Ok(Some(message_factory.create_data(GMMessageData::Active(self.active))))
+            }
+            SetActive(active) => {
+                self.set_active(active);
+                Ok(None)
+            }
+            GetPosition => {
+                Ok(Some(message_factory.create_data(GMMessageData::Position(self.position))))
+            }
+            SetPosition(position) => {
+                self.set_position(position);
+                Ok(None)
+            }
+            AddPosition(position) => {
+                self.add_position(&position);
+                Ok(None)
+            }
+            GetNextPosition => {
+                Ok(Some(message_factory.create_data(GMMessageData::Position(self.position))))
+            }
+            GetProperty(name) => {
+                let message_data = match self.get_property(&name) {
+                    Some(value) => {
+                        GMMessageData::Property(name, value.clone())
+                    }
+                    None => {
+                        GMMessageData::PropertyNotFound(name)
+                    }
+                };
+
+                Ok(Some(message_factory.create_data(message_data)))
+            }
+            HasProperty(name) => {
+                let message_data = if self.has_property(&name) {
+                    GMMessageData::PropertyFound(name)
+                } else {
+                    GMMessageData::PropertyNotFound(name)
+                };
+
+                Ok(Some(message_factory.create_data(message_data)))
+            }
+            AddProperty(name, value) => {
+                self.add_property(&name, value);
+                Ok(None)
+            }
+            AddTag(name) => {
+                self.add_tag(&name);
+                Ok(None)
+            }
+            RemoveProperty(name) => {
+                self.remove_property(&name);
+                Ok(None)
+            }
+            _ => {
+                Err(GMError::UnknownMessageToObject(message))
+            }
+        }
+    }
 }
 
 pub struct GMObjectManager {
