@@ -17,59 +17,136 @@ use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMObjectT : Debug {
     // Must be implemented:
-    fn update(&mut self, context: &mut GMUpdateContext);
-
-    fn draw(&self, context: &mut GMDrawContext);
-
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError>;
-
     fn clone_box(&self) -> Box<dyn GMObjectT>;
 
-    fn get_name(&self) -> &str;
-
-    fn get_position(&self) -> GMVec2D;
-
-    fn set_position(&mut self, position: GMVec2D);
-
-    fn add_position(&mut self, position: &GMVec2D);
 
     // May be implemented:
+    fn update(&mut self, context: &mut GMUpdateContext) {
+        if let Some(child) = self.get_child_mut() {
+            child.update(context)
+        } else {
+            panic!("Implement 'update()' or set child!");
+        }
+    }
+
+    fn draw(&self, context: &mut GMDrawContext) {
+        if let Some(child) = self.get_child_ref() {
+            child.draw(context)
+        } else {
+            panic!("Implement 'draw()' or set child!");
+        }
+    }
+
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        if let Some(child) = self.get_child_mut() {
+            child.send_message(message, context)
+        } else {
+            panic!("Implement 'send_message()' or set child!");
+        }
+    }
+
+    fn get_name(&self) -> &str {
+        if let Some(child) = self.get_child_ref() {
+            child.get_name()
+        } else {
+            panic!("Implement 'get_name()' or set child!");
+        }
+    }
+
+    fn get_position(&self) -> GMVec2D {
+        if let Some(child) = self.get_child_ref() {
+            child.get_position()
+        } else {
+            panic!("Implement 'get_position()' or set child!");
+        }
+    }
+
+    fn set_position(&mut self, position: GMVec2D) {
+        if let Some(child) = self.get_child_mut() {
+            child.set_position(position)
+        } else {
+            panic!("Implement 'set_position()' or set child!");
+        }
+    }
+
+    fn add_position(&mut self, position: &GMVec2D) {
+        if let Some(child) = self.get_child_mut() {
+            child.add_position(position)
+        } else {
+            panic!("Implement 'add_position()' or set child!");
+        }
+    }
+
     fn get_active(&self) -> bool {
-        true
+        if let Some(child) = self.get_child_ref() {
+            child.get_active()
+        } else {
+            true
+        }
     }
 
-    fn set_active(&mut self, _active: bool) {
+    fn set_active(&mut self, active: bool) {
+        if let Some(child) = self.get_child_mut() {
+            child.set_active(active)
+        }
     }
 
-    fn set_name(&self, _name: &str) {
+    fn set_name(&mut self, name: &str) {
+        if let Some(child) = self.get_child_mut() {
+            child.set_name(name)
+        }
     }
 
     fn get_z_index(&self) -> i32 {
-        0
+        if let Some(child) = self.get_child_ref() {
+            child.get_z_index()
+        } else {
+            0
+        }
     }
 
-    fn set_z_index(&mut self, _z_index: i32) {
+    fn set_z_index(&mut self, z_index: i32) {
+        if let Some(child) = self.get_child_mut() {
+            child.set_z_index(z_index)
+        }
     }
 
     fn get_next_position(&self) -> GMVec2D {
         self.get_position()
     }
 
-    fn get_property(&self, _name: &str) -> Option<&GMValue> {
-        None
+    fn get_property(&self, name: &str) -> Option<&GMValue> {
+        if let Some(child) = self.get_child_ref() {
+            child.get_property(name)
+        } else {
+            None
+        }
     }
 
-    fn has_property(&self, _name: &str) -> bool {
-        false
+    fn has_property(&self, name: &str) -> bool {
+        if let Some(child) = self.get_child_ref() {
+            child.has_property(name)
+        } else {
+            false
+        }
     }
 
-    fn add_property(&mut self, _name: &str, _value: GMValue) {
+    fn add_property(&mut self, name: &str, value: GMValue) {
+        if let Some(child) = self.get_child_mut() {
+            child.add_property(name, value)
+        }
     }
 
-    fn add_tag(&mut self, _name: &str) {
+    fn add_tag(&mut self, name: &str) {
+        if let Some(child) = self.get_child_mut() {
+            child.add_tag(name)
+        }
     }
 
-    fn remove_property(&mut self, _name: &str) {
+    fn remove_property(&mut self, name: &str) {
+        if let Some(child) = self.get_child_mut() {
+            child.remove_property(name)
+        }
     }
 
     fn set_child(&mut self, _child: Box<dyn GMObjectT>) {
@@ -79,6 +156,14 @@ pub trait GMObjectT : Debug {
     }
 
     fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
+        None
+    }
+
+    fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
+        None
+    }
+
+    fn get_child_mut(&mut self) -> Option<&mut Box<dyn GMObjectT>> {
         None
     }
 
@@ -263,6 +348,7 @@ impl GMObjectManager {
         self.add_box(Box::new(object))
     }
 
+    // Maybe use From trait, GMObjectT -> Box<dyn GMObjectT>
     pub fn add_box(&mut self, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
         let name = object.get_name();
 
@@ -296,6 +382,7 @@ impl GMObjectManager {
         self.replace_box(Box::new(object))
     }
 
+    // Maybe use From trait, GMObjectT -> Box<dyn GMObjectT>
     pub fn replace_box(&mut self, object: Box<dyn GMObjectT>) -> Result<(), GMError> {
         let name = object.get_name();
 

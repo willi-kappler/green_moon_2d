@@ -76,7 +76,7 @@ impl GMAnimationBase {
         self.current_frame == 0
     }
 
-    pub fn timer_finished(&self) -> bool {
+    pub fn timer_finished(&mut self) -> bool {
         self.timer.finished()
     }
 
