@@ -255,26 +255,27 @@ impl GMObjectBase {
     pub fn send_message(&mut self, message: GMMessage, _context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let message_factory = GMMessageFactory::new_sender_receiver(
-            GMSender::Object(self.name.to_string()), &message.sender);
+        let sender = GMSender::Object(self.name.to_string());
+        let receiver: GMReceiver = (&message.sender).into();
+        let message_factory = GMMessageFactory::new_with((sender, receiver));
 
         match message.message_data {
             GetZIndex => {
-                Ok(Some(message_factory.create_data(GMMessageData::ZIndex(self.z_index))))
+                Ok(Some(message_factory.create_with(GMMessageData::ZIndex(self.z_index))))
             }
             SetZIndex(z_index) => {
                 self.set_z_index(z_index);
                 Ok(None)
             }
             GetActive => {
-                Ok(Some(message_factory.create_data(GMMessageData::Active(self.active))))
+                Ok(Some(message_factory.create_with(GMMessageData::Active(self.active))))
             }
             SetActive(active) => {
                 self.set_active(active);
                 Ok(None)
             }
             GetPosition => {
-                Ok(Some(message_factory.create_data(GMMessageData::Position(self.position))))
+                Ok(Some(message_factory.create_with(GMMessageData::Position(self.position))))
             }
             SetPosition(position) => {
                 self.set_position(position);
@@ -285,7 +286,7 @@ impl GMObjectBase {
                 Ok(None)
             }
             GetNextPosition => {
-                Ok(Some(message_factory.create_data(GMMessageData::Position(self.position))))
+                Ok(Some(message_factory.create_with(GMMessageData::Position(self.position))))
             }
             GetProperty(name) => {
                 let message_data = match self.get_property(&name) {
@@ -297,7 +298,7 @@ impl GMObjectBase {
                     }
                 };
 
-                Ok(Some(message_factory.create_data(message_data)))
+                Ok(Some(message_factory.create_with(message_data)))
             }
             HasProperty(name) => {
                 let message_data = if self.has_property(&name) {
@@ -306,7 +307,7 @@ impl GMObjectBase {
                     GMMessageData::PropertyNotFound(name)
                 };
 
-                Ok(Some(message_factory.create_data(message_data)))
+                Ok(Some(message_factory.create_with(message_data)))
             }
             AddProperty(name, value) => {
                 self.add_property(&name, value);
@@ -336,7 +337,7 @@ impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
-            message_factory: GMMessageFactory::new_sender(GMSender::ObjectManager),
+            message_factory: GMMessageFactory::new_with(GMSender::ObjectManager),
         }
     }
 

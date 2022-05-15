@@ -52,90 +52,49 @@ impl GMMessageFactory {
         }
     }
 
-    pub fn new_sender<S: Into<GMSender>>(sender: S) -> Self {
-        Self {
-            sender: Some(sender.into()),
-            receiver: None,
-            message_data: None,
+    pub fn new_with<T: Into<GMMessageFactory>>(params: T) -> Self {
+        params.into()
+    }
+
+    pub fn set<T: Into<GMMessageFactory>>(&mut self, params: T) {
+        let message_factory = params.into();
+
+        if message_factory.sender.is_some() {
+            self.sender = message_factory.sender;
         }
-    }
 
-    pub fn new_receiver<R: Into<GMReceiver>>(receiver: R) -> Self {
-        Self {
-            sender: None,
-            receiver: Some(receiver.into()),
-            message_data: None,
+        if message_factory.receiver.is_some() {
+            self.receiver = message_factory.receiver;
         }
-    }
 
-    pub fn new_sender_receiver<S: Into<GMSender>, R: Into<GMReceiver>>(sender: S, receiver: R) -> Self {
-        Self {
-            sender: Some(sender.into()),
-            receiver: Some(receiver.into()),
-            message_data: None,
+        if message_factory.message_data.is_some() {
+            self.message_data = message_factory.message_data;
         }
-    }
 
-    pub fn set_sender<S: Into<GMSender>>(&mut self, sender: S) {
-        self.sender = Some(sender.into());
-    }
-
-    pub fn set_receiver<R: Into<GMReceiver>>(&mut self, receiver: R) {
-        self.receiver = Some(receiver.into());
-    }
-
-    pub fn sender_receiver<S: Into<GMSender>, R: Into<GMReceiver>>(&mut self, sender: S, receiver: R) {
-        self.set_sender(sender.into());
-        self.set_receiver(receiver.into());
     }
 
     pub fn reply(&mut self, message: &GMMessage) {
         self.receiver = Some((&message.sender).into());
     }
 
-    pub fn message_data(&mut self, message_data: GMMessageData) {
-        self.message_data = Some(message_data);
-    }
-
     pub fn create(&self) -> GMMessage {
         GMMessage::new(
             self.sender.clone().unwrap(),
             self.receiver.clone().unwrap(),
-            self.message_data.clone().unwrap()
-        )
-    }
-
-    pub fn create_from<S: Into<GMSender>>(&self, sender: S) -> GMMessage {
-        GMMessage::new(
-            sender,
-            self.receiver.clone().unwrap(),
             self.message_data.clone().unwrap(),
         )
     }
 
-    pub fn create_data_from<S: Into<GMSender>>(&self, sender: S, message_data: GMMessageData) -> GMMessage {
-        GMMessage::new(
-            sender,
-            self.receiver.clone().unwrap(),
-            message_data,
-        )
+    pub fn create_with<T: Into<GMMessageFactory>>(&self, params: T) -> GMMessage {
+        let message_factory = params.into();
+
+        GMMessage {
+            sender: message_factory.sender.or(self.sender.clone()).unwrap(),
+            receiver: message_factory.receiver.or(self.receiver.clone()).unwrap(),
+            message_data: message_factory.message_data.or(self.message_data.clone()).unwrap(),
+        }
     }
 
-    pub fn create_to<R: Into<GMReceiver>>(&self, receiver: R) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            receiver,
-            self.message_data.clone().unwrap(),
-        )
-    }
-
-    pub fn create_data_to<R: Into<GMReceiver>>(&self, receiver: R, message_data: GMMessageData) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            receiver,
-            message_data,
-        )
-    }
 
     pub fn create_reply(&self, message: &GMMessage) -> GMMessage {
         GMMessage::new(
@@ -153,76 +112,68 @@ impl GMMessageFactory {
         )
     }
 
-    pub fn create_data(&self, message_data: GMMessageData) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            self.receiver.clone().unwrap(),
-            message_data,
-        )
-    }
-
     pub fn create_to_engine(&self) -> GMMessage {
-        self.create_to(GMReceiver::Engine)
+        self.create_with(GMReceiver::Engine)
     }
 
     pub fn create_data_to_engine(&self, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::Engine, message_data)
+        self.create_with((GMReceiver::Engine, message_data))
     }
 
     pub fn create_to_scene_manager(&self) -> GMMessage {
-        self.create_to(GMReceiver::SceneManager)
+        self.create_with(GMReceiver::SceneManager)
     }
 
     pub fn create_data_to_scene_manager(&self, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::SceneManager, message_data)
+        self.create_with((GMReceiver::SceneManager, message_data))
     }
 
     pub fn create_to_scene(&self, scene: &str) -> GMMessage {
-        self.create_to(GMReceiver::Scene(scene.to_string()))
+        self.create_with(GMReceiver::Scene(scene.to_string()))
     }
 
     pub fn create_data_to_scene(&self, scene: &str, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::Scene(scene.to_string()), message_data)
+        self.create_with((GMReceiver::Scene(scene.to_string()), message_data))
     }
 
     pub fn create_to_scene_with_property(&self, property: &str) -> GMMessage {
-        self.create_to(GMReceiver::SceneWithProperty(property.to_string()))
+        self.create_with(GMReceiver::SceneWithProperty(property.to_string()))
     }
 
     pub fn create_data_to_scene_with_property(&self, property: &str, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::SceneWithProperty(property.to_string()), message_data)
+        self.create_with((GMReceiver::SceneWithProperty(property.to_string()), message_data))
     }
 
     pub fn create_to_current_scene(&self) -> GMMessage {
-        self.create_to(GMReceiver::CurrentScene)
+        self.create_with(GMReceiver::CurrentScene)
     }
 
     pub fn create_data_to_current_scene(&self, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::CurrentScene, message_data)
+        self.create_with((GMReceiver::CurrentScene, message_data))
     }
 
     pub fn create_to_object_manager(&self) -> GMMessage {
-        self.create_to(GMReceiver::ObjectManager)
+        self.create_with(GMReceiver::ObjectManager)
     }
 
     pub fn create_data_to_object_manager(&self, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::ObjectManager, message_data)
+        self.create_with((GMReceiver::ObjectManager, message_data))
     }
 
     pub fn create_to_object(&self, object: &str) -> GMMessage {
-        self.create_to(GMReceiver::Object(object.to_string()))
+        self.create_with(GMReceiver::Object(object.to_string()))
     }
 
     pub fn create_data_to_object(&self, object: &str, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::Object(object.to_string()), message_data)
+        self.create_with((GMReceiver::Object(object.to_string()), message_data))
     }
 
     pub fn create_to_object_with_property(&self, property: &str) -> GMMessage {
-        self.create_to(GMReceiver::ObjectWithProperty(property.to_string()))
+        self.create_with(GMReceiver::ObjectWithProperty(property.to_string()))
     }
 
     pub fn create_data_to_object_with_property(&self, property: &str, message_data: GMMessageData) -> GMMessage {
-        self.create_data_to(GMReceiver::ObjectWithProperty(property.to_string()), message_data)
+        self.create_with((GMReceiver::ObjectWithProperty(property.to_string()), message_data))
     }
 
 
@@ -359,6 +310,77 @@ impl GMMessageFactory {
     }
 
 }
+
+impl From<GMSender> for GMMessageFactory {
+    fn from(sender: GMSender) -> Self {
+        Self {
+            sender: Some(sender),
+            receiver: None,
+            message_data: None,
+        }
+    }
+}
+
+impl From<GMReceiver> for GMMessageFactory {
+    fn from(receiver: GMReceiver) -> Self {
+        Self {
+            sender: None,
+            receiver: Some(receiver),
+            message_data: None,
+        }
+    }
+}
+
+impl From<GMMessageData> for GMMessageFactory {
+    fn from(message_data: GMMessageData) -> Self {
+        Self {
+            sender: None,
+            receiver: None,
+            message_data: Some(message_data),
+        }
+    }
+}
+
+impl From<(GMSender, GMReceiver)> for GMMessageFactory {
+    fn from((sender, receiver): (GMSender, GMReceiver)) -> Self {
+        Self {
+            sender: Some(sender),
+            receiver: Some(receiver),
+            message_data: None
+        }
+    }
+}
+
+impl From<(GMSender, GMMessageData)> for GMMessageFactory {
+    fn from((sender, message_data): (GMSender, GMMessageData)) -> Self {
+        Self {
+            sender: Some(sender),
+            receiver: None,
+            message_data: Some(message_data)
+        }
+    }
+}
+
+impl From<(GMReceiver, GMMessageData)> for GMMessageFactory {
+    fn from((receiver, message_data): (GMReceiver, GMMessageData)) -> Self {
+        Self {
+            sender: None,
+            receiver: Some(receiver),
+            message_data: Some(message_data)
+        }
+    }
+}
+
+impl From<(GMSender, GMReceiver, GMMessageData)> for GMMessageFactory {
+    fn from((sender, receiver, message_data): (GMSender, GMReceiver, GMMessageData)) -> Self {
+        Self {
+            sender: Some(sender),
+            receiver: Some(receiver),
+            message_data: Some(message_data)
+        }
+    }
+}
+
 
 #[derive(Clone, Debug)]
 pub enum GMSender {
