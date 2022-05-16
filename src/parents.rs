@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use crate::{GMError, GMUpdateContext};
 use crate::math::GMVec2D;
 use crate::object::GMObjectT;
-use crate::message::{GMMessage, GMMessageData, GMMessageFactory, GMSender, GMReceiver};
+use crate::message::{GMMessage, GMMessageData, GMSender, GMReceiver};
 use crate::timer::GMTimer;
 
 
@@ -94,7 +94,8 @@ impl GMObjectT for GMParentCircular {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let message_factory = GMMessageFactory::new_with((self.child.as_sender(), message.sender.as_receiver()));
+        let sender = self.child.as_sender();
+        let receiver = message.sender.as_receiver();
 
         match message.message_data {
             SetPosition(position) => {
@@ -111,24 +112,24 @@ impl GMObjectT for GMParentCircular {
                 Ok(None)
             }
             GetRadius => {
-                Ok(Some(message_factory.create_with(Radius(self.radius))))
+                Ok(Some(GMMessage::new(sender, receiver, Radius(self.radius))))
             }
             SetAngle(angle) => {
                 self.angle = angle;
                 Ok(None)
             }
             GetAngle => {
-                Ok(Some(message_factory.create_with(Angle(self.radius))))
+                Ok(Some(GMMessage::new(sender, receiver, Angle(self.radius))))
             }
             SetChild(child) => {
                 self.set_child(child);
                 Ok(None)
             }
             GetChildClone => {
-                Ok(Some(message_factory.create_with(Child(self.get_child()))))
+                Ok(Some(GMMessage::new(sender, receiver, Child(self.get_child()))))
             }
             GetActive => {
-                Ok(Some(message_factory.create_with(Active(self.active))))
+                Ok(Some(GMMessage::new(sender, receiver, Active(self.active))))
             }
             SetActive(active) => {
                 self.active = active;
@@ -215,7 +216,8 @@ impl GMObjectT for GMParentTimer {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let message_factory = GMMessageFactory::new_with((self.child.as_sender(), message.sender.as_receiver()));
+        let sender = self.child.as_sender();
+        let receiver = message.sender.as_receiver();
 
         match message.message_data {
             SetChild(child) => {
@@ -223,17 +225,17 @@ impl GMObjectT for GMParentTimer {
                 Ok(None)
             }
             GetChildClone => {
-                Ok(Some(message_factory.create_with(Child(self.get_child()))))
+                Ok(Some(GMMessage::new(sender, receiver, Child(self.get_child()))))
             }
             SetDuration(duration) => {
                 self.timer.set_duration(duration);
                 Ok(None)
             }
             GetDuration => {
-                Ok(Some(message_factory.create_with(Duration(self.timer.get_duration()))))
+                Ok(Some(GMMessage::new(sender, receiver, Duration(self.timer.get_duration()))))
             }
             GetActive => {
-                Ok(Some(message_factory.create_with(Active(self.get_active()))))
+                Ok(Some(GMMessage::new(sender, receiver, Active(self.get_active()))))
             }
             SetActive(active) => {
                 self.set_active(active);

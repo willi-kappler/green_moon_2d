@@ -6,7 +6,7 @@ use delegate::delegate;
 use crate::GMError;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::math::GMVec2D;
-use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData, GMMessageFactory};
+use crate::message::{GMMessage, GMSender, GMReceiver, GMMessageData};
 use crate::property::{GMPropertyManager, GMValue};
 
 // TODO:
@@ -257,25 +257,24 @@ impl GMObjectBase {
 
         let sender = GMSender::Object(self.name.to_string());
         let receiver: GMReceiver = (&message.sender).into();
-        let message_factory = GMMessageFactory::new_with((sender, receiver));
 
         match message.message_data {
             GetZIndex => {
-                Ok(Some(message_factory.create_with(GMMessageData::ZIndex(self.z_index))))
+                Ok(Some(GMMessage::new(sender, receiver, GMMessageData::ZIndex(self.z_index))))
             }
             SetZIndex(z_index) => {
                 self.set_z_index(z_index);
                 Ok(None)
             }
             GetActive => {
-                Ok(Some(message_factory.create_with(GMMessageData::Active(self.active))))
+                Ok(Some(GMMessage::new(sender, receiver, GMMessageData::Active(self.active))))
             }
             SetActive(active) => {
                 self.set_active(active);
                 Ok(None)
             }
             GetPosition => {
-                Ok(Some(message_factory.create_with(GMMessageData::Position(self.position))))
+                Ok(Some(GMMessage::new(sender, receiver, GMMessageData::Position(self.position))))
             }
             SetPosition(position) => {
                 self.set_position(position);
@@ -286,7 +285,7 @@ impl GMObjectBase {
                 Ok(None)
             }
             GetNextPosition => {
-                Ok(Some(message_factory.create_with(GMMessageData::Position(self.position))))
+                Ok(Some(GMMessage::new(sender, receiver, GMMessageData::Position(self.position))))
             }
             GetProperty(name) => {
                 let message_data = match self.get_property(&name) {
@@ -298,7 +297,7 @@ impl GMObjectBase {
                     }
                 };
 
-                Ok(Some(message_factory.create_with(message_data)))
+                Ok(Some(GMMessage::new(sender, receiver, message_data)))
             }
             HasProperty(name) => {
                 let message_data = if self.has_property(&name) {
@@ -307,7 +306,7 @@ impl GMObjectBase {
                     GMMessageData::PropertyNotFound(name)
                 };
 
-                Ok(Some(message_factory.create_with(message_data)))
+                Ok(Some(GMMessage::new(sender, receiver, message_data)))
             }
             AddProperty(name, value) => {
                 self.add_property(&name, value);
@@ -330,14 +329,12 @@ impl GMObjectBase {
 
 pub struct GMObjectManager {
     objects: Vec<Box<dyn GMObjectT>>,
-    message_factory: GMMessageFactory,
 }
 
 impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
-            message_factory: GMMessageFactory::new_with(GMSender::ObjectManager),
         }
     }
 
@@ -513,6 +510,9 @@ impl GMObjectManager {
             ObjectManager => {
                 use GMMessageData::*;
 
+                let sender = GMSender::ObjectManager;
+                let receiver = message.as_reply();
+
                 match message.message_data {
                     AddObject(object) => {
                         self.add_box(object)
@@ -526,7 +526,7 @@ impl GMObjectManager {
                     TakeObject(ref name) => {
                         let object = self.take(name)?;
                         let message_data = Object(object);
-                        context.send_message(self.message_factory.create_with((message.as_reply(), message_data)));
+                        context.send_message(GMMessage::new(sender, receiver, message_data));
 
                         Ok(())
                     }
@@ -546,7 +546,7 @@ impl GMObjectManager {
                         match self.take_child(name)? {
                             Some(child) => {
                                 let message_data = Object(child);
-                                context.send_message(self.message_factory.create_with((message.as_reply(), message_data)));
+                                context.send_message(GMMessage::new(sender, receiver, message_data));
 
                                 Ok(())
                             }
