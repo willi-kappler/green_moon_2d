@@ -94,7 +94,7 @@ impl GMObjectT for GMParentCircular {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let sender = self.child.as_sender();
+        let sender = GMSender::CurrentObject;
         let receiver = message.sender.as_receiver();
 
         match message.message_data {
@@ -212,7 +212,7 @@ impl GMObjectT for GMParentTimer {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let sender = self.child.as_sender();
+        let sender = GMSender::CurrentObject;
         let receiver = message.sender.as_receiver();
 
         match message.message_data {
@@ -278,8 +278,8 @@ impl GMObjectT for GMParentAnimationFinished {
     fn update(&mut self, context: &mut GMUpdateContext) {
         if self.active {
             let result = self.child.send_message(GMMessage {
-                sender: GMSender::ObjectParent,
-                receiver: GMReceiver::ObjectChild,
+                sender: GMSender::ParentObject,
+                receiver: GMReceiver::ChildObject,
                 message_data: GMMessageData::GetAnimationStatus }, context);
 
             match result {
@@ -328,7 +328,7 @@ impl GMObjectT for GMParentAnimationFinished {
     fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let sender = self.child.as_sender();
+        let sender = GMSender::CurrentObject;
         let receiver = message.sender.as_receiver();
 
         match message.message_data {

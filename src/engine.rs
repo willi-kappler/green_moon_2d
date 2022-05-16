@@ -99,10 +99,10 @@ impl GMEngine {
         Ok(&mut update_context.resources)
     }
 
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) -> Result<(), GMError> {
-        debug!("GMEngine::add_scene(), name: '{}'", scene.get_name());
+    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) -> Result<(), GMError> {
+        debug!("GMEngine::add_scene(), name: '{}'", name);
 
-        self.scene_manager.add(Box::new(scene))
+        self.scene_manager.add(name, Box::new(scene))
     }
 
     pub fn run(&mut self) -> Result<(), GMError> {

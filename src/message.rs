@@ -44,11 +44,14 @@ pub enum GMSender {
 
     CurrentScene,
     Scene(String),
+    ChildScene,
+    ParentScene,
     SceneManager,
 
+    CurrentObject,
     Object(String),
-    ObjectChild,
-    ObjectParent,
+    ChildObject,
+    ParentObject,
     ObjectManager,
 }
 
@@ -64,28 +67,31 @@ impl GMSender {
             GMSender::Scene(name) => {
                 GMReceiver::Scene(name.to_string())
             }
+            GMSender::ChildScene => {
+                GMReceiver::ChildScene
+            }
+            GMSender::ParentScene => {
+                GMReceiver::ParentScene
+            }
             GMSender::SceneManager => {
                 GMReceiver::SceneManager
             }
             GMSender::Object(name) => {
                 GMReceiver::Object(name.to_string())
             }
-            GMSender::ObjectChild => {
-                GMReceiver::ObjectChild
+            GMSender::ChildObject => {
+                GMReceiver::ChildObject
             }
-            GMSender::ObjectParent => {
-                GMReceiver::ObjectParent
+            GMSender::ParentObject => {
+                GMReceiver::ParentObject
             }
             GMSender::ObjectManager => {
                 GMReceiver::ObjectManager
             }
+            _ => {
+                panic!("Sender can't be made into a receiver: {:?}", self);
+            }
         }
-    }
-}
-
-impl From<&Box<dyn GMObjectT>> for GMSender {
-    fn from(object: &Box<dyn GMObjectT>) -> Self {
-        object.as_sender()
     }
 }
 
@@ -95,20 +101,16 @@ pub enum GMReceiver {
 
     CurrentScene,
     Scene(String),
+    ChildScene,
+    ParentScene,
     SceneWithProperty(String),
     SceneManager,
 
     Object(String),
-    ObjectChild,
-    ObjectParent,
+    ChildObject,
+    ParentObject,
     ObjectWithProperty(String),
     ObjectManager,
-}
-
-impl From<&Box<dyn GMObjectT>> for GMReceiver {
-    fn from(object: &Box<dyn GMObjectT>) -> Self {
-        object.as_receiver()
-    }
 }
 
 impl From<&GMSender> for GMReceiver {
@@ -126,13 +128,11 @@ pub enum GMMessageData {
     ChangeTitle(String),
 
     // Scene messages
-    InitScene,
-    ExitScene,
-    AddScene(Box<dyn GMSceneT>),
+    AddScene(String, Box<dyn GMSceneT>),
     RemoveScene(String),
     // TODO: Maybe add TakeScene message
     ChangeToScene(String),
-    ReplaceScene(Box<dyn GMSceneT>),
+    ReplaceScene(String, Box<dyn GMSceneT>),
     PushCurrentScene,
     PopCurrentScene,
     SetSceneParent(String, Box<dyn GMSceneT>),
@@ -142,8 +142,8 @@ pub enum GMMessageData {
     TakeSceneChild(String),
 
     // Object manager
-    AddObject(Box<dyn GMObjectT>),
-    ReplaceObject(Box<dyn GMObjectT>),
+    AddObject(String, Box<dyn GMObjectT>),
+    ReplaceObject(String, Box<dyn GMObjectT>),
     RemoveObject(String),
     TakeObject(String),
     Object(Box<dyn GMObjectT>),
