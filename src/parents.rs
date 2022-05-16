@@ -2,15 +2,169 @@
 
 use std::fmt::Debug;
 
-use crate::{GMError, GMUpdateContext};
 use crate::math::GMVec2D;
 use crate::object::{GMObjectT, GMObjectAction};
 use crate::message::{GMMessage, GMMessageData, GMSender, GMReceiver};
 use crate::timer::GMTimer;
+use crate::context::{GMUpdateContext, GMDrawContext};
+use crate::error::GMError;
+
+
+pub trait GMParentActionT : Debug {
+    // Must be implemented:
+    fn clone_box(&self) -> Box<dyn GMParentActionT>;
+
+    // May be implemented:
+    fn update(&mut self, child: &mut Box<dyn GMObjectT>, context: &mut GMUpdateContext) {
+        child.update(context);
+    }
+
+    fn draw(&self, child: &Box<dyn GMObjectT>, context: &mut GMDrawContext) {
+        child.draw(context);
+    }
+
+    fn send_message(&mut self, child: &mut Box<dyn GMObjectT>, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        child.send_message(message, context)
+    }
+}
+
+impl Clone for Box<dyn GMParentActionT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct GMParentBase {
+    active: bool,
+    child: Box<dyn GMObjectT>,
+    action: Box<dyn GMParentActionT>,
+}
+
+impl GMParentBase {
+    pub fn new(child: Box<dyn GMObjectT>, action: Box<dyn GMParentActionT>) -> Self {
+        Self {
+            active: true,
+            child,
+            action,
+        }
+    }
+}
+
+impl GMObjectT for  GMParentBase {
+    fn update(&mut self, context: &mut GMUpdateContext) {
+        if self.active {
+            self.action.update(&mut self.child, context);
+        }
+    }
+
+    fn draw(&self, context: &mut GMDrawContext) {
+        if self.active {
+            self.action.draw(&self.child, context);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+
+    fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
+        Some(&self.child)
+    }
+
+    fn get_child_mut(&mut self) -> Option<&mut Box<dyn GMObjectT>> {
+        Some(&mut self.child)
+    }
+
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        use GMMessageData::*;
+
+        let sender = GMSender::CurrentObject;
+        let receiver = message.sender.as_receiver();
+
+        match message.message_data {
+            SetChild(child) => {
+                self.child = child;
+            }
+            GetChildClone => {
+                return Ok(Some(GMMessage::new(sender, receiver, Child(Some(self.child.clone())))))
+            }
+            GetActive => {
+                return Ok(Some(GMMessage::new(sender, receiver, Active(self.active))))
+            }
+            SetActive(active) => {
+                self.active = active;
+            }
+            SetParentAction(action) => {
+                self.action = action;
+            }
+            MessageToChild(message_data) => {
+                let child_message = GMMessage::new(
+                    message.sender, message.receiver, *message_data);
+                return self.child.send_message(child_message, context)
+            }
+            _ => {
+                return self.action.send_message(&mut self.child, message, context)
+            }
+        }
+
+        Ok(None)
+    }
+}
+
+#[derive(Clone)]
+pub struct GMPActionFn {
+    action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> (),
+}
+
+impl GMPActionFn {
+    pub fn new(child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> GMParentBase {
+        let action_fn = Self {
+            action
+        };
+
+        GMParentBase::new(child, Box::new(action_fn))
+    }
+}
+
+impl Debug for GMPActionFn {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GMPActionFn")
+    }
+}
+
+impl GMParentActionT for GMPActionFn {
+    fn clone_box(&self) -> Box<dyn GMParentActionT> {
+        Box::new(self.clone())
+    }
+
+    fn update(&mut self, child: &mut Box<dyn GMObjectT>, context: &mut GMUpdateContext) {
+        (self.action)(child, context)
+    }
+
+    fn send_message(&mut self, child: &mut Box<dyn GMObjectT>, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        use GMMessageData::*;
+
+        match message.message_data {
+            SetObjectAction(GMObjectAction{ action }) => {
+                self.action = action;
+            }
+            _ => {
+                return child.send_message(message, context)
+            }
+        }
+
+        Ok(None)
+    }
+}
+
+
+
 
 
 #[derive(Debug, Clone)]
-pub struct GMParentCircular {
+pub struct GMPCircular {
     active: bool,
     center: GMVec2D,
     radius: f32,
@@ -19,7 +173,7 @@ pub struct GMParentCircular {
     child: Box<dyn GMObjectT>,
 }
 
-impl GMParentCircular {
+impl GMPCircular {
     pub fn new(center: GMVec2D, radius: f32, start_angle: f32, angle_velocity: f32, child: Box<dyn GMObjectT>) -> Self {
         Self {
             active: true,
@@ -38,7 +192,7 @@ impl GMParentCircular {
     }
 }
 
-impl GMObjectT for GMParentCircular {
+impl GMObjectT for GMPCircular {
     fn update(&mut self, context: &mut crate::GMUpdateContext) {
         if self.active {
             self.angle += self.angle_velocity;
@@ -67,28 +221,12 @@ impl GMObjectT for GMParentCircular {
         self.child.get_next_position() + diff
     }
 
-    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
-        Some(self.child.clone_box())
-    }
-
     fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
         Some(&self.child)
     }
 
     fn get_child_mut(&mut self) -> Option<&mut Box<dyn GMObjectT>> {
         Some(&mut self.child)
-    }
-
-    fn set_child(&mut self, child: Box<dyn GMObjectT>) {
-        self.child = child;
-    }
-
-    fn get_active(&self) -> bool {
-        self.active
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
     }
 
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
@@ -118,10 +256,10 @@ impl GMObjectT for GMParentCircular {
                 return Ok(Some(GMMessage::new(sender, receiver, Angle(self.radius))))
             }
             SetChild(child) => {
-                self.set_child(child);
+                self.child = child;
             }
             GetChildClone => {
-                return Ok(Some(GMMessage::new(sender, receiver, Child(self.get_child()))))
+                return Ok(Some(GMMessage::new(sender, receiver, Child(Some(self.child.clone())))))
             }
             GetActive => {
                 return Ok(Some(GMMessage::new(sender, receiver, Active(self.active))))
@@ -144,106 +282,67 @@ impl GMObjectT for GMParentCircular {
 }
 
 #[derive(Clone)]
-pub struct GMParentTimer {
+pub struct GMPTimer {
     timer: GMTimer,
     looping: bool,
-    child: Box<dyn GMObjectT>,
     action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> (),
 }
 
-impl GMParentTimer {
-    pub fn new(duration: f32, child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> Self {
-        Self {
+impl GMPTimer {
+    pub fn new(duration: f32, child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> GMParentBase {
+        let timer = Self {
             timer: GMTimer::new(duration),
             looping: false,
-            child,
             action,
-        }
+        };
+
+        GMParentBase::new(child, Box::new(timer))
     }
 
-    pub fn new_looping(duration: f32, child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> Self {
-        let mut result = Self::new(duration, child, action);
-        result.looping = true;
-        result
+    pub fn new_looping(duration: f32, child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> GMParentBase {
+        let timer = Self {
+            timer: GMTimer::new(duration),
+            looping: true,
+            action,
+        };
+
+        GMParentBase::new(child, Box::new(timer))
     }
 }
 
-impl GMObjectT for GMParentTimer {
-    fn update(&mut self, context: &mut crate::GMUpdateContext) {
+impl GMParentActionT for GMPTimer {
+    fn clone_box(&self) -> Box<dyn GMParentActionT> {
+        Box::new(self.clone())
+    }
+
+    fn update(&mut self, child: &mut Box<dyn GMObjectT>, context: &mut GMUpdateContext) {
         if self.timer.finished() {
-            (self.action)(&mut self.child, context);
+            (self.action)(child, context);
 
             if self.looping {
                 self.timer.start();
             }
         }
-
-        self.child.update(context);
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
-        Box::new(self.clone())
-    }
-
-    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
-        Some(self.child.clone_box())
-    }
-
-    fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
-        Some(&self.child)
-    }
-
-    fn get_child_mut(&mut self) -> Option<&mut Box<dyn GMObjectT>> {
-        Some(&mut self.child)
-    }
-
-    fn set_child(&mut self, child: Box<dyn GMObjectT>) {
-        self.child = child;
-    }
-
-    fn get_active(&self) -> bool {
-        self.timer.get_active()
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.timer.set_active(active);
-    }
-
-    fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+    fn send_message(&mut self, child: &mut Box<dyn GMObjectT>, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
         let sender = GMSender::CurrentObject;
         let receiver = message.sender.as_receiver();
 
         match message.message_data {
-            SetChild(child) => {
-                self.set_child(child);
-            }
-            GetChildClone => {
-                return Ok(Some(GMMessage::new(sender, receiver, Child(self.get_child()))))
-            }
             SetDuration(duration) => {
                 self.timer.set_duration(duration);
             }
             GetDuration => {
                 return Ok(Some(GMMessage::new(sender, receiver, Duration(self.timer.get_duration()))))
             }
-            GetActive => {
-                return Ok(Some(GMMessage::new(sender, receiver, Active(self.get_active()))))
-            }
-            SetActive(active) => {
-                self.set_active(active);
-            }
             SetObjectAction(GMObjectAction{ action }) => {
                 self.action = action;
             }
-            MessageToChild(message_data) => {
-                let child_message = GMMessage::new(
-                    message.sender, message.receiver, *message_data);
-                return self.child.send_message(child_message, context)
-            }
             _ => {
-                return self.child.send_message(message, context)
+                return child.send_message(message, context)
             }
         }
 
@@ -251,20 +350,24 @@ impl GMObjectT for GMParentTimer {
     }
 }
 
-impl Debug for GMParentTimer {
+impl Debug for GMPTimer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GMParentTimer, timer: '{:?}', looping: '{}', child: '{:?}'", self.timer, self.looping, self.child)
+        write!(f, "GMParentTimer, timer: '{:?}', looping: '{}'", self.timer, self.looping)
     }
 }
 
+
+
+
+// TODO: Simplify
 #[derive(Clone)]
-pub struct GMParentAnimationFinished {
+pub struct GMPAnimationFinished {
     active: bool,
     child: Box<dyn GMObjectT>,
     action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> (),
 }
 
-impl GMParentAnimationFinished {
+impl GMPAnimationFinished {
     pub fn new(child: Box<dyn GMObjectT>, action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> Self {
         Self {
             active: true,
@@ -274,7 +377,7 @@ impl GMParentAnimationFinished {
     }
 }
 
-impl GMObjectT for GMParentAnimationFinished {
+impl GMObjectT for GMPAnimationFinished {
     fn update(&mut self, context: &mut GMUpdateContext) {
         if self.active {
             let result = self.child.send_message(GMMessage {
@@ -289,7 +392,7 @@ impl GMObjectT for GMParentAnimationFinished {
                     }
                 }
                 _ => {
-                    panic!("GMParentAnimationFinished::update(), unexpected message from child: {:?}", result);
+                    panic!("GMPAnimationFinished::update(), unexpected message from child: {:?}", result);
                 }
             }
         }
@@ -299,22 +402,6 @@ impl GMObjectT for GMParentAnimationFinished {
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    fn get_active(&self) -> bool {
-        self.active
-    }
-
-    fn set_child(&mut self, child: Box<dyn GMObjectT>) {
-        self.child = child;
-    }
-
-    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
-        Some(self.child.clone_box())
     }
 
     fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
@@ -333,16 +420,16 @@ impl GMObjectT for GMParentAnimationFinished {
 
         match message.message_data {
             SetChild(child) => {
-                self.set_child(child);
+                self.child = child;
             }
             GetChildClone => {
-                return Ok(Some(GMMessage::new(sender, receiver, Child(self.get_child()))))
+                return Ok(Some(GMMessage::new(sender, receiver, Child(Some(self.child.clone())))))
             }
             GetActive => {
-                return Ok(Some(GMMessage::new(sender, receiver, Active(self.get_active()))))
+                return Ok(Some(GMMessage::new(sender, receiver, Active(self.active))))
             }
             SetActive(active) => {
-                self.set_active(active);
+                self.active = active;
             }
             SetObjectAction(GMObjectAction{ action }) => {
                 self.action = action;
@@ -361,8 +448,9 @@ impl GMObjectT for GMParentAnimationFinished {
     }
 }
 
-impl Debug for GMParentAnimationFinished {
+impl Debug for GMPAnimationFinished {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GMParentAnimationFinished, child: '{:?}'", self.child)
+        write!(f, "GMPAnimationFinished")
     }
 }
+

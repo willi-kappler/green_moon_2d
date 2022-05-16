@@ -69,20 +69,6 @@ pub trait GMObjectT : Debug {
         }
     }
 
-    fn get_active(&self) -> bool {
-        if let Some(child) = self.get_child_ref() {
-            child.get_active()
-        } else {
-            true
-        }
-    }
-
-    fn set_active(&mut self, active: bool) {
-        if let Some(child) = self.get_child_mut() {
-            child.set_active(active)
-        }
-    }
-
     fn get_z_index(&self) -> i32 {
         if let Some(child) = self.get_child_ref() {
             child.get_z_index()
@@ -133,16 +119,6 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_mut() {
             child.remove_property(name)
         }
-    }
-
-    fn set_child(&mut self, _child: Box<dyn GMObjectT>) {
-    }
-
-    fn remove_child(&mut self) {
-    }
-
-    fn get_child(&self) -> Option<Box<dyn GMObjectT>> {
-        None
     }
 
     fn get_child_ref(&self) -> Option<&Box<dyn GMObjectT>> {
@@ -364,17 +340,19 @@ impl GMObjectManager {
     }
 
     pub fn set_parent(&mut self, name: &str, mut parent: Box<dyn GMObjectT>) -> Result<(), GMError> {
-        let child = self.take(name)?;
-        parent.set_child(child);
-        self.add_box(name, parent)
+        if let Some(child_ref) = parent.get_child_mut() {
+            *child_ref = self.take(name)?;
+            self.add_box(name, parent)?
+        }
+        Ok(())
     }
 
     pub fn remove_parent(&mut self, name: &str) -> Result<(), GMError> {
         match self.index(name) {
             Some(index) => {
-                match self.objects[index].1.get_child() {
+                match self.objects[index].1.get_child_ref() {
                     Some(child) => {
-                        self.objects[index].1 = child;
+                        self.objects[index].1 = child.clone();
                         Ok(())
                     }
                     None => {
@@ -391,31 +369,10 @@ impl GMObjectManager {
     pub fn set_child(&mut self, name: &str, child: Box<dyn GMObjectT>) -> Result<(), GMError> {
         match self.index(name) {
             Some(index) => {
-                self.objects[index].1.set_child(child);
+                if let Some(child_ref) = self.objects[index].1.get_child_mut() {
+                    *child_ref = child;
+                }
                 Ok(())
-            }
-            None => {
-                Err(GMError::ObjectNotFound(name.to_string()))
-            }
-        }
-    }
-
-    pub fn remove_child(&mut self, name: &str) -> Result<(), GMError> {
-        match self.index(name) {
-            Some(index) => {
-                self.objects[index].1.remove_child();
-                Ok(())
-            }
-            None => {
-                Err(GMError::ObjectNotFound(name.to_string()))
-            }
-        }
-    }
-
-    pub fn take_child(&mut self, name: &str) -> Result<Option<Box<dyn GMObjectT>>, GMError> {
-        match self.index(name) {
-            Some(index) => {
-                Ok(self.objects[index].1.get_child())
             }
             None => {
                 Err(GMError::ObjectNotFound(name.to_string()))
@@ -515,23 +472,6 @@ impl GMObjectManager {
                     SetObjectChild(ref name, child) => {
                         self.set_child(name, child)
                     }
-                    RemoveObjectChild(ref name) => {
-                        self.remove_child(name)
-                    }
-                    TakeObjectChild(ref name) => {
-                        match self.take_child(name)? {
-                            Some(child) => {
-                                let message_data = Object(child);
-                                context.send_message(GMMessage::new(sender, receiver, message_data));
-
-                                Ok(())
-                            }
-                            None => {
-                                Err(GMError::ObjectHasNoChild(name.to_string()))
-                            }
-                        }
-                    }
-
                     _ => {
                         Err(GMError::UnknownMessageToObject(message))
                     }

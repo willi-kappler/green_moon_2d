@@ -10,6 +10,7 @@ use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
 use crate::font::GMFontT;
+use crate::parents::GMParentActionT;
 // use crate::error::GMError;
 
 
@@ -150,8 +151,6 @@ pub enum GMMessageData {
     SetObjectParent(String, Box<dyn GMObjectT>),
     RemoveObjectParent(String),
     SetObjectChild(String, Box<dyn GMObjectT>),
-    RemoveObjectChild(String),
-    TakeObjectChild(String),
 
     // Other messages
     SetActive(bool),
@@ -163,6 +162,7 @@ pub enum GMMessageData {
     Child(Option<Box<dyn GMObjectT>>),
     MessageToChild(Box<GMMessageData>),
     SetObjectAction(GMObjectAction),
+    SetParentAction(Box<dyn GMParentActionT>),
 
     SetZIndex(i32),
     GetZIndex,
