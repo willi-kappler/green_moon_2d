@@ -526,7 +526,7 @@ impl GMObjectManager {
                     TakeObject(ref name) => {
                         let object = self.take(name)?;
                         let message_data = Object(object);
-                        context.send_message(self.message_factory.create_data_reply(&message, message_data));
+                        context.send_message(self.message_factory.create_with((message.as_reply(), message_data)));
 
                         Ok(())
                     }
@@ -546,7 +546,7 @@ impl GMObjectManager {
                         match self.take_child(name)? {
                             Some(child) => {
                                 let message_data = Object(child);
-                                context.send_message(self.message_factory.create_data_reply(&message, message_data));
+                                context.send_message(self.message_factory.create_with((message.as_reply(), message_data)));
 
                                 Ok(())
                             }

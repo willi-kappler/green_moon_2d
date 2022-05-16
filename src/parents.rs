@@ -94,9 +94,7 @@ impl GMObjectT for GMParentCircular {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let sender: GMSender = (&self.child).into();
-        let receiver: GMReceiver = (&message.sender).into();
-        let message_factory = GMMessageFactory::new_with((sender, receiver));
+        let message_factory = GMMessageFactory::new_with((self.child.as_sender(), message.sender.as_receiver()));
 
         match message.message_data {
             SetPosition(position) => {
@@ -217,9 +215,7 @@ impl GMObjectT for GMParentTimer {
     fn send_message(&mut self, message: GMMessage, context: &mut crate::GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
         use GMMessageData::*;
 
-        let sender: GMSender = (&self.child).into();
-        let receiver: GMReceiver = (&message.sender).into();
-        let message_factory = GMMessageFactory::new_with((sender, receiver));
+        let message_factory = GMMessageFactory::new_with((self.child.as_sender(), message.sender.as_receiver()));
 
         match message.message_data {
             SetChild(child) => {

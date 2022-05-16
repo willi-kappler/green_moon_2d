@@ -34,6 +34,26 @@ impl GMMessage {
     pub fn new_reply<S: Into<GMSender>>(sender: S, message: &GMMessage, message_data: GMMessageData) -> Self {
         Self::new(sender, &message.sender, message_data)
     }
+
+    pub fn from_factory(message_factory: GMMessageFactory) -> Self {
+        if message_factory.sender.is_none() {
+            panic!("GMMessage::from_factory(), sender is missing: {:?}", message_factory);
+        } else if message_factory.receiver.is_none() {
+            panic!("GMMessage::from_factory(), receiver is missing: {:?}", message_factory);
+        } else if message_factory.message_data.is_none() {
+            panic!("GMMessage::from_factory(), message_data is missing: {:?}", message_factory);
+        }
+
+        Self {
+            sender: message_factory.sender.unwrap(),
+            receiver: message_factory.receiver.unwrap(),
+            message_data: message_factory.message_data.unwrap(),
+        }
+    }
+
+    pub fn as_reply(&self) -> GMReceiver {
+        self.sender.as_receiver()
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -73,43 +93,26 @@ impl GMMessageFactory {
 
     }
 
-    pub fn reply(&mut self, message: &GMMessage) {
-        self.receiver = Some((&message.sender).into());
-    }
-
     pub fn create(&self) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            self.receiver.clone().unwrap(),
-            self.message_data.clone().unwrap(),
-        )
+        GMMessage::from_factory(self.clone())
     }
 
     pub fn create_with<T: Into<GMMessageFactory>>(&self, params: T) -> GMMessage {
-        let message_factory = params.into();
+        let mut message_factory = params.into();
 
-        GMMessage {
-            sender: message_factory.sender.or(self.sender.clone()).unwrap(),
-            receiver: message_factory.receiver.or(self.receiver.clone()).unwrap(),
-            message_data: message_factory.message_data.or(self.message_data.clone()).unwrap(),
+        if message_factory.sender.is_none() && self.sender.is_some() {
+            message_factory.sender = self.sender.clone();
         }
-    }
 
+        if message_factory.receiver.is_none() && self.receiver.is_some() {
+            message_factory.receiver = self.receiver.clone();
+        }
 
-    pub fn create_reply(&self, message: &GMMessage) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            &message.sender,
-            self.message_data.clone().unwrap(),
-        )
-    }
+        if message_factory.message_data.is_none() && self.message_data.is_some() {
+            message_factory.message_data = self.message_data.clone();
+        }
 
-    pub fn create_data_reply(&self, message: &GMMessage, message_data: GMMessageData) -> GMMessage {
-        GMMessage::new(
-            self.sender.clone().unwrap(),
-            &message.sender,
-            message_data,
-        )
+        GMMessage::from_factory(message_factory)
     }
 
     pub fn create_to_engine(&self) -> GMMessage {
@@ -394,6 +397,31 @@ pub enum GMSender {
     ObjectManager,
 }
 
+impl GMSender {
+    pub fn as_receiver(&self) -> GMReceiver {
+        match self {
+            GMSender::Engine => {
+                GMReceiver::Engine
+            }
+            GMSender::CurrentScene => {
+                GMReceiver::CurrentScene
+            }
+            GMSender::Scene(name) => {
+                GMReceiver::Scene(name.to_string())
+            }
+            GMSender::SceneManager => {
+                GMReceiver::SceneManager
+            }
+            GMSender::Object(name) => {
+                GMReceiver::Object(name.to_string())
+            }
+            GMSender::ObjectManager => {
+                GMReceiver::ObjectManager
+            }
+        }
+    }
+}
+
 impl From<&Box<dyn GMObjectT>> for GMSender {
     fn from(object: &Box<dyn GMObjectT>) -> Self {
         object.as_sender()
@@ -422,26 +450,7 @@ impl From<&Box<dyn GMObjectT>> for GMReceiver {
 
 impl From<&GMSender> for GMReceiver {
     fn from(sender: &GMSender) -> Self {
-        match sender {
-            GMSender::Engine => {
-                GMReceiver::Engine
-            }
-            GMSender::CurrentScene => {
-                GMReceiver::CurrentScene
-            }
-            GMSender::Scene(name) => {
-                GMReceiver::Scene(name.to_string())
-            }
-            GMSender::SceneManager => {
-                GMReceiver::SceneManager
-            }
-            GMSender::Object(name) => {
-                GMReceiver::Object(name.to_string())
-            }
-            GMSender::ObjectManager => {
-                GMReceiver::ObjectManager
-            }
-        }
+        sender.as_receiver()
     }
 }
 
