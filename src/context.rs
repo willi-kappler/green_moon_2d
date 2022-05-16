@@ -21,6 +21,8 @@ pub struct GMUpdateContext {
     engine_messages: VecDeque<GMMessage>,
     scene_messages: VecDeque<GMMessage>,
     object_messages: VecDeque<GMMessage>,
+    // TODO: Maybe use current sender
+    // current_sender: GMSender,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -69,6 +71,9 @@ impl GMUpdateContext {
             }
             Object(_) | ObjectWithProperty(_) | ObjectManager => {
                 self.object_messages.push_back(message);
+            }
+            _ => {
+                panic!("GMUpdateContext::send_message(), unknown receiver in context: {:?}", receiver);
             }
         }
     }

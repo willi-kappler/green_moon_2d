@@ -56,6 +56,7 @@ impl GMResources {
         }
 
         for sound in resources.sounds {
+            dbg!(sound);
             todo!();
         }
 
@@ -190,6 +191,8 @@ impl GMResources {
     pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Result<Rc<dyn GMAnimationT>, GMError> {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
+        dbg!(frames);
+
         todo!();
     }
 
@@ -243,7 +246,7 @@ struct GMResourceFormat {
     fonts: Vec<GMFontFormat>,
     animations: Vec<GMAnimationFormat>,
     sounds: Vec<GMSoundFormat>,
-    musics: Vec<GMMusicFormat>,
+    // musics: Vec<GMMusicFormat>,
 }
 
 #[derive(Debug, DeJson)]
@@ -271,12 +274,12 @@ struct GMAnimationFormat {
 
 #[derive(Debug, DeJson)]
 struct GMSoundFormat {
-    name: String,
-    file_name: String,
+    // name: String,
+    // file_name: String,
 }
 
 #[derive(Debug, DeJson)]
 struct GMMusicFormat {
-    name: String,
-    file_name: String,
+    // name: String,
+    // file_name: String,
 }

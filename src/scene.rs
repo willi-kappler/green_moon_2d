@@ -11,40 +11,89 @@ use crate::property::{GMPropertyManager, GMValue};
 
 pub trait GMSceneT : Debug {
     // Must be implemented:
-    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError>;
-
-    fn draw(&mut self, context: &mut GMDrawContext) -> Result<(), GMError>;
-
-    fn get_name(&self) -> &str;
-
     fn clone_box(&self) -> Box<dyn GMSceneT>;
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError>;
-
     // May be implemented:
-    fn init(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
-        Ok(())
+    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
+        if let Some(child) = self.get_child_mut() {
+            child.update(context)
+        } else {
+            panic!("Implement 'update()' or set a child!");
+        }
     }
 
-    fn exit(&mut self, _context: &mut GMUpdateContext) -> Result<(), GMError> {
-        Ok(())
+    fn draw(&self, context: &GMDrawContext) -> Result<(), GMError> {
+        if let Some(child) = self.get_child_ref() {
+            child.draw(context)
+        } else {
+            panic!("Implement 'draw()' or set a child!");
+        }
     }
 
-    fn get_property(&self, _name: &str) -> Option<&GMValue> {
-        None
+    fn send_message(&mut self, message: GMMessage, context: &mut GMUpdateContext) -> Result<Option<GMMessage>, GMError> {
+        if let Some(child) = self.get_child_mut() {
+            child.send_message(message, context)
+        } else {
+            panic!("Implement 'send_message()' or set a child!");
+        }
     }
 
-    fn has_property(&self, _name: &str) -> bool {
-        false
+    fn get_name(&self) -> &str {
+        if let Some(child) = self.get_child_ref() {
+            child.get_name()
+        } else {
+            panic!("Implement 'get_name()' or set a child!");
+        }
     }
 
-    fn add_property(&mut self, _name: &str, _value: GMValue) {
+    fn init(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
+        if let Some(child) = self.get_child_mut() {
+            child.init(context)
+        } else {
+            Ok(())
+        }
     }
 
-    fn add_tag(&mut self, _name: &str) {
+    fn exit(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
+        if let Some(child) = self.get_child_mut() {
+            child.exit(context)
+        } else {
+            Ok(())
+        }
     }
 
-    fn remove_property(&mut self, _name: &str) {
+    fn get_property(&self, name: &str) -> Option<&GMValue> {
+        if let Some(child) = self.get_child_ref() {
+            child.get_property(name)
+        } else {
+            None
+        }
+    }
+
+    fn has_property(&self, name: &str) -> bool {
+        if let Some(child) = self.get_child_ref() {
+            child.has_property(name)
+        } else {
+            false
+        }
+    }
+
+    fn add_property(&mut self, name: &str, value: GMValue) {
+        if let Some(child) = self.get_child_mut() {
+            child.add_property(name, value)
+        }
+}
+
+    fn add_tag(&mut self, name: &str) {
+        if let Some(child) = self.get_child_mut() {
+            child.add_tag(name)
+        }
+    }
+
+    fn remove_property(&mut self, name: &str) {
+        if let Some(child) = self.get_child_mut() {
+            child.remove_property(name)
+        }
     }
 
     fn set_child(&mut self, _child: Box<dyn GMSceneT>) {
@@ -54,6 +103,14 @@ pub trait GMSceneT : Debug {
     }
 
     fn take_child(&mut self) -> Option<Box<dyn GMSceneT>> {
+        None
+    }
+
+    fn get_child_ref(&self) -> Option<&Box<dyn GMSceneT>> {
+        None
+    }
+
+    fn get_child_mut(&mut self) -> Option<&mut Box<dyn GMSceneT>> {
         None
     }
 }
@@ -67,7 +124,6 @@ impl Clone for Box<dyn GMSceneT> {
 #[derive(Debug, Clone)]
 pub struct GMSceneBase {
     pub name: String,
-    pub child: Option<Box<dyn GMSceneT>>,
     properties: GMPropertyManager,
 }
 
@@ -75,29 +131,12 @@ impl GMSceneBase {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            child: None,
             properties: GMPropertyManager::new(),
         }
     }
 
     pub fn get_name(&self) -> &str {
-        if let Some(child) = &self.child {
-            child.get_name()
-        } else {
-            &self.name
-        }
-    }
-
-    pub fn set_child(&mut self, child: Box<dyn GMSceneT>) {
-        self.child = Some(child);
-    }
-
-    pub fn remove_child(&mut self) {
-        self.child = None;
-    }
-
-    pub fn take_child(&mut self) -> Option<Box<dyn GMSceneT>> {
-        self.child.take()
+        &self.name
     }
 
     delegate! {
@@ -235,7 +274,7 @@ impl GMSceneManager {
 
             match receiver {
                 CurrentScene => {
-                    self.scenes[self.current_scene].send_message(message, context);
+                    self.scenes[self.current_scene].send_message(message, context)?;
                 }
                 Scene(name) => {
                     match self.index(&name) {

@@ -5,7 +5,7 @@ use std::convert::From;
 use crate::animation::GMAnimationT;
 // use crate::context::GMUpdateContext;
 use crate::math::GMVec2D;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectAction};
 use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
@@ -47,6 +47,8 @@ pub enum GMSender {
     SceneManager,
 
     Object(String),
+    ObjectChild,
+    ObjectParent,
     ObjectManager,
 }
 
@@ -67,6 +69,12 @@ impl GMSender {
             }
             GMSender::Object(name) => {
                 GMReceiver::Object(name.to_string())
+            }
+            GMSender::ObjectChild => {
+                GMReceiver::ObjectChild
+            }
+            GMSender::ObjectParent => {
+                GMReceiver::ObjectParent
             }
             GMSender::ObjectManager => {
                 GMReceiver::ObjectManager
@@ -91,6 +99,8 @@ pub enum GMReceiver {
     SceneManager,
 
     Object(String),
+    ObjectChild,
+    ObjectParent,
     ObjectWithProperty(String),
     ObjectManager,
 }
@@ -152,6 +162,7 @@ pub enum GMMessageData {
     GetChildClone,
     Child(Option<Box<dyn GMObjectT>>),
     MessageToChild(Box<GMMessageData>),
+    SetObjectAction(GMObjectAction),
 
     SetZIndex(i32),
     GetZIndex,
@@ -184,9 +195,10 @@ pub enum GMMessageData {
 
     SetAnimation(Box<dyn GMAnimationT>),
     SetAnimationName(String),
+    GetAnimationStatus,
+    AnimationStatus(bool),
     SetTexture(Rc<GMTexture>),
     SetTextureName(String),
-    AnimationDone,
 
     SetText(String),
     SetFont(Rc<dyn GMFontT>),

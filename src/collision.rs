@@ -26,14 +26,18 @@ pub fn intersects(pos1: &GMVec2D, shape1: &GMCollisionShape, pos2: &GMVec2D, sha
             rect2.rect_intersect(&rect1)
         }
         (AABB(size1), Circle(radius2)) => {
+            dbg!(size1, radius2);
             todo!();
         }
         (Circle(radius1), AABB(size2)) => {
+            dbg!(radius1, size2);
             todo!();
         }
         (Circle(radius1), Circle(radius2)) => {
-            let circ1 = GMCircle::new2(pos1, *radius1);
-            let circ2 = GMCircle::new2(pos2, *radius2);
+            let circle1 = GMCircle::new2(pos1, *radius1);
+            let circle2 = GMCircle::new2(pos2, *radius2);
+
+            dbg!(circle1, circle2);
 
             todo!();
         }

@@ -25,7 +25,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_mut() {
             child.update(context)
         } else {
-            panic!("Implement 'update()' or set child!");
+            panic!("Implement 'update()' or set a child!");
         }
     }
 
@@ -33,7 +33,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_ref() {
             child.draw(context)
         } else {
-            panic!("Implement 'draw()' or set child!");
+            panic!("Implement 'draw()' or set a child!");
         }
     }
 
@@ -41,7 +41,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_mut() {
             child.send_message(message, context)
         } else {
-            panic!("Implement 'send_message()' or set child!");
+            panic!("Implement 'send_message()' or set a child!");
         }
     }
 
@@ -49,7 +49,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_ref() {
             child.get_name()
         } else {
-            panic!("Implement 'get_name()' or set child!");
+            panic!("Implement 'get_name()' or set a child!");
         }
     }
 
@@ -57,7 +57,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_ref() {
             child.get_position()
         } else {
-            panic!("Implement 'get_position()' or set child!");
+            panic!("Implement 'get_position()' or set a child!");
         }
     }
 
@@ -65,7 +65,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_mut() {
             child.set_position(position)
         } else {
-            panic!("Implement 'set_position()' or set child!");
+            panic!("Implement 'set_position()' or set a child!");
         }
     }
 
@@ -73,7 +73,7 @@ pub trait GMObjectT : Debug {
         if let Some(child) = self.get_child_mut() {
             child.add_position(position)
         } else {
-            panic!("Implement 'add_position()' or set child!");
+            panic!("Implement 'add_position()' or set a child!");
         }
     }
 
@@ -88,12 +88,6 @@ pub trait GMObjectT : Debug {
     fn set_active(&mut self, active: bool) {
         if let Some(child) = self.get_child_mut() {
             child.set_active(active)
-        }
-    }
-
-    fn set_name(&mut self, name: &str) {
-        if let Some(child) = self.get_child_mut() {
-            child.set_name(name)
         }
     }
 
@@ -204,10 +198,6 @@ impl GMObjectBase {
 
     pub fn get_name(&self) -> &str {
         &self.name
-    }
-
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
     }
 
     pub fn get_z_index(&self) -> i32 {
@@ -374,6 +364,10 @@ impl GMObjectManager {
 
     pub fn remove(&mut self, name: &str) -> Result<(), GMError> {
         self.take(name).map(|_| ())
+    }
+
+    pub fn clear(&mut self) {
+        self.objects.clear();
     }
 
     pub fn replace<O: 'static + GMObjectT>(&mut self, object: O) -> Result<(), GMError> {
@@ -596,5 +590,24 @@ impl GMObjectManager {
 
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn GMObjectT>>  {
         self.objects.iter_mut()
+    }
+}
+
+#[derive(Clone)]
+pub struct GMObjectAction {
+    pub action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> (),
+}
+
+impl GMObjectAction {
+    pub fn new(action: fn(&mut Box<dyn GMObjectT>, &mut GMUpdateContext) -> ()) -> Self {
+        Self {
+            action
+        }
+    }
+}
+
+impl Debug for GMObjectAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GMObjectAction")
     }
 }
