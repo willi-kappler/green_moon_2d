@@ -1,4 +1,58 @@
 
+
+
+use crate::scene::GMSceneT;
+use crate::object::{GMObjectT};
+
+#[derive(Clone, Debug)]
+pub(crate) enum GMEngineMessage {
+    Quit,
+    ChangeFPS(u32),
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum GMSceneManagerMessage {
+    AddScene(String, Box<dyn GMSceneT>),
+    RemoveScene(String),
+    ReplaceScene(String, Box<dyn GMSceneT>),
+    PushAndChangeScene(String),
+    PopAndChangeScene,
+    ChangeToScene(String),
+
+    MessageToScene(String, GMSceneMessage),
+}
+
+#[derive(Clone, Debug)]
+pub enum GMSceneMessage {
+
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum GMObjectManagerMessage {
+    AddObject(String, Box<dyn GMObjectT>),
+    RemoveObject(String),
+    ReplaceObject(String, Box<dyn GMObjectT>),
+    SetParent(String, Box<dyn GMObjectT>),
+    GetClone(String, String), // object to clone, message sender
+    SetZIndex(String, i32),
+    GetZIndex(String, i32, String), // object, z index of object, message sender
+
+    MessageToObject(String, GMObjectMessage, String), // receiver, message, sender
+}
+
+
+#[derive(Clone, Debug)]
+pub enum GMObjectMessage {
+    SetChild(Box<dyn GMObjectT>),
+
+
+}
+
+
+
+
+
+/*
 use std::rc::Rc;
 use std::convert::From;
 
@@ -6,7 +60,6 @@ use crate::animation::GMAnimationT;
 // use crate::context::GMUpdateContext;
 use crate::math::GMVec2D;
 use crate::object::{GMObjectT, GMObjectAction};
-use crate::scene::GMSceneT;
 use crate::texture::GMTexture;
 use crate::property::GMValue;
 use crate::font::GMFontT;
@@ -143,9 +196,6 @@ pub enum GMMessageData {
     TakeSceneChild(String),
 
     // Object manager
-    AddObject(String, Box<dyn GMObjectT>),
-    ReplaceObject(String, Box<dyn GMObjectT>),
-    RemoveObject(String),
     TakeObject(String),
     Object(Box<dyn GMObjectT>),
     SetObjectParent(String, Box<dyn GMObjectT>),
@@ -217,3 +267,5 @@ pub enum GMMessageData {
     PropertyNotFound(String),
     RemoveProperty(String),
 }
+
+*/

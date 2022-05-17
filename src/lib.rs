@@ -4,7 +4,6 @@ pub mod collision;
 pub mod configuration;
 pub mod context;
 pub mod engine;
-pub mod error;
 pub mod font;
 pub mod input;
 pub mod math;
@@ -21,9 +20,8 @@ pub mod timer;
 
 pub use context::{GMUpdateContext, GMDrawContext};
 pub use engine::GMEngine;
-pub use error::GMError;
 pub use scene::GMSceneT;
-pub use message::GMMessage;
+// pub use message::GMMessage;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;

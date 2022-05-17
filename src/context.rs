@@ -11,19 +11,19 @@ use log::debug;
 
 use crate::GMSceneT;
 // use crate::animation::GMAnimationT;
-use crate::error::GMError;
-use crate::object::GMObjectT;
+//use crate::object::GMObjectT;
 // use crate::math::GMVec2D;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
+use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMObjectManagerMessage};
+//use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
 // use crate::scene::GMSceneT;
 
 pub struct GMUpdateContext {
-    engine_messages: VecDeque<GMMessage>,
-    scene_messages: VecDeque<GMMessage>,
-    object_messages: VecDeque<GMMessage>,
-    current_sender: GMSender,
+    engine_messages: VecDeque<GMEngineMessage>,
+    scene_messages: VecDeque<GMSceneManagerMessage>,
+    object_messages: VecDeque<GMObjectManagerMessage>,
+    mode: GMContextMode,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -37,42 +37,34 @@ impl GMUpdateContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
-            current_sender: GMSender::Engine,
+            mode: GMContextMode::Scene("".to_string()),
             input,
             resources,
         }
     }
 
-    pub(crate) fn set_current_sender(&mut self, sender: GMSender) {
-        self.current_sender = sender;
+    pub(crate) fn set_mode_scene(&mut self, name: &str) {
+        self.mode = GMContextMode::Scene(name.to_string());
     }
 
-    pub(crate) fn get_current_sender(&self) -> GMSender {
-        self.current_sender.clone()
+    pub(crate) fn set_mode_object(&mut self, name: &str) {
+        self.mode = GMContextMode::Object(name.to_string());
     }
-
 
     // Engine messages:
-    pub(crate) fn next_engine_message(&mut self) -> Option<GMMessage> {
+    pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
         self.engine_messages.pop_front()
     }
 
-    fn message_to_engine(&mut self, message_data: GMMessageData) {
-        self.engine_messages.push_back(GMMessage {
-            sender: self.current_sender.clone(),
-            receiver: GMReceiver::Engine,
-            message_data
-        });
-    }
-
     pub fn quit(&mut self) {
-        self.message_to_engine(GMMessageData::Quit);
+        self.engine_messages.push_back(GMEngineMessage::Quit);
     }
 
     pub fn change_fps(&mut self, fps: u32) {
-        self.message_to_engine(GMMessageData::ChangeFPS(fps));
+        self.engine_messages.push_back(GMEngineMessage::ChangeFPS(fps));
     }
 
+    /*
     pub fn change_resolution(&mut self, width: u32, height: u32) {
         self.message_to_engine(GMMessageData::ChangeResolution(width, height));
     }
@@ -80,65 +72,46 @@ impl GMUpdateContext {
     pub fn change_title(&mut self, title: &str) {
         self.message_to_engine(GMMessageData::ChangeTitle(title.to_string()));
     }
+*/
 
 
     // Scene messages:
-    pub(crate) fn next_scene_message(&mut self) -> Option<GMMessage> {
+    pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneManagerMessage> {
         self.scene_messages.pop_front()
     }
 
-    fn message_to_scene_manager(&mut self, message_data: GMMessageData) {
-        self.scene_messages.push_back(GMMessage {
-            sender: self.current_sender.clone(),
-            receiver: GMReceiver::SceneManager,
-            message_data
-        });
-    }
-
     pub fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        self.message_to_scene_manager(GMMessageData::AddScene(name.to_string(), scene));
+        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(name.to_string(), scene));
     }
 
     pub fn remove_scene(&mut self, name: &str) {
-        self.message_to_scene_manager(GMMessageData::RemoveScene(name.to_string()));
+        self.scene_messages.push_back(GMSceneManagerMessage::RemoveScene(name.to_string()));
     }
 
     pub fn change_to_scene(&mut self, name: &str) {
-        self.message_to_scene_manager(GMMessageData::ChangeToScene(name.to_string()));
+        self.scene_messages.push_back(GMSceneManagerMessage::ChangeToScene(name.to_string()));
     }
 
     pub fn replace_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        self.message_to_scene_manager(GMMessageData::ReplaceScene(name.to_string(), scene));
+        self.scene_messages.push_back(GMSceneManagerMessage::ReplaceScene(name.to_string(), scene));
     }
 
-    pub fn push_current_scene(&mut self) {
-        self.message_to_scene_manager(GMMessageData::PushCurrentScene);
+    pub fn push_and_change_scene(&mut self, name: &str) {
+        self.scene_messages.push_back(GMSceneManagerMessage::PushAndChangeScene(name.to_string()));
     }
 
-    pub fn pop_current_scene(&mut self) {
-        self.message_to_scene_manager(GMMessageData::PopCurrentScene);
+    pub fn pop_and_change_scene(&mut self) {
+        self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
-
-    // TODO: SetSceneParent, RemoveSceneParent, SetSceneChild, RemoveSceneChild, TakeSceneChild
-
-
-
 
 
 
     // Object manager messages:
-    pub(crate) fn next_object_message(&mut self) -> Option<GMMessage> {
+    pub(crate) fn next_object_message(&mut self) -> Option<GMObjectManagerMessage> {
         self.object_messages.pop_front()
     }
 
-    fn message_to_object_manager(&mut self, message_data: GMMessageData) {
-        self.object_messages.push_back(GMMessage {
-            sender: self.current_sender.clone(),
-            receiver: GMReceiver::ObjectManager,
-            message_data
-        });
-    }
-
+    /*
     pub fn add_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
         self.message_to_object_manager(GMMessageData::AddObject(name.to_string(), object));
     }
@@ -155,7 +128,7 @@ impl GMUpdateContext {
         self.message_to_object_manager(GMMessageData::TakeObject(name.to_string()));
     }
 
-    // TODO: SetObjectParent, RemoveObjectParent, SetObjectChild, RemoveObjectChild, TakeObjectChild
+    */
 
 
 
@@ -163,7 +136,7 @@ impl GMUpdateContext {
 
 
 
-
+    /*
     // General messages:
     pub fn send_message(&mut self, mut message: GMMessage) {
         use GMReceiver::*;
@@ -207,12 +180,12 @@ impl GMUpdateContext {
             }
         }
     }
+    */
+
 
     // Update context
-    pub(crate) fn update(&mut self) -> Result<(), GMError> {
+    pub(crate) fn update(&mut self) {
         self.input.update();
-
-        Ok(())
     }
 }
 
@@ -256,3 +229,7 @@ impl GMDrawContext {
     }
 }
 
+enum GMContextMode {
+    Scene(String),
+    Object(String),
+}

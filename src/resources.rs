@@ -14,7 +14,6 @@ use log::debug;
 use crate::animation::GMAnimationT;
 use crate::texture::GMTexture;
 use crate::font::{GMFontT, GMBitmapFont};
-use crate::error::GMError;
 
 
 pub struct GMResources {
@@ -34,33 +33,46 @@ impl GMResources {
         }
     }
 
-    pub fn load_resources(&mut self, file_name: &str) -> Result<(), GMError> {
+    pub fn load_resources(&mut self, file_name: &str) {
         debug!("GMResources::load_resources(), file_name: '{}'", file_name);
 
-        let json_string = fs::read_to_string(file_name)?;
-        let resources: GMResourceFormat = DeJson::deserialize_json(&json_string)?;
+        let json_string = match fs::read_to_string(file_name) {
+            Ok(content) => {
+                content
+            }
+            Err(e) => {
+                panic!("Could not load resources: {}", e);
+            }
+        };
+
+        let resources: GMResourceFormat = match DeJson::deserialize_json(&json_string) {
+            Ok(resources) => {
+                resources
+            }
+            Err(e) => {
+                panic!("JSON error while parsing rescources: {}", e);
+            }
+        };
 
         for texture in resources.textures {
-            let new_texture = self.create_texture(&texture.file_name, texture.cols, texture.unit_width, texture.unit_height)?;
-            self.add_texture(&texture.name, new_texture)?;
+            let new_texture = self.create_texture(&texture.file_name, texture.cols, texture.unit_width, texture.unit_height);
+            self.add_texture(&texture.name, new_texture);
         }
 
         for font in resources.fonts {
-            let new_font = self.create_bitmap_font(&font.texture_name, &font.char_mapping)?;
-            self.add_font(&font.name, new_font)?;
+            let new_font = self.create_bitmap_font(&font.texture_name, &font.char_mapping);
+            self.add_font(&font.name, new_font);
         }
 
         for animation in resources.animations {
-            let new_animation = self.create_animation(&animation.animation_type, &animation.frames)?;
-            self.add_animation(&animation.name, new_animation)?;
+            let new_animation = self.create_animation(&animation.animation_type, &animation.frames);
+            self.add_animation(&animation.name, new_animation);
         }
 
         for sound in resources.sounds {
             dbg!(sound);
             todo!();
         }
-
-        Ok(())
     }
 
     pub fn clear_resources(&mut self) {
@@ -78,52 +90,61 @@ impl GMResources {
         self.textures.clear();
     }
 
-    pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> Result<GMTexture, GMError> {
+    pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
         debug!("GMResources::create_texture(), file_name: '{}', cols: '{}', unit_width: '{}', unit_height: '{}'",
             file_name, cols, unit_width, unit_height);
 
-        let image = self.texture_creator.load_texture(file_name)
-            .map_err(|_| GMError::CouldNotLoadTexture(file_name.to_string()))?;
+        let image = match self.texture_creator.load_texture(file_name) {
+            Ok(image) => {
+                image
+            }
+            Err(e) => {
+                panic!("Error while loading texture: {}", e);
+            }
+        };
 
-        Ok(GMTexture::new(cols, unit_width, unit_height, image))
+        GMTexture::new(cols, unit_width, unit_height, image)
     }
 
-    pub fn add_texture(&mut self, name: &str, texture: GMTexture) -> Result<(), GMError> {
+    pub fn add_texture(&mut self, name: &str, texture: GMTexture) {
         debug!("GMResources::add_texture(), name: '{}'", name);
 
         if self.textures.contains_key(name) {
-            Err(GMError::TextureAlreadyExists(name.to_string()))
+            panic!("A texture with that name already exists: {}", name);
         } else {
             self.textures.insert(name.to_string(), Rc::new(texture));
-            Ok(())
         }
     }
 
-    pub fn remove_texture(&mut self, name: &str) -> Result<(), GMError> {
+    pub fn remove_texture(&mut self, name: &str) {
         debug!("GMResources::remove_texture(), name: '{}'", name);
 
-        self.textures.remove(name)
-            .map(|_| ())
-            .ok_or(GMError::TextureNotFound(name.to_string()))
+        if self.textures.remove(name).is_some() {
+            panic!("No texture with name {} found!", name);
+        }
     }
 
-    pub fn replace_texture(&mut self, name: &str, texture: GMTexture) -> Result<(), GMError> {
+    pub fn replace_texture(&mut self, name: &str, texture: GMTexture) {
         debug!("GMResources::replace_texture(), name: '{}'", name);
 
         if self.textures.contains_key(name) {
             self.textures.insert(name.to_string(), Rc::new(texture));
-            Ok(())
         } else {
-            Err(GMError::TextureNotFound(name.to_string()))
+            panic!("");
         }
     }
 
-    pub fn get_texture_clone(&self, name: &str) -> Result<Rc<GMTexture>, GMError> {
+    pub fn get_texture_clone(&self, name: &str) -> Rc<GMTexture> {
         debug!("GMResources::get_texture_clone(), name: '{}'", name);
 
-        self.textures.get(name)
-            .map(|texture| texture.clone())
-            .ok_or(GMError::TextureNotFound(name.to_string()))
+        match self.textures.get(name) {
+            Some(texture) => {
+                texture.clone()
+            }
+            None => {
+                panic!("No texture with name {} found!", name);
+            }
+        }
     }
 
     // Fonts:
@@ -133,51 +154,54 @@ impl GMResources {
         self.fonts.clear();
     }
 
-    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Rc<dyn GMFontT> {
         debug!("GMResources::create_bitmap_font(), texture: '{}'", texture);
 
-        let texture = self.get_texture_clone(texture)?;
+        let texture = self.get_texture_clone(texture);
         let font = GMBitmapFont::new(texture, char_mapping);
 
-        Ok(Rc::new(font))
+        Rc::new(font)
     }
 
-    pub fn add_font(&mut self, name: &str, font: Rc<dyn GMFontT>) -> Result<(), GMError> {
+    pub fn add_font(&mut self, name: &str, font: Rc<dyn GMFontT>) {
         debug!("GMResources::add_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
-            Err(GMError::FontAlreadyExists(name.to_string()))
+            panic!("A font with the name {} already exists!", name);
         } else {
             self.fonts.insert(name.to_string(), font);
-            Ok(())
         }
     }
 
-    pub fn remove_font(&mut self, name: &str) -> Result<(), GMError> {
+    pub fn remove_font(&mut self, name: &str) {
         debug!("GMResources::remove_font(), name: '{}'", name);
 
-        self.fonts.remove(name)
-            .map(|_| ())
-            .ok_or(GMError::FontNotFound(name.to_string()))
+        if self.fonts.remove(name).is_some() {
+            panic!("A font with the name {} does not exist!", name);
+        }
     }
 
-    pub fn replace_font(&mut self, name: &str, font: Rc<dyn GMFontT>) -> Result<(), GMError> {
+    pub fn replace_font(&mut self, name: &str, font: Rc<dyn GMFontT>) {
         debug!("GMResources::replace_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
             self.fonts.insert(name.to_string(), font);
-            Ok(())
         } else {
-            Err(GMError::FontNotFound(name.to_string()))
+            panic!("");
         }
     }
 
-    pub fn get_font_clone(&self, name: &str) -> Result<Rc<dyn GMFontT>, GMError> {
+    pub fn get_font_clone(&self, name: &str) -> Rc<dyn GMFontT> {
         debug!("GMResources::get_font_clone(), name: '{}'", name);
 
-        self.fonts.get(name)
-            .map(|font| font.clone())
-            .ok_or(GMError::FontNotFound(name.to_string()))
+        match self.fonts.get(name) {
+            Some(font) => {
+                font.clone()
+            }
+            None => {
+                panic!("A font with the name {} does not exist!", name);
+            }
+        }
     }
 
 
@@ -188,7 +212,7 @@ impl GMResources {
         self.animations.clear();
     }
 
-    pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Result<Rc<dyn GMAnimationT>, GMError> {
+    pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Rc<dyn GMAnimationT> {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
         dbg!(frames);
@@ -196,42 +220,45 @@ impl GMResources {
         todo!();
     }
 
-    pub fn add_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) -> Result<(), GMError> {
+    pub fn add_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) {
         debug!("GMResources::add_animation(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
-            Err(GMError::AnimationAlreadyExists(name.to_string()))
+            panic!("An animation with name {} does already exist!", name);
         } else {
             self.animations.insert(name.to_string(), animation);
-            Ok(())
         }
     }
 
-    pub fn remove_animation(&mut self, name: &str) -> Result<(), GMError> {
+    pub fn remove_animation(&mut self, name: &str) {
         debug!("GMResources::remove_animation(), name: '{}'", name);
 
-        self.animations.remove(name)
-            .map(|_| ())
-            .ok_or(GMError::AnimationNotFound(name.to_string()))
+        if self.animations.remove(name).is_some() {
+            panic!("An animation with name {} does not exist!", name);
+        }
     }
 
-    pub fn replace_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) -> Result<(), GMError> {
+    pub fn replace_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) {
         debug!("GMResources::replace_animation(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
             self.animations.insert(name.to_string(), animation);
-            Ok(())
         } else {
-            Err(GMError::AnimationNotFound(name.to_string()))
+            panic!("An animation with name {} does not exist!", name);
         }
     }
 
-    pub fn get_animation_clone(&self, name: &str) -> Result<Rc<dyn GMAnimationT>, GMError> {
+    pub fn get_animation_clone(&self, name: &str) -> Rc<dyn GMAnimationT> {
         debug!("GMResources::get_animation_clone(), name: '{}'", name);
 
-        self.animations.get(name)
-            .map(|animation| animation.clone())
-            .ok_or(GMError::AnimationNotFound(name.to_string()))
+        match self.animations.get(name) {
+            Some(animation) => {
+                animation.clone()
+            }
+            None => {
+                panic!("An animation with name {} does not exist!", name);
+            }
+        }
     }
 
 

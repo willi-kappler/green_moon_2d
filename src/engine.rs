@@ -10,8 +10,7 @@ use crate::resources::GMResources;
 use crate::context::{GMUpdateContext, GMDrawContext};
 use crate::scene::{GMSceneManager};
 use crate::configuration::GMConfiguration;
-use crate::error::GMError;
-use crate::message::{GMMessageData};
+use crate::message::{GMEngineMessage};
 use crate::scene::GMSceneT;
 
 pub struct GMEngine {
@@ -38,25 +37,34 @@ impl GMEngine {
         self.configuration = configuration;
     }
 
-    pub fn configuration_from_json(&mut self, json: &str) -> Result<(), GMError> {
+    pub fn configuration_from_json(&mut self, json: &str) {
         debug!("GMEngine::configuration_from_json()");
 
-        let configuration: GMConfiguration = DeJson::deserialize_json(json)?;
-        self.set_configuration(configuration);
-
-        Ok(())
+        match DeJson::deserialize_json(json) {
+            Ok(configuration) => {
+                self.set_configuration(configuration);
+            }
+            Err(e) => {
+                panic!("Error in JSON configuration string: {}", e);
+            }
+        }
     }
 
-    pub fn load_configuration(&mut self, file_name: &str) -> Result<(), GMError> {
+    pub fn load_configuration(&mut self, file_name: &str) {
         debug!("GMEngine::load_configuration(), file_name: '{}'", file_name);
 
-        let json = fs::read_to_string(file_name)?;
-        self.configuration_from_json(&json)?;
+        match fs::read_to_string(file_name) {
+            Ok(json) => {
+                self.configuration_from_json(&json);
+            }
+            Err(e) => {
+                panic!("Error in reading file: {}, {}", file_name, e);
+            }
+        }
 
-        Ok(())
     }
 
-    pub fn init(&mut self) -> Result<(), GMError> {
+    pub fn init(&mut self) {
         debug!("GMEngine::init()");
 
         let sdl_context = sdl2::init().unwrap();
@@ -77,73 +85,69 @@ impl GMEngine {
 
         self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump));
         self.draw_context = Some(GMDrawContext::new(canvas));
-
-        Ok(())
     }
 
-    pub fn load_resources(&mut self, file_name: &str) -> Result<(), GMError> {
+    pub fn load_resources(&mut self, file_name: &str) {
         debug!("GMEngine::load_resources(), file_name: '{}'", file_name);
 
-        let update_context = self.update_context.as_mut().ok_or(GMError::EngineNotInitialized)?;
+        let update_context = self.update_context.as_mut()
+            .expect("Update context not set, call init() on engine first!");
 
-        update_context.resources.load_resources(file_name)?;
-
-        Ok(())
+        update_context.resources.load_resources(file_name);
     }
 
-    pub fn get_resources(&mut self) -> Result<&mut GMResources, GMError> {
+    pub fn get_resources(&mut self) -> &mut GMResources {
         debug!("GMEngine::get_resources()");
 
-        let update_context = self.update_context.as_mut().ok_or(GMError::EngineNotInitialized)?;
+        let update_context = self.update_context.as_mut()
+            .expect("Update context not set, call init() on engine first!");
 
-        Ok(&mut update_context.resources)
+        &mut update_context.resources
     }
 
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) -> Result<(), GMError> {
+    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
         debug!("GMEngine::add_scene(), name: '{}'", name);
 
         self.scene_manager.add(name, Box::new(scene))
     }
 
-    pub fn run(&mut self) -> Result<(), GMError> {
+    pub fn run(&mut self) {
         debug!("GMEngine::run()");
 
-        let update_context = self.update_context.as_mut().ok_or(GMError::EngineNotInitialized)?;
-        let draw_context = self.draw_context.as_mut().ok_or(GMError::EngineNotInitialized)?;
+        let update_context = self.update_context.as_mut()
+            .expect("Update context not set, call init() on engine first!");
+
+        let draw_context = self.draw_context.as_mut()
+            .expect("Draw context not set, call init() on engine first!");
 
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
         'quit: loop {
             // Update everything
-            update_context.update()?;
-            self.scene_manager.update(update_context)?;
+            update_context.update();
+            self.scene_manager.update(update_context);
 
 
             // Draw everything
-            self.scene_manager.draw(draw_context)?;
+            self.scene_manager.draw(draw_context);
             draw_context.present();
 
             while let Some(message) = update_context.next_engine_message() {
-                match message.message_data {
-                    GMMessageData::Quit => {
+                match message {
+                    GMEngineMessage::Quit => {
                         debug!("GMEngine message: Quit");
                         break 'quit;
                     }
-                    GMMessageData::ChangeFPS(new_fps) => {
+                    GMEngineMessage::ChangeFPS(new_fps) => {
                         debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
-                    }
-                    _ => {
-                        return Err(GMError::UnknownMessageToEngine(message))
                     }
                 }
             }
 
             fps_manager.delay();
         }
-
-        Ok(())
     }
 }
