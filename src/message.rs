@@ -19,6 +19,7 @@ pub(crate) enum GMSceneManagerMessage {
     PopAndChangeScene,
     ChangeToScene(String),
 
+    MessageToCurrentScene(GMSceneMessage),
     MessageToScene(String, GMSceneMessage),
 }
 

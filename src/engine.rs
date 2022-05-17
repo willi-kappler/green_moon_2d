@@ -83,8 +83,11 @@ impl GMEngine {
         let texture_creator = canvas.texture_creator();
         let event_pump = sdl_context.event_pump().unwrap();
 
-        self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump));
+        let scene_name = self.scene_manager.get_name(0);
+
+        self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump, scene_name));
         self.draw_context = Some(GMDrawContext::new(canvas));
+
     }
 
     pub fn load_resources(&mut self, file_name: &str) {
@@ -108,7 +111,7 @@ impl GMEngine {
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
         debug!("GMEngine::add_scene(), name: '{}'", name);
 
-        self.scene_manager.add(name, Box::new(scene))
+        self.scene_manager.add_scene(name, Box::new(scene))
     }
 
     pub fn run(&mut self) {

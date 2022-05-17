@@ -15,7 +15,7 @@ use crate::GMSceneT;
 // use crate::math::GMVec2D;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMObjectManagerMessage};
+use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage};
 //use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
 // use crate::scene::GMSceneT;
 
@@ -29,7 +29,7 @@ pub struct GMUpdateContext {
 }
 
 impl GMUpdateContext {
-    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump) -> Self {
+    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump, scene_name: &str) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -37,7 +37,7 @@ impl GMUpdateContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
-            mode: GMContextMode::Scene("".to_string()),
+            mode: GMContextMode::Scene(scene_name.to_string()),
             input,
             resources,
         }
@@ -104,6 +104,16 @@ impl GMUpdateContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
+    pub fn message_to_current_scene(&mut self, message: GMSceneMessage) {
+        dbg!(message);
+        todo!();
+    }
+
+    pub fn message_to_scene(&mut self, name: &str, message: GMSceneMessage) {
+        dbg!(name, message);
+        todo!();
+    }
+
 
 
     // Object manager messages:
@@ -130,58 +140,18 @@ impl GMUpdateContext {
 
     */
 
+    pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
+        use GMContextMode::*;
 
-
-
-
-
-
-    /*
-    // General messages:
-    pub fn send_message(&mut self, mut message: GMMessage) {
-        use GMReceiver::*;
-
-        let receiver = &message.receiver;
-        let sender = &message.sender;
-
-        // Change sender if message comes from current scene or current object
-        match sender {
-            GMSender::CurrentScene => {
-                if matches!(self.current_sender, GMSender::Scene(_)) {
-                    message.sender = self.current_sender.clone();
-                } else {
-                    panic!("GMUpdateContext::send_message(), sender for current scene does not match: {:?}", self.current_sender);
-                }
+        match &self.mode {
+            Object(reply_name) => {
+                self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, reply_name.to_string()));
             }
-            GMSender::CurrentObject => {
-                if matches!(self.current_sender, GMSender::Object(_)) {
-                    message.sender = self.current_sender.clone();
-                } else {
-                    panic!("GMUpdateContext::send_message(), sender for current object does not match: {:?}", self.current_sender);
-                }
-            }
-            _ => {
-                // Nothing to do for other senders...
-            }
-        }
-
-        match receiver {
-            Engine => {
-                self.engine_messages.push_back(message);
-            }
-            CurrentScene | Scene(_) | SceneWithProperty(_) | SceneManager => {
-                self.scene_messages.push_back(message);
-            }
-            Object(_) | ObjectWithProperty(_) | ObjectManager => {
-                self.object_messages.push_back(message);
-            }
-            _ => {
-                panic!("GMUpdateContext::send_message(), unknown receiver in context: {:?}", receiver);
+            Scene(name) => {
+                panic!("Scene {} is not allowed to send messages to objects via update context: {:?}", name, message);
             }
         }
     }
-    */
-
 
     // Update context
     pub(crate) fn update(&mut self) {
