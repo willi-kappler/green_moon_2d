@@ -4,27 +4,30 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::context::{GMUpdateContext, GMDrawContext};
-use crate::message::{GMSceneManagerMessage, GMSceneMessage};
+use crate::message::{GMSceneManagerMessage, GMSceneMessage, GMSceneReply};
 // use crate::property::{GMValue};
 
 pub trait GMSceneT : Debug {
     // Must be implemented:
+    fn send_message(&mut self, message: GMSceneMessage, context: &mut GMUpdateContext) -> GMSceneReply;
+
     fn clone_box(&self) -> Box<dyn GMSceneT>;
 
-    // May be implemented:
-    fn send_message(&mut self, _message: GMSceneMessage, _context: &mut GMUpdateContext) {
-    }
 
-    fn update(&mut self, _context: &mut GMUpdateContext) {
+    // May be implemented:
+    fn update(&mut self, context: &mut GMUpdateContext) {
+        self.send_message(GMSceneMessage::Update, context);
     }
 
     fn draw(&self, _context: &GMDrawContext) {
     }
 
-    fn init(&mut self, _context: &mut GMUpdateContext) {
+    fn init(&mut self, context: &mut GMUpdateContext) {
+        self.send_message(GMSceneMessage::Init, context);
     }
 
-    fn exit(&mut self, _context: &mut GMUpdateContext) {
+    fn exit(&mut self, context: &mut GMUpdateContext) {
+        self.send_message(GMSceneMessage::Exit, context);
     }
 }
 
@@ -85,8 +88,7 @@ impl GMSceneManager {
         match self.scene_index(name) {
             Some(index) => {
                 // TODO: if current scene: error, else swap_remove()
-                dbg!(index);
-                todo!();
+                todo!("remove scene: {}", index);
             }
             None => {
                 panic!("A scene with name {} does not exist!", name);

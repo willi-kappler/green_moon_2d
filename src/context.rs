@@ -9,21 +9,20 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
-use crate::GMSceneT;
 // use crate::animation::GMAnimationT;
-//use crate::object::GMObjectT;
 // use crate::math::GMVec2D;
+// use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
+use crate::object::GMObjectT;
 use crate::resources::GMResources;
 use crate::input::GMInput;
 use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage};
-//use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
-// use crate::scene::GMSceneT;
+use crate::scene::GMSceneT;
 
 pub struct GMUpdateContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: VecDeque<GMObjectManagerMessage>,
-    mode: GMContextMode,
+    context_mode: GMContextMode,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -37,19 +36,20 @@ impl GMUpdateContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
-            mode: GMContextMode::Scene(scene_name.to_string()),
+            context_mode: GMContextMode::Scene(scene_name.to_string()),
             input,
             resources,
         }
     }
 
     pub(crate) fn set_mode_scene(&mut self, name: &str) {
-        self.mode = GMContextMode::Scene(name.to_string());
+        self.context_mode = GMContextMode::Scene(name.to_string());
     }
 
     pub(crate) fn set_mode_object(&mut self, name: &str) {
-        self.mode = GMContextMode::Object(name.to_string());
+        self.context_mode = GMContextMode::Object(name.to_string());
     }
+
 
     // Engine messages:
     pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
@@ -64,15 +64,17 @@ impl GMUpdateContext {
         self.engine_messages.push_back(GMEngineMessage::ChangeFPS(fps));
     }
 
-    /*
     pub fn change_resolution(&mut self, width: u32, height: u32) {
-        self.message_to_engine(GMMessageData::ChangeResolution(width, height));
+        todo!("change_resolution: {}, {}", width, height);
     }
 
     pub fn change_title(&mut self, title: &str) {
-        self.message_to_engine(GMMessageData::ChangeTitle(title.to_string()));
+        todo!("change_title: {}", title);
     }
-*/
+
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+        self.engine_messages.push_back(GMEngineMessage::SetFullscreen(fullscreen));
+    }
 
 
     // Scene messages:
@@ -105,15 +107,12 @@ impl GMUpdateContext {
     }
 
     pub fn message_to_current_scene(&mut self, message: GMSceneMessage) {
-        dbg!(message);
-        todo!();
+        self.scene_messages.push_back(GMSceneManagerMessage::MessageToCurrentScene(message));
     }
 
     pub fn message_to_scene(&mut self, name: &str, message: GMSceneMessage) {
-        dbg!(name, message);
-        todo!();
+        self.scene_messages.push_back(GMSceneManagerMessage::MessageToScene(name.to_string(), message));
     }
-
 
 
     // Object manager messages:
@@ -121,37 +120,63 @@ impl GMUpdateContext {
         self.object_messages.pop_front()
     }
 
-    /*
-    pub fn add_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.message_to_object_manager(GMMessageData::AddObject(name.to_string(), object));
-    }
-
-    pub fn replace_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.message_to_object_manager(GMMessageData::ReplaceObject(name.to_string(), object));
-    }
-
-    pub fn remove_object(&mut self, name: &str) {
-        self.message_to_object_manager(GMMessageData::RemoveObject(name.to_string()));
-    }
-
-    pub fn take_object(&mut self, name: &str) {
-        self.message_to_object_manager(GMMessageData::TakeObject(name.to_string()));
-    }
-
-    */
-
-    pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
+    fn get_object_reply_name(&self) -> String {
         use GMContextMode::*;
 
-        match &self.mode {
-            Object(reply_name) => {
-                self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, reply_name.to_string()));
+        match &self.context_mode {
+            Object(name) => {
+                name.to_string()
             }
             Scene(name) => {
-                panic!("Scene {} is not allowed to send messages to objects via update context: {:?}", name, message);
+                panic!("Scene {} is not allowed to call object manager methods via update context, use direct methods on object manager!", name);
             }
         }
     }
+
+    fn check_context_mode(&self) {
+        self.get_object_reply_name();
+    }
+
+    pub fn add_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
+        self.check_context_mode();
+        self.object_messages.push_back(GMObjectManagerMessage::AddObject(name.to_string(), object));
+    }
+
+    pub fn remove_object(&mut self, name: &str) {
+        self.check_context_mode();
+        self.object_messages.push_back(GMObjectManagerMessage::RemoveObject(name.to_string()));
+    }
+
+    pub fn replace_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
+        self.check_context_mode();
+        self.object_messages.push_back(GMObjectManagerMessage::ReplaceObject(name.to_string(), object));
+    }
+
+    pub fn set_object_parent(&mut self, name: &str, object: Box<dyn GMObjectT>) {
+        self.check_context_mode();
+        self.object_messages.push_back(GMObjectManagerMessage::SetParent(name.to_string(), object));
+    }
+
+    pub fn get_object_clone(&mut self, name: &str) {
+        let reply_name = self.get_object_reply_name();
+        self.object_messages.push_back(GMObjectManagerMessage::GetClone(name.to_string(), reply_name));
+    }
+
+    pub fn set_object_z_index(&mut self, name: &str, z_index: i32) {
+        self.check_context_mode();
+        self.object_messages.push_back(GMObjectManagerMessage::SetZIndex(name.to_string(), z_index));
+    }
+
+    pub fn get_object_z_index(&mut self, name: &str, z_index: i32) {
+        let reply_name = self.get_object_reply_name();
+        self.object_messages.push_back(GMObjectManagerMessage::GetZIndex(name.to_string(), z_index, reply_name));
+    }
+
+    pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
+        let reply_name = self.get_object_reply_name();
+        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, reply_name));
+    }
+
 
     // Update context
     pub(crate) fn update(&mut self) {
@@ -183,7 +208,7 @@ impl GMDrawContext {
         self.canvas.clear();
     }
 
-    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+    pub(crate) fn set_fullscreen(&mut self, fullscreen: bool) {
         debug!("GMDrawContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
 
         // TODO: Map SDL2 error

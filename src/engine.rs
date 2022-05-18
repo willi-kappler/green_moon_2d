@@ -126,6 +126,8 @@ impl GMEngine {
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
+        use GMEngineMessage::*;
+
         'quit: loop {
             // Update everything
             update_context.update();
@@ -138,14 +140,17 @@ impl GMEngine {
 
             while let Some(message) = update_context.next_engine_message() {
                 match message {
-                    GMEngineMessage::Quit => {
+                    Quit => {
                         debug!("GMEngine message: Quit");
                         break 'quit;
                     }
-                    GMEngineMessage::ChangeFPS(new_fps) => {
+                    ChangeFPS(new_fps) => {
                         debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
+                    }
+                    SetFullscreen(fullscreen) => {
+                        draw_context.set_fullscreen(fullscreen);
                     }
                 }
             }
