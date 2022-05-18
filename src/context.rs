@@ -52,6 +52,14 @@ impl GMContext {
         self.context_mode = GMContextMode::Object(name.to_string());
     }
 
+    pub(crate) fn get_scene_name(&self) -> &str {
+        if let GMContextMode::Scene(name) = &self.context_mode {
+            name
+        } else {
+            panic!("Context not in scene mode!");
+        }
+    }
+
     // Draw methods:
     pub(crate) fn present(&mut self) {
         self.canvas.present();

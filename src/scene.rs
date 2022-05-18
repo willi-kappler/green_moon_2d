@@ -9,7 +9,18 @@ use crate::message::{GMSceneManagerMessage, GMSceneMessage, GMSceneReply};
 
 pub trait GMSceneT : Debug {
     // Must be implemented:
+    fn clone_box(&self) -> Box<dyn GMSceneT>;
+
     fn send_message(&mut self, message: GMSceneMessage, context: &mut GMContext) -> GMSceneReply;
+
+    fn update(&mut self, context: &mut GMContext);
+
+    // May be implemented:
+    fn init(&mut self, _context: &mut GMContext) {
+    }
+
+    fn exit(&mut self, _context: &mut GMContext) {
+    }
 }
 
 #[derive(Debug)]
@@ -113,17 +124,17 @@ impl GMSceneManager {
 
         self.scene_stack.push(current_name);
         self.change_to_scene(name, context);
-        self.message_to_current_scene(GMSceneMessage::Init, context);
+        self.init_current_scene(context);
     }
 
     fn pop_and_change_scene(&mut self, context: &mut GMContext) {
         match self.scene_stack.pop() {
             Some(name) => {
                 let current_name = self.get_current_name();
-                debug!("GMSceneManager::pop_and_change_scene(), current scene: '{}', scene: '{}'", 
+                debug!("GMSceneManager::pop_and_change_scene(), current scene: '{}', scene: '{}'",
                     current_name, name);
 
-                self.message_to_current_scene(GMSceneMessage::Exit, context);
+                self.exit_current_scene(context);
                 self.change_to_scene(&name, context);
             }
             None => {
@@ -147,8 +158,20 @@ impl GMSceneManager {
         }
     }
 
+    fn update_current_scene(&mut self, context: &mut GMContext) {
+        self.scenes[self.current_scene_index].1.update(context);
+    }
+
+    fn init_current_scene(&mut self, context: &mut GMContext) {
+        self.scenes[self.current_scene_index].1.init(context);
+    }
+
+    fn exit_current_scene(&mut self, context: &mut GMContext) {
+        self.scenes[self.current_scene_index].1.exit(context);
+    }
+
     pub(crate) fn update(&mut self, context: &mut GMContext) {
-        self.message_to_current_scene(GMSceneMessage::Update, context);
+        self.update_current_scene(context);
 
         use GMSceneManagerMessage::*;
 
@@ -170,9 +193,9 @@ impl GMSceneManager {
                     self.pop_and_change_scene(context);
                 }
                 ChangeToScene(name) => {
-                    self.message_to_current_scene(GMSceneMessage::Exit, context);
+                    self.exit_current_scene(context);
                     self.change_to_scene(&name, context);
-                    self.message_to_current_scene(GMSceneMessage::Init, context);
+                    self.init_current_scene(context);
 
                 }
 

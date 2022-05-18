@@ -26,9 +26,6 @@ pub(crate) enum GMSceneManagerMessage {
 
 #[derive(Clone, Debug)]
 pub enum GMSceneMessage {
-    Update,
-    Init,
-    Exit,
 }
 
 #[derive(Debug)]
@@ -52,11 +49,7 @@ pub(crate) enum GMObjectManagerMessage {
 
 #[derive(Debug)]
 pub enum GMObjectMessage {
-    Clone,
-    Update,
     SetChild(Box<dyn GMObjectT>),
-
-
 }
 
 #[derive(Debug)]

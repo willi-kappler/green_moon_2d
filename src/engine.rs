@@ -6,6 +6,7 @@ use sdl2::gfx::framerate::FPSManager;
 use log::debug;
 use nanoserde::DeJson;
 
+use crate::object::GMObjectManager;
 use crate::resources::GMResources;
 use crate::context::{GMContext};
 use crate::scene::{GMSceneManager};
@@ -16,7 +17,8 @@ use crate::scene::GMSceneT;
 pub struct GMEngine {
     configuration: GMConfiguration,
     scene_manager: GMSceneManager,
-    update_context: Option<GMContext>,
+    context: Option<GMContext>,
+    object_manager: GMObjectManager,
 }
 
 impl GMEngine {
@@ -25,7 +27,8 @@ impl GMEngine {
         Self {
             configuration: GMConfiguration::new(),
             scene_manager: GMSceneManager::new(),
-            update_context: None,
+            context: None,
+            object_manager: GMObjectManager::new(),
         }
     }
 
@@ -83,13 +86,13 @@ impl GMEngine {
 
         let scene_name = self.scene_manager.get_name(0);
 
-        self.update_context = Some(GMContext::new(texture_creator, event_pump, canvas, scene_name));
+        self.context = Some(GMContext::new(texture_creator, event_pump, canvas, scene_name));
     }
 
     pub fn load_resources(&mut self, file_name: &str) {
         debug!("GMEngine::load_resources(), file_name: '{}'", file_name);
 
-        let update_context = self.update_context.as_mut()
+        let update_context = self.context.as_mut()
             .expect("Update context not set, call init() on engine first!");
 
         update_context.resources.load_resources(file_name);
@@ -98,7 +101,7 @@ impl GMEngine {
     pub fn get_resources(&mut self) -> &mut GMResources {
         debug!("GMEngine::get_resources()");
 
-        let update_context = self.update_context.as_mut()
+        let update_context = self.context.as_mut()
             .expect("Update context not set, call init() on engine first!");
 
         &mut update_context.resources
@@ -113,7 +116,7 @@ impl GMEngine {
     pub fn run(&mut self) {
         debug!("GMEngine::run()");
 
-        let update_context = self.update_context.as_mut()
+        let context = self.context.as_mut()
             .expect("Update context not set, call init() on engine first!");
 
         let mut fps_manager = FPSManager::new();
@@ -123,14 +126,15 @@ impl GMEngine {
 
         'quit: loop {
             // Update everything
-            update_context.update();
-            self.scene_manager.update(update_context);
+            context.update();
+            self.scene_manager.update(context);
 
+            self.object_manager.update(context);
 
             // Draw everything
-            update_context.present();
+            context.present();
 
-            while let Some(message) = update_context.next_engine_message() {
+            while let Some(message) = context.next_engine_message() {
                 match message {
                     Quit => {
                         debug!("GMEngine message: Quit");

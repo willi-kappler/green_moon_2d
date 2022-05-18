@@ -2,12 +2,80 @@
 use std::fmt::Debug;
 
 use crate::context::{GMContext};
-use crate::message::{GMObjectMessage, GMObjectReply};
+use crate::message::{GMObjectMessage, GMObjectReply, GMObjectManagerMessage};
 
 
 pub trait GMObjectT : Debug {
+    fn clone_box(&self) -> Box<dyn GMObjectT>;
+
     fn send_message(&mut self, message: GMObjectMessage, context: &mut GMContext) -> GMObjectReply;
+
+    fn update(&mut self, context: &mut GMContext);
 }
+
+pub struct GMObjectManager {
+    objects: Vec<(i32, String, Box<dyn GMObjectT>)>,
+    sort_objects: bool,
+}
+
+impl GMObjectManager {
+    pub fn new() -> Self {
+        Self {
+            objects: Vec::new(),
+            sort_objects: false,
+        }
+    }
+
+    fn index(&self, name: &str) -> Option<usize> {
+        self.objects.iter().position(|(_, object_name, _)| object_name == name)
+    }
+
+    pub fn add<O: 'static + GMObjectT>(&mut self, name: &str, object: O) {
+        self.add_box(name, Box::new(object))
+    }
+
+    // Maybe use From trait, GMObjectT -> Box<dyn GMObjectT>
+    pub fn add_box(&mut self, name: &str, object: Box<dyn GMObjectT>) {
+        match self.index(name) {
+            Some(_) => {
+                panic!("Object with name '{}' already exists!", name);
+            }
+            None => {
+                self.objects.push((0, name.to_string(), object));
+                self.sort_objects = true;
+            }
+        }
+    }
+
+    pub fn update(&mut self, context: &mut GMContext) {
+        // Store current scene from context
+        let current_scene_name = context.get_scene_name().to_string();
+
+        if self.sort_objects {
+            todo!();
+        }
+
+        for (_, name, object) in self.objects.iter_mut() {
+            // Set current object as current sender in context
+            context.set_mode_object(name);
+            object.update(context);
+        }
+
+        while let Some(message) = context.next_object_message() {
+            self.send_message(message, context);
+        }
+
+        // Restore current scene to context
+        context.set_mode_scene(&current_scene_name);
+    }
+
+    fn send_message(&mut self, _message: GMObjectManagerMessage, _context: &mut GMContext) {
+        todo!();
+    }
+}
+
+
+
 
 /*
 
