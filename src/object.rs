@@ -1,30 +1,12 @@
 
 use std::fmt::Debug;
 
-use crate::context::{GMUpdateContext, GMDrawContext};
+use crate::context::{GMContext};
 use crate::message::{GMObjectMessage, GMObjectReply};
 
 
 pub trait GMObjectT : Debug {
-    // Must be implemented:
-    fn clone_box(&self) -> Box<dyn GMObjectT>;
-
-    fn send_message(&mut self, message: GMObjectMessage, context: &mut GMUpdateContext) -> GMObjectReply;
-
-
-    // May be implemented:
-    fn update(&mut self, context: &mut GMUpdateContext) {
-        self.send_message(GMObjectMessage::Update, context);
-    }
-
-    fn draw(&self, _context: &mut GMDrawContext) {
-    }
-}
-
-impl Clone for Box<dyn GMObjectT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
+    fn send_message(&mut self, message: GMObjectMessage, context: &mut GMContext) -> GMObjectReply;
 }
 
 /*

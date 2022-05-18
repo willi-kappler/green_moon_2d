@@ -5,10 +5,10 @@ use std::rc::Rc;
 use std::fmt::Debug;
 
 use crate::texture::GMTexture;
-use crate::context::GMDrawContext;
+use crate::context::GMContext;
 
 pub trait GMFontT : Debug {
-    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMDrawContext);
+    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext);
 
     fn get_char_dimensions(&self, c: char) -> (f32, f32);
 }
@@ -35,7 +35,7 @@ impl GMBitmapFont {
 }
 
 impl GMFontT for GMBitmapFont {
-    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMDrawContext) {
+    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext) {
         let index = self.mapping.get(&c).unwrap();
         self.texture.draw(x, y, *index, context);
     }

@@ -11,24 +11,25 @@ use log::debug;
 
 // use crate::animation::GMAnimationT;
 // use crate::math::GMVec2D;
-// use crate::message::{GMSender, GMReceiver, GMMessage, GMMessageData};
 use crate::object::GMObjectT;
 use crate::resources::GMResources;
 use crate::input::GMInput;
 use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage};
 use crate::scene::GMSceneT;
 
-pub struct GMUpdateContext {
+pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: VecDeque<GMObjectManagerMessage>,
     context_mode: GMContextMode,
+    canvas: Canvas<Window>,
     pub input: GMInput,
     pub resources: GMResources,
 }
 
-impl GMUpdateContext {
-    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>, event_pump: sdl2::EventPump, scene_name: &str) -> Self {
+impl GMContext {
+    pub(crate) fn new (texture_creator: TextureCreator<WindowContext>,
+            event_pump: sdl2::EventPump, canvas: Canvas<Window>, scene_name: &str) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -36,6 +37,7 @@ impl GMUpdateContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
+            canvas,
             context_mode: GMContextMode::Scene(scene_name.to_string()),
             input,
             resources,
@@ -49,6 +51,38 @@ impl GMUpdateContext {
     pub(crate) fn set_mode_object(&mut self, name: &str) {
         self.context_mode = GMContextMode::Object(name.to_string());
     }
+
+    // Draw methods:
+    pub(crate) fn present(&mut self) {
+        self.canvas.present();
+    }
+
+    pub fn clear_black(&mut self) {
+        self.clear(pixels::Color::BLACK);
+    }
+
+    pub fn clear(&mut self, color: pixels::Color) {
+        self.canvas.set_draw_color(color);
+        self.canvas.clear();
+    }
+
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+        debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
+
+        // TODO: Map SDL2 error
+        if fullscreen {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True)
+                .expect("Could not set fullscreen on");
+        } else {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
+                .expect("Could not set fullscreen off");
+        }
+    }
+
+    pub fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
+    }
+
 
 
     // Engine messages:
@@ -70,10 +104,6 @@ impl GMUpdateContext {
 
     pub fn change_title(&mut self, title: &str) {
         todo!("change_title: {}", title);
-    }
-
-    pub fn set_fullscreen(&mut self, fullscreen: bool) {
-        self.engine_messages.push_back(GMEngineMessage::SetFullscreen(fullscreen));
     }
 
 
@@ -181,46 +211,6 @@ impl GMUpdateContext {
     // Update context
     pub(crate) fn update(&mut self) {
         self.input.update();
-    }
-}
-
-pub struct GMDrawContext {
-    canvas: Canvas<Window>,
-}
-
-impl GMDrawContext {
-    pub(crate) fn new(canvas: Canvas<Window>) -> Self {
-        Self {
-            canvas,
-        }
-    }
-
-    pub(crate) fn present(&mut self) {
-        self.canvas.present();
-    }
-
-    pub fn clear_black(&mut self) {
-        self.clear(pixels::Color::BLACK);
-    }
-
-    pub fn clear(&mut self, color: pixels::Color) {
-        self.canvas.set_draw_color(color);
-        self.canvas.clear();
-    }
-
-    pub(crate) fn set_fullscreen(&mut self, fullscreen: bool) {
-        debug!("GMDrawContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
-
-        // TODO: Map SDL2 error
-        if fullscreen {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True).ok();
-        } else {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off).ok();
-        }
-    }
-
-    pub fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
     }
 }
 

@@ -7,7 +7,7 @@ use log::debug;
 use nanoserde::DeJson;
 
 use crate::resources::GMResources;
-use crate::context::{GMUpdateContext, GMDrawContext};
+use crate::context::{GMContext};
 use crate::scene::{GMSceneManager};
 use crate::configuration::GMConfiguration;
 use crate::message::{GMEngineMessage};
@@ -16,8 +16,7 @@ use crate::scene::GMSceneT;
 pub struct GMEngine {
     configuration: GMConfiguration,
     scene_manager: GMSceneManager,
-    update_context: Option<GMUpdateContext>,
-    draw_context: Option<GMDrawContext>,
+    update_context: Option<GMContext>,
 }
 
 impl GMEngine {
@@ -27,7 +26,6 @@ impl GMEngine {
             configuration: GMConfiguration::new(),
             scene_manager: GMSceneManager::new(),
             update_context: None,
-            draw_context: None,
         }
     }
 
@@ -85,9 +83,7 @@ impl GMEngine {
 
         let scene_name = self.scene_manager.get_name(0);
 
-        self.update_context = Some(GMUpdateContext::new(texture_creator, event_pump, scene_name));
-        self.draw_context = Some(GMDrawContext::new(canvas));
-
+        self.update_context = Some(GMContext::new(texture_creator, event_pump, canvas, scene_name));
     }
 
     pub fn load_resources(&mut self, file_name: &str) {
@@ -120,9 +116,6 @@ impl GMEngine {
         let update_context = self.update_context.as_mut()
             .expect("Update context not set, call init() on engine first!");
 
-        let draw_context = self.draw_context.as_mut()
-            .expect("Draw context not set, call init() on engine first!");
-
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).unwrap();
 
@@ -135,8 +128,7 @@ impl GMEngine {
 
 
             // Draw everything
-            self.scene_manager.draw(draw_context);
-            draw_context.present();
+            update_context.present();
 
             while let Some(message) = update_context.next_engine_message() {
                 match message {
@@ -148,9 +140,6 @@ impl GMEngine {
                         debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
                         fps_manager.set_framerate(new_fps).unwrap();
                         self.configuration.fps = new_fps;
-                    }
-                    SetFullscreen(fullscreen) => {
-                        draw_context.set_fullscreen(fullscreen);
                     }
                 }
             }

@@ -5,14 +5,13 @@ use crate::scene::GMSceneT;
 use crate::object::{GMObjectT};
 // use crate::context::{GMUpdateContext, GMDrawContext};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) enum GMEngineMessage {
     Quit,
     ChangeFPS(u32),
-    SetFullscreen(bool),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) enum GMSceneManagerMessage {
     AddScene(String, Box<dyn GMSceneT>),
     RemoveScene(String),
@@ -28,17 +27,16 @@ pub(crate) enum GMSceneManagerMessage {
 #[derive(Clone, Debug)]
 pub enum GMSceneMessage {
     Update,
-    Draw,
     Init,
     Exit,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum GMSceneReply {
 
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) enum GMObjectManagerMessage {
     AddObject(String, Box<dyn GMObjectT>),
     RemoveObject(String),
@@ -52,17 +50,18 @@ pub(crate) enum GMObjectManagerMessage {
 }
 
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum GMObjectMessage {
+    Clone,
     Update,
-    Draw,
     SetChild(Box<dyn GMObjectT>),
 
 
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum GMObjectReply {
+    ClonedObject(Box<dyn GMObjectT>),
 }
 
 

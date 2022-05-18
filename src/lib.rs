@@ -18,7 +18,7 @@ pub mod text;
 pub mod texture;
 pub mod timer;
 
-pub use context::{GMUpdateContext, GMDrawContext};
+pub use context::{GMContext};
 pub use engine::GMEngine;
 pub use scene::GMSceneT;
 // pub use message::GMMessage;

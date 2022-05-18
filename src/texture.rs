@@ -4,7 +4,7 @@ use std::fmt::{self, Debug, Formatter};
 use sdl2::rect::Rect;
 use sdl2::render::Texture;
 
-use crate::GMDrawContext;
+use crate::GMContext;
 
 pub struct GMTexture {
     cols: u32,
@@ -29,11 +29,11 @@ impl GMTexture {
         }
     }
 
-    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMDrawContext) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
         self.draw_ex(dx, dy, index, 0.0, false, false, context)
     }
 
-    pub fn draw_ex(&self, dx: f32, dy: f32, index: u32, angle: f32, flip_x: bool, flip_y: bool, context: &mut GMDrawContext) {
+    pub fn draw_ex(&self, dx: f32, dy: f32, index: u32, angle: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 
