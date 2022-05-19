@@ -133,6 +133,10 @@ impl GMContext {
         self.object_messages.push_back(GMObjectManagerMessage::ReplaceObject(name.to_string(), object));
     }
 
+    pub fn clear_objects(&mut self) {
+        self.object_messages.push_back(GMObjectManagerMessage::Clear);
+    }
+
     pub fn set_object_parent(&mut self, name: &str, object: Box<dyn GMObjectT>) {
         self.object_messages.push_back(GMObjectManagerMessage::SetParent(name.to_string(), object));
     }

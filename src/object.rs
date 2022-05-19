@@ -2,8 +2,11 @@
 use std::fmt::Debug;
 use std::collections::HashMap;
 
+use log::debug;
+
 use crate::context::{GMContext};
 use crate::message::{GMObjectMessage, GMObjectReply, GMObjectManagerMessage, GMMessageReplyTo, GMSceneMessage};
+use crate::property::GMValue;
 
 
 pub trait CloneBox {
@@ -36,6 +39,14 @@ pub trait GMObjectT: Debug + CloneBox {
 
     fn set_child(&mut self, child: Box<dyn GMObjectT>, context: &mut GMContext) {
         self.send_message(GMObjectMessage::SetChild(child), context);
+    }
+
+    fn add_property(&mut self, name: &str, value: GMValue, context: &mut GMContext) {
+        self.send_message(GMObjectMessage::AddProperty(name.to_string(), value), context);
+    }
+
+    fn get_property(&mut self, name: &str, context: &mut GMContext) -> GMObjectReply {
+        todo!();
     }
 }
 
@@ -74,6 +85,12 @@ impl GMObjectManager {
         } else {
             self.object_does_not_exist("GMObjectManager::replace_object()", name);
         }
+    }
+
+    fn clear(&mut self) {
+        debug!("GMObjectManager::clear()");
+
+        self.objects.clear();
     }
 
     fn set_parent(&mut self, name: &str, mut parent: Box<dyn GMObjectT>, context: &mut GMContext) {
@@ -138,6 +155,9 @@ impl GMObjectManager {
            }
            ReplaceObject(name, object) => {
                self.replace_object(&name, object);
+           }
+           Clear => {
+               self.clear();
            }
            SetParent(name, object) => {
                self.set_parent(&name, object, context);
