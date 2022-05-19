@@ -26,38 +26,46 @@ pub(crate) enum GMSceneManagerMessage {
 
 #[derive(Clone, Debug)]
 pub enum GMSceneMessage {
+    Update,
+    Enter,
+    Leave,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum GMSceneReply {
-
+    Empty,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) enum GMObjectManagerMessage {
     AddObject(String, Box<dyn GMObjectT>),
     RemoveObject(String),
     ReplaceObject(String, Box<dyn GMObjectT>),
     SetParent(String, Box<dyn GMObjectT>),
-    GetClone(String, String), // object to clone, message sender
-    SetZIndex(String, i32),
-    GetZIndex(String, i32, String), // object, z index of object, message sender
+    GetClone(String, GMMessageReplyTo), // object to clone, message sender
 
-    MessageToObject(String, GMObjectMessage, String), // receiver, message, sender
+    MessageToObject(String, GMObjectMessage, GMMessageReplyTo), // receiver, message, sender
 }
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum GMObjectMessage {
+    Update,
+
     SetChild(Box<dyn GMObjectT>),
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum GMObjectReply {
+    Empty,
     ClonedObject(Box<dyn GMObjectT>),
 }
 
-
+#[derive(Clone, Debug)]
+pub enum GMMessageReplyTo {
+    Object(String),
+    Scene(String),
+}
 
 
 /*

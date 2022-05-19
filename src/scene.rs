@@ -7,23 +7,28 @@ use crate::context::{GMContext};
 use crate::message::{GMSceneManagerMessage, GMSceneMessage, GMSceneReply};
 // use crate::property::{GMValue};
 
-pub trait GMSceneT : Debug {
-    // Must be implemented:
+pub trait CloneBox {
     fn clone_box(&self) -> Box<dyn GMSceneT>;
+}
 
-    fn send_message(&mut self, message: GMSceneMessage, context: &mut GMContext) -> GMSceneReply;
-
-    fn update(&mut self, context: &mut GMContext);
-
-    // May be implemented:
-    fn init(&mut self, _context: &mut GMContext) {
-    }
-
-    fn exit(&mut self, _context: &mut GMContext) {
+impl<T> CloneBox for T where T: Clone + GMSceneT + 'static {
+    fn clone_box(&self) -> Box<dyn GMSceneT> {
+        Box::new(self.clone())
     }
 }
 
-#[derive(Debug)]
+impl Clone for Box<dyn GMSceneT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+pub trait GMSceneT: Debug + CloneBox {
+    fn send_message(&mut self, _message: GMSceneMessage, _context: &mut GMContext) -> GMSceneReply {
+        GMSceneReply::Empty
+    }
+}
+
 pub struct GMSceneManager {
     scenes: Vec<(String, Box<dyn GMSceneT>)>,
     scene_stack: Vec<String>,
@@ -92,7 +97,7 @@ impl GMSceneManager {
         match self.scene_index(name) {
             Some(index) => {
                 self.current_scene_index = index;
-                context.set_mode_scene(&name);
+                context.reply_to_scene(&name);
             }
             None => {
                 panic!("A scene with name '{}' does not exist!", name);
@@ -124,7 +129,6 @@ impl GMSceneManager {
 
         self.scene_stack.push(current_name);
         self.change_to_scene(name, context);
-        self.init_current_scene(context);
     }
 
     fn pop_and_change_scene(&mut self, context: &mut GMContext) {
@@ -134,7 +138,6 @@ impl GMSceneManager {
                 debug!("GMSceneManager::pop_and_change_scene(), current scene: '{}', scene: '{}'",
                     current_name, name);
 
-                self.exit_current_scene(context);
                 self.change_to_scene(&name, context);
             }
             None => {
@@ -158,20 +161,8 @@ impl GMSceneManager {
         }
     }
 
-    fn update_current_scene(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene_index].1.update(context);
-    }
-
-    fn init_current_scene(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene_index].1.init(context);
-    }
-
-    fn exit_current_scene(&mut self, context: &mut GMContext) {
-        self.scenes[self.current_scene_index].1.exit(context);
-    }
-
     pub(crate) fn update(&mut self, context: &mut GMContext) {
-        self.update_current_scene(context);
+        self.message_to_current_scene(GMSceneMessage::Update, context);
 
         use GMSceneManagerMessage::*;
 
@@ -193,10 +184,9 @@ impl GMSceneManager {
                     self.pop_and_change_scene(context);
                 }
                 ChangeToScene(name) => {
-                    self.exit_current_scene(context);
+                    self.message_to_current_scene(GMSceneMessage::Enter, context);
                     self.change_to_scene(&name, context);
-                    self.init_current_scene(context);
-
+                    self.message_to_current_scene(GMSceneMessage::Leave, context);
                 }
 
                 MessageToCurrentScene(message) => {

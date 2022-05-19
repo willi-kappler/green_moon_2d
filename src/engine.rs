@@ -17,8 +17,8 @@ use crate::scene::GMSceneT;
 pub struct GMEngine {
     configuration: GMConfiguration,
     scene_manager: GMSceneManager,
-    context: Option<GMContext>,
     object_manager: GMObjectManager,
+    context: Option<GMContext>,
 }
 
 impl GMEngine {
@@ -27,8 +27,8 @@ impl GMEngine {
         Self {
             configuration: GMConfiguration::new(),
             scene_manager: GMSceneManager::new(),
-            context: None,
             object_manager: GMObjectManager::new(),
+            context: None,
         }
     }
 
@@ -132,7 +132,7 @@ impl GMEngine {
             self.object_manager.update(context);
 
             // Draw everything
-            context.present();
+            context.draw();
 
             while let Some(message) = context.next_engine_message() {
                 match message {

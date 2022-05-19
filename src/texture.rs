@@ -1,10 +1,7 @@
 
 use std::fmt::{self, Debug, Formatter};
 
-use sdl2::rect::Rect;
 use sdl2::render::Texture;
-
-use crate::GMContext;
 
 pub struct GMTexture {
     cols: u32,
@@ -29,6 +26,7 @@ impl GMTexture {
         }
     }
 
+    /*
     pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
         self.draw_ex(dx, dy, index, 0.0, false, false, context)
     }
@@ -45,6 +43,7 @@ impl GMTexture {
 
         context.draw_ex(&self.texture, src_rect, dst_rect, angle as f64, flip_x, flip_y);
     }
+*/
 
     pub fn get_unit_dimension(&self) -> (f32, f32) {
         (self.unit_width as f32, self.unit_height as f32)

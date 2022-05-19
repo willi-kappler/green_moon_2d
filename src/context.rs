@@ -14,14 +14,15 @@ use log::debug;
 use crate::object::GMObjectT;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage};
+use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage, GMMessageReplyTo};
 use crate::scene::GMSceneT;
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: VecDeque<GMObjectManagerMessage>,
-    context_mode: GMContextMode,
+    message_reply: GMMessageReplyTo,
+    message_reply_stack: Vec<GMMessageReplyTo>,
     canvas: Canvas<Window>,
     pub input: GMInput,
     pub resources: GMResources,
@@ -38,60 +39,32 @@ impl GMContext {
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
             canvas,
-            context_mode: GMContextMode::Scene(scene_name.to_string()),
+            message_reply: GMMessageReplyTo::Scene(scene_name.to_string()),
+            message_reply_stack: Vec::new(),
             input,
             resources,
         }
     }
 
-    pub(crate) fn set_mode_scene(&mut self, name: &str) {
-        self.context_mode = GMContextMode::Scene(name.to_string());
+    pub(crate) fn reply_to_scene(&mut self, name: &str) {
+        self.message_reply = GMMessageReplyTo::Scene(name.to_string());
     }
 
-    pub(crate) fn set_mode_object(&mut self, name: &str) {
-        self.context_mode = GMContextMode::Object(name.to_string());
+    pub(crate) fn reply_to_object(&mut self, name: &str) {
+        self.message_reply = GMMessageReplyTo::Object(name.to_string());
     }
 
-    pub(crate) fn get_scene_name(&self) -> &str {
-        if let GMContextMode::Scene(name) = &self.context_mode {
-            name
+    pub(crate) fn push_message_reply(&mut self) {
+        self.message_reply_stack.push(self.message_reply.clone());
+    }
+
+    pub(crate) fn pop_message_reply(&mut self) {
+        if let Some(message_reply) = self.message_reply_stack.pop() {
+            self.message_reply = message_reply;
         } else {
-            panic!("Context not in scene mode!");
+            panic!("Message reply stack is empty!");
         }
     }
-
-    // Draw methods:
-    pub(crate) fn present(&mut self) {
-        self.canvas.present();
-    }
-
-    pub fn clear_black(&mut self) {
-        self.clear(pixels::Color::BLACK);
-    }
-
-    pub fn clear(&mut self, color: pixels::Color) {
-        self.canvas.set_draw_color(color);
-        self.canvas.clear();
-    }
-
-    pub fn set_fullscreen(&mut self, fullscreen: bool) {
-        debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
-
-        // TODO: Map SDL2 error
-        if fullscreen {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True)
-                .expect("Could not set fullscreen on");
-        } else {
-            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
-                .expect("Could not set fullscreen off");
-        }
-    }
-
-    pub fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
-    }
-
-
 
     // Engine messages:
     pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
@@ -158,61 +131,28 @@ impl GMContext {
         self.object_messages.pop_front()
     }
 
-    fn get_object_reply_name(&self) -> String {
-        use GMContextMode::*;
-
-        match &self.context_mode {
-            Object(name) => {
-                name.to_string()
-            }
-            Scene(name) => {
-                panic!("Scene {} is not allowed to call object manager methods via update context, use direct methods on object manager!", name);
-            }
-        }
-    }
-
-    fn check_context_mode(&self) {
-        self.get_object_reply_name();
-    }
-
     pub fn add_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.check_context_mode();
         self.object_messages.push_back(GMObjectManagerMessage::AddObject(name.to_string(), object));
     }
 
     pub fn remove_object(&mut self, name: &str) {
-        self.check_context_mode();
         self.object_messages.push_back(GMObjectManagerMessage::RemoveObject(name.to_string()));
     }
 
     pub fn replace_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.check_context_mode();
         self.object_messages.push_back(GMObjectManagerMessage::ReplaceObject(name.to_string(), object));
     }
 
     pub fn set_object_parent(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.check_context_mode();
         self.object_messages.push_back(GMObjectManagerMessage::SetParent(name.to_string(), object));
     }
 
     pub fn get_object_clone(&mut self, name: &str) {
-        let reply_name = self.get_object_reply_name();
-        self.object_messages.push_back(GMObjectManagerMessage::GetClone(name.to_string(), reply_name));
-    }
-
-    pub fn set_object_z_index(&mut self, name: &str, z_index: i32) {
-        self.check_context_mode();
-        self.object_messages.push_back(GMObjectManagerMessage::SetZIndex(name.to_string(), z_index));
-    }
-
-    pub fn get_object_z_index(&mut self, name: &str, z_index: i32) {
-        let reply_name = self.get_object_reply_name();
-        self.object_messages.push_back(GMObjectManagerMessage::GetZIndex(name.to_string(), z_index, reply_name));
+        self.object_messages.push_back(GMObjectManagerMessage::GetClone(name.to_string(), self.message_reply.clone()));
     }
 
     pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
-        let reply_name = self.get_object_reply_name();
-        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, reply_name));
+        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, self.message_reply.clone()));
     }
 
 
@@ -220,9 +160,39 @@ impl GMContext {
     pub(crate) fn update(&mut self) {
         self.input.update();
     }
-}
 
-enum GMContextMode {
-    Scene(String),
-    Object(String),
+
+    // Draw methods:
+    pub(crate) fn draw(&mut self) {
+        
+        self.canvas.present();
+
+        todo!();
+    }
+
+    fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
+    }
+
+    fn clear_black(&mut self) {
+        self.clear(pixels::Color::BLACK);
+    }
+
+    fn clear(&mut self, color: pixels::Color) {
+        self.canvas.set_draw_color(color);
+        self.canvas.clear();
+    }
+
+    fn set_fullscreen(&mut self, fullscreen: bool) {
+        debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
+
+        // TODO: Map SDL2 error
+        if fullscreen {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::True)
+                .expect("Could not set fullscreen on");
+        } else {
+            self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
+                .expect("Could not set fullscreen off");
+        }
+    }
 }
