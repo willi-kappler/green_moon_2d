@@ -46,7 +46,7 @@ impl GMEngine {
                 self.set_configuration(configuration);
             }
             Err(e) => {
-                panic!("Error in JSON configuration string: {}", e);
+                panic!("Error in JSON configuration string: '{}'", e);
             }
         }
     }
@@ -59,7 +59,7 @@ impl GMEngine {
                 self.configuration_from_json(&json);
             }
             Err(e) => {
-                panic!("Error in reading file: {}, {}", file_name, e);
+                panic!("Error in reading file: '{}', '{}'", file_name, e);
             }
         }
 
@@ -84,9 +84,7 @@ impl GMEngine {
         let texture_creator = canvas.texture_creator();
         let event_pump = sdl_context.event_pump().unwrap();
 
-        let scene_name = self.scene_manager.get_name(0);
-
-        self.context = Some(GMContext::new(texture_creator, event_pump, canvas, scene_name));
+        self.context = Some(GMContext::new(texture_creator, event_pump, canvas));
     }
 
     pub fn load_resources(&mut self, file_name: &str) {

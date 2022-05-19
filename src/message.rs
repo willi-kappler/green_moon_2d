@@ -29,6 +29,8 @@ pub enum GMSceneMessage {
     Update,
     Enter,
     Leave,
+
+    ClonedFrom(String, Box<dyn GMObjectT>),
 }
 
 #[derive(Clone, Debug)]
@@ -44,7 +46,7 @@ pub(crate) enum GMObjectManagerMessage {
     SetParent(String, Box<dyn GMObjectT>),
     GetClone(String, GMMessageReplyTo), // object to clone, message sender
 
-    MessageToObject(String, GMObjectMessage, GMMessageReplyTo), // receiver, message, sender
+    MessageToObject(String, GMObjectMessage), // receiver, message, sender
 }
 
 
@@ -53,6 +55,7 @@ pub enum GMObjectMessage {
     Update,
 
     SetChild(Box<dyn GMObjectT>),
+    ClonedFrom(String, Box<dyn GMObjectT>),
 }
 
 #[derive(Clone, Debug)]
@@ -64,7 +67,7 @@ pub enum GMObjectReply {
 #[derive(Clone, Debug)]
 pub enum GMMessageReplyTo {
     Object(String),
-    Scene(String),
+    Scene,
 }
 
 

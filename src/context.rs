@@ -22,7 +22,6 @@ pub struct GMContext {
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: VecDeque<GMObjectManagerMessage>,
     message_reply: GMMessageReplyTo,
-    message_reply_stack: Vec<GMMessageReplyTo>,
     canvas: Canvas<Window>,
     pub input: GMInput,
     pub resources: GMResources,
@@ -30,7 +29,7 @@ pub struct GMContext {
 
 impl GMContext {
     pub(crate) fn new (texture_creator: TextureCreator<WindowContext>,
-            event_pump: sdl2::EventPump, canvas: Canvas<Window>, scene_name: &str) -> Self {
+            event_pump: sdl2::EventPump, canvas: Canvas<Window>) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -39,31 +38,22 @@ impl GMContext {
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
             canvas,
-            message_reply: GMMessageReplyTo::Scene(scene_name.to_string()),
-            message_reply_stack: Vec::new(),
+            message_reply: GMMessageReplyTo::Scene,
             input,
             resources,
         }
     }
 
-    pub(crate) fn reply_to_scene(&mut self, name: &str) {
-        self.message_reply = GMMessageReplyTo::Scene(name.to_string());
+    pub(crate) fn reply_to_current_scene(&mut self) {
+        self.message_reply = GMMessageReplyTo::Scene;
     }
 
     pub(crate) fn reply_to_object(&mut self, name: &str) {
         self.message_reply = GMMessageReplyTo::Object(name.to_string());
     }
 
-    pub(crate) fn push_message_reply(&mut self) {
-        self.message_reply_stack.push(self.message_reply.clone());
-    }
-
-    pub(crate) fn pop_message_reply(&mut self) {
-        if let Some(message_reply) = self.message_reply_stack.pop() {
-            self.message_reply = message_reply;
-        } else {
-            panic!("Message reply stack is empty!");
-        }
+    pub fn get_reply_to(&self) -> &GMMessageReplyTo {
+        &self.message_reply
     }
 
     // Engine messages:
@@ -80,11 +70,11 @@ impl GMContext {
     }
 
     pub fn change_resolution(&mut self, width: u32, height: u32) {
-        todo!("change_resolution: {}, {}", width, height);
+        todo!("change_resolution: '{}', '{}'", width, height);
     }
 
     pub fn change_title(&mut self, title: &str) {
-        todo!("change_title: {}", title);
+        todo!("change_title: '{}'", title);
     }
 
 
@@ -152,7 +142,7 @@ impl GMContext {
     }
 
     pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
-        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, self.message_reply.clone()));
+        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message));
     }
 
 
@@ -164,7 +154,7 @@ impl GMContext {
 
     // Draw methods:
     pub(crate) fn draw(&mut self) {
-        
+
         self.canvas.present();
 
         todo!();

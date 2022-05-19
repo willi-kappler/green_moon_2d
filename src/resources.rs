@@ -70,7 +70,7 @@ impl GMResources {
         }
 
         for sound in resources.sounds {
-            todo!("handle sound: {:?}", sound);
+            todo!("handle sound: '{:?}'", sound);
         }
     }
 
@@ -214,7 +214,7 @@ impl GMResources {
     pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Rc<dyn GMAnimationT> {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
-        todo!("create_animation: {:?}", frames);
+        todo!("create_animation: '{:?}'", frames);
     }
 
     pub fn add_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) {
