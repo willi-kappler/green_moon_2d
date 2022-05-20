@@ -3,6 +3,11 @@ use std::fmt::{self, Debug, Formatter};
 
 use sdl2::render::Texture;
 
+#[derive(Clone, Debug)]
+pub(crate) struct GMTextureConfig {
+
+}
+
 pub struct GMTexture {
     cols: u32,
     unit_width: u32,

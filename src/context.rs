@@ -14,16 +14,19 @@ use log::debug;
 use crate::object::GMObjectT;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage, GMObjectMessage, GMMessageReplyTo};
+use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage,
+    GMObjectMessage, GMMessageReplyTo, GMDrawMessage};
 use crate::scene::GMSceneT;
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: VecDeque<GMObjectManagerMessage>,
+    draw_messages: Vec<(i32, GMDrawMessage)>,
     message_reply: GMMessageReplyTo,
     message_reply_stack: Vec<GMMessageReplyTo>,
     canvas: Canvas<Window>,
+    clear_color: Option<pixels::Color>,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -38,9 +41,11 @@ impl GMContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: VecDeque::new(),
+            draw_messages: Vec::new(),
             canvas,
             message_reply: GMMessageReplyTo::Scene(scene_name.to_string()),
             message_reply_stack: Vec::new(),
+            clear_color: None,
             input,
             resources,
         }
@@ -164,29 +169,50 @@ impl GMContext {
 
     // Draw methods:
     pub(crate) fn draw(&mut self) {
-        
+        if let Some(clear_color) = self.clear_color {
+            self.canvas.set_draw_color(clear_color);
+            self.canvas.clear();
+
+            self.clear_color = None;
+        }
+
+
+        // Sort all draw operations by z-index:
+        self.draw_messages.sort_unstable_by_key(|(z_index, _)| *z_index);
+
+        use GMDrawMessage::*;
+
+        for (_, draw_message) in self.draw_messages.iter() {
+            match draw_message {
+                DrawTexture(texture_config) => {
+
+                }
+            }
+        }
+
         self.canvas.present();
 
         todo!();
     }
 
     fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y).unwrap();
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
+            .expect("Error when drawing texture!");
     }
 
-    fn clear_black(&mut self) {
+    pub fn clear_black(&mut self) {
         self.clear(pixels::Color::BLACK);
     }
 
-    fn clear(&mut self, color: pixels::Color) {
-        self.canvas.set_draw_color(color);
-        self.canvas.clear();
+    pub fn clear(&mut self, clear_color: pixels::Color) {
+        if self.clear_color.is_none() {
+            self.clear_color = Some(clear_color);
+        }
     }
 
-    fn set_fullscreen(&mut self, fullscreen: bool) {
+    pub fn set_fullscreen(&mut self, fullscreen: bool) {
         debug!("GMContext::set_fullscreen(), fullscreen: '{}'", fullscreen);
 
-        // TODO: Map SDL2 error
         if fullscreen {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::True)
                 .expect("Could not set fullscreen on");
@@ -194,5 +220,9 @@ impl GMContext {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
                 .expect("Could not set fullscreen off");
         }
+    }
+
+    pub fn draw_texture(&mut self) {
+
     }
 }
