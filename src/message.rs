@@ -1,6 +1,7 @@
 
 
 
+use crate::property::GMValue;
 use crate::scene::GMSceneT;
 use crate::object::{GMObjectT};
 use crate::texture::GMTextureConfig;
@@ -29,6 +30,8 @@ pub enum GMSceneMessage {
     Update,
     Enter,
     Leave,
+
+    ClonedFrom(String, Box<dyn GMObjectT>),
 }
 
 #[derive(Clone, Debug)]
@@ -41,10 +44,11 @@ pub(crate) enum GMObjectManagerMessage {
     AddObject(String, Box<dyn GMObjectT>),
     RemoveObject(String),
     ReplaceObject(String, Box<dyn GMObjectT>),
+    Clear,
     SetParent(String, Box<dyn GMObjectT>),
-    GetClone(String, GMMessageReplyTo), // object to clone, message sender
+    GetClone(String, GMMessageReplyTo), // object to clone
 
-    MessageToObject(String, GMObjectMessage, GMMessageReplyTo), // receiver, message, sender
+    MessageToObject(String, GMObjectMessage), // receiver
 }
 
 
@@ -52,19 +56,23 @@ pub(crate) enum GMObjectManagerMessage {
 pub enum GMObjectMessage {
     Update,
 
+    AddProperty(String, GMValue),
+    GetProperty(String, Option<GMMessageReplyTo>),
     SetChild(Box<dyn GMObjectT>),
+    ClonedFrom(String, Box<dyn GMObjectT>),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMObjectReply {
     Empty,
+    Property(String, GMValue),
     ClonedObject(Box<dyn GMObjectT>),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMMessageReplyTo {
     Object(String),
-    Scene(String),
+    Scene,
 }
 
 #[derive(Clone, Debug)]
