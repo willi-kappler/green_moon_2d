@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::fmt::Debug;
 
-use crate::texture::{GMTexture, GMTextureConfig};
+use crate::texture::{GMTexture, GMTextureConfig, GMTextureConfigOptional};
 use crate::context::GMContext;
 
 #[derive(Debug, Clone)]
@@ -28,14 +28,20 @@ impl GMBitmapFont {
         }
     }
 
-    fn get_char_dimensions(&self, _c: char) -> (f32, f32) {
+    pub fn get_char_dimensions(&self) -> (f32, f32) {
         self.texture.get_unit_dimension()
     }
 
-    fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext) {
-        let index = *self.mapping.get(&c).unwrap();
-        context.draw_texture(GMTextureConfig::new(self.texture.clone(), x, y, index));
+    pub fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext) {
+        let options = GMTextureConfigOptional::default();
+        self.draw_opt(c, x, y, options, context)
     }
+
+    pub fn draw_opt(&self, c: char, x: f32, y: f32, options: GMTextureConfigOptional, context: &mut GMContext) {
+        let index = *self.mapping.get(&c).unwrap();
+        context.draw_texture(GMTextureConfig::new_opt(self.texture.clone(), x, y, index, options));
+    }
+
 }
 
 

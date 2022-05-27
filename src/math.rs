@@ -66,7 +66,7 @@ impl GMVec2D {
     }
 
     pub fn angle() -> f32 {
-        todo!();
+        todo!("Return angle between two vectors");
     }
 }
 

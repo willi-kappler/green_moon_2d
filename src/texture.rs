@@ -5,6 +5,26 @@ use std::rc::Rc;
 use sdl2::render::Texture;
 
 #[derive(Clone, Debug)]
+pub struct GMTextureConfigOptional {
+    pub z_index: i32,
+    pub angle: f32,
+    pub flip_x: bool,
+    pub flip_y: bool,
+}
+
+impl Default for GMTextureConfigOptional {
+    fn default() -> Self {
+        Self {
+            z_index: 0,
+            angle: 0.0,
+            flip_x: false,
+            flip_y: false,
+        }
+    }
+}
+
+
+#[derive(Clone, Debug)]
 pub struct GMTextureConfig {
     pub(crate) texture: Rc<GMTexture>,
     pub(crate) x: f32,
@@ -18,36 +38,22 @@ pub struct GMTextureConfig {
 
 impl GMTextureConfig {
     pub fn new(texture: Rc<GMTexture>, x: f32, y: f32, index: u32) -> Self {
+        let optional = GMTextureConfigOptional::default();
+
+        Self::new_opt(texture, x, y, index, optional)
+    }
+
+    pub fn new_opt(texture: Rc<GMTexture>, x: f32, y: f32, index: u32, optional: GMTextureConfigOptional) -> Self {
         Self {
             texture,
             x,
             y,
             index,
-            z_index: 0,
-            angle: 0.0,
-            flip_x: false,
-            flip_y: false,
+            z_index: optional.z_index,
+            angle: optional.angle,
+            flip_x: optional.flip_x,
+            flip_y: optional.flip_y,
         }
-    }
-
-    pub fn angle(mut self, angle: f32) -> Self {
-        self.angle = angle;
-        self
-    }
-
-    pub fn z_index(mut self, z_index: i32) -> Self {
-        self.z_index = z_index;
-        self
-    }
-
-    pub fn flip_x(mut self, flip_x: bool) -> Self {
-        self.flip_x = flip_x;
-        self
-    }
-
-    pub fn flip_y(mut self, flip_y: bool) -> Self {
-        self.flip_y = flip_y;
-        self
     }
 }
 
