@@ -13,13 +13,13 @@ use log::debug;
 
 use crate::animation::GMAnimationT;
 use crate::texture::GMTexture;
-use crate::font::{GMFontT, GMBitmapFont};
+use crate::bitmap_text::{GMBitmapFont};
 
 
 pub struct GMResources {
     texture_creator: TextureCreator<WindowContext>,
     textures: HashMap<String, Rc<GMTexture>>,
-    fonts: HashMap<String, Rc<dyn GMFontT>>,
+    fonts: HashMap<String, Rc<GMBitmapFont>>,
     animations: HashMap<String, Rc<dyn GMAnimationT>>,
 }
 
@@ -153,7 +153,7 @@ impl GMResources {
         self.fonts.clear();
     }
 
-    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Rc<dyn GMFontT> {
+    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Rc<GMBitmapFont> {
         debug!("GMResources::create_bitmap_font(), texture: '{}'", texture);
 
         let texture = self.get_texture_clone(texture);
@@ -162,7 +162,7 @@ impl GMResources {
         Rc::new(font)
     }
 
-    pub fn add_font(&mut self, name: &str, font: Rc<dyn GMFontT>) {
+    pub fn add_font(&mut self, name: &str, font: Rc<GMBitmapFont>) {
         debug!("GMResources::add_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
@@ -180,7 +180,7 @@ impl GMResources {
         }
     }
 
-    pub fn replace_font(&mut self, name: &str, font: Rc<dyn GMFontT>) {
+    pub fn replace_font(&mut self, name: &str, font: Rc<GMBitmapFont>) {
         debug!("GMResources::replace_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
@@ -190,7 +190,7 @@ impl GMResources {
         }
     }
 
-    pub fn get_font_clone(&self, name: &str) -> Rc<dyn GMFontT> {
+    pub fn get_font_clone(&self, name: &str) -> Rc<GMBitmapFont> {
         debug!("GMResources::get_font_clone(), name: '{}'", name);
 
         match self.fonts.get(name) {

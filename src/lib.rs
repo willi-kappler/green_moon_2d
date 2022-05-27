@@ -4,7 +4,6 @@ pub mod collision;
 pub mod configuration;
 pub mod context;
 pub mod engine;
-pub mod font;
 pub mod input;
 pub mod math;
 pub mod message;
@@ -14,7 +13,7 @@ pub mod property;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
-pub mod text;
+pub mod bitmap_text;
 pub mod texture;
 pub mod timer;
 
