@@ -1,18 +1,61 @@
 
 use std::fmt::{self, Debug, Formatter};
+use std::rc::Rc;
 
 use sdl2::render::Texture;
 
 #[derive(Clone, Debug)]
-pub(crate) struct GMTextureConfig {
+pub struct GMTextureConfig {
+    pub(crate) texture: Rc<GMTexture>,
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+    pub(crate) index: u32,
+    pub(crate) z_index: i32,
+    pub(crate) angle: f32,
+    pub(crate) flip_x: bool,
+    pub(crate) flip_y: bool,
+}
 
+impl GMTextureConfig {
+    pub fn new(texture: Rc<GMTexture>, x: f32, y: f32, index: u32) -> Self {
+        Self {
+            texture,
+            x,
+            y,
+            index,
+            z_index: 0,
+            angle: 0.0,
+            flip_x: false,
+            flip_y: false,
+        }
+    }
+
+    pub fn angle(mut self, angle: f32) -> Self {
+        self.angle = angle;
+        self
+    }
+
+    pub fn z_index(mut self, z_index: i32) -> Self {
+        self.z_index = z_index;
+        self
+    }
+
+    pub fn flip_x(mut self, flip_x: bool) -> Self {
+        self.flip_x = flip_x;
+        self
+    }
+
+    pub fn flip_y(mut self, flip_y: bool) -> Self {
+        self.flip_y = flip_y;
+        self
+    }
 }
 
 pub struct GMTexture {
-    cols: u32,
-    unit_width: u32,
-    unit_height: u32,
-    texture: Texture,
+    pub(crate) cols: u32,
+    pub(crate) unit_width: u32,
+    pub(crate) unit_height: u32,
+    pub(crate) texture: Texture,
 }
 
 impl Debug for GMTexture {

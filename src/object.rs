@@ -6,7 +6,6 @@ use log::debug;
 
 use crate::context::{GMContext};
 use crate::message::{GMObjectMessage, GMObjectReply, GMObjectManagerMessage, GMMessageReplyTo, GMSceneMessage};
-use crate::property::GMValue;
 
 
 pub trait CloneBox {
@@ -29,24 +28,6 @@ pub trait GMObjectT: Debug + CloneBox {
     #[allow(unused_variables)]
     fn send_message(&mut self, message: GMObjectMessage, context: &mut GMContext) -> GMObjectReply {
         GMObjectReply::Empty
-    }
-
-    // The following trait methods may be implemented for performance.
-    // But the default implementations are OK.
-    fn update(&mut self, context: &mut GMContext) {
-        self.send_message(GMObjectMessage::Update, context);
-    }
-
-    fn set_child(&mut self, child: Box<dyn GMObjectT>, context: &mut GMContext) {
-        self.send_message(GMObjectMessage::SetChild(child), context);
-    }
-
-    fn add_property(&mut self, name: &str, value: GMValue, context: &mut GMContext) {
-        self.send_message(GMObjectMessage::AddProperty(name.to_string(), value), context);
-    }
-
-    fn get_property(&mut self, name: &str, context: &mut GMContext) -> GMObjectReply {
-        todo!();
     }
 }
 
@@ -95,7 +76,7 @@ impl GMObjectManager {
 
     fn set_parent(&mut self, name: &str, mut parent: Box<dyn GMObjectT>, context: &mut GMContext) {
         if let Some(child) = self.objects.remove(name) {
-            parent.set_child(child, context);
+            parent.send_message(GMObjectMessage::SetChild(child), context);
             self.objects.insert(name.to_string(), parent);
         } else {
             self.object_does_not_exist("GMObjectManager::set_parent()", name);
@@ -133,7 +114,7 @@ impl GMObjectManager {
     pub(crate) fn update(&mut self, context: &mut GMContext) {
         for (name, object) in self.objects.iter_mut() {
             context.reply_to_object(name);
-            object.update(context);
+            object.send_message(GMObjectMessage::Update, context);
         }
 
         while let Some(message) = context.next_object_message() {
