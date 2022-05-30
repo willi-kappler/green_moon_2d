@@ -68,21 +68,21 @@ impl GMEngine {
     pub fn init(&mut self) {
         debug!("GMEngine::init()");
 
-        let sdl_context = sdl2::init().unwrap();
-        let video_subsystem = sdl_context.video().unwrap();
+        let sdl_context = sdl2::init().expect("Could not initialize SDL2");
+        let video_subsystem = sdl_context.video().expect("Could not initialize video");
         let window = video_subsystem.window(
             &self.configuration.window_title,
             self.configuration.screen_width,
             self.configuration.screen_height)
             .position_centered()
             .build()
-            .unwrap();
+            .expect("Could not initialize Window");
         let canvas = window.into_canvas()
             .accelerated()
             .present_vsync()
-            .build().unwrap();
+            .build().expect("Could not initialize canvas");
         let texture_creator = canvas.texture_creator();
-        let event_pump = sdl_context.event_pump().unwrap();
+        let event_pump = sdl_context.event_pump().expect("Could not initialize events");
 
         self.context = Some(GMContext::new(texture_creator, event_pump, canvas));
     }
@@ -118,7 +118,7 @@ impl GMEngine {
             .expect("Update context not set, call init() on engine first!");
 
         let mut fps_manager = FPSManager::new();
-        fps_manager.set_framerate(self.configuration.fps).unwrap();
+        fps_manager.set_framerate(self.configuration.fps).expect("Could not set frame rate");
 
         use GMEngineMessage::*;
 
@@ -140,7 +140,7 @@ impl GMEngine {
                     }
                     ChangeFPS(new_fps) => {
                         debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
-                        fps_manager.set_framerate(new_fps).unwrap();
+                        fps_manager.set_framerate(new_fps).expect("Could not set frame rate");
                         self.configuration.fps = new_fps;
                     }
                 }

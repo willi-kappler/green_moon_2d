@@ -50,11 +50,11 @@ impl GMContext {
         }
     }
 
-    pub(crate) fn reply_to_current_scene(&mut self) {
+    pub(crate) fn set_current_scene(&mut self) {
         self.message_reply = GMMessageReplyTo::Scene;
     }
 
-    pub(crate) fn reply_to_object(&mut self, name: &str) {
+    pub(crate) fn set_current_object(&mut self, name: &str) {
         self.message_reply = GMMessageReplyTo::Object(name.to_string());
     }
 

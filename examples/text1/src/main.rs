@@ -2,10 +2,10 @@
 
 use std::fs::File;
 
-use log::{debug, info, error};
+use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMUpdateContext, GMDrawContext, GMError, GMMessage};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMSceneMessage, GMSceneReply};
 
 #[derive(Clone, Debug)]
 struct TextScene1 {
@@ -19,44 +19,33 @@ impl TextScene1 {
 }
 
 impl GMSceneT for TextScene1 {
-    fn update(&mut self, context: &mut GMUpdateContext) -> Result<(), GMError> {
-        if context.input.key_esc_down() {
-            debug!("ESC key pressed");
-            context.quit();
+    fn send_message(&mut self, message: GMSceneMessage, context: &mut GMContext) -> GMSceneReply {
+        use GMSceneMessage::*;
+
+        match message {
+            Update => {
+                if context.input.key_esc_down() {
+                    debug!("ESC key pressed");
+                    context.quit();
+                }        
+            }
+            _ => {
+                debug!("Unhandled message: {:?}", message);
+            }
         }
 
-        Ok(())
-    }
-
-    fn draw(&mut self, _context: &mut GMDrawContext) -> Result<(), GMError> {
-        Ok(())
-    }
-
-    fn get_name(&self) -> &str {
-        "Text1"
-    }
-
-    fn clone_box(&self) -> Box<dyn GMSceneT> {
-        Box::new(self.clone())
+        GMSceneReply::Empty
     }
 }
 
 fn main() {
     let config = ConfigBuilder::new().build();
-    let _simple_log = WriteLogger::init(LevelFilter::Debug, config, File::create("test1.log").unwrap());
+    let _simple_log = WriteLogger::init(LevelFilter::Debug, config, File::create("test1.log").expect("Could not create log file"));
 
     let text1_scene = TextScene1::new();
 
-    let mut app = GMEngine::new();
-    app.init().unwrap();
-    app.add_scene(text1_scene).unwrap();
-
-    match app.run() {
-        Ok(_) => {
-            info!("Quit app");
-        }
-        Err(e) => {
-            error!("An error occurred: '{}'", e);
-        }
-    }
+    let mut engine = GMEngine::new();
+    engine.init();
+    engine.add_scene("text1", text1_scene);
+    engine.run();
 }

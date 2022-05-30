@@ -20,7 +20,7 @@ pub mod timer;
 pub use context::{GMContext};
 pub use engine::GMEngine;
 pub use scene::GMSceneT;
-// pub use message::GMMessage;
+pub use message::{GMSceneMessage, GMSceneReply};
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
