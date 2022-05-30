@@ -166,7 +166,7 @@ impl GMSceneManager {
     }
 
     pub(crate) fn update(&mut self, context: &mut GMContext) {
-        context.reply_to_current_scene();
+        context.set_current_scene();
         self.message_to_current_scene(GMSceneMessage::Update, context);
 
         use GMSceneManagerMessage::*;

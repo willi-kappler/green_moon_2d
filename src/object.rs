@@ -123,7 +123,7 @@ impl GMObjectManager {
 
     fn message_to_object(&mut self, name: &str, message: GMObjectMessage, context: &mut GMContext) {
         if let Some(object) = self.objects.get_mut(name) {
-            context.reply_to_object(name);
+            context.set_current_object(name);
             object.send_message(message, context);
         } else {
             self.object_does_not_exist("GMObjectManager::message_to_object()", name);
@@ -132,7 +132,7 @@ impl GMObjectManager {
 
     pub(crate) fn update(&mut self, context: &mut GMContext) {
         for (name, object) in self.objects.iter_mut() {
-            context.reply_to_object(name);
+            context.set_current_object(name);
             object.update(context);
         }
 
