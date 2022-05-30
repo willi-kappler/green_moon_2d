@@ -45,6 +45,19 @@ impl GMBitmapFont {
 }
 
 
+#[derive(Debug, Clone)]
+pub struct GMBitmapText {
+    font: Rc<GMBitmapFont>,
+    text: String,
+    x: f32,
+    y: f32,
+    spacing_x: f32,
+    spacing_y: f32,
+    horizontal: bool,
+
+}
+
+
 // use std::rc::Rc;
 // use std::fmt::{self, Debug, Formatter};
 // use std::f32::consts::TAU;
