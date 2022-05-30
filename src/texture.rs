@@ -1,18 +1,67 @@
 
 use std::fmt::{self, Debug, Formatter};
+use std::rc::Rc;
 
 use sdl2::render::Texture;
 
 #[derive(Clone, Debug)]
-pub(crate) struct GMTextureConfig {
+pub struct GMTextureConfigOptional {
+    pub z_index: i32,
+    pub angle: f32,
+    pub flip_x: bool,
+    pub flip_y: bool,
+}
 
+impl Default for GMTextureConfigOptional {
+    fn default() -> Self {
+        Self {
+            z_index: 0,
+            angle: 0.0,
+            flip_x: false,
+            flip_y: false,
+        }
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct GMTextureConfig {
+    pub(crate) texture: Rc<GMTexture>,
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+    pub(crate) index: u32,
+    pub(crate) z_index: i32,
+    pub(crate) angle: f32,
+    pub(crate) flip_x: bool,
+    pub(crate) flip_y: bool,
+}
+
+impl GMTextureConfig {
+    pub fn new(texture: Rc<GMTexture>, x: f32, y: f32, index: u32) -> Self {
+        let optional = GMTextureConfigOptional::default();
+
+        Self::new_opt(texture, x, y, index, optional)
+    }
+
+    pub fn new_opt(texture: Rc<GMTexture>, x: f32, y: f32, index: u32, optional: GMTextureConfigOptional) -> Self {
+        Self {
+            texture,
+            x,
+            y,
+            index,
+            z_index: optional.z_index,
+            angle: optional.angle,
+            flip_x: optional.flip_x,
+            flip_y: optional.flip_y,
+        }
+    }
 }
 
 pub struct GMTexture {
-    cols: u32,
-    unit_width: u32,
-    unit_height: u32,
-    texture: Texture,
+    pub(crate) cols: u32,
+    pub(crate) unit_width: u32,
+    pub(crate) unit_height: u32,
+    pub(crate) texture: Texture,
 }
 
 impl Debug for GMTexture {

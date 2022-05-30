@@ -1,5 +1,50 @@
 
 
+
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::fmt::Debug;
+
+use crate::texture::{GMTexture, GMTextureConfig, GMTextureConfigOptional};
+use crate::context::GMContext;
+
+#[derive(Debug, Clone)]
+pub struct GMBitmapFont {
+    texture: Rc<GMTexture>,
+    mapping: HashMap<char, u32>,
+}
+
+impl GMBitmapFont {
+    pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
+        let mut mapping = HashMap::new();
+
+        for (i, c) in char_mapping.chars().enumerate() {
+            mapping.insert(c, i as u32);
+        }
+
+        Self {
+            texture,
+            mapping,
+        }
+    }
+
+    pub fn get_char_dimensions(&self) -> (f32, f32) {
+        self.texture.get_unit_dimension()
+    }
+
+    pub fn draw(&self, c: char, x: f32, y: f32, context: &mut GMContext) {
+        let options = GMTextureConfigOptional::default();
+        self.draw_opt(c, x, y, options, context)
+    }
+
+    pub fn draw_opt(&self, c: char, x: f32, y: f32, options: GMTextureConfigOptional, context: &mut GMContext) {
+        let index = *self.mapping.get(&c).unwrap();
+        context.draw_texture(GMTextureConfig::new_opt(self.texture.clone(), x, y, index, options));
+    }
+
+}
+
+
 // use std::rc::Rc;
 // use std::fmt::{self, Debug, Formatter};
 // use std::f32::consts::TAU;

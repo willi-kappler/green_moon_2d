@@ -3,7 +3,7 @@
 use std::collections::VecDeque;
 
 use sdl2::video::{self, Window, WindowContext};
-use sdl2::render::{TextureCreator, Canvas, Texture};
+use sdl2::render::{TextureCreator, Canvas};
 use sdl2::pixels;
 use sdl2::rect::Rect;
 
@@ -17,6 +17,7 @@ use crate::input::GMInput;
 use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage,
     GMObjectMessage, GMMessageReplyTo, GMDrawMessage};
 use crate::scene::GMSceneT;
+use crate::texture::{GMTextureConfig};
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
@@ -162,6 +163,8 @@ impl GMContext {
 
 
     // Draw methods:
+
+    // Called by the engine once per frame
     pub(crate) fn draw(&mut self) {
         if let Some(clear_color) = self.clear_color {
             self.canvas.set_draw_color(clear_color);
@@ -179,21 +182,39 @@ impl GMContext {
         for (_, draw_message) in self.draw_messages.iter() {
             match draw_message {
                 DrawTexture(texture_config) => {
+                    let gm_texture = &texture_config.texture;
+                    let texture = &gm_texture.texture;
+                    let dx = texture_config.x;
+                    let dy = texture_config.y;
+                    let angle = texture_config.angle as f64;
+                    let flip_x = texture_config.flip_x;
+                    let flip_y = texture_config.flip_y;
 
+                    let cols = gm_texture.cols;
+                    let unit_width = gm_texture.unit_width;
+                    let unit_height = gm_texture.unit_height;
+                    let index = texture_config.index;
+
+
+                    let yi = index / cols;
+                    let xi = index - (yi * cols);
+
+                    let sx = (xi * unit_width) as i32;
+                    let sy = (yi * unit_height) as i32;
+
+                    let src_rect = Rect::new(sx, sy, unit_width, unit_height);
+                    let dst_rect = Rect::new(dx as i32, dy as i32, unit_width, unit_height);
+
+                    self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
+                        .expect("Error when drawing texture!");
                 }
             }
         }
 
         self.canvas.present();
-
-        todo!();
     }
 
-    fn draw_ex(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
-            .expect("Error when drawing texture!");
-    }
-
+    // Public API
     pub fn clear_black(&mut self) {
         self.clear(pixels::Color::BLACK);
     }
@@ -216,7 +237,7 @@ impl GMContext {
         }
     }
 
-    pub fn draw_texture(&mut self) {
-
+    pub fn draw_texture(&mut self, texture_config: GMTextureConfig) {
+        self.draw_messages.push((texture_config.z_index, GMDrawMessage::DrawTexture(texture_config)));
     }
 }
