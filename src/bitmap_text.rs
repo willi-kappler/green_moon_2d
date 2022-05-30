@@ -38,8 +38,14 @@ impl GMBitmapFont {
     }
 
     pub fn draw_opt(&self, c: char, x: f32, y: f32, options: GMTextureConfigOptional, context: &mut GMContext) {
-        let index = *self.mapping.get(&c).unwrap();
-        context.draw_texture(GMTextureConfig::new_opt(self.texture.clone(), x, y, index, options));
+        match self.mapping.get(&c) {
+            Some(index) => {
+                context.draw_texture(GMTextureConfig::new_opt(self.texture.clone(), x, y, *index, options));
+            }
+            None => {
+                panic!("GMBitmapFont::draw_opt(), Character '{}' not in map.", c);
+            }
+        }
     }
 
 }
