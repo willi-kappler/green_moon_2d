@@ -91,9 +91,13 @@ impl GMObjectManager {
 
             match reply_to {
                 Object(reply_name) => {
-                    context.message_to_object(&reply_name, GMObjectMessage::ClonedFrom(name.to_string(), new_object));
+                    if let Some(object) = self.objects.get_mut(&reply_name) {
+                        object.send_message(GMObjectMessage::ClonedFrom(name.to_string(), new_object), context);
+                    } else {
+                        self.object_does_not_exist("GMObjectManager::get_clone(), reply to", name);
+                    }
                 }
-                Scene => {
+                CurrentScene => {
                     context.message_to_current_scene(GMSceneMessage::ClonedFrom(name.to_string(), new_object));
                 }
             }
@@ -102,10 +106,29 @@ impl GMObjectManager {
         }
     }
 
-    fn message_to_object(&mut self, name: &str, message: GMObjectMessage, context: &mut GMContext) {
+    fn message_to_object(&mut self, name: &str, message: GMObjectMessage, context: &mut GMContext, reply_to: GMMessageReplyTo) {
         if let Some(object) = self.objects.get_mut(name) {
             context.set_current_object(name);
-            object.send_message(message, context);
+            let result = object.send_message(message, context);
+
+            match result {
+                GMObjectReply::Empty => {
+                    // Nothing to do...
+                }
+                _ => {
+                    use GMMessageReplyTo::*;
+
+                    match reply_to {
+                        Object(reply_name) => {
+                            todo!("Send result back to object via reply_to");
+                        }
+                        CurrentScene => {
+                            // context.message_to_current_scene
+                            todo!("Send result back to current scene via reply_to");
+                        }
+                    }
+                }
+            }
         } else {
             self.object_does_not_exist("GMObjectManager::message_to_object()", name);
         }
@@ -144,8 +167,8 @@ impl GMObjectManager {
            GetClone(name, reply_to) => {
                self.get_clone(&name, reply_to, context);
            }
-           MessageToObject(name, message) => {
-               self.message_to_object(&name, message, context);
+           MessageToObject(name, message, reply_to) => {
+               self.message_to_object(&name, message, context, reply_to);
            }
         }
     }

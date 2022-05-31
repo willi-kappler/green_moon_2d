@@ -44,14 +44,14 @@ impl GMContext {
             draw_messages: Vec::new(),
             canvas,
             clear_color: None,
-            message_reply: GMMessageReplyTo::Scene,
+            message_reply: GMMessageReplyTo::CurrentScene,
             input,
             resources,
         }
     }
 
     pub(crate) fn set_current_scene(&mut self) {
-        self.message_reply = GMMessageReplyTo::Scene;
+        self.message_reply = GMMessageReplyTo::CurrentScene;
     }
 
     pub(crate) fn set_current_object(&mut self, name: &str) {
@@ -152,7 +152,7 @@ impl GMContext {
     }
 
     pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
-        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message));
+        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, self.message_reply.clone()));
     }
 
 

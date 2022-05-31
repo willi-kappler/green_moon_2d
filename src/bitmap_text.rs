@@ -5,8 +5,13 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::fmt::Debug;
 
+use log::debug;
+
 use crate::texture::{GMTexture, GMTextureConfig, GMTextureConfigOptional};
 use crate::context::GMContext;
+use crate::math::GMVec2D;
+use crate::object::GMObjectT;
+use crate::message::{GMObjectMessage, GMObjectReply};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -47,7 +52,6 @@ impl GMBitmapFont {
             }
         }
     }
-
 }
 
 
@@ -55,12 +59,96 @@ impl GMBitmapFont {
 pub struct GMBitmapText {
     font: Rc<GMBitmapFont>,
     text: String,
-    x: f32,
-    y: f32,
+    position: GMVec2D,
     spacing_x: f32,
     spacing_y: f32,
     horizontal: bool,
+}
 
+
+impl GMBitmapText {
+    pub fn new(font: Rc<GMBitmapFont>, text: String, x: f32, y: f32) -> Self {
+        Self {
+            font,
+            text: text.to_string(),
+            position: GMVec2D::new(x, y),
+            spacing_x: 0.0,
+            spacing_y: 0.0,
+            horizontal: true,
+        }
+    }
+
+    pub fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.font = font;
+    }
+
+    pub fn set_text(&mut self, text: &str) {
+        self.text = text.to_string();
+    }
+
+    pub fn set_position(&mut self, position: GMVec2D) {
+        self.position = position;
+    }
+
+    pub fn set_spacing_x(&mut self, spacing_x: f32) {
+        self.spacing_x = spacing_x;
+    }
+
+    pub fn set_spacing_y(&mut self, spacing_y: f32) {
+        self.spacing_y = spacing_y;
+    }
+
+    pub fn set_horizontal(&mut self, horizontal: bool) {
+        self.horizontal = horizontal
+    }
+}
+
+impl GMObjectT for GMBitmapText {
+    fn send_message(&mut self, message: GMObjectMessage, context: &mut GMContext) -> GMObjectReply {
+        use GMObjectMessage::*;
+
+        match message {
+            Update => {
+                let mut x = self.position.x;
+                let mut y = self.position.y;
+
+                let (dx, dy) = self.font.get_char_dimensions();
+
+                for c in self.text.chars() {
+                    self.font.draw(c, x, y, context);
+
+                    if self.horizontal {
+                        x += dx + self.spacing_x;
+                    } else {
+                        y += dy + self.spacing_y;
+                    }
+                }
+            }
+            SetFont(font) => {
+                self.set_font(font);
+            }
+            SetPosition(position) => {
+                self.set_position(position);
+            }
+            SetSpacingX(spacing_x) => {
+                self.set_spacing_x(spacing_x);
+            }
+            SetSpacingY(spacing_y) => {
+                self.set_spacing_y(spacing_y);
+            }
+            SetHorizontal(horizontal) => {
+                self.set_horizontal(horizontal);
+            }
+            GetPosition => {
+                return GMObjectReply::Position(self.position)
+            }
+            _ => {
+                debug!("GMBitmapText::send_message(), unhandled message: {:?}", message);
+            }
+        }
+
+        crate::message::GMObjectReply::Empty
+    }
 }
 
 
