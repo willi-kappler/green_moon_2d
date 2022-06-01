@@ -112,15 +112,15 @@ impl GMObjectT for GMBitmapText {
                 let mut x = self.position.x;
                 let mut y = self.position.y;
 
-                let (dx, dy) = self.font.get_char_dimensions();
+                let (c_width, c_height) = self.font.get_char_dimensions();
 
                 for c in self.text.chars() {
                     self.font.draw(c, x, y, context);
 
                     if self.horizontal {
-                        x += dx + self.spacing_x;
+                        x += c_width + self.spacing_x;
                     } else {
-                        y += dy + self.spacing_y;
+                        y += c_height + self.spacing_y;
                     }
                 }
             }

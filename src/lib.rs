@@ -21,6 +21,7 @@ pub use context::{GMContext};
 pub use engine::GMEngine;
 pub use scene::GMSceneT;
 pub use message::{GMSceneMessage, GMSceneReply};
+pub use bitmap_text::{GMBitmapFont, GMBitmapText};
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
