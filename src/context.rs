@@ -1,32 +1,25 @@
 
 
 use std::collections::VecDeque;
+use std::any::Any;
 
 use sdl2::video::{self, Window, WindowContext};
-use sdl2::render::{TextureCreator, Canvas};
+use sdl2::render::{Texture, TextureCreator, Canvas};
 use sdl2::pixels;
 use sdl2::rect::Rect;
 
 use log::debug;
 
-// use crate::animation::GMAnimationT;
-// use crate::math::GMVec2D;
-use crate::object::GMObjectT;
 use crate::resources::GMResources;
 use crate::input::GMInput;
-use crate::message::{GMEngineMessage, GMSceneManagerMessage, GMSceneMessage, GMObjectManagerMessage,
-    GMObjectMessage, GMMessageReplyTo, GMDrawMessage};
-use crate::scene::GMSceneT;
-use crate::texture::{GMTextureConfig};
+use crate::scene::{GMSceneT, GMSceneManagerMessage};
+use crate::engine::GMEngineMessage;
+
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
-    object_messages: VecDeque<GMObjectManagerMessage>,
-    draw_messages: Vec<(i32, GMDrawMessage)>,
-    message_reply: GMMessageReplyTo,
     canvas: Canvas<Window>,
-    clear_color: Option<pixels::Color>,
     pub input: GMInput,
     pub resources: GMResources,
 }
@@ -40,26 +33,10 @@ impl GMContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
-            object_messages: VecDeque::new(),
-            draw_messages: Vec::new(),
             canvas,
-            clear_color: None,
-            message_reply: GMMessageReplyTo::CurrentScene,
             input,
             resources,
         }
-    }
-
-    pub(crate) fn set_current_scene(&mut self) {
-        self.message_reply = GMMessageReplyTo::CurrentScene;
-    }
-
-    pub(crate) fn set_current_object(&mut self, name: &str) {
-        self.message_reply = GMMessageReplyTo::Object(name.to_string());
-    }
-
-    pub fn get_reply_to(&self) -> &GMMessageReplyTo {
-        &self.message_reply
     }
 
     // Engine messages:
@@ -89,8 +66,8 @@ impl GMContext {
         self.scene_messages.pop_front()
     }
 
-    pub fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(name.to_string(), scene));
+    pub fn add_scene(&mut self, scene: Box<dyn GMSceneT>) {
+        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(scene));
     }
 
     pub fn remove_scene(&mut self, name: &str) {
@@ -113,116 +90,30 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn message_to_current_scene(&mut self, message: GMSceneMessage) {
-        self.scene_messages.push_back(GMSceneManagerMessage::MessageToCurrentScene(message));
+    pub fn send_message(&mut self, scene: &str, message: &str, data: Option<Box<dyn Any>>) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.to_string(), message.to_string(), data));
     }
-
-    pub fn message_to_scene(&mut self, name: &str, message: GMSceneMessage) {
-        self.scene_messages.push_back(GMSceneManagerMessage::MessageToScene(name.to_string(), message));
-    }
-
-
-    // Object manager messages:
-    pub(crate) fn next_object_message(&mut self) -> Option<GMObjectManagerMessage> {
-        self.object_messages.pop_front()
-    }
-
-    pub fn add_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.object_messages.push_back(GMObjectManagerMessage::AddObject(name.to_string(), object));
-    }
-
-    pub fn remove_object(&mut self, name: &str) {
-        self.object_messages.push_back(GMObjectManagerMessage::RemoveObject(name.to_string()));
-    }
-
-    pub fn replace_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.object_messages.push_back(GMObjectManagerMessage::ReplaceObject(name.to_string(), object));
-    }
-
-    pub fn clear_objects(&mut self) {
-        self.object_messages.push_back(GMObjectManagerMessage::Clear);
-    }
-
-    pub fn set_object_parent(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        self.object_messages.push_back(GMObjectManagerMessage::SetParent(name.to_string(), object));
-    }
-
-    pub fn get_object_clone(&mut self, name: &str) {
-        self.object_messages.push_back(GMObjectManagerMessage::GetClone(name.to_string(), self.message_reply.clone()));
-    }
-
-    pub fn message_to_object(&mut self, name: &str, message: GMObjectMessage) {
-        self.object_messages.push_back(GMObjectManagerMessage::MessageToObject(name.to_string(), message, self.message_reply.clone()));
-    }
-
 
     // Update context
     pub(crate) fn update(&mut self) {
         self.input.update();
     }
 
-
     // Draw methods:
+    pub fn draw_texture_opt(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
+        panic!("TODO: call SDL2 draw texture");
+    }
 
-    // Called by the engine once per frame
-    pub(crate) fn draw(&mut self) {
-        if let Some(clear_color) = self.clear_color {
-            self.canvas.set_draw_color(clear_color);
-            self.canvas.clear();
-
-            self.clear_color = None;
-        }
-
-
-        // Sort all draw operations by z-index:
-        self.draw_messages.sort_unstable_by_key(|(z_index, _)| *z_index);
-
-        use GMDrawMessage::*;
-
-        for (_, draw_message) in self.draw_messages.iter() {
-            match draw_message {
-                DrawTexture(texture_config) => {
-                    let gm_texture = &texture_config.texture;
-                    let texture = &gm_texture.texture;
-                    let dx = texture_config.x;
-                    let dy = texture_config.y;
-                    let angle = texture_config.angle as f64;
-                    let flip_x = texture_config.flip_x;
-                    let flip_y = texture_config.flip_y;
-
-                    let cols = gm_texture.cols;
-                    let unit_width = gm_texture.unit_width;
-                    let unit_height = gm_texture.unit_height;
-                    let index = texture_config.index;
-
-
-                    let yi = index / cols;
-                    let xi = index - (yi * cols);
-
-                    let sx = (xi * unit_width) as i32;
-                    let sy = (yi * unit_height) as i32;
-
-                    let src_rect = Rect::new(sx, sy, unit_width, unit_height);
-                    let dst_rect = Rect::new(dx as i32, dy as i32, unit_width, unit_height);
-
-                    self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
-                        .expect("Error when drawing texture!");
-                }
-            }
-        }
-
+    pub fn present(&mut self) {
         self.canvas.present();
     }
 
-    // Public API
     pub fn clear_black(&mut self) {
         self.clear(pixels::Color::BLACK);
     }
 
     pub fn clear(&mut self, clear_color: pixels::Color) {
-        if self.clear_color.is_none() {
-            self.clear_color = Some(clear_color);
-        }
+        panic!("TODO: call SDL2 clear screen");
     }
 
     pub fn set_fullscreen(&mut self, fullscreen: bool) {
@@ -235,9 +126,5 @@ impl GMContext {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
                 .expect("Could not set fullscreen off");
         }
-    }
-
-    pub fn draw_texture(&mut self, texture_config: GMTextureConfig) {
-        self.draw_messages.push((texture_config.z_index, GMDrawMessage::DrawTexture(texture_config)));
     }
 }

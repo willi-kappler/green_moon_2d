@@ -6,18 +6,21 @@ use sdl2::gfx::framerate::FPSManager;
 use log::debug;
 use nanoserde::DeJson;
 
-use crate::object::GMObjectManager;
 use crate::resources::GMResources;
 use crate::context::{GMContext};
 use crate::scene::{GMSceneManager};
 use crate::configuration::GMConfiguration;
-use crate::message::{GMEngineMessage};
 use crate::scene::GMSceneT;
+
+#[derive(Debug)]
+pub(crate) enum GMEngineMessage {
+    ChangeFPS(u32),
+    Quit,
+}
 
 pub struct GMEngine {
     configuration: GMConfiguration,
     scene_manager: GMSceneManager,
-    object_manager: GMObjectManager,
     context: Option<GMContext>,
 }
 
@@ -27,7 +30,6 @@ impl GMEngine {
         Self {
             configuration: GMConfiguration::new(),
             scene_manager: GMSceneManager::new(),
-            object_manager: GMObjectManager::new(),
             context: None,
         }
     }
@@ -105,10 +107,10 @@ impl GMEngine {
         &mut update_context.resources
     }
 
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
-        debug!("GMEngine::add_scene(), name: '{}'", name);
+    pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
+        debug!("GMEngine::add_scene(), name: '{}'", scene.get_name());
 
-        self.scene_manager.add_scene(name, Box::new(scene))
+        self.scene_manager.add_scene(Box::new(scene))
     }
 
     pub fn run(&mut self) {
@@ -127,10 +129,8 @@ impl GMEngine {
             context.update();
             self.scene_manager.update(context);
 
-            self.object_manager.update(context);
-
             // Draw everything
-            context.draw();
+            self.scene_manager.draw(context);
 
             while let Some(message) = context.next_engine_message() {
                 match message {
