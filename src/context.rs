@@ -101,7 +101,8 @@ impl GMContext {
 
     // Draw methods:
     pub fn draw_texture_opt(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        panic!("TODO: call SDL2 draw texture");
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
+            .expect("GMContext::draw_texture_opt(), error when drawing texture!");
     }
 
     pub fn present(&mut self) {
@@ -122,10 +123,10 @@ impl GMContext {
 
         if fullscreen {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::True)
-                .expect("Could not set fullscreen on");
+                .expect("GMContext::set_fullscreen(), could not set fullscreen on");
         } else {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
-                .expect("Could not set fullscreen off");
+                .expect("GMContext::set_fullscreen(), could not set fullscreen off");
         }
     }
 }
