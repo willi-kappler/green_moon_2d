@@ -132,6 +132,9 @@ impl GMEngine {
             // Draw everything
             self.scene_manager.draw(context);
 
+            // Present
+            context.present();
+
             while let Some(message) = context.next_engine_message() {
                 match message {
                     Quit => {

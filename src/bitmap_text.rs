@@ -5,11 +5,12 @@ use std::rc::Rc;
 use std::fmt::Debug;
 use std::any::Any;
 
-// use log::debug;
+use log::error;
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
 use crate::math::GMVec2D;
+use crate::util::error_panic;
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -45,7 +46,7 @@ impl GMBitmapFont {
                 self.texture.draw_opt(x, y, *index, angle, flip_x, flip_y, context);
             }
             None => {
-                panic!("GMBitmapFont::draw_opt(), Character '{}' not in map.", c);
+                error_panic(&format!("GMBitmapFont::draw_opt(), Character '{}' not in map.", c));
             }
         }
     }
@@ -63,7 +64,7 @@ pub struct GMBitmapText {
 }
 
 impl GMBitmapText {
-    pub fn new(font: Rc<GMBitmapFont>, text: String, x: f32, y: f32) -> Self {
+    pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
         Self {
             font,
             text: text.to_string(),
@@ -73,19 +74,23 @@ impl GMBitmapText {
             horizontal: true,
         }
     }
+
+    pub fn new2(font: &str, text: &str, x: f32, y: f32, context: &GMContext) -> Self {
+        Self::new(context.resources.get_font_clone(font), text, x, y)
+    }
 }
 
 pub trait GMTextEffect {
     fn update(&mut self, _context: &mut GMContext) {
-        panic!("GMTextEffect::update() not implemented");
+        error_panic("GMTextEffect::update() not implemented");
     }
 
     fn draw(&self, _context: &mut GMContext) {
-        panic!("GMTextEffect::draw() not implemented");
+        error_panic("GMTextEffect::draw() not implemented");
     }
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
-        panic!("GMTextEffect::send_message() not implemented");
+        error_panic("GMTextEffect::send_message() not implemented");
     }
 }
 

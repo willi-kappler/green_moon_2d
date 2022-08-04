@@ -113,7 +113,8 @@ impl GMContext {
     }
 
     pub fn clear(&mut self, clear_color: pixels::Color) {
-        panic!("TODO: call SDL2 clear screen");
+        self.canvas.set_draw_color(clear_color);
+        self.canvas.clear();
     }
 
     pub fn set_fullscreen(&mut self, fullscreen: bool) {

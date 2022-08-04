@@ -9,11 +9,12 @@ use sdl2::video::WindowContext;
 
 use nanoserde::DeJson;
 
-use log::debug;
+use log::{debug, error};
 
 use crate::animation::GMAnimationT;
 use crate::texture::GMTexture;
 use crate::bitmap_text::{GMBitmapFont};
+use crate::util::error_panic;
 
 
 pub struct GMResources {
@@ -41,7 +42,7 @@ impl GMResources {
                 content
             }
             Err(e) => {
-                panic!("Could not load resources: {}", e);
+                error_panic(&format!("Could not load resources: {}", e));
             }
         };
 
@@ -50,7 +51,7 @@ impl GMResources {
                 resources
             }
             Err(e) => {
-                panic!("JSON error while parsing rescources: {}", e);
+                error_panic(&format!("JSON error while parsing rescources: {}", e));
             }
         };
 
@@ -83,6 +84,11 @@ impl GMResources {
     }
 
     // Textures:
+
+    fn no_texture_found(&self, texture_name: &str) -> ! {
+        error_panic(&format!("No texture with name '{}' found!", texture_name));
+    }
+
     pub fn clear_textures(&mut self) {
         debug!("GMResources::clear_textures()");
 
@@ -98,7 +104,7 @@ impl GMResources {
                 image
             }
             Err(e) => {
-                panic!("Error while loading texture: {}", e);
+                error_panic(&format!("Error while loading texture: {}", e));
             }
         };
 
@@ -109,7 +115,7 @@ impl GMResources {
         debug!("GMResources::add_texture(), name: '{}'", name);
 
         if self.textures.contains_key(name) {
-            panic!("A texture with that name already exists: {}", name);
+            error_panic(&format!("A texture with that name already exists: {}", name));
         } else {
             self.textures.insert(name.to_string(), Rc::new(texture));
         }
@@ -119,7 +125,7 @@ impl GMResources {
         debug!("GMResources::remove_texture(), name: '{}'", name);
 
         if self.textures.remove(name).is_some() {
-            panic!("No texture with name {} found!", name);
+            self.no_texture_found(name);
         }
     }
 
@@ -129,7 +135,7 @@ impl GMResources {
         if self.textures.contains_key(name) {
             self.textures.insert(name.to_string(), Rc::new(texture));
         } else {
-            panic!("");
+            self.no_texture_found(name);
         }
     }
 
@@ -141,12 +147,16 @@ impl GMResources {
                 texture.clone()
             }
             None => {
-                panic!("No texture with name {} found!", name);
+                self.no_texture_found(name);
             }
         }
     }
 
     // Fonts:
+    fn no_font_found(&self, font_name: &str) -> ! {
+        error_panic(&format!("No font with name '{}' found!", font_name));
+    }
+
     pub fn clear_fonts(&mut self) {
         debug!("GMResources::clear_fonts()");
 
@@ -166,7 +176,7 @@ impl GMResources {
         debug!("GMResources::add_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
-            panic!("A font with the name {} already exists!", name);
+            error_panic(&format!("A font with the name {} already exists!", name));
         } else {
             self.fonts.insert(name.to_string(), font);
         }
@@ -176,7 +186,7 @@ impl GMResources {
         debug!("GMResources::remove_font(), name: '{}'", name);
 
         if self.fonts.remove(name).is_some() {
-            panic!("A font with the name {} does not exist!", name);
+            self.no_font_found(name);
         }
     }
 
@@ -186,7 +196,7 @@ impl GMResources {
         if self.fonts.contains_key(name) {
             self.fonts.insert(name.to_string(), font);
         } else {
-            panic!("");
+            self.no_font_found(name);
         }
     }
 
@@ -198,13 +208,17 @@ impl GMResources {
                 font.clone()
             }
             None => {
-                panic!("A font with the name {} does not exist!", name);
+                self.no_font_found(name);
             }
         }
     }
 
 
     // Animations:
+    fn no_animation_found(&self, animation_name: &str) -> ! {
+        error_panic(&format!("No animation with name '{}' found!", animation_name));
+    }
+
     pub fn clear_animations(&mut self) {
         debug!("GMResources::clear_animations()");
 
@@ -221,7 +235,7 @@ impl GMResources {
         debug!("GMResources::add_animation(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
-            panic!("An animation with name {} does already exist!", name);
+            error_panic(&format!("An animation with name {} does already exist!", name));
         } else {
             self.animations.insert(name.to_string(), animation);
         }
@@ -231,7 +245,7 @@ impl GMResources {
         debug!("GMResources::remove_animation(), name: '{}'", name);
 
         if self.animations.remove(name).is_some() {
-            panic!("An animation with name {} does not exist!", name);
+            self.no_animation_found(name);
         }
     }
 
@@ -241,7 +255,7 @@ impl GMResources {
         if self.animations.contains_key(name) {
             self.animations.insert(name.to_string(), animation);
         } else {
-            panic!("An animation with name {} does not exist!", name);
+            self.no_animation_found(name);
         }
     }
 
@@ -253,7 +267,7 @@ impl GMResources {
                 animation.clone()
             }
             None => {
-                panic!("An animation with name {} does not exist!", name);
+                self.no_animation_found(name);
             }
         }
     }

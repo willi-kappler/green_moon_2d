@@ -1,5 +1,6 @@
 
 pub mod animation;
+pub mod bitmap_text;
 pub mod collision;
 pub mod configuration;
 pub mod context;
@@ -9,9 +10,9 @@ pub mod math;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
-pub mod bitmap_text;
 pub mod texture;
 pub mod timer;
+pub mod util;
 
 pub use context::{GMContext};
 pub use engine::GMEngine;

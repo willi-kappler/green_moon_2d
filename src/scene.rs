@@ -2,9 +2,10 @@
 use std::any::Any;
 use std::fmt::Debug;
 
-use log::debug;
+use log::{debug, error};
 
 use crate::context::{GMContext};
+use crate::util::error_panic;
 
 #[derive(Debug)]
 pub enum GMSceneState {
@@ -48,7 +49,7 @@ pub trait GMSceneT: Debug + CloneBox {
     fn draw(&self, context: &mut GMContext);
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
-        panic!("GMSceneT::send_message() is not implemented for this scene: '{}'", self.get_name());
+        error_panic(&format!("GMSceneT::send_message() is not implemented for this scene: '{}'", self.get_name()));
     }
 }
 
@@ -68,14 +69,14 @@ impl GMSceneManager {
     }
 
     fn scene_does_not_exist(&self, location: &str, name: &str) {
-        panic!("{}, scene with name '{}' does not exist!", location, name);
+        error_panic(&format!("{}, scene with name '{}' does not exist!", location, name));
     }
 
     pub(crate) fn get_name(&self, index: usize) -> &str {
         debug!("GMSceneManager::get_name(), index: '{}'", index);
 
         if self.scenes.len() == 0 {
-            panic!("No scenes found, please add a scene first");
+            error_panic("No scenes found, please add a scene first");
         } else {
             &self.scenes[index].get_name()
         }
@@ -98,7 +99,7 @@ impl GMSceneManager {
 
         match self.scene_index(name) {
             Some(_) => {
-                panic!("A scene with name '{}' already exists!", name);
+                error_panic(&format!("A scene with name '{}' already exists!", name));
             }
             None => {
                 self.scenes.push(scene);
@@ -139,7 +140,7 @@ impl GMSceneManager {
         match self.scene_index(name) {
             Some(index) => {
                 if self.current_scene_index == index {
-                    panic!("Can't replace current active scene: '{}'!", name);
+                    error_panic(&format!("Can't replace current active scene: '{}'!", name));
                 } else {
                     self.scenes[index] = scene;
                 }
@@ -169,7 +170,7 @@ impl GMSceneManager {
                 self.change_to_scene(&name);
             }
             None => {
-                panic!("The scene stack is empty!");
+                error_panic("The scene stack is empty!");
             }
         }
     }
