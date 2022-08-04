@@ -11,6 +11,7 @@ use crate::context::{GMContext};
 use crate::scene::{GMSceneManager};
 use crate::configuration::GMConfiguration;
 use crate::scene::GMSceneT;
+use crate::util::error_panic;
 
 #[derive(Debug)]
 pub(crate) enum GMEngineMessage {
@@ -48,7 +49,7 @@ impl GMEngine {
                 self.set_configuration(configuration);
             }
             Err(e) => {
-                panic!("Error in JSON configuration string: '{}'", e);
+                error_panic(&format!("Error in JSON configuration string: '{}'", e));
             }
         }
     }
@@ -61,30 +62,29 @@ impl GMEngine {
                 self.configuration_from_json(&json);
             }
             Err(e) => {
-                panic!("Error in reading file: '{}', '{}'", file_name, e);
+                error_panic(&format!("Error in reading file: '{}', '{}'", file_name, e));
             }
         }
-
     }
 
     pub fn init(&mut self) {
         debug!("GMEngine::init()");
 
-        let sdl_context = sdl2::init().expect("Could not initialize SDL2");
-        let video_subsystem = sdl_context.video().expect("Could not initialize video");
+        let sdl_context = sdl2::init().expect("GMEngine::init(), could not initialize SDL2");
+        let video_subsystem = sdl_context.video().expect("GMEngine::init(), could not initialize video");
         let window = video_subsystem.window(
             &self.configuration.window_title,
             self.configuration.screen_width,
             self.configuration.screen_height)
             .position_centered()
             .build()
-            .expect("Could not initialize Window");
+            .expect("GMEngine::init(), could not initialize Window");
         let canvas = window.into_canvas()
             .accelerated()
             .present_vsync()
-            .build().expect("Could not initialize canvas");
+            .build().expect("GMEngine::init(), could not initialize canvas");
         let texture_creator = canvas.texture_creator();
-        let event_pump = sdl_context.event_pump().expect("Could not initialize events");
+        let event_pump = sdl_context.event_pump().expect("GMEngine::init(), could not initialize events");
 
         self.context = Some(GMContext::new(texture_creator, event_pump, canvas));
     }
@@ -92,19 +92,19 @@ impl GMEngine {
     pub fn load_resources(&mut self, file_name: &str) {
         debug!("GMEngine::load_resources(), file_name: '{}'", file_name);
 
-        let update_context = self.context.as_mut()
-            .expect("Update context not set, call init() on engine first!");
+        let context = self.context.as_mut()
+            .expect("GMEngine::load_resources(), context not set, call init() on engine first!");
 
-        update_context.resources.load_resources(file_name);
+        context.resources.load_resources(file_name);
     }
 
     pub fn get_resources(&mut self) -> &mut GMResources {
         debug!("GMEngine::get_resources()");
 
-        let update_context = self.context.as_mut()
-            .expect("Update context not set, call init() on engine first!");
+        let context = self.context.as_mut()
+            .expect("GMEngine::get_resources(), context not set, call init() on engine first!");
 
-        &mut update_context.resources
+        &mut context.resources
     }
 
     pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
@@ -117,10 +117,10 @@ impl GMEngine {
         debug!("GMEngine::run()");
 
         let context = self.context.as_mut()
-            .expect("Update context not set, call init() on engine first!");
+            .expect("GMEngine::run(), context not set, call init() on engine first!");
 
         let mut fps_manager = FPSManager::new();
-        fps_manager.set_framerate(self.configuration.fps).expect("Could not set frame rate");
+        fps_manager.set_framerate(self.configuration.fps).expect("GMEngine::run(), could not set frame rate");
 
         use GMEngineMessage::*;
 
@@ -143,7 +143,7 @@ impl GMEngine {
                     }
                     ChangeFPS(new_fps) => {
                         debug!("GMEngine message: ChangeFPS: '{}'", new_fps);
-                        fps_manager.set_framerate(new_fps).expect("Could not set frame rate");
+                        fps_manager.set_framerate(new_fps).expect("GMEngine::run(), could not set frame rate");
                         self.configuration.fps = new_fps;
                     }
                 }
