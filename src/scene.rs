@@ -2,7 +2,7 @@
 use std::any::Any;
 use std::fmt::Debug;
 
-use log::{debug, error};
+use log::debug;
 
 use crate::context::{GMContext};
 use crate::util::error_panic;

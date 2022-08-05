@@ -5,6 +5,7 @@ use std::rc::Rc;
 use std::fmt::Debug;
 use std::any::Any;
 use std::f32::consts::TAU;
+use log::debug;
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
@@ -18,6 +19,8 @@ pub struct GMBitmapFont {
 
 impl GMBitmapFont {
     pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
+        debug!("GMBitmapFont::new(), char_mapping: {}", char_mapping);
+
         let mut mapping = HashMap::new();
 
         for (i, c) in char_mapping.chars().enumerate() {
@@ -69,6 +72,8 @@ pub struct GMBitmapText {
 
 impl GMBitmapText {
     pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
+        debug!("GMBitmapText::new(), text: {}, x: {}, y: {}", text, x, y);
+
         let mut text = Self {
             font,
             text: text.to_string(),
@@ -86,6 +91,8 @@ impl GMBitmapText {
     }
 
     pub fn new2(font: &str, text: &str, x: f32, y: f32, context: &GMContext) -> Self {
+        debug!("GMBitmapText::new2(), font: {}, text: {}, x: {}, y: {}", font, text, x, y);
+
         Self::new(context.resources.get_font_clone(font), text, x, y)
     }
 
@@ -130,6 +137,8 @@ pub struct GMTextEffectDraw {
 
 impl GMTextEffectDraw {
     pub fn new() -> Self {
+        debug!("GMTextEffectDraw::new()");
+
         Self { }
     }
 }
@@ -148,6 +157,8 @@ pub struct GMTextEffectReset {
 
 impl GMTextEffectReset {
     pub fn new() -> Self {
+        debug!("GMTextEffectReset::new()");
+
         Self { }
     }
 }
@@ -167,11 +178,31 @@ pub struct GMTextEffectWave {
 
 impl GMTextEffectWave {
     pub fn new(amplitude: f32, speed: f32, offset: f32) -> Self {
+        debug!("GMTextEffectWave::new(), amplitude: {}, speed: {}, offset: {}", amplitude, speed, offset);
+
         Self {
             amplitude,
             speed,
             offset,
             time: 0.0,
+        }
+    }
+
+    fn extract_value(&self, message: &str, data: Option<Box<dyn Any>>) -> f32 {
+        match data {
+            Some(data) => {
+                match data.downcast::<f32>() {
+                    Ok(amplitude) => {
+                        *amplitude
+                    }
+                    Err(_) => {
+                        error_panic(&format!("GMTextEffectWave::send_message(), expected f32, message: {}", message))
+                    }
+                }
+            }
+            None => {
+                error_panic(&format!("GMTextEffectWave::send_message(), expected some data, got None, message: {}", message));
+            }
         }
     }
 }
@@ -200,6 +231,19 @@ impl GMTextEffectT for GMTextEffectWave {
     }
 
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
-
+        match message {
+            "amplitude" => {
+                self.amplitude = self.extract_value(message, data);
+            }
+            "speed" => {
+                self.speed = self.extract_value(message, data);
+            }
+            "offset" => {
+                self.offset = self.extract_value(message, data);
+            }
+            _ => {
+                error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
+            }
+        }
     }
 }

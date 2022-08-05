@@ -3,6 +3,7 @@ use std::fmt::{self, Debug, Formatter};
 
 use sdl2::render::Texture;
 use sdl2::rect::Rect;
+use log::debug;
 
 use crate::context::GMContext;
 
@@ -21,6 +22,8 @@ impl Debug for GMTexture {
 
 impl GMTexture {
     pub fn new(cols: u32, unit_width: u32, unit_height: u32, texture: Texture) -> Self {
+        debug!("GMTexture::new(), cols: {}, unit_width: {}, unit_height: {}", cols, unit_width, unit_height);
+
         Self {
             cols,
             unit_width,

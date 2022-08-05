@@ -9,7 +9,7 @@ use sdl2::video::WindowContext;
 
 use nanoserde::DeJson;
 
-use log::{debug, error};
+use log::debug;
 
 use crate::animation::GMAnimationT;
 use crate::texture::GMTexture;

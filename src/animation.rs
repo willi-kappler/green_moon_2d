@@ -1,6 +1,8 @@
 
 use std::fmt::Debug;
 
+use log::debug;
+
 use crate::timer::GMTimer;
 
 
@@ -14,6 +16,8 @@ pub trait GMAnimationT : Debug {
     fn clone_box(&self) -> Box<dyn GMAnimationT>;
 
     fn set_active(&mut self, active: bool);
+
+    // TODO: Add reverse() ?
 }
 
 impl Clone for Box<dyn GMAnimationT> {
@@ -32,6 +36,8 @@ pub struct GMAnimationBase {
 
 impl GMAnimationBase {
     pub fn new(frames: &[(u32, f32)]) -> Self {
+        debug!("GMAnimationBase::new(), frames: {:?}", frames);
+
         Self {
             active: true,
             current_frame: 0,
@@ -93,6 +99,8 @@ pub struct GMAnimationForwardOnce {
 
 impl GMAnimationForwardOnce {
     pub fn new(frames: &[(u32, f32)]) -> Self {
+        debug!("GMAnimationForwardOnce::new(), frames: {:?}", frames);
+
         Self {
             base: GMAnimationBase::new(frames),
         }
@@ -139,6 +147,8 @@ pub struct GMAnimationForwardLoop {
 
 impl GMAnimationForwardLoop {
     pub fn new(frames: &[(u32, f32)]) -> Self {
+        debug!("GMAnimationForwardLoop::new(), frames: {:?}", frames);
+
         Self {
             base: GMAnimationBase::new(frames),
         }
@@ -187,6 +197,8 @@ pub struct GMAnimationPingPong {
 
 impl GMAnimationPingPong {
     pub fn new(frames: &[(u32, f32)]) -> Self {
+        debug!("GMAnimationPingPong::new(), frames: {:?}", frames);
+
         Self {
             base: GMAnimationBase::new(frames),
             forward: true,
