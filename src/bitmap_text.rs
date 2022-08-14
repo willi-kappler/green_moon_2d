@@ -9,7 +9,7 @@ use log::debug;
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
-use crate::util::error_panic;
+use crate::util::{error_panic, extract_f32_value};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -187,24 +187,6 @@ impl GMTextEffectWave {
             time: 0.0,
         }
     }
-
-    fn extract_value(&self, message: &str, data: Option<Box<dyn Any>>) -> f32 {
-        match data {
-            Some(data) => {
-                match data.downcast::<f32>() {
-                    Ok(amplitude) => {
-                        *amplitude
-                    }
-                    Err(_) => {
-                        error_panic(&format!("GMTextEffectWave::send_message(), expected f32, message: {}", message))
-                    }
-                }
-            }
-            None => {
-                error_panic(&format!("GMTextEffectWave::send_message(), expected some data, got None, message: {}", message));
-            }
-        }
-    }
 }
 
 impl GMTextEffectT for GMTextEffectWave {
@@ -233,13 +215,13 @@ impl GMTextEffectT for GMTextEffectWave {
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
         match message {
             "amplitude" => {
-                self.amplitude = self.extract_value(message, data);
+                self.amplitude = extract_f32_value(message, data);
             }
             "speed" => {
-                self.speed = self.extract_value(message, data);
+                self.speed = extract_f32_value(message, data);
             }
             "offset" => {
-                self.offset = self.extract_value(message, data);
+                self.offset = extract_f32_value(message, data);
             }
             _ => {
                 error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
