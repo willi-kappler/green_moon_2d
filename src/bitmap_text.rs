@@ -6,10 +6,11 @@ use std::fmt::Debug;
 use std::any::Any;
 use std::f32::consts::TAU;
 use log::debug;
+use nanorand::{Rng, WyRand};
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
-use crate::util::{error_panic, extract_f32_value};
+use crate::util::{error_panic, extract_f32_value, extract_usize_value};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -119,6 +120,60 @@ impl GMBitmapText {
             }
         }
     }
+
+    pub fn draw(&self, context: &mut GMContext) {
+        for (index, x, y, angle) in self.chars.iter() {
+            self.font.draw_opt(*index, *x, *y, *angle, false, false, context);
+        }
+    }
+
+    pub fn set_font(&mut self, font: Rc<GMBitmapFont>) {
+        self.font = font;
+        self.reset_chars();
+    }
+
+    pub fn set_text(&mut self, text: &str) {
+        self.text = text.to_string();
+        self.reset_chars();
+    }
+
+    pub fn set_base_x(&mut self, base_x: f32) {
+        self.base_x = base_x;
+        self.reset_chars();
+    }
+
+    pub fn set_base_y(&mut self, base_y: f32) {
+        self.base_y = base_y;
+        self.reset_chars();
+    }
+
+    pub fn set_base_xy(&mut self, base_x: f32, base_y: f32) {
+        self.base_x = base_x;
+        self.base_y = base_y;
+        self.reset_chars();
+    }
+
+    pub fn set_spacing_x(&mut self, spacing_x: f32) {
+        self.spacing_x = spacing_x;
+        self.reset_chars();
+    }
+
+    pub fn set_spacing_y(&mut self, spacing_y: f32) {
+        self.spacing_y = spacing_y;
+        self.reset_chars();
+    }
+
+    pub fn set_spacing_xy(&mut self, spacing_x: f32, spacing_y: f32) {
+        self.spacing_x = spacing_x;
+        self.spacing_y = spacing_y;
+        self.reset_chars();
+    }
+
+    pub fn set_horizontal(&mut self, horizontal: bool) {
+        self.horizontal = horizontal;
+        self.reset_chars();
+    }
+
 }
 
 pub trait GMTextEffectT {
@@ -145,9 +200,7 @@ impl GMTextEffectDraw {
 
 impl GMTextEffectT for GMTextEffectDraw {
     fn draw(&self, text: &GMBitmapText, context: &mut GMContext) {
-        for (index, x, y, angle) in text.chars.iter() {
-            text.font.draw_opt(*index, *x, *y, *angle, false, false, context);
-        }
+        text.draw(context);
     }
 
 }
@@ -166,6 +219,82 @@ impl GMTextEffectReset {
 impl GMTextEffectT for GMTextEffectReset {
     fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
         text.reset_chars();
+    }
+}
+
+pub struct GMTextEffectMultiple {
+    pub text_effects: Vec<Box<dyn GMTextEffectT>>,
+}
+
+impl GMTextEffectMultiple {
+    pub fn new() -> Self {
+        debug!("GMTextEffectMultiple::new()");
+
+        Self {
+            text_effects: Vec::new(),
+        }
+    }
+
+    pub fn add_text_effect<T: 'static + GMTextEffectT>(&mut self, effect: T) {
+        self.text_effects.push(Box::new(effect));
+    }
+
+    pub fn remove_text_effect(&mut self, index: usize) {
+        self.text_effects.remove(index);
+    }
+
+    pub fn clear(&mut self) {
+        self.text_effects.clear();
+    }
+}
+
+impl GMTextEffectT for GMTextEffectMultiple {
+    fn update(&mut self, text: &mut GMBitmapText, context: &mut GMContext) {
+        for text_effect in self.text_effects.iter_mut() {
+            text_effect.update(text, context);
+        }
+    }
+
+    fn draw(&self, text: &GMBitmapText, context: &mut GMContext) {
+        for text_effect in self.text_effects.iter() {
+            text_effect.draw(text, context);
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, context: &mut GMContext) {
+        match message {
+            "add_text_effect" => {
+                if let Some(data) = data {
+                    if let Ok(value) = data.downcast::<Box<dyn GMTextEffectT>>() {
+                        self.text_effects.push(*value);
+                        return
+                    }
+                }
+
+                error_panic(&format!("GMTextEffectMultiple::send_message(), expected Box<dyn GMTextEffectT>, message: {}", message))
+            }
+            "remove_text_effect" => {
+                let index = extract_usize_value(message, data);
+                self.text_effects.remove(index);
+            }
+            "clear" => {
+                self.clear();
+            }
+            "send_message" => {
+                if let Some(data) = data {
+                    if let Ok(value) = data.downcast::<(usize, &str, Option<Box<dyn Any>>)>() {
+                        let (index, message2, data2) = *value;
+                        self.text_effects[index].send_message(message2, data2, context);
+                        return
+                    }
+                }
+
+                error_panic(&format!("GMTextEffectMultiple::send_message(), expected (usize, &str, Option<Box<dyn Any>>), message: {}", message))
+            }
+            _ => {
+                error_panic(&format!("GMTextEffectMultiple::send_message(), unknown message: {}", message))
+            }
+        }
     }
 }
 
@@ -225,6 +354,45 @@ impl GMTextEffectT for GMTextEffectWave {
             }
             _ => {
                 error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
+            }
+        }
+    }
+}
+
+pub struct GMTextEffectShake {
+    pub radius: f32,
+    pub rng: WyRand,
+}
+
+impl GMTextEffectShake {
+    pub fn new(radius: f32) -> Self {
+        debug!("GMTextEffectShake::new(), radius: {}", radius);
+
+        Self {
+            radius,
+            rng: WyRand::new(),
+        }
+    }
+}
+
+impl GMTextEffectT for GMTextEffectShake {
+    fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+        for (_, x, y, _) in text.chars.iter_mut() {
+            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+
+            *x += dx;
+            *y += dy;
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
+        match message {
+            "radius" => {
+                self.radius = extract_f32_value(message, data);
+            }
+            _ => {
+                error_panic(&format!("GMTextEffectShake::send_message(), unknown message: {}", message))
             }
         }
     }
