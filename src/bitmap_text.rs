@@ -397,3 +397,46 @@ impl GMTextEffectT for GMTextEffectShake {
         }
     }
 }
+
+pub struct GMTextEffectRotateChars {
+    pub speed: f32,
+    pub offset: f32,
+    pub time: f32,
+}
+
+impl GMTextEffectRotateChars {
+    pub fn new(speed: f32, offset: f32) -> Self {
+        Self {
+            speed,
+            offset,
+            time: 0.0,
+        }
+    }
+}
+
+impl GMTextEffectT for GMTextEffectRotateChars {
+    fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+        let mut delta = 0.0;
+
+        for (_, _, _, angle) in text.chars.iter_mut() {
+            *angle = self.time + delta;
+            delta += self.offset;
+        }
+
+        self.time += self.speed;
+    }
+
+    fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
+        match message {
+            "speed" => {
+                self.speed = extract_f32_value(message, data);
+            }
+            "offset" => {
+                self.offset = extract_f32_value(message, data);
+            }
+            _ => {
+                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: {}", message))
+            }
+        }
+    }
+}
