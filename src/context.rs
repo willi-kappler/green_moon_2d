@@ -105,7 +105,7 @@ impl GMContext {
             .expect("GMContext::draw_texture_opt(), error when drawing texture!");
     }
 
-    pub fn present(&mut self) {
+    pub(crate) fn present(&mut self) {
         self.canvas.present();
     }
 
