@@ -44,12 +44,14 @@ impl Clone for Box<dyn GMSceneT> {
 pub trait GMSceneT: Debug + CloneBox {
     fn get_name(&self) -> &str;
 
+    fn enter(&mut self, _context: &mut GMContext) {
+    }
+
     fn update(&mut self, context: &mut GMContext);
 
     fn draw(&self, context: &mut GMContext);
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
-        error_panic(&format!("GMSceneT::send_message() is not implemented for this scene: '{}'", self.get_name()));
     }
 }
 
@@ -121,12 +123,13 @@ impl GMSceneManager {
         }
     }
 
-    fn change_to_scene(&mut self, name: &str) {
+    fn change_to_scene(&mut self, name: &str, context: &mut GMContext) {
         debug!("GMSceneManager::change_to_scene(), name: '{}'", name);
 
         match self.scene_index(name) {
             Some(index) => {
                 self.current_scene_index = index;
+                self.scenes[index].enter(context);
             }
             None => {
                 self.scene_does_not_exist("GMSceneManager::change_to_scene()", name);
@@ -151,23 +154,23 @@ impl GMSceneManager {
         }
     }
 
-    fn push_and_change_scene(&mut self, name: &str) {
+    fn push_and_change_scene(&mut self, name: &str, context: &mut GMContext) {
         let current_name = self.get_current_name().to_string();
         debug!("GMSceneManager::push_and_change_scene(), current scene: '{}', next scene: {}",
             current_name, name);
 
         self.scene_stack.push(current_name);
-        self.change_to_scene(name);
+        self.change_to_scene(name, context);
     }
 
-    fn pop_and_change_scene(&mut self) {
+    fn pop_and_change_scene(&mut self, context: &mut GMContext) {
         match self.scene_stack.pop() {
             Some(name) => {
                 let current_name = self.get_current_name();
-                debug!("GMSceneManager::pop_and_change_scene(), current scene: '{}', scene: '{}'",
+                debug!("GMSceneManager::pop_and_change_scene(), current scene: '{}', next scene: '{}'",
                     current_name, name);
 
-                self.change_to_scene(&name);
+                self.change_to_scene(&name, context);
             }
             None => {
                 error_panic("The scene stack is empty!");
@@ -197,13 +200,13 @@ impl GMSceneManager {
                     self.add_scene(scene);
                 }
                 ChangeToScene(name) => {
-                    self.change_to_scene(&name);
+                    self.change_to_scene(&name, context);
                 }
                 PopAndChangeScene => {
-                    self.pop_and_change_scene();
+                    self.pop_and_change_scene(context);
                 }
                 PushAndChangeScene(name) => {
-                    self.push_and_change_scene(&name);
+                    self.push_and_change_scene(&name, context);
                 }
                 RemoveScene(name) => {
                     self.remove_scene(&name);
