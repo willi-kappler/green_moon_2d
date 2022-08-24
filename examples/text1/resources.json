@@ -1,18 +1,42 @@
 {
     "textures": [
         {
-            "name": "font1",
-            "file_name": "../assets/fonts/font1.png",
-            "cols": 40,
+            "name": "tex_bbc",
+            "file_name": "../assets/fonts/bbc.png",
+            "cols": 10,
+            "unit_width": 32,
+            "unit_height": 32
+        },
+        {
+            "name": "tex_blagger",
+            "file_name": "../assets/fonts/blagger.png",
+            "cols": 10,
+            "unit_width": 32,
+            "unit_height": 30
+        },
+        {
+            "name": "tex_cuddly",
+            "file_name": "../assets/fonts/cuddly.png",
+            "cols": 10,
             "unit_width": 32,
             "unit_height": 32
         }
     ],
     "fonts": [
         {
-            "name": "font1",
-            "texture_name": "font1",
-            "char_mapping": "abcdefghijklmnopqrstuvwxyz"
+            "name": "font_bbc",
+            "texture_name": "tex_bbc",
+            "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789<> "
+        },
+        {
+            "name": "font_blagger",
+            "texture_name": "tex_blagger",
+            "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,\"-+!?()': 0123456789"
+        },
+        {
+            "name": "font_cuddly",
+            "texture_name": "tex_cuddly",
+            "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- "
         }
     ],
     "animations": [],
