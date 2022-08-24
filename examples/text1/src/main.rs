@@ -1,11 +1,12 @@
 
 
 use std::fs::File;
+use std::rc::Rc;
 
 // use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont};
 
 #[derive(Clone, Debug)]
 struct TextScene1 {
@@ -14,9 +15,7 @@ struct TextScene1 {
 }
 
 impl TextScene1 {
-    pub fn new(engine: &GMEngine) -> Self {
-        let font = engine.get_resources().get_font_clone("font_bbc");
-
+    pub fn new(font: Rc<GMBitmapFont>) -> Self {
         Self {
             name: "text_scene1".to_string(),
             text: GMBitmapText::new(font, "TEXT TEST 1", 32.0, 32.0),
@@ -51,7 +50,8 @@ fn main() {
     engine.init();
     engine.load_resources("resources.json");
 
-    let text1_scene = TextScene1::new(&engine);
+    let font = engine.get_resources().get_font_clone("font_bbc");
+    let text1_scene = TextScene1::new(font);
 
     engine.add_scene(text1_scene);
     engine.run();
