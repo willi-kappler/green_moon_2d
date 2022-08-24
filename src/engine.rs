@@ -98,7 +98,16 @@ impl GMEngine {
         context.resources.load_resources(file_name);
     }
 
-    pub fn get_resources(&mut self) -> &mut GMResources {
+    pub fn get_resources(&self) -> &GMResources {
+        debug!("GMEngine::get_resources()");
+
+        let context = self.context.as_ref()
+            .expect("GMEngine::get_resources(), context not set, call init() on engine first!");
+
+        &context.resources
+    }
+
+    pub fn get_mut_resources(&mut self) -> &mut GMResources {
         debug!("GMEngine::get_resources()");
 
         let context = self.context.as_mut()
