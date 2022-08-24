@@ -72,11 +72,11 @@ pub struct GMBitmapText {
 }
 
 impl GMBitmapText {
-    pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
+    pub fn new(font: &Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
         debug!("GMBitmapText::new(), text: '{}', x: {}, y: {}", text, x, y);
 
         let mut text = Self {
-            font,
+            font: font.clone(),
             text: text.to_string(),
             base_x: x,
             base_y: y,
@@ -94,7 +94,7 @@ impl GMBitmapText {
     pub fn new2(font: &str, text: &str, x: f32, y: f32, context: &GMContext) -> Self {
         debug!("GMBitmapText::new2(), font: {}, text: {}, x: {}, y: {}", font, text, x, y);
 
-        Self::new(context.resources.get_font_clone(font), text, x, y)
+        Self::new(&context.resources.get_font_clone(font), text, x, y)
     }
 
     pub fn reset_chars(&mut self) {
@@ -127,8 +127,8 @@ impl GMBitmapText {
         }
     }
 
-    pub fn set_font(&mut self, font: Rc<GMBitmapFont>) {
-        self.font = font;
+    pub fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+        self.font = font.clone();
         self.reset_chars();
     }
 
