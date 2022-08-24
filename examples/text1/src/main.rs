@@ -19,15 +19,15 @@ struct TextScene1 {
 }
 
 impl TextScene1 {
-    pub fn new(font: Rc<GMBitmapFont>) -> Self {
+    pub fn new(font: &Rc<GMBitmapFont>) -> Self {
         const space: f32 = 50.0;
 
         Self {
             name: "text_scene1".to_string(),
-            title: GMBitmapText::new(font.clone(), "TEXT TEST 1", 336.0, 32.0),
-            description: GMBitmapText::new(font.clone(), "PRESS NUMBER", 32.0, 32.0 + (1.0 * space)),
-            font1: GMBitmapText::new(font.clone(), "1 - BBC", 32.0, 32.0 + (2.0 * space)),
-            font2: GMBitmapText::new(font.clone(), "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)),
+            title: GMBitmapText::new(font, "TEXT TEST 1", 336.0, 32.0),
+            description: GMBitmapText::new(font, "PRESS NUMBER TO CHANGE FONT", 32.0, 32.0 + (1.0 * space)),
+            font1: GMBitmapText::new(font, "1 - BBC", 32.0, 32.0 + (2.0 * space)),
+            font2: GMBitmapText::new(font, "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)),
             font3: GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)),
         }
     }
@@ -39,8 +39,38 @@ impl GMSceneT for TextScene1 {
     }
 
     fn update(&mut self, context: &mut GMContext) {
-        if context.input.key_esc_down() {
+        if context.input.key_esc_up() {
             context.quit();
+        }
+
+        if context.input.key_1_up() {
+            let font = context.resources.get_font_clone("font_bbc");
+
+            self.title.set_font(&font);
+            self.description.set_font(&font);
+            self.font1.set_font(&font);
+            self.font2.set_font(&font);
+            self.font3.set_font(&font);
+        }
+
+        if context.input.key_2_up() {
+            let font = context.resources.get_font_clone("font_blagger");
+
+            self.title.set_font(&font);
+            self.description.set_font(&font);
+            self.font1.set_font(&font);
+            self.font2.set_font(&font);
+            self.font3.set_font(&font);
+        }
+
+        if context.input.key_3_up() {
+            let font = context.resources.get_font_clone("font_cuddly");
+
+            self.title.set_font(&font);
+            self.description.set_font(&font);
+            self.font1.set_font(&font);
+            self.font2.set_font(&font);
+            self.font3.set_font(&font);
         }
     }
 
@@ -64,8 +94,8 @@ fn main() {
     engine.init();
     engine.load_resources("resources.json");
 
-    let font = engine.get_resources().get_font_clone("font_bbc");
-    let text1_scene = TextScene1::new(font);
+    let font = engine.get_resources().get_font_clone("font_cuddly");
+    let text1_scene = TextScene1::new(&font);
 
     engine.add_scene(text1_scene);
     engine.run();
