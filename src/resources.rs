@@ -96,7 +96,7 @@ impl GMResources {
     }
 
     pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
-        debug!("GMResources::create_texture(), file_name: '{}', cols: '{}', unit_width: '{}', unit_height: '{}'",
+        debug!("GMResources::create_texture(), file_name: '{}', cols: {}, unit_width: {}, unit_height: {}",
             file_name, cols, unit_width, unit_height);
 
         let image = match self.texture_creator.load_texture(file_name) {

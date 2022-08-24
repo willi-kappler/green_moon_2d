@@ -20,7 +20,7 @@ pub struct GMBitmapFont {
 
 impl GMBitmapFont {
     pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
-        debug!("GMBitmapFont::new(), char_mapping: {}", char_mapping);
+        debug!("GMBitmapFont::new(), char_mapping: '{}'", char_mapping);
 
         let mut mapping = HashMap::new();
 
@@ -73,7 +73,7 @@ pub struct GMBitmapText {
 
 impl GMBitmapText {
     pub fn new(font: Rc<GMBitmapFont>, text: &str, x: f32, y: f32) -> Self {
-        debug!("GMBitmapText::new(), text: {}, x: {}, y: {}", text, x, y);
+        debug!("GMBitmapText::new(), text: '{}', x: {}, y: {}", text, x, y);
 
         let mut text = Self {
             font,
