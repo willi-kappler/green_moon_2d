@@ -11,14 +11,24 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont};
 #[derive(Clone, Debug)]
 struct TextScene1 {
     name: String,
-    text: GMBitmapText,
+    title: GMBitmapText,
+    description: GMBitmapText,
+    font1: GMBitmapText,
+    font2: GMBitmapText,
+    font3: GMBitmapText,
 }
 
 impl TextScene1 {
     pub fn new(font: Rc<GMBitmapFont>) -> Self {
+        const space: f32 = 50.0;
+
         Self {
             name: "text_scene1".to_string(),
-            text: GMBitmapText::new(font, "TEXT TEST 1", 32.0, 32.0),
+            title: GMBitmapText::new(font.clone(), "TEXT TEST 1", 336.0, 32.0),
+            description: GMBitmapText::new(font.clone(), "PRESS NUMBER", 32.0, 32.0 + (1.0 * space)),
+            font1: GMBitmapText::new(font.clone(), "1 - BBC", 32.0, 32.0 + (2.0 * space)),
+            font2: GMBitmapText::new(font.clone(), "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)),
+            font3: GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)),
         }
     }
 }
@@ -37,7 +47,11 @@ impl GMSceneT for TextScene1 {
     fn draw(&self, context: &mut GMContext) {
         context.clear_black();
 
-        self.text.draw(context);
+        self.title.draw(context);
+        self.description.draw(context);
+        self.font1.draw(context);
+        self.font2.draw(context);
+        self.font3.draw(context);
     }
 }
 
