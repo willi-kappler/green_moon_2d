@@ -10,8 +10,12 @@ use sdl2::EventPump;
 pub enum GMEventCode {
     Quit = 0,
     WindowClose,
+
+    // Special keys
     KeyESCDown,
     KeyESCUp,
+
+    // Numbers
     Key0Down,
     Key0Up,
     Key1Down,
@@ -32,6 +36,8 @@ pub enum GMEventCode {
     Key8Up,
     Key9Down,
     Key9Up,
+
+    // Cursor keys
     KeyUpDown,
     KeyUpUp,
     KeyDownDown,
@@ -114,6 +120,18 @@ impl GMInput {
                         Keycode::Num9 => {
                             self.events[GMEventCode::Key9Down as usize] = true;
                         }
+                        Keycode::Up => {
+                            self.events[GMEventCode::KeyUpDown as usize] = true;
+                        }
+                        Keycode::Down => {
+                            self.events[GMEventCode::KeyDownDown as usize] = true;
+                        }
+                        Keycode::Left => {
+                            self.events[GMEventCode::KeyLeftDown as usize] = true;
+                        }
+                        Keycode::Right => {
+                            self.events[GMEventCode::KeyRightDown as usize] = true;
+                        }
                         _ => {
                             // Unsupported keycode for now
                         }
@@ -153,6 +171,18 @@ impl GMInput {
                         }
                         Keycode::Num9 => {
                             self.events[GMEventCode::Key9Up as usize] = true;
+                        }
+                        Keycode::Up => {
+                            self.events[GMEventCode::KeyUpUp as usize] = true;
+                        }
+                        Keycode::Down => {
+                            self.events[GMEventCode::KeyDownUp as usize] = true;
+                        }
+                        Keycode::Left => {
+                            self.events[GMEventCode::KeyLeftUp as usize] = true;
+                        }
+                        Keycode::Right => {
+                            self.events[GMEventCode::KeyRightUp as usize] = true;
                         }
                         _ => {
                             // Unsupported keycode for now                            
