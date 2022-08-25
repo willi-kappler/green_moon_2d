@@ -11,7 +11,7 @@ use sdl2::rect::Rect;
 use log::debug;
 
 use crate::resources::GMResources;
-use crate::input::GMInput;
+use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 
@@ -20,7 +20,7 @@ pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     canvas: Canvas<Window>,
-    pub input: GMInput,
+    input: GMInput,
     pub resources: GMResources,
 }
 
@@ -97,6 +97,11 @@ impl GMContext {
     // Update context
     pub(crate) fn update(&mut self) {
         self.input.update();
+    }
+
+    // Events
+    pub fn event(&self, event_code: GMEventCode) -> bool {
+        self.input.event(event_code)
     }
 
     // Draw methods:

@@ -62,7 +62,7 @@ impl GMInput {
         }
     }
 
-    pub fn is(&self, event_code: GMEventCode) -> bool {
+    pub(crate) fn event(&self, event_code: GMEventCode) -> bool {
         self.events[event_code as usize]
     }
 

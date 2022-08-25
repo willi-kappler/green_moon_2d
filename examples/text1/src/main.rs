@@ -51,13 +51,13 @@ impl GMSceneT for TextScene1 {
     }
 
     fn update(&mut self, context: &mut GMContext) {
-        if context.input.is(GMEventCode::KeyESCUp) ||
-           context.input.is(GMEventCode::Quit) ||
-           context.input.is(GMEventCode::WindowClose) {
+        if context.event(GMEventCode::KeyESCUp) ||
+           context.event(GMEventCode::Quit) ||
+           context.event(GMEventCode::WindowClose) {
             context.quit();
         }
 
-        if context.input.is(GMEventCode::Key1Up) {
+        if context.event(GMEventCode::Key1Up) {
             if self.current_font != 0 {
                 self.current_font = 0;
 
@@ -69,7 +69,7 @@ impl GMSceneT for TextScene1 {
             }
         }
 
-        if context.input.is(GMEventCode::Key2Up) {
+        if context.event(GMEventCode::Key2Up) {
             if self.current_font != 1 {
                 self.current_font = 1;
 
@@ -81,7 +81,7 @@ impl GMSceneT for TextScene1 {
             }
         }
 
-        if context.input.is(GMEventCode::Key3Up) {
+        if context.event(GMEventCode::Key3Up) {
             if self.current_font != 2 {
                 self.current_font = 2;
 
