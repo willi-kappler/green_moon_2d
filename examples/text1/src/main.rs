@@ -3,20 +3,31 @@
 use std::fs::File;
 use std::rc::Rc;
 
-// use log::{debug};
+use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, GMEventCode, GMResources};
 
 #[derive(Clone, Debug)]
 struct TextScene1 {
     name: String,
     texts: Vec<GMBitmapText>,
+    fonts: Vec<Rc<GMBitmapFont>>,
+    current_font: usize,
 }
 
 impl TextScene1 {
-    pub fn new(font: &Rc<GMBitmapFont>) -> Self {
+    pub fn new(resources: &GMResources) -> Self {
         const space: f32 = 50.0;
+        let mut fonts = Vec::new();
+
+        fonts.push(resources.get_font_clone("font_bbc"));
+        fonts.push(resources.get_font_clone("font_blagger"));
+        fonts.push(resources.get_font_clone("font_cuddly"));
+
+        let current_font = 2;
+        let font = &fonts[current_font];
+
         let mut texts = Vec::new();
 
         texts.push(GMBitmapText::new(font, "TEXT TEST 1", 336.0, 32.0));
@@ -28,6 +39,8 @@ impl TextScene1 {
         Self {
             name: "text_scene1".to_string(),
             texts,
+            fonts,
+            current_font,
         }
     }
 }
@@ -38,31 +51,45 @@ impl GMSceneT for TextScene1 {
     }
 
     fn update(&mut self, context: &mut GMContext) {
-        if context.input.key_esc_up() {
+        if context.input.is(GMEventCode::KeyESCUp) ||
+           context.input.is(GMEventCode::Quit) ||
+           context.input.is(GMEventCode::WindowClose) {
             context.quit();
         }
 
-        if context.input.key_1_up() {
-            let font = context.resources.get_font_clone("font_bbc");
+        if context.input.is(GMEventCode::Key1Up) {
+            if self.current_font != 0 {
+                self.current_font = 0;
 
-            for text in self.texts.iter_mut() {
-                text.set_font(&font);
+                debug!("TextScene1::update(), current font: {}", self.current_font);
+
+                for text in self.texts.iter_mut() {
+                    text.set_font(&self.fonts[self.current_font]);
+                }
             }
         }
 
-        if context.input.key_2_up() {
-            let font = context.resources.get_font_clone("font_blagger");
+        if context.input.is(GMEventCode::Key2Up) {
+            if self.current_font != 1 {
+                self.current_font = 1;
 
-            for text in self.texts.iter_mut() {
-                text.set_font(&font);
+                debug!("TextScene1::update(), current font: {}", self.current_font);
+
+                for text in self.texts.iter_mut() {
+                    text.set_font(&self.fonts[self.current_font]);
+                }
             }
         }
 
-        if context.input.key_3_up() {
-            let font = context.resources.get_font_clone("font_cuddly");
+        if context.input.is(GMEventCode::Key3Up) {
+            if self.current_font != 2 {
+                self.current_font = 2;
 
-            for text in self.texts.iter_mut() {
-                text.set_font(&font);
+                debug!("TextScene1::update(), current font: {}", self.current_font);
+
+                for text in self.texts.iter_mut() {
+                    text.set_font(&self.fonts[self.current_font]);
+                }
             }
         }
     }
@@ -85,8 +112,7 @@ fn main() {
     engine.init();
     engine.load_resources("resources.json");
 
-    let font = engine.get_resources().get_font_clone("font_cuddly");
-    let text1_scene = TextScene1::new(&font);
+    let text1_scene = TextScene1::new(engine.get_resources());
 
     engine.add_scene(text1_scene);
     engine.run();
