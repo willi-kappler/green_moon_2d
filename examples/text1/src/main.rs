@@ -14,6 +14,7 @@ struct TextScene1 {
     texts: Vec<GMBitmapText>,
     fonts: Vec<Rc<GMBitmapFont>>,
     current_font: usize,
+    char_spacing: f32,
 }
 
 impl TextScene1 {
@@ -35,12 +36,14 @@ impl TextScene1 {
         texts.push(GMBitmapText::new(font, "1 - BBC", 32.0, 32.0 + (2.0 * space)));
         texts.push(GMBitmapText::new(font, "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)));
         texts.push(GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)));
+        texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE SPACING", 32.0, 32.0 + (5.0 * space)));
 
         Self {
             name: "text_scene1".to_string(),
             texts,
             fonts,
             current_font,
+            char_spacing: 0.0,
         }
     }
 }
@@ -90,6 +93,26 @@ impl GMSceneT for TextScene1 {
                 for text in self.texts.iter_mut() {
                     text.set_font(&self.fonts[self.current_font]);
                 }
+            }
+        }
+
+        if context.event(GMEventCode::KeyLeftUp) {
+            self.char_spacing -= 1.0;
+
+            debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
+
+            for text in self.texts.iter_mut() {
+                text.set_spacing_x(self.char_spacing);
+            }
+        }
+
+        if context.event(GMEventCode::KeyRightUp) {
+            self.char_spacing += 1.0;
+
+            debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
+
+            for text in self.texts.iter_mut() {
+                text.set_spacing_x(self.char_spacing);
             }
         }
     }
