@@ -14,10 +14,12 @@ pub mod texture;
 pub mod timer;
 pub mod util;
 
+pub use bitmap_text::{GMBitmapFont, GMBitmapText};
 pub use context::{GMContext};
 pub use engine::GMEngine;
+pub use input::GMEventCode;
+pub use resources::GMResources;
 pub use scene::GMSceneT;
-pub use bitmap_text::{GMBitmapFont, GMBitmapText};
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
