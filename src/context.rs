@@ -14,6 +14,7 @@ use crate::resources::GMResources;
 use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
+use crate::configuration::GMConfiguration;
 
 
 pub struct GMContext {
@@ -22,11 +23,13 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     pub resources: GMResources,
+    window_width: f32,
+    window_height: f32,
 }
 
 impl GMContext {
     pub(crate) fn new (texture_creator: TextureCreator<WindowContext>,
-            event_pump: sdl2::EventPump, canvas: Canvas<Window>) -> Self {
+            event_pump: sdl2::EventPump, canvas: Canvas<Window>, configuration: &GMConfiguration) -> Self {
         let input = GMInput::new(event_pump);
         let resources = GMResources::new(texture_creator);
 
@@ -36,6 +39,8 @@ impl GMContext {
             canvas,
             input,
             resources,
+            window_width: configuration.screen_width as f32,
+            window_height: configuration.screen_height as f32,
         }
     }
 
@@ -94,12 +99,12 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.to_string(), message.to_string(), data));
     }
 
-    // Update context
+    // Update context, called by engine
     pub(crate) fn update(&mut self) {
         self.input.update();
     }
 
-    // Events
+    // Events, called by user code
     pub fn event(&self, event_code: GMEventCode) -> bool {
         self.input.event(event_code)
     }
@@ -110,6 +115,7 @@ impl GMContext {
             .expect("GMContext::draw_texture_opt(), error when drawing texture!");
     }
 
+    // Called by engine
     pub(crate) fn present(&mut self) {
         self.canvas.present();
     }
@@ -133,5 +139,13 @@ impl GMContext {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
                 .expect("GMContext::set_fullscreen(), could not set fullscreen off");
         }
+    }
+
+    pub fn window_width(&self) -> f32 {
+        self.window_width
+    }
+
+    pub fn window_height(&self) -> f32 {
+        self.window_height
     }
 }

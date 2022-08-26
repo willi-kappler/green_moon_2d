@@ -86,7 +86,7 @@ impl GMEngine {
         let texture_creator = canvas.texture_creator();
         let event_pump = sdl_context.event_pump().expect("GMEngine::init(), could not initialize events");
 
-        self.context = Some(GMContext::new(texture_creator, event_pump, canvas));
+        self.context = Some(GMContext::new(texture_creator, event_pump, canvas, &self.configuration));
     }
 
     pub fn load_resources(&mut self, file_name: &str) {
@@ -120,6 +120,14 @@ impl GMEngine {
         debug!("GMEngine::add_scene(), name: '{}'", name);
 
         self.scene_manager.add_scene(name, Box::new(scene))
+    }
+
+    pub fn window_width(&self) -> f32 {
+        self.configuration.screen_width as f32
+    }
+
+    pub fn window_height(&self) -> f32 {
+        self.configuration.screen_height as f32
     }
 
     pub fn run(&mut self) {
