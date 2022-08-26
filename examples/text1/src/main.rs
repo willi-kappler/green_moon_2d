@@ -17,7 +17,7 @@ struct TextScene1 {
 }
 
 impl TextScene1 {
-    pub fn new(resources: &GMResources) -> Self {
+    pub fn new(resources: &GMResources, window_width: f32) -> Self {
         const space: f32 = 50.0;
         let mut fonts = Vec::new();
 
@@ -30,12 +30,15 @@ impl TextScene1 {
 
         let mut texts = Vec::new();
 
-        texts.push(GMBitmapText::new(font, "TEXT TEST 1", 336.0, 32.0));
+        texts.push(GMBitmapText::new(font, "TEXT TEST 1", 0.0, 32.0));
         texts.push(GMBitmapText::new(font, "PRESS NUMBER TO CHANGE FONT", 32.0, 32.0 + (1.0 * space)));
         texts.push(GMBitmapText::new(font, "1 - BBC", 32.0, 32.0 + (2.0 * space)));
         texts.push(GMBitmapText::new(font, "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)));
         texts.push(GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)));
         texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE SPACING", 32.0, 32.0 + (5.0 * space)));
+
+        // Move title to the center of the window
+        texts[0].align_x_center(window_width / 2.0);
 
         Self {
             texts,
@@ -43,6 +46,26 @@ impl TextScene1 {
             current_font,
             char_spacing: 0.0,
         }
+    }
+
+    fn change_font(&mut self, window_width: f32) {
+        debug!("TextScene1::update(), current font: {}", self.current_font);
+
+        for text in self.texts.iter_mut() {
+            text.set_font(&self.fonts[self.current_font]);
+        }
+
+        self.texts[0].align_x_center(window_width / 2.0);
+    }
+
+    fn change_spacing(&mut self, window_width: f32) {
+        debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
+
+        for text in self.texts.iter_mut() {
+            text.set_spacing_x(self.char_spacing);
+        }
+
+        self.texts[0].align_x_center(window_width / 2.0);
     }
 }
 
@@ -57,57 +80,32 @@ impl GMSceneT for TextScene1 {
         if context.event(GMEventCode::Key1Up) {
             if self.current_font != 0 {
                 self.current_font = 0;
-
-                debug!("TextScene1::update(), current font: {}", self.current_font);
-
-                for text in self.texts.iter_mut() {
-                    text.set_font(&self.fonts[self.current_font]);
-                }
+                self.change_font(context.window_width());
             }
         }
 
         if context.event(GMEventCode::Key2Up) {
             if self.current_font != 1 {
                 self.current_font = 1;
-
-                debug!("TextScene1::update(), current font: {}", self.current_font);
-
-                for text in self.texts.iter_mut() {
-                    text.set_font(&self.fonts[self.current_font]);
-                }
+                self.change_font(context.window_width());
             }
         }
 
         if context.event(GMEventCode::Key3Up) {
             if self.current_font != 2 {
                 self.current_font = 2;
-
-                debug!("TextScene1::update(), current font: {}", self.current_font);
-
-                for text in self.texts.iter_mut() {
-                    text.set_font(&self.fonts[self.current_font]);
-                }
+                self.change_font(context.window_width());
             }
         }
 
         if context.event(GMEventCode::KeyLeftUp) {
             self.char_spacing -= 1.0;
-
-            debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
-
-            for text in self.texts.iter_mut() {
-                text.set_spacing_x(self.char_spacing);
-            }
+            self.change_spacing(context.window_width());
         }
 
         if context.event(GMEventCode::KeyRightUp) {
             self.char_spacing += 1.0;
-
-            debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
-
-            for text in self.texts.iter_mut() {
-                text.set_spacing_x(self.char_spacing);
-            }
+            self.change_spacing(context.window_width());
         }
     }
 
@@ -129,7 +127,7 @@ fn main() {
     engine.init();
     engine.load_resources("resources.json");
 
-    let text1_scene = TextScene1::new(engine.get_resources());
+    let text1_scene = TextScene1::new(engine.get_resources(), engine.window_width());
 
     engine.add_scene("text1_scene", text1_scene);
     engine.run();

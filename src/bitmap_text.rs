@@ -102,6 +102,7 @@ impl GMBitmapText {
     }
 
     pub fn reset_chars(&mut self) {
+        // Remove all the characters and recreate them
         if self.horizontal {
             let mut x = self.base_x;
             let (dx, dy) = self.font.get_char_dimensions();
@@ -124,6 +125,37 @@ impl GMBitmapText {
             for c in self.text.chars() {
                 let index = self.font.get_index(c);
                 self.chars.push((index, self.base_x, y, 0.0));
+                y += dy + self.spacing_y;
+            }
+
+            let num_of_chars = self.chars.len() as f32;
+            self.width = dx;
+            self.height = (dy * num_of_chars) + (self.spacing_y * (num_of_chars - 1.0));
+        }
+    }
+
+    pub fn reset_chars2(&mut self) {
+        // Keep characters, just change position
+        if self.horizontal {
+            let mut x = self.base_x;
+            let (dx, dy) = self.font.get_char_dimensions();
+
+            for char in self.chars.iter_mut() {
+                char.1 = x;
+                char.2 = self.base_y;
+                x += dx + self.spacing_x;
+            }
+
+            let num_of_chars = self.chars.len() as f32;
+            self.width = (dx * num_of_chars) + (self.spacing_x * (num_of_chars - 1.0));
+            self.height = dy;
+        } else {
+            let mut y = self.base_y;
+            let (dx, dy) = self.font.get_char_dimensions();
+
+            for char in self.chars.iter_mut() {
+                char.1 = self.base_x;
+                char.2 = y;
                 y += dy + self.spacing_y;
             }
 
@@ -182,7 +214,7 @@ impl GMBitmapText {
         if self.spacing_x != spacing_x {
             self.spacing_x = spacing_x;
             if self.horizontal {
-                self.reset_chars();
+                self.reset_chars2();
             }
         }
     }
@@ -191,7 +223,7 @@ impl GMBitmapText {
         if self.spacing_y != spacing_y {
             self.spacing_y = spacing_y;
             if !self.horizontal {
-                self.reset_chars();
+                self.reset_chars2();
             }
         }
     }
@@ -204,10 +236,37 @@ impl GMBitmapText {
     pub fn set_horizontal(&mut self, horizontal: bool) {
         if self.horizontal != horizontal {
             self.horizontal = horizontal;
-            self.reset_chars();
+            self.reset_chars2();
         }
     }
 
+    pub fn align_x_left(&mut self, x: f32) {
+        self.set_base_x(x);
+    }
+
+    pub fn align_x_center(&mut self, x: f32) {
+        let new_x = x - (self.width / 2.0);
+        self.set_base_x(new_x);
+    }
+
+    pub fn align_x_right(&mut self, x: f32) {
+        let new_x = x - self.width;
+        self.set_base_x(new_x);
+    }
+
+    pub fn align_y_top(&mut self, y: f32) {
+        self.set_base_y(y);
+    }
+
+    pub fn align_y_center(&mut self, y: f32) {
+        let new_y = y - (self.height / 2.0);
+        self.set_base_y(new_y);
+    }
+
+    pub fn align_y_bottom(&mut self, y: f32) {
+        let new_y = y - self.height;
+        self.set_base_y(new_y);
+    }
 }
 
 
