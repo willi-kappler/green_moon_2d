@@ -116,10 +116,10 @@ impl GMEngine {
         &mut context.resources
     }
 
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, scene: S) {
-        debug!("GMEngine::add_scene(), name: '{}'", scene.get_name());
+    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
+        debug!("GMEngine::add_scene(), name: '{}'", name);
 
-        self.scene_manager.add_scene(Box::new(scene))
+        self.scene_manager.add_scene(name, Box::new(scene))
     }
 
     pub fn run(&mut self) {

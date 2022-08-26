@@ -10,7 +10,6 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, G
 
 #[derive(Clone, Debug)]
 struct TextScene1 {
-    name: String,
     texts: Vec<GMBitmapText>,
     fonts: Vec<Rc<GMBitmapFont>>,
     current_font: usize,
@@ -39,7 +38,6 @@ impl TextScene1 {
         texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE SPACING", 32.0, 32.0 + (5.0 * space)));
 
         Self {
-            name: "text_scene1".to_string(),
             texts,
             fonts,
             current_font,
@@ -49,10 +47,6 @@ impl TextScene1 {
 }
 
 impl GMSceneT for TextScene1 {
-    fn get_name(&self) -> &str {
-        &self.name
-    }
-
     fn update(&mut self, context: &mut GMContext) {
         if context.event(GMEventCode::KeyESCUp) ||
            context.event(GMEventCode::Quit) ||
@@ -137,6 +131,6 @@ fn main() {
 
     let text1_scene = TextScene1::new(engine.get_resources());
 
-    engine.add_scene(text1_scene);
+    engine.add_scene("text1_scene", text1_scene);
     engine.run();
 }

@@ -66,8 +66,8 @@ impl GMContext {
         self.scene_messages.pop_front()
     }
 
-    pub fn add_scene(&mut self, scene: Box<dyn GMSceneT>) {
-        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(scene));
+    pub fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
+        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(name.to_string(), scene));
     }
 
     pub fn remove_scene(&mut self, name: &str) {
