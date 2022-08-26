@@ -69,6 +69,8 @@ pub struct GMBitmapText {
     pub spacing_y: f32,
     pub horizontal: bool,
     pub chars: Vec<(u32, f32, f32, f32)>, // index, x, y, angle
+    pub width: f32,
+    pub height: f32,
 }
 
 impl GMBitmapText {
@@ -84,6 +86,8 @@ impl GMBitmapText {
             spacing_y: 0.0,
             horizontal: true,
             chars: Vec::new(),
+            width: 0.0,
+            height: 0.0,
         };
 
         text.reset_chars();
@@ -100,7 +104,7 @@ impl GMBitmapText {
     pub fn reset_chars(&mut self) {
         if self.horizontal {
             let mut x = self.base_x;
-            let (dx, _) = self.font.get_char_dimensions();
+            let (dx, dy) = self.font.get_char_dimensions();
             self.chars.clear();
 
             for c in self.text.chars() {
@@ -108,9 +112,13 @@ impl GMBitmapText {
                 self.chars.push((index, x, self.base_y, 0.0));
                 x += dx + self.spacing_x;
             }
+
+            let num_of_chars = self.chars.len() as f32;
+            self.width = (dx * num_of_chars) + (self.spacing_x * (num_of_chars - 1.0));
+            self.height = dy;
         } else {
             let mut y = self.base_y;
-            let (_, dy) = self.font.get_char_dimensions();
+            let (dx, dy) = self.font.get_char_dimensions();
             self.chars.clear();
 
             for c in self.text.chars() {
@@ -118,6 +126,10 @@ impl GMBitmapText {
                 self.chars.push((index, self.base_x, y, 0.0));
                 y += dy + self.spacing_y;
             }
+
+            let num_of_chars = self.chars.len() as f32;
+            self.width = dx;
+            self.height = (dy * num_of_chars) + (self.spacing_y * (num_of_chars - 1.0));
         }
     }
 
@@ -128,6 +140,8 @@ impl GMBitmapText {
     }
 
     pub fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
+        // Even if the dimension of each char is equal, the mapping could be different.
+        // So just reset all the characters
         self.font = font.clone();
         self.reset_chars();
     }
@@ -138,43 +152,69 @@ impl GMBitmapText {
     }
 
     pub fn set_base_x(&mut self, base_x: f32) {
-        self.base_x = base_x;
-        self.reset_chars();
+        if self.base_x != base_x {
+            let dx = base_x - self.base_x;
+            self.base_x = base_x;
+
+            for char in self.chars.iter_mut() {
+                char.1 += dx;
+            }
+        }
     }
 
     pub fn set_base_y(&mut self, base_y: f32) {
-        self.base_y = base_y;
-        self.reset_chars();
+        if self.base_y != base_y {
+            let dy = base_y - self.base_y;
+            self.base_y = base_y;
+
+            for char in self.chars.iter_mut() {
+                char.2 += dy;
+            }
+        }
     }
 
     pub fn set_base_xy(&mut self, base_x: f32, base_y: f32) {
-        self.base_x = base_x;
-        self.base_y = base_y;
-        self.reset_chars();
+        self.set_base_x(base_x);
+        self.set_base_y(base_y);
     }
 
     pub fn set_spacing_x(&mut self, spacing_x: f32) {
-        self.spacing_x = spacing_x;
-        self.reset_chars();
+        if self.spacing_x != spacing_x {
+            self.spacing_x = spacing_x;
+            if self.horizontal {
+                self.reset_chars();
+            }
+        }
     }
 
     pub fn set_spacing_y(&mut self, spacing_y: f32) {
-        self.spacing_y = spacing_y;
-        self.reset_chars();
+        if self.spacing_y != spacing_y {
+            self.spacing_y = spacing_y;
+            if !self.horizontal {
+                self.reset_chars();
+            }
+        }
     }
 
     pub fn set_spacing_xy(&mut self, spacing_x: f32, spacing_y: f32) {
-        self.spacing_x = spacing_x;
-        self.spacing_y = spacing_y;
-        self.reset_chars();
+        self.set_spacing_x(spacing_x);
+        self.set_spacing_y(spacing_y);
     }
 
     pub fn set_horizontal(&mut self, horizontal: bool) {
-        self.horizontal = horizontal;
-        self.reset_chars();
+        if self.horizontal != horizontal {
+            self.horizontal = horizontal;
+            self.reset_chars();
+        }
     }
 
 }
+
+
+// TODO: Add GMTextBlock
+
+// TODO: Add GMTextList
+
 
 pub trait GMTextEffectT {
     fn update(&mut self, _text: &mut GMBitmapText, _context: &mut GMContext) {
