@@ -63,7 +63,9 @@ impl TextScene1 {
         }
     }
 
-    fn change_spacing(&mut self) {
+    fn change_spacing(&mut self, spacing: f32) {
+        self.char_spacing += spacing;
+
         debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
 
         for text in self.texts.iter_mut() {
@@ -93,13 +95,11 @@ impl GMSceneT for TextScene1 {
         }
 
         if context.event(GMEventCode::KeyLeftUp) {
-            self.char_spacing -= 1.0;
-            self.change_spacing();
+            self.change_spacing(-1.0);
         }
 
         if context.event(GMEventCode::KeyRightUp) {
-            self.char_spacing += 1.0;
-            self.change_spacing();
+            self.change_spacing(1.0);
         }
     }
 
