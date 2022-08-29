@@ -262,37 +262,6 @@ impl GMBitmapText {
             self.reset_chars2();
         }
     }
-
-
-    /*
-    pub fn align_x_left(&mut self, x: f32) {
-        self.set_base_x(x);
-    }
-
-    pub fn align_x_center(&mut self, x: f32) {
-        let new_x = x - (self.width / 2.0);
-        self.set_base_x(new_x);
-    }
-
-    pub fn align_x_right(&mut self, x: f32) {
-        let new_x = x - self.width;
-        self.set_base_x(new_x);
-    }
-
-    pub fn align_y_top(&mut self, y: f32) {
-        self.set_base_y(y);
-    }
-
-    pub fn align_y_center(&mut self, y: f32) {
-        let new_y = y - (self.height / 2.0);
-        self.set_base_y(new_y);
-    }
-
-    pub fn align_y_bottom(&mut self, y: f32) {
-        let new_y = y - self.height;
-        self.set_base_y(new_y);
-    }
-    */
 }
 
 
