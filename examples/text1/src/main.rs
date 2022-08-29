@@ -8,7 +8,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, GMEventCode, GMResources, GMAlign};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct TextScene1 {
     texts: Vec<GMBitmapText>,
     fonts: Vec<Rc<GMBitmapFont>>,
