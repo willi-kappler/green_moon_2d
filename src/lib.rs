@@ -14,7 +14,7 @@ pub mod texture;
 pub mod timer;
 pub mod util;
 
-pub use bitmap_text::{GMBitmapFont, GMBitmapText};
+pub use bitmap_text::{GMBitmapFont, GMBitmapText, GMTextEffectT};
 pub use context::{GMContext};
 pub use engine::GMEngine;
 pub use input::GMEventCode;
