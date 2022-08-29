@@ -46,6 +46,60 @@ pub enum GMEventCode {
     KeyLeftUp,
     KeyRightDown,
     KeyRightUp,
+
+    // Letter keys
+    KeyAUp,
+    KeyADown,
+    KeyBUp,
+    KeyBDown,
+    KeyCUp,
+    KeyCDown,
+    KeyDUp,
+    KeyDDown,
+    KeyEUp,
+    KeyEDown,
+    KeyFUp,
+    KeyFDown,
+    KeyGUp,
+    KeyGDown,
+    KeyHUp,
+    KeyHDown,
+    KeyIUp,
+    KeyIDown,
+    KeyJUp,
+    KeyJDown,
+    KeyKUp,
+    KeyKDown,
+    KeyLUp,
+    KeyLDown,
+    KeyMUp,
+    KeyMDown,
+    KeyNUp,
+    KeyNDown,
+    KeyOUp,
+    KeyODown,
+    KeyPUp,
+    KeyPDown,
+    KeyQUp,
+    KeyQDown,
+    KeyRUp,
+    KeyRDown,
+    KeySUp,
+    KeySDown,
+    KeyTUp,
+    KeyTDown,
+    KeyUUp,
+    KeyUDown,
+    KeyVUp,
+    KeyVDown,
+    KeyWUp,
+    KeyWDown,
+    KeyXUp,
+    KeyXDown,
+    KeyYUp,
+    KeyYDown,
+    KeyZUp,
+    KeyZDown,
 }
 
 pub struct GMInput {
@@ -132,6 +186,30 @@ impl GMInput {
                         Keycode::Right => {
                             self.events[GMEventCode::KeyRightDown as usize] = true;
                         }
+                        Keycode::A => {
+                            self.events[GMEventCode::KeyADown as usize] = true;
+                        }
+                        Keycode::B => {
+                            self.events[GMEventCode::KeyBDown as usize] = true;
+                        }
+                        Keycode::C => {
+                            self.events[GMEventCode::KeyCDown as usize] = true;
+                        }
+                        Keycode::D => {
+                            self.events[GMEventCode::KeyDDown as usize] = true;
+                        }
+                        Keycode::E => {
+                            self.events[GMEventCode::KeyEDown as usize] = true;
+                        }
+                        Keycode::F => {
+                            self.events[GMEventCode::KeyFDown as usize] = true;
+                        }
+                        Keycode::G => {
+                            self.events[GMEventCode::KeyGDown as usize] = true;
+                        }
+                        Keycode::H => {
+                            self.events[GMEventCode::KeyHDown as usize] = true;
+                        }
                         _ => {
                             // Unsupported keycode for now
                         }
@@ -183,6 +261,30 @@ impl GMInput {
                         }
                         Keycode::Right => {
                             self.events[GMEventCode::KeyRightUp as usize] = true;
+                        }
+                        Keycode::A => {
+                            self.events[GMEventCode::KeyAUp as usize] = true;
+                        }
+                        Keycode::B => {
+                            self.events[GMEventCode::KeyBUp as usize] = true;
+                        }
+                        Keycode::C => {
+                            self.events[GMEventCode::KeyCUp as usize] = true;
+                        }
+                        Keycode::D => {
+                            self.events[GMEventCode::KeyDUp as usize] = true;
+                        }
+                        Keycode::E => {
+                            self.events[GMEventCode::KeyEUp as usize] = true;
+                        }
+                        Keycode::F => {
+                            self.events[GMEventCode::KeyFUp as usize] = true;
+                        }
+                        Keycode::G => {
+                            self.events[GMEventCode::KeyGUp as usize] = true;
+                        }
+                        Keycode::H => {
+                            self.events[GMEventCode::KeyHUp as usize] = true;
                         }
                         _ => {
                             // Unsupported keycode for now                            
