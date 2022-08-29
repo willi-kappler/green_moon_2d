@@ -6,7 +6,7 @@ use std::rc::Rc;
 use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, GMEventCode, GMResources};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, GMEventCode, GMResources, GMAlign};
 
 #[derive(Clone, Debug)]
 struct TextScene1 {
@@ -30,15 +30,15 @@ impl TextScene1 {
 
         let mut texts = Vec::new();
 
-        texts.push(GMBitmapText::new(font, "TEXT TEST 1", 0.0, 32.0));
+        texts.push(GMBitmapText::new(font, "TEXT TEST 1", window_width / 2.0, 32.0));
         texts.push(GMBitmapText::new(font, "PRESS NUMBER TO CHANGE FONT", 32.0, 32.0 + (1.0 * space)));
         texts.push(GMBitmapText::new(font, "1 - BBC", 32.0, 32.0 + (2.0 * space)));
         texts.push(GMBitmapText::new(font, "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)));
         texts.push(GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)));
-        texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE SPACING", 32.0, 32.0 + (5.0 * space)));
+        texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE H-SPACING", 32.0, 32.0 + (5.0 * space)));
 
         // Move title to the center of the window
-        texts[0].align_x_center(window_width / 2.0);
+        texts[0].align(GMAlign::TopCenter);
 
         Self {
             texts,
@@ -48,24 +48,20 @@ impl TextScene1 {
         }
     }
 
-    fn change_font(&mut self, window_width: f32) {
+    fn change_font(&mut self) {
         debug!("TextScene1::update(), current font: {}", self.current_font);
 
         for text in self.texts.iter_mut() {
             text.set_font(&self.fonts[self.current_font]);
         }
-
-        self.texts[0].align_x_center(window_width / 2.0);
     }
 
-    fn change_spacing(&mut self, window_width: f32) {
+    fn change_spacing(&mut self) {
         debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
 
         for text in self.texts.iter_mut() {
             text.set_spacing_x(self.char_spacing);
         }
-
-        self.texts[0].align_x_center(window_width / 2.0);
     }
 }
 
@@ -80,32 +76,32 @@ impl GMSceneT for TextScene1 {
         if context.event(GMEventCode::Key1Up) {
             if self.current_font != 0 {
                 self.current_font = 0;
-                self.change_font(context.window_width());
+                self.change_font();
             }
         }
 
         if context.event(GMEventCode::Key2Up) {
             if self.current_font != 1 {
                 self.current_font = 1;
-                self.change_font(context.window_width());
+                self.change_font();
             }
         }
 
         if context.event(GMEventCode::Key3Up) {
             if self.current_font != 2 {
                 self.current_font = 2;
-                self.change_font(context.window_width());
+                self.change_font();
             }
         }
 
         if context.event(GMEventCode::KeyLeftUp) {
             self.char_spacing -= 1.0;
-            self.change_spacing(context.window_width());
+            self.change_spacing();
         }
 
         if context.event(GMEventCode::KeyRightUp) {
             self.char_spacing += 1.0;
-            self.change_spacing(context.window_width());
+            self.change_spacing();
         }
     }
 
