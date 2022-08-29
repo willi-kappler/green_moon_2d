@@ -25,23 +25,7 @@ pub(crate) enum GMSceneManagerMessage {
     SendMessage(String, String, Option<Box<dyn Any>>),
 }
 
-pub trait CloneBox {
-    fn clone_box(&self) -> Box<dyn GMSceneT>;
-}
-
-impl<T> CloneBox for T where T: Clone + GMSceneT + 'static {
-    fn clone_box(&self) -> Box<dyn GMSceneT> {
-        Box::new(self.clone())
-    }
-}
-
-impl Clone for Box<dyn GMSceneT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
-pub trait GMSceneT: Debug + CloneBox {
+pub trait GMSceneT: Debug {
     fn enter(&mut self, _context: &mut GMContext) {
     }
 
