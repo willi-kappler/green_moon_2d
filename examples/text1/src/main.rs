@@ -55,7 +55,7 @@ impl TextScene1 {
         if self.current_font != new_font {
             self.current_font = new_font;
 
-            debug!("TextScene1::update(), current font: {}", self.current_font);
+            debug!("TextScene1::change_font(), current font: {}", self.current_font);
 
             for text in self.texts.iter_mut() {
                 text.set_font(&self.fonts[self.current_font]);
@@ -66,7 +66,7 @@ impl TextScene1 {
     fn change_spacing(&mut self, spacing: f32) {
         self.char_spacing += spacing;
 
-        debug!("TextScene1::update(), char_spacing: {}", self.char_spacing);
+        debug!("TextScene1::change_spacing(), char_spacing: {}", self.char_spacing);
 
         for text in self.texts.iter_mut() {
             text.set_spacing_x(self.char_spacing);
