@@ -270,7 +270,7 @@ impl GMBitmapText {
 // TODO: Add GMTextList
 
 
-pub trait GMTextEffectT {
+pub trait GMTextEffectT: Debug {
     fn update(&mut self, _text: &mut GMBitmapText, _context: &mut GMContext) {
     }
 
@@ -281,6 +281,7 @@ pub trait GMTextEffectT {
     }
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectDraw {
 }
 
@@ -299,6 +300,7 @@ impl GMTextEffectT for GMTextEffectDraw {
 
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectReset {
 }
 
@@ -316,6 +318,7 @@ impl GMTextEffectT for GMTextEffectReset {
     }
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectMultiple {
     pub text_effects: Vec<Box<dyn GMTextEffectT>>,
 }
@@ -392,6 +395,7 @@ impl GMTextEffectT for GMTextEffectMultiple {
     }
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectWave {
     pub amplitude: f32,
     pub speed: f32,
@@ -453,6 +457,7 @@ impl GMTextEffectT for GMTextEffectWave {
     }
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectShake {
     pub radius: f32,
     pub rng: WyRand,
@@ -492,6 +497,7 @@ impl GMTextEffectT for GMTextEffectShake {
     }
 }
 
+#[derive(Debug)]
 pub struct GMTextEffectRotateChars {
     pub speed: f32,
     pub offset: f32,
