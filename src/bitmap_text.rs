@@ -10,7 +10,7 @@ use nanorand::{Rng, WyRand};
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
-use crate::util::{error_panic, extract_f32_value, extract_usize_value};
+use crate::util::{error_panic, extract_f32_value, extract_usize_value, GMAlign};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -71,6 +71,7 @@ pub struct GMBitmapText {
     pub chars: Vec<(u32, f32, f32, f32)>, // index, x, y, angle
     pub width: f32,
     pub height: f32,
+    pub align: GMAlign,
 }
 
 impl GMBitmapText {
@@ -88,6 +89,7 @@ impl GMBitmapText {
             chars: Vec::new(),
             width: 0.0,
             height: 0.0,
+            align: GMAlign::TopLeft,
         };
 
         text.reset_chars();
@@ -103,65 +105,79 @@ impl GMBitmapText {
 
     pub fn reset_chars(&mut self) {
         // Remove all the characters and recreate them
-        if self.horizontal {
-            let mut x = self.base_x;
-            let (dx, dy) = self.font.get_char_dimensions();
-            self.chars.clear();
+        self.chars.clear();
 
-            for c in self.text.chars() {
-                let index = self.font.get_index(c);
-                self.chars.push((index, x, self.base_y, 0.0));
-                x += dx + self.spacing_x;
-            }
-
-            let num_of_chars = self.chars.len() as f32;
-            self.width = (dx * num_of_chars) + (self.spacing_x * (num_of_chars - 1.0));
-            self.height = dy;
-        } else {
-            let mut y = self.base_y;
-            let (dx, dy) = self.font.get_char_dimensions();
-            self.chars.clear();
-
-            for c in self.text.chars() {
-                let index = self.font.get_index(c);
-                self.chars.push((index, self.base_x, y, 0.0));
-                y += dy + self.spacing_y;
-            }
-
-            let num_of_chars = self.chars.len() as f32;
-            self.width = dx;
-            self.height = (dy * num_of_chars) + (self.spacing_y * (num_of_chars - 1.0));
+        for c in self.text.chars() {
+            let index = self.font.get_index(c);
+            self.chars.push((index, 0.0, 0.0, 0.0));
         }
+
+        self.reset_chars2();
     }
 
     pub fn reset_chars2(&mut self) {
         // Keep characters, just change position
+        let (dx, dy) = self.font.get_char_dimensions();
+        let num_of_chars = self.chars.len() as f32;
+        let mut x;
+        let mut y;
+        let mut dx2 = dx + self.spacing_x;
+        let mut dy2 = dy + self.spacing_y;
+
         if self.horizontal {
-            let mut x = self.base_x;
-            let (dx, dy) = self.font.get_char_dimensions();
-
-            for char in self.chars.iter_mut() {
-                char.1 = x;
-                char.2 = self.base_y;
-                x += dx + self.spacing_x;
-            }
-
-            let num_of_chars = self.chars.len() as f32;
             self.width = (dx * num_of_chars) + (self.spacing_x * (num_of_chars - 1.0));
             self.height = dy;
+            dy2 = 0.0;
         } else {
-            let mut y = self.base_y;
-            let (dx, dy) = self.font.get_char_dimensions();
-
-            for char in self.chars.iter_mut() {
-                char.1 = self.base_x;
-                char.2 = y;
-                y += dy + self.spacing_y;
-            }
-
-            let num_of_chars = self.chars.len() as f32;
             self.width = dx;
             self.height = (dy * num_of_chars) + (self.spacing_y * (num_of_chars - 1.0));
+            dx2 = 0.0;
+        }
+
+        match self.align {
+            GMAlign::TopLeft => {
+                x = self.base_x;
+                y = self.base_y;
+            }
+            GMAlign::TopCenter => {
+                x = self.base_x - (self.width / 2.0);
+                y = self.base_y;
+            }
+            GMAlign::TopRight => {
+                x = self.base_x - self.width;
+                y = self.base_y;
+            }
+            GMAlign::MiddleLeft => {
+                x = self.base_x;
+                y = self.base_y - (self.height / 2.0);
+            }
+            GMAlign::MiddleCenter => {
+                x = self.base_x - (self.width / 2.0);
+                y = self.base_y - (self.height / 2.0);
+            }
+            GMAlign::MiddleRight => {
+                x = self.base_x - self.width;
+                y = self.base_y - (self.height / 2.0);
+            }
+            GMAlign::BottomLeft => {
+                x = self.base_x;
+                y = self.base_y - self.height;
+            }
+            GMAlign::BottomCenter => {
+                x = self.base_x - (self.width / 2.0);
+                y = self.base_y - self.height;
+            }
+            GMAlign::BottomRight => {
+                x = self.base_x - self.width;
+                y = self.base_y - self.height;
+            }
+        }
+
+        for (_, cx, cy, _)in self.chars.iter_mut() {
+            *cx = x;
+            *cy = y;
+            x += dx2;
+            y += dy2;
         }
     }
 
@@ -240,6 +256,15 @@ impl GMBitmapText {
         }
     }
 
+    pub fn align(&mut self, align: GMAlign) {
+        if self.align != align {
+            self.align = align;
+            self.reset_chars2();
+        }
+    }
+
+
+    /*
     pub fn align_x_left(&mut self, x: f32) {
         self.set_base_x(x);
     }
@@ -267,6 +292,7 @@ impl GMBitmapText {
         let new_y = y - self.height;
         self.set_base_y(new_y);
     }
+    */
 }
 
 
