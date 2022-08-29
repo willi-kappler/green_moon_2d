@@ -48,11 +48,15 @@ impl TextScene1 {
         }
     }
 
-    fn change_font(&mut self) {
-        debug!("TextScene1::update(), current font: {}", self.current_font);
+    fn change_font(&mut self, new_font: usize) {
+        if self.current_font != new_font {
+            self.current_font = new_font;
 
-        for text in self.texts.iter_mut() {
-            text.set_font(&self.fonts[self.current_font]);
+            debug!("TextScene1::update(), current font: {}", self.current_font);
+
+            for text in self.texts.iter_mut() {
+                text.set_font(&self.fonts[self.current_font]);
+            }
         }
     }
 
@@ -74,24 +78,15 @@ impl GMSceneT for TextScene1 {
         }
 
         if context.event(GMEventCode::Key1Up) {
-            if self.current_font != 0 {
-                self.current_font = 0;
-                self.change_font();
-            }
+            self.change_font(0);
         }
 
         if context.event(GMEventCode::Key2Up) {
-            if self.current_font != 1 {
-                self.current_font = 1;
-                self.change_font();
-            }
+            self.change_font(1);
         }
 
         if context.event(GMEventCode::Key3Up) {
-            if self.current_font != 2 {
-                self.current_font = 2;
-                self.change_font();
-            }
+            self.change_font(2);
         }
 
         if context.event(GMEventCode::KeyLeftUp) {
