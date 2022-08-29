@@ -17,7 +17,10 @@ struct TextScene1 {
 }
 
 impl TextScene1 {
-    pub fn new(resources: &GMResources, window_width: f32) -> Self {
+    pub fn new(engine: &GMEngine) -> Self {
+        let resources = engine.get_resources();
+        let window_width = engine.window_width();
+
         const space: f32 = 50.0;
         let mut fonts = Vec::new();
 
@@ -118,7 +121,7 @@ fn main() {
     engine.init();
     engine.load_resources("resources.json");
 
-    let text1_scene = TextScene1::new(engine.get_resources(), engine.window_width());
+    let text1_scene = TextScene1::new(&engine);
 
     engine.add_scene("text1_scene", text1_scene);
     engine.run();
