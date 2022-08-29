@@ -3,6 +3,19 @@ use std::any::Any;
 
 use log::{error, debug};
 
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
+pub enum GMAlign {
+    TopLeft,
+    TopCenter,
+    TopRight,
+    MiddleLeft,
+    MiddleCenter,
+    MiddleRight,
+    BottomLeft,
+    BottomCenter,
+    BottomRight,
+}
+
 #[track_caller]
 pub fn error_panic(message: &str) -> ! {
     debug!("error_panic() called from: {}", std::panic::Location::caller());

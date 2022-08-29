@@ -20,6 +20,7 @@ pub use engine::GMEngine;
 pub use input::GMEventCode;
 pub use resources::GMResources;
 pub use scene::GMSceneT;
+pub use util::GMAlign;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
