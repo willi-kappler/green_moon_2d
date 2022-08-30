@@ -173,9 +173,11 @@ impl GMBitmapText {
             }
         }
 
-        for (_, cx, cy, _)in self.chars.iter_mut() {
+        for (_, cx, cy, angle)in self.chars.iter_mut() {
             *cx = x;
             *cy = y;
+            *angle = 0.0;
+
             x += dx2;
             y += dy2;
         }
@@ -456,15 +458,19 @@ impl GMTextEffectT for GMTextEffectWave {
 #[derive(Debug)]
 pub struct GMTextEffectShake {
     pub radius: f32,
+    pub speed: f32,
+    pub time: f32,
     pub rng: WyRand,
 }
 
 impl GMTextEffectShake {
-    pub fn new(radius: f32) -> Self {
+    pub fn new(radius: f32, speed: f32) -> Self {
         debug!("GMTextEffectShake::new(), radius: {}", radius);
 
         Self {
             radius,
+            speed,
+            time: 0.0,
             rng: WyRand::new(),
         }
     }
@@ -472,13 +478,23 @@ impl GMTextEffectShake {
 
 impl GMTextEffectT for GMTextEffectShake {
     fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
-        for (_, x, y, _) in text.chars.iter_mut() {
-            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+        self.time += self.speed;
 
-            *x += dx;
-            *y += dy;
+        if self.time > 1.0 {
+            self.time = 0.0;
+
+            // TODO: Save position of each character instead of resetting
+            text.reset_chars2();
+
+            for (_, x, y, _) in text.chars.iter_mut() {
+                let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+                let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+
+                *x += dx;
+                *y += dy;
+            }
         }
+
     }
 
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
