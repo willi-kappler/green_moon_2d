@@ -282,22 +282,18 @@ pub trait GMTextEffectT: Debug {
 }
 
 #[derive(Debug)]
-pub struct GMTextEffectDraw {
+pub struct GMTextEffectEmpty {
 }
 
-impl GMTextEffectDraw {
+impl GMTextEffectEmpty {
     pub fn new() -> Self {
-        debug!("GMTextEffectDraw::new()");
+        debug!("GMTextEffectEmpty::new()");
 
         Self { }
     }
 }
 
-impl GMTextEffectT for GMTextEffectDraw {
-    fn draw(&self, text: &GMBitmapText, context: &mut GMContext) {
-        text.draw(context);
-    }
-
+impl GMTextEffectT for GMTextEffectEmpty {
 }
 
 #[derive(Debug)]
