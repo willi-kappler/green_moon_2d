@@ -7,7 +7,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMTextEffectT, GMTextEffectEmpty, GMTextEffectWave,
-    GMTextEffectShake, GMTextEffectRotateChars};
+    GMTextEffectShake, GMTextEffectRotateChars, GMTextEffectMultiple};
 use green_moon_2d::util::GMAlign;
 
 
@@ -41,7 +41,19 @@ impl TextScene3 {
         effects.push(Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)));
         effects.push(Box::new(GMTextEffectShake::new(5.0, 0.2)));
         effects.push(Box::new(GMTextEffectRotateChars::new(1.0, 10.0)));
+
+        let mut combined = GMTextEffectMultiple::new();
+        combined.add_text_effect(GMTextEffectWave::new(32.0, 0.1, 0.2));
+        combined.add_text_effect(GMTextEffectShake::new(5.0, 0.2));
+        effects.push(Box::new(combined));
+
+        let mut combined = GMTextEffectMultiple::new();
+        combined.add_text_effect(GMTextEffectWave::new(32.0, 0.1, 0.2));
+        combined.add_text_effect(GMTextEffectRotateChars::new(1.0, 10.0));
+        effects.push(Box::new(combined));
+
         // effects.push(Box::new());
+
 
         Self {
             texts,
@@ -76,9 +88,11 @@ impl GMSceneT for TextScene3 {
         }
 
         if context.event(GMEventCode::Key5Up) {
+            self.current_effect = 4;
         }
 
         if context.event(GMEventCode::Key6Up) {
+            self.current_effect = 5;
         }
 
         if context.event(GMEventCode::Key7Up) {
@@ -90,14 +104,7 @@ impl GMSceneT for TextScene3 {
         if context.event(GMEventCode::Key9Up) {
         }
 
-        match self.current_effect {
-            0 | 1 | 3 => {
-                self.texts[0].reset_chars2();
-            }
-            _ => {
-            }
-        }
-
+        self.texts[0].reset_chars2();
         self.effects[self.current_effect].update(&mut self.texts[0], context);
 
     }
