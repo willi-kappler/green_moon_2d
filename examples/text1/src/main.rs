@@ -6,7 +6,9 @@ use std::rc::Rc;
 use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMBitmapText, GMBitmapFont, GMEventCode, GMResources, GMAlign};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode, GMResources};
+use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapFont};
+use green_moon_2d::util::GMAlign;
 
 #[derive(Debug)]
 struct TextScene1 {
