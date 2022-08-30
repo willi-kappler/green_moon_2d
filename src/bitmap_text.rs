@@ -6,7 +6,7 @@ use std::fmt::Debug;
 use std::any::Any;
 use std::f32::consts::TAU;
 use log::debug;
-use nanorand::{Rng, WyRand};
+use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
@@ -420,12 +420,12 @@ impl GMTextEffectT for GMTextEffectWave {
 
         if text.horizontal {
             for (_, _, y, _) in text.chars.iter_mut() {
-                *y = text.base_y + (self.amplitude * (self.time + offset).sin());
+                *y = *y + (self.amplitude * (self.time + offset).sin());
                 offset += self.offset;
             }
         } else {
             for (_, x, _, _) in text.chars.iter_mut() {
-                *x = text.base_x + (self.amplitude * (self.time + offset).sin());
+                *x = *x + (self.amplitude * (self.time + offset).sin());
                 offset += self.offset;
             }
         }
@@ -460,6 +460,7 @@ pub struct GMTextEffectShake {
     pub radius: f32,
     pub speed: f32,
     pub time: f32,
+    pub seed: u64,
     pub rng: WyRand,
 }
 
@@ -467,11 +468,15 @@ impl GMTextEffectShake {
     pub fn new(radius: f32, speed: f32) -> Self {
         debug!("GMTextEffectShake::new(), radius: {}", radius);
 
+        let seed = 1;
+        let rng = WyRand::new();
+
         Self {
             radius,
             speed,
             time: 0.0,
-            rng: WyRand::new(),
+            seed,
+            rng,
         }
     }
 }
@@ -479,20 +484,19 @@ impl GMTextEffectShake {
 impl GMTextEffectT for GMTextEffectShake {
     fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
         self.time += self.speed;
+        self.rng.reseed(u64::to_ne_bytes(self.seed));
+
+        for (_, x, y, _) in text.chars.iter_mut() {
+            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+
+            *x += dx;
+            *y += dy;
+        }
 
         if self.time > 1.0 {
             self.time = 0.0;
-
-            // TODO: Save position of each character instead of resetting
-            text.reset_chars2();
-
-            for (_, x, y, _) in text.chars.iter_mut() {
-                let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-                let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-
-                *x += dx;
-                *y += dy;
-            }
+            self.seed += 1;
         }
 
     }
