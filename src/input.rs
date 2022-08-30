@@ -107,7 +107,6 @@ pub struct GMInput {
     events: Vec<bool>,
 }
 
-
 impl Debug for GMInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "GMInput")
@@ -210,6 +209,60 @@ impl GMInput {
                         Keycode::H => {
                             self.events[GMEventCode::KeyHDown as usize] = true;
                         }
+                        Keycode::I => {
+                            self.events[GMEventCode::KeyIDown as usize] = true;
+                        }
+                        Keycode::J => {
+                            self.events[GMEventCode::KeyJDown as usize] = true;
+                        }
+                        Keycode::K => {
+                            self.events[GMEventCode::KeyKDown as usize] = true;
+                        }
+                        Keycode::L => {
+                            self.events[GMEventCode::KeyLDown as usize] = true;
+                        }
+                        Keycode::M => {
+                            self.events[GMEventCode::KeyMDown as usize] = true;
+                        }
+                        Keycode::N => {
+                            self.events[GMEventCode::KeyNDown as usize] = true;
+                        }
+                        Keycode::O => {
+                            self.events[GMEventCode::KeyODown as usize] = true;
+                        }
+                        Keycode::P => {
+                            self.events[GMEventCode::KeyPDown as usize] = true;
+                        }
+                        Keycode::Q => {
+                            self.events[GMEventCode::KeyQDown as usize] = true;
+                        }
+                        Keycode::R => {
+                            self.events[GMEventCode::KeyRDown as usize] = true;
+                        }
+                        Keycode::S => {
+                            self.events[GMEventCode::KeySDown as usize] = true;
+                        }
+                        Keycode::T => {
+                            self.events[GMEventCode::KeyTDown as usize] = true;
+                        }
+                        Keycode::U => {
+                            self.events[GMEventCode::KeyUDown as usize] = true;
+                        }
+                        Keycode::V => {
+                            self.events[GMEventCode::KeyVDown as usize] = true;
+                        }
+                        Keycode::W => {
+                            self.events[GMEventCode::KeyWDown as usize] = true;
+                        }
+                        Keycode::X => {
+                            self.events[GMEventCode::KeyXDown as usize] = true;
+                        }
+                        Keycode::Y => {
+                            self.events[GMEventCode::KeyYDown as usize] = true;
+                        }
+                        Keycode::Z => {
+                            self.events[GMEventCode::KeyZDown as usize] = true;
+                        }
                         _ => {
                             // Unsupported keycode for now
                         }
@@ -286,8 +339,62 @@ impl GMInput {
                         Keycode::H => {
                             self.events[GMEventCode::KeyHUp as usize] = true;
                         }
+                        Keycode::I => {
+                            self.events[GMEventCode::KeyIUp as usize] = true;
+                        }
+                        Keycode::J => {
+                            self.events[GMEventCode::KeyJUp as usize] = true;
+                        }
+                        Keycode::K => {
+                            self.events[GMEventCode::KeyKUp as usize] = true;
+                        }
+                        Keycode::L => {
+                            self.events[GMEventCode::KeyLUp as usize] = true;
+                        }
+                        Keycode::M => {
+                            self.events[GMEventCode::KeyMUp as usize] = true;
+                        }
+                        Keycode::N => {
+                            self.events[GMEventCode::KeyNUp as usize] = true;
+                        }
+                        Keycode::O => {
+                            self.events[GMEventCode::KeyOUp as usize] = true;
+                        }
+                        Keycode::P => {
+                            self.events[GMEventCode::KeyPUp as usize] = true;
+                        }
+                        Keycode::Q => {
+                            self.events[GMEventCode::KeyQUp as usize] = true;
+                        }
+                        Keycode::R => {
+                            self.events[GMEventCode::KeyRUp as usize] = true;
+                        }
+                        Keycode::S => {
+                            self.events[GMEventCode::KeySUp as usize] = true;
+                        }
+                        Keycode::T => {
+                            self.events[GMEventCode::KeyTUp as usize] = true;
+                        }
+                        Keycode::U => {
+                            self.events[GMEventCode::KeyUUp as usize] = true;
+                        }
+                        Keycode::V => {
+                            self.events[GMEventCode::KeyVUp as usize] = true;
+                        }
+                        Keycode::W => {
+                            self.events[GMEventCode::KeyWUp as usize] = true;
+                        }
+                        Keycode::X => {
+                            self.events[GMEventCode::KeyXUp as usize] = true;
+                        }
+                        Keycode::Y => {
+                            self.events[GMEventCode::KeyYUp as usize] = true;
+                        }
+                        Keycode::Z => {
+                            self.events[GMEventCode::KeyZUp as usize] = true;
+                        }
                         _ => {
-                            // Unsupported keycode for now                            
+                            // Unsupported keycode for now
                         }
                     }
                 }
