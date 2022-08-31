@@ -61,6 +61,52 @@ impl TextScene3 {
             current_effect: 0,
         }
     }
+
+    pub fn change_settings1(&mut self, delta: f32, context: &mut GMContext) {
+        match self.current_effect {
+            1 => {
+                self.effects[1].send_message_f32("add_speed", delta * 0.1, context);
+            }
+            2 => {
+                self.effects[2].send_message_f32("add_speed", delta * 0.1, context);
+            }
+            3 => {
+                self.effects[3].send_message_f32("add_speed", delta, context);
+            }
+            4 => {
+                todo!("Send message to combined effect");
+            }
+            5 => {
+                todo!("Send message to combined effect");
+            }
+            _ => {
+                panic!("Unknown effect index: '{}'", self.current_effect);
+            }
+        }
+    }
+
+    pub fn change_settings2(&mut self, delta: f32, context: &mut GMContext) {
+        match self.current_effect {
+            1 => {
+                self.effects[1].send_message_f32("add_offset", delta, context);
+            }
+            2 => {
+                self.effects[2].send_message_f32("add_radius", delta, context);
+            }
+            3 => {
+                self.effects[3].send_message_f32("add_offset", delta * 10.0, context);
+            }
+            4 => {
+                todo!("Send message to combined effect");
+            }
+            5 => {
+                todo!("Send message to combined effect");
+            }
+            _ => {
+                panic!("Unknown effect index: '{}'", self.current_effect);
+            }
+        }
+    }
 }
 
 impl GMSceneT for TextScene3 {
@@ -95,13 +141,20 @@ impl GMSceneT for TextScene3 {
             self.current_effect = 5;
         }
 
-        if context.event(GMEventCode::Key7Up) {
+        if context.event(GMEventCode::KeyUpUp) {
+            self.change_settings1(0.1, context);
         }
 
-        if context.event(GMEventCode::Key8Up) {
+        if context.event(GMEventCode::KeyDownUp) {
+            self.change_settings1(-0.1, context);
         }
 
-        if context.event(GMEventCode::Key9Up) {
+        if context.event(GMEventCode::KeyRightUp) {
+            self.change_settings2(0.1, context);
+        }
+
+        if context.event(GMEventCode::KeyLeftUp) {
+            self.change_settings2(-0.1, context);
         }
 
         self.texts[0].reset_chars2();
