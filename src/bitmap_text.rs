@@ -281,6 +281,10 @@ pub trait GMTextEffectT: Debug {
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
     }
+
+    fn send_message_f32(&mut self, message: &str, data: f32, context: &mut GMContext) {
+        self.send_message(message, Some(Box::new(data)), context);
+    }
 }
 
 #[derive(Debug)]
@@ -439,14 +443,23 @@ impl GMTextEffectT for GMTextEffectWave {
 
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
         match message {
-            "amplitude" => {
+            "set_amplitude" => {
                 self.amplitude = extract_f32_value(message, data);
             }
-            "speed" => {
+            "add_amplitude" => {
+                self.amplitude += extract_f32_value(message, data);
+            }
+            "set_speed" => {
                 self.speed = extract_f32_value(message, data);
             }
-            "offset" => {
+            "add_speed" => {
+                self.speed += extract_f32_value(message, data);
+            }
+            "set_offset" => {
                 self.offset = extract_f32_value(message, data);
+            }
+            "add_offset" => {
+                self.offset += extract_f32_value(message, data);
             }
             _ => {
                 error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
@@ -503,8 +516,17 @@ impl GMTextEffectT for GMTextEffectShake {
 
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
         match message {
-            "radius" => {
+            "set_speed" => {
+                self.speed = extract_f32_value(message, data);
+            }
+            "add_speed" => {
+                self.speed += extract_f32_value(message, data);
+            }
+            "set_radius" => {
                 self.radius = extract_f32_value(message, data);
+            }
+            "add_radius" => {
+                self.radius += extract_f32_value(message, data);
             }
             _ => {
                 error_panic(&format!("GMTextEffectShake::send_message(), unknown message: {}", message))
@@ -544,11 +566,17 @@ impl GMTextEffectT for GMTextEffectRotateChars {
 
     fn send_message(&mut self, message: &str, data: Option<Box<dyn Any>>, _context: &mut GMContext) {
         match message {
-            "speed" => {
+            "set_speed" => {
                 self.speed = extract_f32_value(message, data);
             }
-            "offset" => {
+            "add_speed" => {
+                self.speed += extract_f32_value(message, data);
+            }
+            "set_offset" => {
                 self.offset = extract_f32_value(message, data);
+            }
+            "add_offset" => {
+                self.offset += extract_f32_value(message, data);
             }
             _ => {
                 error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: {}", message))
