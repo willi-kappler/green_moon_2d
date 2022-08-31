@@ -63,15 +63,17 @@ impl TextScene3 {
     }
 
     pub fn change_settings1(&mut self, delta: f32, context: &mut GMContext) {
+        let effect = &mut self.effects[self.current_effect];
+
         match self.current_effect {
             1 => {
-                self.effects[1].send_message_f32("add_speed", delta * 0.1, context);
+                effect.send_message_f32("add_speed", delta * 0.1, context);
             }
             2 => {
-                self.effects[2].send_message_f32("add_speed", delta * 0.1, context);
+                effect.send_message_f32("add_speed", delta * 0.1, context);
             }
             3 => {
-                self.effects[3].send_message_f32("add_speed", delta, context);
+                effect.send_message_f32("add_speed", delta, context);
             }
             4 => {
                 todo!("Send message to combined effect");
@@ -86,15 +88,17 @@ impl TextScene3 {
     }
 
     pub fn change_settings2(&mut self, delta: f32, context: &mut GMContext) {
+        let effect = &mut self.effects[self.current_effect];
+
         match self.current_effect {
             1 => {
-                self.effects[1].send_message_f32("add_offset", delta, context);
+                effect.send_message_f32("add_offset", delta, context);
             }
             2 => {
-                self.effects[2].send_message_f32("add_radius", delta, context);
+                effect.send_message_f32("add_radius", delta, context);
             }
             3 => {
-                self.effects[3].send_message_f32("add_offset", delta * 10.0, context);
+                effect.send_message_f32("add_offset", delta * 10.0, context);
             }
             4 => {
                 todo!("Send message to combined effect");
