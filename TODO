@@ -1,9 +1,10 @@
-- Try using SDL again
+# Try using SDL again
 - Start with examples and top down approach
+- More traits
 
 Next TODO:
-- Try to use &str instead of String if possible
-- More text effects
+# More text effects
+- GMSprite
 - GMParticleManager
 - GMBulletManager
 - GMLine
