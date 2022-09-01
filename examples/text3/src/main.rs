@@ -1,6 +1,7 @@
 
 
 use std::fs::File;
+use std::any::Any;
 
 // use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
@@ -76,10 +77,10 @@ impl TextScene3 {
                 effect.send_message_f32("add_speed", delta, context);
             }
             4 => {
-                todo!("Send message to combined effect");
+                effect.send_message_multiple_f32("send_message", 0, "add_speed", delta * 0.1, context);
             }
             5 => {
-                todo!("Send message to combined effect");
+                effect.send_message_multiple_f32("send_message", 0, "add_speed", delta * 0.1, context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
@@ -101,10 +102,10 @@ impl TextScene3 {
                 effect.send_message_f32("add_offset", delta * 10.0, context);
             }
             4 => {
-                todo!("Send message to combined effect");
+                effect.send_message_multiple_f32("send_message", 1, "add_speed", delta * 0.1, context);
             }
             5 => {
-                todo!("Send message to combined effect");
+                effect.send_message_multiple_f32("send_message", 1, "add_speed", delta * 0.1, context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
