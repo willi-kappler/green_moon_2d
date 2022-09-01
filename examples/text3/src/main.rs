@@ -7,7 +7,8 @@ use std::any::Any;
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
-use green_moon_2d::bitmap_text::{GMBitmapText, GMTextEffectT, GMTextEffectEmpty, GMTextEffectWave,
+use green_moon_2d::bitmap_text::GMBitmapText;
+use green_moon_2d::bitmap_text_effects::{GMTextEffectT, GMTextEffectEmpty, GMTextEffectWave,
     GMTextEffectShake, GMTextEffectRotateChars, GMTextEffectMultiple};
 use green_moon_2d::util::GMAlign;
 

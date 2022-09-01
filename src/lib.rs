@@ -1,6 +1,7 @@
 
 pub mod animation;
 pub mod bitmap_text;
+pub mod bitmap_text_effects;
 pub mod collision;
 pub mod configuration;
 pub mod context;

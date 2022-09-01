@@ -6,6 +6,7 @@ use log::debug;
 use crate::texture::GMTexture;
 use crate::animation::{GMAnimationT, GMAnimationStatic};
 
+#[derive(Debug)]
 pub struct GMSprite {
     x: f32,
     y: f32,
