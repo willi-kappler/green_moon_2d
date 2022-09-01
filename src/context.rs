@@ -22,7 +22,7 @@ pub struct GMContext {
     scene_messages: VecDeque<GMSceneManagerMessage>,
     canvas: Canvas<Window>,
     input: GMInput,
-    pub resources: GMResources,
+    resources: GMResources,
     window_width: f32,
     window_height: f32,
 }
@@ -42,6 +42,14 @@ impl GMContext {
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
         }
+    }
+
+    pub fn get_resources(&self) -> &GMResources {
+        &self.resources
+    }
+
+    pub fn get_mut_resources(&mut self) -> &mut GMResources {
+        &mut self.resources
     }
 
     // Engine messages:
