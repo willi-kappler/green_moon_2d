@@ -285,6 +285,16 @@ pub trait GMTextEffectT: Debug {
     fn send_message_f32(&mut self, message: &str, data: f32, context: &mut GMContext) {
         self.send_message(message, Some(Box::new(data)), context);
     }
+
+    fn send_message_multiple(&mut self, message1: &str, index: usize, message2: &'static str, data: Option<Box<dyn Any>>, context: &mut GMContext) {
+        let data: Box<(usize, &str, Option<Box<dyn Any>>)> = Box::new((index, message2, data));
+        self.send_message(message1, Some(data), context);
+    }
+
+    fn send_message_multiple_f32(&mut self, message1: &str, index: usize, message2: &'static str, data: f32, context: &mut GMContext) {
+        let data: Box<(usize, &str, Option<Box<dyn Any>>)> = Box::new((index, message2, Some(Box::new(data))));
+        self.send_message(message1, Some(data), context);
+    }
 }
 
 #[derive(Debug)]
