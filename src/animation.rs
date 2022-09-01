@@ -91,6 +91,42 @@ impl GMAnimationBase {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct GMAnimationStatic {
+    texture_index: u32,
+}
+
+impl GMAnimationStatic {
+    pub fn new(texture_index: u32) -> Self {
+        Self {
+            texture_index,
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationStatic {
+    fn update(&mut self) {
+        // Nothing to do
+    }
+
+    fn finished(&self) -> bool {
+        true
+    }
+
+    fn texture_index(&self) -> u32 {
+        self.texture_index
+    }
+
+    fn clone_box(&self) -> Box<dyn GMAnimationT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn set_active(&mut self, _active: bool) {
+        // Nothing to do
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationForwardOnce {
