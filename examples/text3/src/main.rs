@@ -53,9 +53,6 @@ impl TextScene3 {
         combined.add_text_effect(GMTextEffectRotateChars::new(1.0, 10.0));
         effects.push(Box::new(combined));
 
-        // effects.push(Box::new());
-
-
         Self {
             texts,
             effects,
