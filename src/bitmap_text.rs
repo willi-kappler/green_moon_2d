@@ -5,12 +5,14 @@ use std::rc::Rc;
 use std::fmt::Debug;
 use std::any::Any;
 use std::f32::consts::TAU;
+
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::texture::GMTexture;
 use crate::context::GMContext;
 use crate::util::{error_panic, extract_f32_value, extract_usize_value, GMAlign};
+use crate::sprite::GMSprite;
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -100,7 +102,7 @@ impl GMBitmapText {
     pub fn new2(font: &str, text: &str, x: f32, y: f32, context: &GMContext) -> Self {
         debug!("GMBitmapText::new2(), font: {}, text: {}, x: {}, y: {}", font, text, x, y);
 
-        Self::new(&context.resources.get_font_clone(font), text, x, y)
+        Self::new(&context.get_resources().get_font_clone(font), text, x, y)
     }
 
     pub fn reset_chars(&mut self) {
@@ -332,7 +334,7 @@ impl GMTextEffectT for GMTextEffectReset {
 
 #[derive(Debug)]
 pub struct GMTextEffectMultiple {
-    pub text_effects: Vec<Box<dyn GMTextEffectT>>,
+    text_effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
 impl GMTextEffectMultiple {
@@ -409,10 +411,10 @@ impl GMTextEffectT for GMTextEffectMultiple {
 
 #[derive(Debug)]
 pub struct GMTextEffectWave {
-    pub amplitude: f32,
-    pub speed: f32,
-    pub offset: f32,
-    pub time: f32,
+    amplitude: f32,
+    speed: f32,
+    offset: f32,
+    time: f32,
 }
 
 impl GMTextEffectWave {
@@ -480,11 +482,11 @@ impl GMTextEffectT for GMTextEffectWave {
 
 #[derive(Debug)]
 pub struct GMTextEffectShake {
-    pub radius: f32,
-    pub speed: f32,
-    pub time: f32,
-    pub seed: u64,
-    pub rng: WyRand,
+    radius: f32,
+    speed: f32,
+    time: f32,
+    seed: u64,
+    rng: WyRand,
 }
 
 impl GMTextEffectShake {
@@ -547,9 +549,9 @@ impl GMTextEffectT for GMTextEffectShake {
 
 #[derive(Debug)]
 pub struct GMTextEffectRotateChars {
-    pub speed: f32,
-    pub offset: f32,
-    pub time: f32,
+    speed: f32,
+    offset: f32,
+    time: f32,
 }
 
 impl GMTextEffectRotateChars {
@@ -593,4 +595,13 @@ impl GMTextEffectT for GMTextEffectRotateChars {
             }
         }
     }
+}
+
+pub struct GMTextEffectSprite {
+    sprite1: GMSprite,
+    offset1x: f32,
+    offset1y: f32,
+    sprite2: GMSprite,
+    offset2x: f32,
+    offset2y: f32,
 }
