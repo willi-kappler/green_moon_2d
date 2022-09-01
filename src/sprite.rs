@@ -39,4 +39,28 @@ impl GMSprite {
             active: true,
         }
     }
+
+    pub fn new_anim<T: 'static + GMAnimationT>(texture: Rc<GMTexture>, animation: T, x: f32, y: f32) -> Self {
+        debug!("GMSprite::new(), x: '{}', y: '{}'", x, y);
+
+        Self {
+            x,
+            y,
+            vx: 0.0,
+            vy: 0.0,
+            ax: 0.0,
+            ay: 0.0,
+            texture,
+            animation: Box::new(animation),
+            visible: true,
+            active: true,
+        }
+    }
+
+    pub fn set_animation(&mut self, animation: Box<dyn GMAnimationT>) {
+        self.animation = animation;
+    }
+
+
+
 }
