@@ -7,8 +7,9 @@ use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
 use crate::util::{error_panic, extract_f32_value, extract_usize_value};
-use crate::sprite::GMSprite;
 use crate::bitmap_text::GMBitmapText;
+use crate::sprite::GMSprite;
+use crate::sprite_effect::GMSpriteEffectT;
 
 
 
@@ -338,32 +339,37 @@ impl GMTextEffectT for GMTextEffectRotateChars {
 #[derive(Debug)]
 pub struct GMTextEffectSprite {
     sprite1: GMSprite,
-    offset1x: f32,
-    offset1y: f32,
+    sprite_effect1: Box<dyn GMSpriteEffectT>,
     sprite2: GMSprite,
-    offset2x: f32,
-    offset2y: f32,
+    sprite_effect2: Box<dyn GMSpriteEffectT>,
 }
 
 impl GMTextEffectSprite {
-    pub fn new(sprite1: GMSprite, offset1x: f32, offset1y: f32, sprite2: GMSprite,
-        offset2x: f32, offset2y: f32) -> Self {
+    pub fn new<T: 'static + GMSpriteEffectT>(sprite1: GMSprite, sprite_effect1: T, sprite2: GMSprite, sprite_effect2: T) -> Self {
         Self {
             sprite1,
-            offset1x,
-            offset1y,
+            sprite_effect1: Box::new(sprite_effect1),
             sprite2,
-            offset2x,
-            offset2y,
+            sprite_effect2: Box::new(sprite_effect2),
         }
     }
 }
 
 impl GMTextEffectT for GMTextEffectSprite {
-    fn update(&mut self, _text: &mut GMBitmapText, _context: &mut GMContext) {
+    fn update(&mut self, _text: &mut GMBitmapText, context: &mut GMContext) {
+        self.sprite1.update(context);
+        self.sprite2.update(context);
+
+        self.sprite_effect1.update(&mut self.sprite1, context);
+        self.sprite_effect2.update(&mut self.sprite2, context);
     }
 
-    fn draw(&self, _text: &GMBitmapText, _context: &mut GMContext) {
+    fn draw(&self, _text: &GMBitmapText, context: &mut GMContext) {
+        self.sprite1.draw(context);
+        self.sprite2.draw(context);
+
+        self.sprite_effect1.draw(&self.sprite1, context);
+        self.sprite_effect2.draw(&self.sprite2, context);
     }
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
