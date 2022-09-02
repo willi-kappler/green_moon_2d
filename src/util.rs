@@ -16,6 +16,14 @@ pub enum GMAlign {
     BottomRight,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
+pub enum GMRepetition {
+    Once,
+    Loop,
+    PingPongForward,
+    PingPongBackward,
+}
+
 #[track_caller]
 pub fn error_panic(message: &str) -> ! {
     debug!("error_panic() called from: {}", std::panic::Location::caller());

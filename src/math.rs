@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Mul};
 
 
 
@@ -95,6 +95,13 @@ impl Sub for GMVec2D {
     }
 }
 
+impl Mul<f32> for GMVec2D {
+    type Output = GMVec2D;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        GMVec2D::new(self.x * rhs, self.y * rhs)
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMSize {

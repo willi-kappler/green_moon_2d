@@ -11,6 +11,7 @@ pub mod math;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
+pub mod sprite_effect;
 pub mod texture;
 pub mod timer;
 pub mod util;
