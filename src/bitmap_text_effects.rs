@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 use std::any::Any;
+use std::rc::Rc;
 use std::f32::consts::TAU;
 
 use log::debug;
@@ -7,9 +8,9 @@ use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
 use crate::util::{error_panic, extract_f32_value, extract_usize_value};
-use crate::bitmap_text::GMBitmapText;
-use crate::sprite::GMSprite;
-use crate::sprite_effect::GMSpriteEffectT;
+use crate::bitmap_text::{GMBitmapText, GMBitmapFont};
+// use crate::sprite::GMSprite;
+// use crate::sprite_effect::GMSpriteEffectT;
 
 
 
@@ -336,40 +337,100 @@ impl GMTextEffectT for GMTextEffectRotateChars {
     }
 }
 
+
 #[derive(Debug)]
-pub struct GMTextEffectSprite {
-    sprite1: GMSprite,
-    sprite_effect1: Box<dyn GMSpriteEffectT>,
-    sprite2: GMSprite,
-    sprite_effect2: Box<dyn GMSpriteEffectT>,
+pub struct GMTextEffectScale {
+    factor_min: f32,
+    factor_max: f32,
+    speed: f32,
+    offset: f32,
+    factor: f32,
 }
 
-impl GMTextEffectSprite {
-    pub fn new<T: 'static + GMSpriteEffectT>(sprite1: GMSprite, sprite_effect1: T, sprite2: GMSprite, sprite_effect2: T) -> Self {
+impl GMTextEffectScale {
+    pub fn new(factor_min: f32, factor_max: f32, speed: f32, offset: f32) -> Self {
         Self {
-            sprite1,
-            sprite_effect1: Box::new(sprite_effect1),
-            sprite2,
-            sprite_effect2: Box::new(sprite_effect2),
+            factor_min,
+            factor_max,
+            speed,
+            offset,
+            factor: factor_min,
         }
     }
 }
 
-impl GMTextEffectT for GMTextEffectSprite {
-    fn update(&mut self, _text: &mut GMBitmapText, context: &mut GMContext) {
-        self.sprite1.update(context);
-        self.sprite2.update(context);
+impl GMTextEffectT for GMTextEffectScale {
+    fn update(&mut self, _text: &mut GMBitmapText, _context: &mut GMContext) {
+        // TODO:
+        todo!();
+    }
 
-        self.sprite_effect1.update(&mut self.sprite1, context);
-        self.sprite_effect2.update(&mut self.sprite2, context);
+    fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
+        // TODO:
+        todo!();
+    }
+}
+
+#[derive(Debug)]
+pub struct GMTextEffectMenuText {
+    text1: GMBitmapText,
+    text1_effect: Box<dyn GMTextEffectT>,
+    text1_offset: f32,
+    text1_offset_min: f32,
+    text1_offset_max: f32,
+    text2: GMBitmapText,
+    text2_effect: Box<dyn GMTextEffectT>,
+    text2_offset: f32,
+    text2_offset_min: f32,
+    text2_offset_max: f32,
+    speed: f32,
+}
+
+impl GMTextEffectMenuText {
+    pub fn new(text1: &str, text2: &str, font: Rc<GMBitmapFont>) -> Self {
+        Self {
+            text1: GMBitmapText::new(&font, text1, 0.0, 0.0),
+            text1_effect: Box::new(GMTextEffectEmpty::new()),
+            text1_offset: 50.0,
+            text1_offset_min: 5.0,
+            text1_offset_max: 50.0,
+            text2: GMBitmapText::new(&font, text2, 0.0, 0.0),
+            text2_effect: Box::new(GMTextEffectEmpty::new()),
+            text2_offset: 50.0,
+            text2_offset_min: 5.0,
+            text2_offset_max: 50.0,
+            speed: 1.0,
+        }
+    }
+}
+
+impl GMTextEffectT for GMTextEffectMenuText {
+    fn update(&mut self, text: &mut GMBitmapText, context: &mut GMContext) {
+        self.text1_effect.update(&mut self.text1, context);
+        self.text2_effect.update(&mut self.text2, context);
+
+        self.text1_offset -= self.speed;
+        if self.text1_offset < self.text1_offset_min {
+            self.text1_offset = self.text1_offset_max;
+        }
+
+        self.text2_offset -= self.speed;
+        if self.text2_offset < self.text2_offset_min {
+            self.text2_offset = self.text2_offset_max;
+        }
+
+        if text.get_horizontal() {
+
+        } else {
+
+        }
     }
 
     fn draw(&self, _text: &GMBitmapText, context: &mut GMContext) {
-        self.sprite1.draw(context);
-        self.sprite2.draw(context);
-
-        self.sprite_effect1.draw(&self.sprite1, context);
-        self.sprite_effect2.draw(&self.sprite2, context);
+        self.text1.draw(context);
+        self.text1_effect.draw(&self.text1, context);
+        self.text2.draw(context);
+        self.text2_effect.draw(&self.text2, context);
     }
 
     fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
