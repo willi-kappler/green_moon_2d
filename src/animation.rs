@@ -1,12 +1,12 @@
 
 use std::fmt::Debug;
+use std::any::Any;
 
 use log::debug;
 
 use crate::timer::GMTimer;
-
-
-// TODO: Refactor use util::GMRepetition
+use crate::util::GMRepetition;
+use crate::context::GMContext;
 
 pub trait GMAnimationT : Debug {
     fn update(&mut self);
@@ -19,7 +19,13 @@ pub trait GMAnimationT : Debug {
 
     fn set_active(&mut self, active: bool);
 
-    // TODO: Add reverse() ?
+    fn reverse(&mut self);
+
+    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
+    }
 }
 
 impl Clone for Box<dyn GMAnimationT> {
@@ -28,15 +34,59 @@ impl Clone for Box<dyn GMAnimationT> {
     }
 }
 
+
 #[derive(Clone, Debug)]
-pub struct GMAnimationBase {
+pub struct GMAnimationStatic {
+    texture_index: u32,
+}
+
+impl GMAnimationStatic {
+    pub fn new(texture_index: u32) -> Self {
+        Self {
+            texture_index,
+        }
+    }
+}
+
+impl GMAnimationT for GMAnimationStatic {
+    fn update(&mut self) {
+        // Nothing to do
+    }
+
+    fn finished(&self) -> bool {
+        true
+    }
+
+    fn texture_index(&self) -> u32 {
+        self.texture_index
+    }
+
+    fn clone_box(&self) -> Box<dyn GMAnimationT> {
+        let result = self.clone();
+
+        Box::new(result)
+    }
+
+    fn set_active(&mut self, _active: bool) {
+        // Nothing to do
+    }
+
+    fn reverse(&mut self) {
+        // Nothing to do
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct GMAnimationSimple {
     active: bool,
     current_frame: usize,
     frames: Vec<(u32, f32)>, // index, duration in seconds
     timer: GMTimer,
+    repetition: GMRepetition,
 }
 
-impl GMAnimationBase {
+impl GMAnimationSimple {
     pub fn new(frames: &[(u32, f32)]) -> Self {
         debug!("GMAnimationBase::new(), frames: {:?}", frames);
 
@@ -45,6 +95,7 @@ impl GMAnimationBase {
             current_frame: 0,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
+            repetition: GMRepetition::OnceForward,
         }
     }
 
@@ -84,6 +135,10 @@ impl GMAnimationBase {
         self.current_frame == 0
     }
 
+    pub fn last_frame(&self) -> usize {
+        self.frames.len() - 1
+    }
+
     pub fn timer_finished(&mut self) -> bool {
         self.timer.finished()
     }
@@ -91,187 +146,92 @@ impl GMAnimationBase {
     pub fn set_new_timer_duration(&mut self) {
         self.timer.set_duration(self.frames[self.current_frame].1);
     }
-}
 
-#[derive(Clone, Debug)]
-pub struct GMAnimationStatic {
-    texture_index: u32,
-}
+    pub fn set_repetition(&mut self, repetition: GMRepetition) {
+        self.repetition = repetition;
+    }
 
-impl GMAnimationStatic {
-    pub fn new(texture_index: u32) -> Self {
-        Self {
-            texture_index,
-        }
+    pub fn get_repetition(&self) -> GMRepetition {
+        self.repetition
     }
 }
 
-impl GMAnimationT for GMAnimationStatic {
+impl GMAnimationT for GMAnimationSimple {
     fn update(&mut self) {
-        // Nothing to do
-    }
-
-    fn finished(&self) -> bool {
-        true
-    }
-
-    fn texture_index(&self) -> u32 {
-        self.texture_index
-    }
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
-    }
-
-    fn set_active(&mut self, _active: bool) {
-        // Nothing to do
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMAnimationForwardOnce {
-    base: GMAnimationBase,
-}
-
-impl GMAnimationForwardOnce {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationForwardOnce::new(), frames: {:?}", frames);
-
-        Self {
-            base: GMAnimationBase::new(frames),
-        }
-    }
-}
-
-impl GMAnimationT for GMAnimationForwardOnce {
-    fn update(&mut self) {
-        if self.base.get_active() {
-            if self.base.timer_finished() {
-                if self.base.frame_at_end() {
-                    self.set_active(false);
-                } else {
-                    self.base.inc_frame(1);
-                    self.base.set_new_timer_duration();
-                }
-            }
-        }
-    }
-
-    fn finished(&self) -> bool {
-        self.base.frame_at_end()
-    }
-
-    fn texture_index(&self) -> u32 {
-        self.base.texture_index()
-    }
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.base.set_active(active);
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMAnimationForwardLoop {
-    base: GMAnimationBase,
-}
-
-impl GMAnimationForwardLoop {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationForwardLoop::new(), frames: {:?}", frames);
-
-        Self {
-            base: GMAnimationBase::new(frames),
-        }
-    }
-}
-
-impl GMAnimationT for GMAnimationForwardLoop {
-    fn update(&mut self) {
-        if self.base.get_active() {
-            if self.base.timer_finished() {
-                if self.base.frame_at_end() {
-                    // Restart animation
-                    self.base.set_frame(0);
-                } else {
-                    self.base.inc_frame(1);
-                }
-                self.base.set_new_timer_duration();
-            }
-        }
-    }
-
-    fn finished(&self) -> bool {
-        false
-    }
-
-    fn texture_index(&self) -> u32 {
-        self.base.texture_index()
-    }
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.base.set_active(active);
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMAnimationPingPong {
-    base: GMAnimationBase,
-    forward: bool,
-}
-
-impl GMAnimationPingPong {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationPingPong::new(), frames: {:?}", frames);
-
-        Self {
-            base: GMAnimationBase::new(frames),
-            forward: true,
-        }
-    }
-}
-
-impl GMAnimationT for GMAnimationPingPong {
-    fn update(&mut self) {
-        if self.base.get_active() {
-            if self.base.timer_finished() {
-                if self.forward {
-                    if self.base.frame_at_end() {
-                        self.forward = false;
-                    } else {
-                        self.base.inc_frame(1);
+        if self.active {
+            if self.timer.finished() {
+                match self.repetition {
+                    GMRepetition::OnceForward => {
+                        if self.frame_at_end() {
+                            self.active = false;
+                        } else {
+                            self.current_frame += 1;
+                            self.set_new_timer_duration();
+                        }
                     }
-                } else {
-                    if self.base.frame_at_start() {
-                        self.forward = true;
-                    } else {
-                        self.base.dec_frame(1)
+                    GMRepetition::OnceBackward => {
+                        if self.frame_at_start() {
+                            self.active = false;
+                        } else {
+                            self.current_frame -= 1;
+                            self.set_new_timer_duration();
+                        }
+                    }
+                    GMRepetition::LoopForward => {
+                        if self.frame_at_end() {
+                            // Restart animation
+                            self.current_frame = 0;
+                        } else {
+                            self.current_frame += 1;
+                        }
+                        self.set_new_timer_duration();
+                    }
+                    GMRepetition::LoopBackward => {
+                        if self.frame_at_start() {
+                            // Restart animation
+                            self.current_frame = self.frames.len() - 1;
+                        } else {
+                            self.current_frame -= 1;
+                        }
+                        self.set_new_timer_duration();
+                    }
+                    GMRepetition::PingPongForward => {
+                        if self.frame_at_end() {
+                            self.repetition =  GMRepetition::PingPongBackward;
+                        } else {
+                            self.current_frame += 1;
+                        }
+                        self.set_new_timer_duration();
+                    }
+                    GMRepetition::PingPongBackward => {
+                        if self.frame_at_start() {
+                            self.repetition =  GMRepetition::PingPongForward;
+                        } else {
+                            self.current_frame -= 1;
+                        }
+                        self.set_new_timer_duration();
                     }
                 }
-                self.base.set_new_timer_duration();
             }
         }
     }
 
     fn finished(&self) -> bool {
-        false
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.frame_at_end()
+            }
+            GMRepetition::OnceBackward => {
+                self.frame_at_start()
+            }
+            _ => {
+                false
+            }
+        }
     }
 
     fn texture_index(&self) -> u32 {
-        self.base.texture_index()
+        self.texture_index()
     }
 
     fn clone_box(&self) -> Box<dyn GMAnimationT> {
@@ -281,6 +241,39 @@ impl GMAnimationT for GMAnimationPingPong {
     }
 
     fn set_active(&mut self, active: bool) {
-        self.base.set_active(active);
+        self.active = active;
+    }
+
+    fn reverse(&mut self) {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.repetition = GMRepetition::OnceBackward;
+            }
+            GMRepetition::OnceBackward => {
+                self.repetition = GMRepetition::OnceForward;
+            }
+            GMRepetition::LoopForward => {
+                self.repetition = GMRepetition::LoopBackward;
+            }
+            GMRepetition::LoopBackward => {
+                self.repetition = GMRepetition::LoopForward;
+            }
+            GMRepetition::PingPongForward => {
+                self.repetition = GMRepetition::PingPongBackward;
+            }
+            GMRepetition::PingPongBackward => {
+                self.repetition = GMRepetition::PingPongForward;
+            }
+        }
+    }
+
+    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+        // TODO: implement
+        todo!();
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
+        // TODO: implement
+        todo!();
     }
 }
