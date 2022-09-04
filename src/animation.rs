@@ -88,7 +88,7 @@ pub struct GMAnimationSimple {
 
 impl GMAnimationSimple {
     pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationBase::new(), frames: {:?}", frames);
+        debug!("GMAnimationSimple::new(), frames: {:?}", frames);
 
         Self {
             active: true,
@@ -99,6 +99,23 @@ impl GMAnimationSimple {
         }
     }
 
+    // Builder methods
+    pub fn with_active(mut self, active: bool) -> Self {
+        self.active = active;
+        self
+    }
+
+    pub fn with_current_frame(mut self, current_frame: usize) -> Self {
+        self.current_frame = current_frame;
+        self
+    }
+
+    pub fn with_repetition(mut self, repetitions: GMRepetition) -> Self {
+        self.repetition = repetitions;
+        self
+    }
+
+    // Other methods
     pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
     }
@@ -158,59 +175,57 @@ impl GMAnimationSimple {
 
 impl GMAnimationT for GMAnimationSimple {
     fn update(&mut self) {
-        if self.active {
-            if self.timer.finished() {
-                match self.repetition {
-                    GMRepetition::OnceForward => {
-                        if self.frame_at_end() {
-                            self.active = false;
-                        } else {
-                            self.current_frame += 1;
-                            self.set_new_timer_duration();
-                        }
-                    }
-                    GMRepetition::OnceBackward => {
-                        if self.frame_at_start() {
-                            self.active = false;
-                        } else {
-                            self.current_frame -= 1;
-                            self.set_new_timer_duration();
-                        }
-                    }
-                    GMRepetition::LoopForward => {
-                        if self.frame_at_end() {
-                            // Restart animation
-                            self.current_frame = 0;
-                        } else {
-                            self.current_frame += 1;
-                        }
+        if self.active && self.timer.finished() {
+            match self.repetition {
+                GMRepetition::OnceForward => {
+                    if self.frame_at_end() {
+                        self.active = false;
+                    } else {
+                        self.current_frame += 1;
                         self.set_new_timer_duration();
                     }
-                    GMRepetition::LoopBackward => {
-                        if self.frame_at_start() {
-                            // Restart animation
-                            self.current_frame = self.frames.len() - 1;
-                        } else {
-                            self.current_frame -= 1;
-                        }
+                }
+                GMRepetition::OnceBackward => {
+                    if self.frame_at_start() {
+                        self.active = false;
+                    } else {
+                        self.current_frame -= 1;
                         self.set_new_timer_duration();
                     }
-                    GMRepetition::PingPongForward => {
-                        if self.frame_at_end() {
-                            self.repetition =  GMRepetition::PingPongBackward;
-                        } else {
-                            self.current_frame += 1;
-                        }
-                        self.set_new_timer_duration();
+                }
+                GMRepetition::LoopForward => {
+                    if self.frame_at_end() {
+                        // Restart animation
+                        self.current_frame = 0;
+                    } else {
+                        self.current_frame += 1;
                     }
-                    GMRepetition::PingPongBackward => {
-                        if self.frame_at_start() {
-                            self.repetition =  GMRepetition::PingPongForward;
-                        } else {
-                            self.current_frame -= 1;
-                        }
-                        self.set_new_timer_duration();
+                    self.set_new_timer_duration();
+                }
+                GMRepetition::LoopBackward => {
+                    if self.frame_at_start() {
+                        // Restart animation
+                        self.current_frame = self.frames.len() - 1;
+                    } else {
+                        self.current_frame -= 1;
                     }
+                    self.set_new_timer_duration();
+                }
+                GMRepetition::PingPongForward => {
+                    if self.frame_at_end() {
+                        self.repetition =  GMRepetition::PingPongBackward;
+                    } else {
+                        self.current_frame += 1;
+                    }
+                    self.set_new_timer_duration();
+                }
+                GMRepetition::PingPongBackward => {
+                    if self.frame_at_start() {
+                        self.repetition =  GMRepetition::PingPongForward;
+                    } else {
+                        self.current_frame -= 1;
+                    }
+                    self.set_new_timer_duration();
                 }
             }
         }
