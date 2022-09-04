@@ -6,6 +6,8 @@ use log::debug;
 use crate::timer::GMTimer;
 
 
+// TODO: Refactor use util::GMRepetition
+
 pub trait GMAnimationT : Debug {
     fn update(&mut self);
 
