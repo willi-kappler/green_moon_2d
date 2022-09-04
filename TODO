@@ -4,7 +4,16 @@
 
 Next TODO:
 # More text effects
-- GMSprite
+# GMSprite
+# GMSpriteEffect
+
+- Refactor GMAnimation
+- Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
+
+- GMMenuItem
+- GMMenu
+
+
 - GMParticleManager
 - GMBulletManager
 - GMLine
@@ -12,8 +21,6 @@ Next TODO:
 - GMScore
 - GMHealthbar
 - GMTileMap
-- GMMenuEntry
-- GMMenu
 
 
 
