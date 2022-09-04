@@ -59,7 +59,7 @@ impl GMSpriteEffectLinearMovement {
             direction,
             factor: 0.0,
             speed,
-            repetition: GMRepetition::Once,
+            repetition: GMRepetition::OnceForward,
         }
     }
 }
@@ -67,18 +67,32 @@ impl GMSpriteEffectLinearMovement {
 impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         match self.repetition {
-            GMRepetition::Once => {
+            GMRepetition::OnceForward => {
                 if self.factor < 1.0 {
                     sprite.set_position(self.start + (self.direction * self.factor));
                     self.factor += self.speed;
                 }
             }
-            GMRepetition::Loop => {
+            GMRepetition::OnceBackward => {
+                if self.factor > 0.0 {
+                    sprite.set_position(self.start + (self.direction * self.factor));
+                    self.factor -= self.speed;
+                }
+            }
+            GMRepetition::LoopForward => {
                 sprite.set_position(self.start + (self.direction * self.factor));
                 self.factor += self.speed;
 
                 if self.factor > 1.0 {
                     self.factor = 0.0;
+                }
+            }
+            GMRepetition::LoopBackward => {
+                sprite.set_position(self.start + (self.direction * self.factor));
+                self.factor -= self.speed;
+
+                if self.factor < 0.0 {
+                    self.factor = 1.0;
                 }
             }
             GMRepetition::PingPongForward => {
@@ -112,3 +126,6 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
         todo!();
     }
 }
+
+// TODO: GMSpriteEffectCircularMovement
+
