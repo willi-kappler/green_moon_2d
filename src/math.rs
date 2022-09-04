@@ -103,6 +103,12 @@ impl Mul<f32> for GMVec2D {
     }
 }
 
+impl From<(f32, f32)> for GMVec2D {
+    fn from((x, y): (f32, f32)) -> Self {
+        GMVec2D { x, y }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMSize {
     pub width: f32,
@@ -124,6 +130,12 @@ impl Default for GMSize {
             width: 0.0,
             height: 0.0,
         }
+    }
+}
+
+impl From<(f32, f32)> for GMSize {
+    fn from((width, height): (f32, f32)) -> Self {
+        GMSize { width, height }
     }
 }
 
@@ -182,6 +194,11 @@ impl GMRectangle {
     // TODO: intersect return points
 }
 
+impl From<(f32, f32, f32, f32)> for GMRectangle {
+    fn from((x1, x2, y1, y2): (f32, f32, f32, f32)) -> Self {
+        GMRectangle { x1, x2, y1, y2 }
+    }
+}
 #[derive(Copy, Clone, Debug)]
 pub struct GMCircle {
     pub x: f32,
