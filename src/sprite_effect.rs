@@ -4,18 +4,21 @@ use std::any::Any;
 use log::debug;
 
 use crate::context::GMContext;
-use crate::sprite::GMSprite;
+use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
 use crate::util::GMRepetition;
 
 pub trait GMSpriteEffectT: Debug {
-    fn update(&mut self, _sprite: &mut GMSprite, _context: &mut GMContext) {
+    fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
     }
 
-    fn draw(&self, _sprite: &GMSprite, _context: &mut GMContext) {
+    fn draw(&self, _sprite: &GMSpriteBase, _context: &mut GMContext) {
     }
 
-    fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
+    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
     }
 }
 
@@ -35,7 +38,7 @@ impl GMSpriteEffectT for GMSpriteEffectEmpty {
 }
 
 #[derive(Debug)]
-pub struct GMSpriteEffectLinear {
+pub struct GMSpriteEffectLinearMovement {
     start: GMVec2D,
     end: GMVec2D,
     direction: GMVec2D,
@@ -44,8 +47,10 @@ pub struct GMSpriteEffectLinear {
     repetition: GMRepetition,
 }
 
-impl GMSpriteEffectLinear {
+impl GMSpriteEffectLinearMovement {
     pub fn new(start: GMVec2D, end: GMVec2D, speed: f32) -> Self {
+        debug!("GMSpriteEffectLinearMovement::new()");
+
         let direction = end - start;
 
         Self {
@@ -59,8 +64,8 @@ impl GMSpriteEffectLinear {
     }
 }
 
-impl GMSpriteEffectT for GMSpriteEffectLinear {
-    fn update(&mut self, sprite: &mut GMSprite, _context: &mut GMContext) {
+impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
+    fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         match self.repetition {
             GMRepetition::Once => {
                 if self.factor < 1.0 {
@@ -97,6 +102,13 @@ impl GMSpriteEffectT for GMSpriteEffectLinear {
         }
     }
 
-    fn send_message(&mut self, _message: &str, _data: Option<Box<dyn Any>>, _context: &mut GMContext) {
+    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+        // TODO: implement
+        todo!();
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
+        // TODO: implement
+        todo!();
     }
 }
