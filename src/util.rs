@@ -18,8 +18,10 @@ pub enum GMAlign {
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMRepetition {
-    Once,
-    Loop,
+    OnceForward,
+    OnceBackward,
+    LoopForward,
+    LoopBackward,
     PingPongForward,
     PingPongBackward,
 }
