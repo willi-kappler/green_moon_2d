@@ -3,15 +3,16 @@
 - More traits
 
 Next TODO:
+
 # More text effects
 # GMSprite
 # GMSpriteEffect
 # Refactor GMAnimation
 # Add GMAnimationT::send_message() and send_message_data()
+# Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 
 - Implement send_message() and send_message_data() for GMAnimationSimple
 
-- Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 
 - GMMenuItem
 - GMMenu

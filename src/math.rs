@@ -40,6 +40,16 @@ impl GMVec2D {
         }
     }
 
+    pub fn set1(&mut self, x: f32, y: f32) {
+        self.x = x;
+        self.y = y;
+    }
+
+    pub fn set2(&mut self, other: &GMVec2D) {
+        self.x = other.x;
+        self.y = other.y;
+    }
+
     pub fn add1(&mut self, x: f32, y: f32) {
         self.x += x;
         self.y += y;
@@ -60,7 +70,7 @@ impl GMVec2D {
         self.y -= other.y;
     }
 
-    pub fn mul(&mut self, factor: f32) {
+    pub fn mul2(&mut self, factor: f32) {
         self.x *= factor;
         self.y *= factor;
     }
@@ -240,7 +250,7 @@ impl GMCircle {
     pub fn circ_point(&self, x: f32, y: f32) -> GMVec2D {
         let mut vec = GMVec2D::new(x - self.x, y - self.y);
         vec.norm();
-        vec.mul(self.radius);
+        vec.mul2(self.radius);
         vec.add1(self.x, self.y);
         vec
     }

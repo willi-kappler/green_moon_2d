@@ -46,28 +46,28 @@ impl GMSpriteBase {
 
     }
 
-    pub fn set_position(&mut self, position: GMVec2D) {
-        self.position = position;
-    }
-
     pub fn get_position(&self) -> &GMVec2D {
         &self.position
     }
 
-    pub fn set_velocity(&mut self, velocity: GMVec2D) {
-        self.velocity = velocity;
+    pub fn get_position_mut(&mut self) -> &mut GMVec2D {
+        &mut self.position
     }
 
     pub fn get_velocity(&self) -> &GMVec2D {
         &self.velocity
     }
 
-    pub fn set_acceleration(&mut self, acceleration: GMVec2D) {
-        self.acceleration = acceleration;
+    pub fn get_velocity_mut(&mut self) -> &mut GMVec2D {
+        &mut self.velocity
     }
 
     pub fn get_acceleration(&self) -> &GMVec2D {
         &self.acceleration
+    }
+
+    pub fn get_acceleration_mut(&mut self) -> &mut GMVec2D {
+        &mut self.acceleration
     }
 
     pub fn set_angle(&mut self, angle: f32) {
@@ -102,12 +102,12 @@ impl GMSpriteBase {
         &self.texture
     }
 
-    pub fn set_animation<T: 'static + GMAnimationT>(&mut self, animation: T) {
-        self.animation = Box::new(animation);
-    }
-
     pub fn get_animation(&self) -> &Box<dyn GMAnimationT> {
         &self.animation
+    }
+
+    pub fn get_animation_mut(&mut self) -> &mut Box<dyn GMAnimationT> {
+        &mut self.animation
     }
 
     pub fn set_visible(&mut self, visible: bool) {
