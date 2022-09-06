@@ -25,7 +25,14 @@ pub struct GMSpriteBase {
 
     visible: bool,
     active: bool,
+
+    // User defined data:
+    id: u64,
+    group_id: u64,
+    name: String,
 }
+
+// TODO: Maybe use https://github.com/jbaublitz/getset
 
 impl GMSpriteBase {
     pub fn new(texture: Rc<GMTexture>) -> Self {
@@ -42,6 +49,9 @@ impl GMSpriteBase {
             animation: Box::new(GMAnimationStatic::new(0)),
             visible: true,
             active: true,
+            id: 0,
+            group_id: 0,
+            name: "".to_string(),
         }
 
     }
@@ -102,6 +112,10 @@ impl GMSpriteBase {
         &self.texture
     }
 
+    pub fn set_animation<T: 'static + GMAnimationT>(&mut self, animation: T) {
+        self.animation = Box::new(animation);
+    }
+
     pub fn get_animation(&self) -> &Box<dyn GMAnimationT> {
         &self.animation
     }
@@ -124,6 +138,30 @@ impl GMSpriteBase {
 
     pub fn get_active(&self) -> bool {
         self.active
+    }
+
+    pub fn set_id(&mut self, id: u64) {
+        self.id = id;
+    }
+
+    pub fn get_id(&self) -> u64 {
+        self.id
+    }
+
+    pub fn set_group_id(&mut self, group_id: u64) {
+        self.group_id = group_id;
+    }
+
+    pub fn get_group_id(&self) -> u64 {
+        self.group_id
+    }
+
+    pub fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 
     pub fn update(&mut self, _context: &mut GMContext) {
@@ -160,54 +198,6 @@ impl GMSprite {
         }
     }
 
-    // Builder pattern
-    pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
-        self.base.position = position.into();
-        self
-    }
-
-    pub fn with_velocity<T: Into<GMVec2D>>(mut self, velocity: T) -> Self {
-        self.base.velocity = velocity.into();
-        self
-    }
-
-    pub fn with_acceleration<T: Into<GMVec2D>>(mut self, acceleration: T) -> Self {
-        self.base.acceleration = acceleration.into();
-        self
-    }
-
-    pub fn with_angle(mut self, angle: f32) -> Self {
-        self.base.angle = angle;
-        self
-    }
-
-    pub fn with_flip_x(mut self, flip_x: bool) -> Self {
-        self.base.flip_x = flip_x;
-        self
-    }
-
-    pub fn with_flip_y(mut self, flip_y: bool) -> Self {
-        self.base.flip_y = flip_y;
-        self
-    }
-
-    pub fn with_animation<T: 'static + GMAnimationT>(mut self, animation: T) -> Self {
-        self.base.animation = Box::new(animation);
-        self
-    }
-
-    pub fn with_visible(mut self, visible: bool) -> Self {
-        self.base.visible = visible;
-        self
-    }
-
-
-    pub fn with_active(mut self, active: bool) -> Self {
-        self.base.active = active;
-        self
-    }
-
-    // Sprite methods
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update(context);
 
@@ -256,4 +246,84 @@ impl GMSprite {
     pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: Box<dyn Any>, context: &mut GMContext) {
         self.effects[index].send_message_data(message, data, context)
     }
+}
+
+// TODO: Maybe use https://github.com/colin-kiegel/rust-derive-builder
+
+pub struct GMSpriteBuilder {
+    sprite: GMSprite,
+}
+
+impl GMSpriteBuilder {
+    pub fn new(texture: Rc<GMTexture>) -> GMSpriteBuilder {
+        Self {
+            sprite: GMSprite::new(texture),
+        }
+    }
+
+    pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
+        self.sprite.base.position = position.into();
+        self
+    }
+
+    pub fn with_velocity<T: Into<GMVec2D>>(mut self, velocity: T) -> Self {
+        self.sprite.base.velocity = velocity.into();
+        self
+    }
+
+    pub fn with_acceleration<T: Into<GMVec2D>>(mut self, acceleration: T) -> Self {
+        self.sprite.base.acceleration = acceleration.into();
+        self
+    }
+
+    pub fn with_angle(mut self, angle: f32) -> Self {
+        self.sprite.base.angle = angle;
+        self
+    }
+
+    pub fn with_flip_x(mut self, flip_x: bool) -> Self {
+        self.sprite.base.flip_x = flip_x;
+        self
+    }
+
+    pub fn with_flip_y(mut self, flip_y: bool) -> Self {
+        self.sprite.base.flip_y = flip_y;
+        self
+    }
+
+    pub fn with_animation<T: 'static + GMAnimationT>(mut self, animation: T) -> Self {
+        self.sprite.base.animation = Box::new(animation);
+        self
+    }
+
+    pub fn with_visible(mut self, visible: bool) -> Self {
+        self.sprite.base.visible = visible;
+        self
+    }
+
+
+    pub fn with_active(mut self, active: bool) -> Self {
+        self.sprite.base.active = active;
+        self
+    }
+
+    pub fn with_id(mut self, id: u64) -> Self {
+        self.sprite.base.id = id;
+        self
+    }
+
+    pub fn with_group_id(mut self, group_id: u64) -> Self {
+        self.sprite.base.group_id = group_id;
+        self
+    }
+
+    pub fn with_name(mut self, name: &str) -> Self {
+        self.sprite.base.name = name.to_string();
+        self
+    }
+
+    pub fn build(self) -> GMSprite {
+        self.sprite
+    }
+
 }
