@@ -275,7 +275,6 @@ impl GMBitmapTextBase {
     pub fn get_mut_chars(&mut self) -> &mut Vec<GMBitmapChar> {
         &mut self.chars
     }
-
 }
 
 #[derive(Debug)]
