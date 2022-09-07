@@ -193,7 +193,7 @@ impl GMSceneManager {
                 ReplaceScene(name, scene) => {
                     self.replace_scene(&name, scene);
                 }
-                SendMessage(scene, message, data) => {
+                SendMessage(scene, message) => {
                     self.send_message(&scene, &message, context);
                 }
             }
