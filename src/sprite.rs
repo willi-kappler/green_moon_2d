@@ -1,5 +1,4 @@
 
-use std::any::Any;
 use std::rc::Rc;
 
 use log::debug;
@@ -30,6 +29,7 @@ pub struct GMSpriteBase {
     id: u64,
     group_id: u64,
     name: String,
+    custom_data: String,
 }
 
 // TODO: Maybe use https://github.com/jbaublitz/getset
@@ -52,6 +52,7 @@ impl GMSpriteBase {
             id: 0,
             group_id: 0,
             name: "".to_string(),
+            custom_data: "".to_string()
         }
 
     }

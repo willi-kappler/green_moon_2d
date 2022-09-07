@@ -1,5 +1,4 @@
 use std::fmt::Debug;
-use std::any::Any;
 // use std::rc::Rc;
 use std::f32::consts::TAU;
 
@@ -7,7 +6,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
-use crate::util::{error_panic, extract_f32_value};
+// use crate::util::{error_panic};
 use crate::bitmap_text::{GMBitmapTextBase};
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;

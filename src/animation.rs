@@ -1,6 +1,5 @@
 
 use std::fmt::Debug;
-use std::any::Any;
 
 use log::debug;
 
@@ -22,9 +21,6 @@ pub trait GMAnimationT : Debug {
     fn reverse(&mut self);
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
     }
 }
 
@@ -283,11 +279,6 @@ impl GMAnimationT for GMAnimationSimple {
     }
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        // TODO: implement
-        todo!();
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
         // TODO: implement
         todo!();
     }

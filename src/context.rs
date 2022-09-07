@@ -1,7 +1,6 @@
 
 
 use std::collections::VecDeque;
-use std::any::Any;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -103,8 +102,8 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn send_message(&mut self, scene: &str, message: &str, data: Option<Box<dyn Any>>) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.to_string(), message.to_string(), data));
+    pub fn send_message(&mut self, scene: &str, message: &str) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.to_string(), message.to_string()));
     }
 
     // Update context, called by engine

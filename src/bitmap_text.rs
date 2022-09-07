@@ -368,9 +368,9 @@ impl GMBitmapTextBuilder {
         self
     }
 
-    pub fn build(mut self) -> Self {
+    pub fn build(mut self) -> GMBitmapText {
         self.bitmap_text.base.reset_chars();
-        self
+        self.bitmap_text
     }
 }
 
