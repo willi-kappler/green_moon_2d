@@ -165,6 +165,14 @@ impl GMSpriteBase {
         &self.name
     }
 
+    pub fn set_custom_data(&mut self, custom_data: &str) {
+        self.custom_data = custom_data.to_string();
+    }
+
+    pub fn get_custom_data(&self) -> &str {
+        &self.custom_data
+    }
+
     pub fn update(&mut self, _context: &mut GMContext) {
         if self.active {
             self.animation.update();
@@ -316,6 +324,11 @@ impl GMSpriteBuilder {
 
     pub fn with_name(mut self, name: &str) -> Self {
         self.sprite.base.name = name.to_string();
+        self
+    }
+
+    pub fn with_custom_data(mut self, custom_data: &str) -> Self {
+        self.sprite.base.custom_data = custom_data.to_string();
         self
     }
 
