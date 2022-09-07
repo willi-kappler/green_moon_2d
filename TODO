@@ -11,7 +11,8 @@ Next TODO:
 # Add GMAnimationT::send_message() and send_message_data()
 # Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 
-- Implement send_message() and send_message_data() for GMAnimationSimple
+- Implement send_message()
+- Add simple lexter / parser
 
 
 - GMMenuItem
