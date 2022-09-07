@@ -95,22 +95,6 @@ impl GMAnimationSimple {
         }
     }
 
-    // Builder methods
-    pub fn with_active(mut self, active: bool) -> Self {
-        self.active = active;
-        self
-    }
-
-    pub fn with_current_frame(mut self, current_frame: usize) -> Self {
-        self.current_frame = current_frame;
-        self
-    }
-
-    pub fn with_repetition(mut self, repetitions: GMRepetition) -> Self {
-        self.repetition = repetitions;
-        self
-    }
-
     // Other methods
     pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
@@ -283,3 +267,35 @@ impl GMAnimationT for GMAnimationSimple {
         todo!();
     }
 }
+
+pub struct GMAnimationSimpleBuilder {
+    animation: GMAnimationSimple,
+}
+
+impl GMAnimationSimpleBuilder {
+    pub fn new(frames: &[(u32, f32)]) -> Self {
+        Self {
+            animation: GMAnimationSimple::new(frames),
+        }
+    }
+
+    pub fn with_active(mut self, active: bool) -> Self {
+        self.animation.active = active;
+        self
+    }
+
+    pub fn with_current_frame(mut self, current_frame: usize) -> Self {
+        self.animation.current_frame = current_frame;
+        self
+    }
+
+    pub fn with_repetition(mut self, repetitions: GMRepetition) -> Self {
+        self.animation.repetition = repetitions;
+        self
+    }
+
+    pub fn build(self) -> GMAnimationSimple {
+        self.animation
+    }
+}
+
