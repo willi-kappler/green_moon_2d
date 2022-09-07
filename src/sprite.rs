@@ -242,10 +242,6 @@ impl GMSprite {
     pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message(message, context)
     }
-
-    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: Box<dyn Any>, context: &mut GMContext) {
-        self.effects[index].send_message_data(message, data, context)
-    }
 }
 
 // TODO: Maybe use https://github.com/colin-kiegel/rust-derive-builder

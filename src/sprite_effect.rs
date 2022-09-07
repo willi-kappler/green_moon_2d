@@ -17,9 +17,6 @@ pub trait GMSpriteEffectT: Debug {
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
-
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
-    }
 }
 
 #[derive(Debug)]
@@ -117,11 +114,6 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
     }
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        // TODO: implement
-        todo!();
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
         // TODO: implement
         todo!();
     }
