@@ -3,7 +3,6 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::fmt::Debug;
-use std::any::Any;
 
 use log::debug;
 
@@ -64,14 +63,16 @@ pub struct GMBitmapChar {
     pub index: u32,
     pub position: GMVec2D,
     pub angle: f32,
+    pub scale: f32,
 }
 
 impl GMBitmapChar {
-    pub fn new(index: u32, position: GMVec2D, angle: f32) -> Self {
+    pub fn new(index: u32, position: GMVec2D) -> Self {
         Self {
             index,
             position,
-            angle
+            angle: 0.0,
+            scale: 1.0,
         }
     }
 }
@@ -113,7 +114,7 @@ impl GMBitmapTextBase {
         for c in self.text.chars() {
             let index = self.font.get_index(c);
             let position = GMVec2D::new(0.0, 0.0);
-            let bitmap_char = GMBitmapChar::new(index, position, 0.0);
+            let bitmap_char = GMBitmapChar::new(index, position);
             self.chars.push(bitmap_char);
         }
 
@@ -267,6 +268,10 @@ impl GMBitmapTextBase {
         &self.align
     }
 
+    pub fn get_chars(&self) -> &Vec<GMBitmapChar> {
+        &self.chars
+    }
+
     pub fn get_mut_chars(&mut self) -> &mut Vec<GMBitmapChar> {
         &mut self.chars
     }
@@ -285,37 +290,6 @@ impl GMBitmapText {
             base: GMBitmapTextBase::new(bitmap_font),
             effects: Vec::new(),
         }
-    }
-
-    // Builder pattern
-    pub fn with_text(mut self, text: &str) -> Self {
-        self.base.text = text.to_string();
-        self
-    }
-
-    pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
-        self.base.position = position.into();
-        self
-    }
-
-    pub fn with_spacing<T: Into<GMVec2D>>(mut self, spacing: T) -> Self {
-        self.base.spacing = spacing.into();
-        self
-    }
-
-    pub fn with_horizontal(mut self, horizontal: bool) -> Self {
-        self.base.horizontal = horizontal;
-        self
-    }
-
-    pub fn with_align(mut self, align: GMAlign) -> Self {
-        self.base.align = align;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.base.reset_chars();
-        self
     }
 
     // Sprite methods
@@ -355,12 +329,50 @@ impl GMBitmapText {
     pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message(message, context)
     }
-
-    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: Box<dyn Any>, context: &mut GMContext) {
-        self.effects[index].send_message_data(message, data, context)
-    }
 }
 
+
+pub struct GMBitmapTextBuilder {
+    bitmap_text: GMBitmapText,
+}
+
+impl GMBitmapTextBuilder {
+    pub fn new(bitmap_font: &Rc<GMBitmapFont>) -> Self {
+        Self {
+            bitmap_text: GMBitmapText::new(bitmap_font),
+        }
+    }
+
+    pub fn with_text(mut self, text: &str) -> Self {
+        self.bitmap_text.base.text = text.to_string();
+        self
+    }
+
+    pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
+        self.bitmap_text.base.position = position.into();
+        self
+    }
+
+    pub fn with_spacing<T: Into<GMVec2D>>(mut self, spacing: T) -> Self {
+        self.bitmap_text.base.spacing = spacing.into();
+        self
+    }
+
+    pub fn with_horizontal(mut self, horizontal: bool) -> Self {
+        self.bitmap_text.base.horizontal = horizontal;
+        self
+    }
+
+    pub fn with_align(mut self, align: GMAlign) -> Self {
+        self.bitmap_text.base.align = align;
+        self
+    }
+
+    pub fn build(mut self) -> Self {
+        self.bitmap_text.base.reset_chars();
+        self
+    }
+}
 
 // TODO: Add GMTextBlock
 

@@ -23,15 +23,6 @@ pub trait GMTextEffectT: Debug {
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
-
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
-    }
-
-    /*
-    fn send_message_f32(&mut self, message: &str, data: f32, context: &mut GMContext) {
-        self.send_message(message, Some(Box::new(data)), context);
-    }
-    */
 }
 
 #[derive(Debug)]
@@ -113,7 +104,8 @@ impl GMTextEffectT for GMTextEffectWave {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: Box<dyn Any>, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, context: &mut GMContext) {
+        /*
         match message {
             "set_amplitude" => {
                 self.amplitude = extract_f32_value(message, data);
@@ -137,6 +129,7 @@ impl GMTextEffectT for GMTextEffectWave {
                 error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
             }
         }
+        */
     }
 }
 
@@ -187,7 +180,8 @@ impl GMTextEffectT for GMTextEffectShake {
 
     }
 
-    fn send_message_data(&mut self, message: &str, data: Box<dyn Any>, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        /*
         match message {
             "set_speed" => {
                 self.speed = extract_f32_value(message, data);
@@ -205,6 +199,7 @@ impl GMTextEffectT for GMTextEffectShake {
                 error_panic(&format!("GMTextEffectShake::send_message(), unknown message: {}", message))
             }
         }
+        */
     }
 }
 
@@ -237,7 +232,8 @@ impl GMTextEffectT for GMTextEffectRotateChars {
         self.time += self.speed;
     }
 
-    fn send_message_data(&mut self, message: &str, data: Box<dyn Any>, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        /*
         match message {
             "set_speed" => {
                 self.speed = extract_f32_value(message, data);
@@ -255,6 +251,7 @@ impl GMTextEffectT for GMTextEffectRotateChars {
                 error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: {}", message))
             }
         }
+        */
     }
 }
 
@@ -286,7 +283,7 @@ impl GMTextEffectT for GMTextEffectScale {
         todo!();
     }
 
-    fn send_message_data(&mut self, _message: &str, _data: Box<dyn Any>, _context: &mut GMContext) {
+    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
         // TODO:
         todo!();
     }
