@@ -1,22 +1,20 @@
 
 
 use std::fs::File;
-use std::any::Any;
 
-// use log::{debug};
+use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
-use green_moon_2d::bitmap_text::GMBitmapText;
-use green_moon_2d::bitmap_text_effects::{GMTextEffectT, GMTextEffectEmpty, GMTextEffectWave,
-    GMTextEffectShake, GMTextEffectRotateChars, GMTextEffectMultiple};
+use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
+use green_moon_2d::bitmap_text_effects::{GMTextEffectWave, GMTextEffectShake, GMTextEffectRotateChars};
 use green_moon_2d::util::GMAlign;
 
 
 #[derive(Debug)]
 struct TextScene3 {
     texts: Vec<GMBitmapText>,
-    effects: Vec<Box<dyn GMTextEffectT>>,
+    effects: Vec<GMBitmapText>,
     current_effect: usize,
 }
 
@@ -25,34 +23,52 @@ impl TextScene3 {
         let resources = engine.get_resources();
         let window_width = engine.window_width();
 
-        let font = resources.get_font_clone("font_cuddly");
+        let font = resources.get_font("font_cuddly");
 
         const space: f32 = 50.0;
         let mut texts = Vec::new();
 
-        texts.push(GMBitmapText::new(&font, "TEXT TEST 3", window_width / 2.0, 32.0 + (1.0 * space)));
-        texts.push(GMBitmapText::new(&font, "PRESS NUMBER TO CHANGE EFFECT", 32.0, 32.0 + (5.0 * space)));
-        texts.push(GMBitmapText::new(&font, "CURSOR TO CHANGE SETTING", 32.0, 32.0 + (6.0 * space)));
+        texts.push(GMBitmapTextBuilder::new(&font)
+            .with_text("PRESS NUMBER TO CHANGE EFFECT")
+            .with_position((32.0, 32.0 + (5.0 * space)))
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(&font)
+            .with_text("CURSOR TO CHANGE SETTING")
+            .with_position((32.0, 32.0 + (6.0 * space)))
+            .build());
+
+        let mut effects: Vec<GMBitmapText> = Vec::new();
 
         // Move title to the center of the window
-        texts[0].align(GMAlign::TopCenter);
+        let mut effect = GMBitmapTextBuilder::new(&font)
+            .with_text("TEXT TEST 3")
+            .with_position((window_width / 2.0, 32.0 + (1.0 * space)))
+            .with_align(GMAlign::TopCenter)
+            .build();
 
-        let mut effects: Vec<Box<dyn GMTextEffectT>> = Vec::new();
+        effects.push(effect.clone());
 
-        effects.push(Box::new(GMTextEffectEmpty::new()));
-        effects.push(Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)));
-        effects.push(Box::new(GMTextEffectShake::new(5.0, 0.2)));
-        effects.push(Box::new(GMTextEffectRotateChars::new(1.0, 10.0)));
+        effect.set_effects(vec![GMTextEffectWave::new(32.0, 0.1, 0.2)]);
+        effects.push(effect.clone());
 
-        let mut combined = GMTextEffectMultiple::new();
-        combined.add_text_effect(GMTextEffectWave::new(32.0, 0.1, 0.2));
-        combined.add_text_effect(GMTextEffectShake::new(5.0, 0.2));
-        effects.push(Box::new(combined));
+        effect.set_effects(vec![GMTextEffectShake::new(5.0, 0.2)]);
+        effects.push(effect.clone());
 
-        let mut combined = GMTextEffectMultiple::new();
-        combined.add_text_effect(GMTextEffectWave::new(32.0, 0.1, 0.2));
-        combined.add_text_effect(GMTextEffectRotateChars::new(1.0, 10.0));
-        effects.push(Box::new(combined));
+        effect.set_effects(vec![GMTextEffectRotateChars::new(1.0, 10.0)]);
+        effects.push(effect.clone());
+
+        effect.set_effects2(vec![
+            Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
+            Box::new(GMTextEffectShake::new(5.0, 0.2))
+        ]);
+        effects.push(effect.clone());
+
+        effect.set_effects2(vec![
+            Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
+            Box::new(GMTextEffectRotateChars::new(1.0, 10.0))
+        ]);
+        effects.push(effect.clone());
 
         Self {
             texts,
@@ -65,20 +81,23 @@ impl TextScene3 {
         let effect = &mut self.effects[self.current_effect];
 
         match self.current_effect {
+            0 => {
+                // Nothing to do
+            }
             1 => {
-                effect.send_message_f32("add_speed", delta * 0.1, context);
+                effect.send_effect_message(0, &format!("add_speed {}", delta * 0.1), context);
             }
             2 => {
-                effect.send_message_f32("add_speed", delta * 0.1, context);
+                effect.send_effect_message(0, &format!("add_speed {}", delta * 0.1), context);
             }
             3 => {
-                effect.send_message_f32("add_speed", delta, context);
+                effect.send_effect_message(0, &format!("add_speed {}", delta), context);
             }
             4 => {
-                effect.send_message_multiple_f32("send_message", 0, "add_speed", delta * 0.1, context);
+                effect.send_effect_message(0, &format!("add_speed {}", delta * 0.1), context);
             }
             5 => {
-                effect.send_message_multiple_f32("send_message", 0, "add_speed", delta * 0.1, context);
+                effect.send_effect_message(0, &format!("add_speed {}", delta * 0.1), context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
@@ -90,20 +109,23 @@ impl TextScene3 {
         let effect = &mut self.effects[self.current_effect];
 
         match self.current_effect {
+            0 => {
+                // Nothing to do
+            }
             1 => {
-                effect.send_message_f32("add_offset", delta, context);
+                effect.send_effect_message(0, &format!("add_offset {}", delta), context);
             }
             2 => {
-                effect.send_message_f32("add_radius", delta, context);
+                effect.send_effect_message(0, &format!("add_radius {}", delta), context);
             }
             3 => {
-                effect.send_message_f32("add_offset", delta * 10.0, context);
+                effect.send_effect_message(0, &format!("add_offset {}", delta * 10.0), context);
             }
             4 => {
-                effect.send_message_multiple_f32("send_message", 1, "add_speed", delta * 0.1, context);
+                effect.send_effect_message(1, &format!("add_speed {}", delta * 0.1), context);
             }
             5 => {
-                effect.send_message_multiple_f32("send_message", 1, "add_speed", delta * 0.1, context);
+                effect.send_effect_message(1, &format!("add_speed {}", delta * 0.1), context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
@@ -160,8 +182,10 @@ impl GMSceneT for TextScene3 {
             self.change_settings2(-0.1, context);
         }
 
-        self.texts[0].reset_chars2();
-        self.effects[self.current_effect].update(&mut self.texts[0], context);
+        let text = &mut self.effects[self.current_effect];
+
+        text.get_base_mut().reset_chars2();
+        text.update(context);
 
     }
 
@@ -172,7 +196,7 @@ impl GMSceneT for TextScene3 {
             text.draw(context);
         }
 
-        self.effects[self.current_effect].draw(&self.texts[0], context);
+        self.effects[self.current_effect].draw(context);
     }
 }
 
