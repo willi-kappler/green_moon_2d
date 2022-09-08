@@ -254,6 +254,14 @@ impl GMSprite {
         self.effects.push(effect);
     }
 
+    pub fn set_effects<T: 'static + GMSpriteEffectT>(&mut self, effects: Vec<T>) {
+        self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMSpriteEffectT> = Box::new(e); e2}).collect());
+    }
+
+    pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMSpriteEffectT>>) {
+        self.effects = effects;
+    }
+
     pub fn remove_effect(&mut self, index: usize) {
         self.effects.remove(index);
     }
