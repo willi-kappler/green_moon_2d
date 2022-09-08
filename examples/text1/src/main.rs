@@ -7,7 +7,7 @@ use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode, GMResources};
-use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapFont};
+use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder, GMBitmapFont};
 use green_moon_2d::util::GMAlign;
 
 #[derive(Debug)]
@@ -26,24 +26,46 @@ impl TextScene1 {
         const space: f32 = 50.0;
         let mut fonts = Vec::new();
 
-        fonts.push(resources.get_font_clone("font_bbc"));
-        fonts.push(resources.get_font_clone("font_blagger"));
-        fonts.push(resources.get_font_clone("font_cuddly"));
+        fonts.push(resources.get_font("font_bbc").clone());
+        fonts.push(resources.get_font("font_blagger").clone());
+        fonts.push(resources.get_font("font_cuddly").clone());
 
         let current_font = 2;
         let font = &fonts[current_font];
 
         let mut texts = Vec::new();
 
-        texts.push(GMBitmapText::new(font, "TEXT TEST 1", window_width / 2.0, 32.0));
-        texts.push(GMBitmapText::new(font, "PRESS NUMBER TO CHANGE FONT", 32.0, 32.0 + (1.0 * space)));
-        texts.push(GMBitmapText::new(font, "1 - BBC", 32.0, 32.0 + (2.0 * space)));
-        texts.push(GMBitmapText::new(font, "2 - BLAGGER", 32.0, 32.0 + (3.0 * space)));
-        texts.push(GMBitmapText::new(font, "3 - CUDDLY", 32.0, 32.0 + (4.0 * space)));
-        texts.push(GMBitmapText::new(font, "CURSOR TO CHANGE H-SPACING", 32.0, 32.0 + (5.0 * space)));
-
         // Move title to the center of the window
-        texts[0].align(GMAlign::TopCenter);
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("TEXT TEST 1")
+            .with_position((window_width / 2.0, 32.0))
+            .with_align(GMAlign::TopCenter)
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("PRESS NUMBER TO CHANGE FONT")
+            .with_position((32.0, 32.0 + (1.0 * space)))
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("1 - BBC")
+            .with_position((32.0, 32.0 + (2.0 * space)))
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("2 - BLAGGER")
+            .with_position((32.0, 32.0 + (3.0 * space)))
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("3 - CUDDLY")
+            .with_position((32.0, 32.0 + (4.0 * space)))
+            .build());
+
+        texts.push(GMBitmapTextBuilder::new(font)
+            .with_text("CURSOR TO CHANGE H-SPACING")
+            .with_position((32.0, 32.0 + (5.0 * space)))
+            .build());
 
         Self {
             texts,
@@ -60,7 +82,7 @@ impl TextScene1 {
             debug!("TextScene1::change_font(), current font: {}", self.current_font);
 
             for text in self.texts.iter_mut() {
-                text.set_font(&self.fonts[self.current_font]);
+                text.get_base_mut().set_font(&self.fonts[self.current_font]);
             }
         }
     }
@@ -71,7 +93,7 @@ impl TextScene1 {
         debug!("TextScene1::change_spacing(), char_spacing: {}", self.char_spacing);
 
         for text in self.texts.iter_mut() {
-            text.set_spacing_x(self.char_spacing);
+            text.get_base_mut().set_spacing_x(self.char_spacing);
         }
     }
 }
