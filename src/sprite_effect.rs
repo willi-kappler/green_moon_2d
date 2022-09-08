@@ -16,9 +16,17 @@ pub trait GMSpriteEffectT: Debug {
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
+
+    fn clone_box(&self) -> Box<dyn GMSpriteEffectT>;
 }
 
-#[derive(Debug)]
+impl Clone for Box<dyn GMSpriteEffectT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMSpriteEffectEmpty {
 }
 
@@ -31,9 +39,12 @@ impl GMSpriteEffectEmpty {
 }
 
 impl GMSpriteEffectT for GMSpriteEffectEmpty {
+    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMSpriteEffectLinearMovement {
     start: GMVec2D,
     end: GMVec2D,
@@ -115,6 +126,10 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
         // TODO: implement
         todo!();
+    }
+
+    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+        Box::new(self.clone())
     }
 }
 

@@ -22,9 +22,17 @@ pub trait GMTextEffectT: Debug {
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT>;
 }
 
-#[derive(Debug)]
+impl Clone for Box<dyn GMTextEffectT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMTextEffectEmpty {
 }
 
@@ -37,9 +45,12 @@ impl GMTextEffectEmpty {
 }
 
 impl GMTextEffectT for GMTextEffectEmpty {
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMTextEffectReset {
 }
 
@@ -55,9 +66,13 @@ impl GMTextEffectT for GMTextEffectReset {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         text.reset_chars();
     }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMTextEffectWave {
     amplitude: f32,
     speed: f32,
@@ -84,14 +99,12 @@ impl GMTextEffectT for GMTextEffectWave {
 
         if text.get_horizontal() {
             for bitmap_char in text.get_chars_mut().iter_mut() {
-                let mut position = bitmap_char.position;
-                position.y += self.amplitude * (self.time + offset).sin();
+                bitmap_char.position.y += self.amplitude * (self.time + offset).sin();
                 offset += self.offset;
             }
         } else {
             for bitmap_char in text.get_chars_mut().iter_mut() {
-                let mut position = bitmap_char.position;
-                position.x += self.amplitude * (self.time + offset).sin();
+                bitmap_char.position.x += self.amplitude * (self.time + offset).sin();
                 offset += self.offset;
             }
         }
@@ -130,9 +143,13 @@ impl GMTextEffectT for GMTextEffectWave {
             }
         }
     }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMTextEffectShake {
     radius: f32,
     speed: f32,
@@ -164,10 +181,10 @@ impl GMTextEffectT for GMTextEffectShake {
         self.rng.reseed(u64::to_ne_bytes(self.seed));
 
         for bitmap_char in text.get_chars_mut().iter_mut() {
-            let mut position = bitmap_char.position;
             let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
             let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
 
+            let position = &mut bitmap_char.position;
             position.x += dx;
             position.y += dy;
         }
@@ -200,9 +217,13 @@ impl GMTextEffectT for GMTextEffectShake {
             }
         }
     }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMTextEffectRotateChars {
     speed: f32,
     offset: f32,
@@ -254,10 +275,14 @@ impl GMTextEffectT for GMTextEffectRotateChars {
             }
         }
     }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GMTextEffectScale {
     factor_min: f32,
     factor_max: f32,
@@ -290,5 +315,8 @@ impl GMTextEffectT for GMTextEffectScale {
         // TODO:
         todo!();
     }
-}
 
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
+}
