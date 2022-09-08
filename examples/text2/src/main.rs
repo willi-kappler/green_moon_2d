@@ -5,7 +5,7 @@ use std::fs::File;
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
-use green_moon_2d::bitmap_text::{GMBitmapText};
+use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::util::{GMAlign};
 
 #[derive(Debug)]
@@ -20,17 +20,29 @@ impl TextScene2 {
         let window_width = engine.window_width();
         let window_height = engine.window_height();
 
-        let font = resources.get_font_clone("font_cuddly");
+        let font = resources.get_font("font_cuddly");
 
         const space: f32 = 50.0;
         let mut texts = Vec::new();
 
-        texts.push(GMBitmapText::new(&font, "TEXT TEST 2", window_width / 2.0, window_height / 2.0));
-        texts.push(GMBitmapText::new(&font, "PRESS NUMBER TO CHANGE ALIGN", 32.0, 32.0 + (1.0 * space)));
-        texts.push(GMBitmapText::new(&font, "PRESS H TO TOGGLE HORIZONTAL", 32.0, 32.0 + (2.0 * space)));
-
         // Move title to the center of the window
-        texts[0].align(GMAlign::MiddleCenter);
+        texts.push(GMBitmapTextBuilder::new(&font)
+            .with_text("TEXT TEST 2")
+            .with_position((window_width / 2.0, window_height / 2.0))
+            .with_align(GMAlign::MiddleCenter)
+            .build());
+
+
+        texts.push(GMBitmapTextBuilder::new(&font)
+            .with_text("PRESS NUMBER TO CHANGE ALIGN")
+            .with_position((32.0, 32.0 + (1.0 * space)))
+            .build());
+
+
+        texts.push(GMBitmapTextBuilder::new(&font)
+            .with_text("PRESS H TO TOGGLE HORIZONTAL")
+            .with_position((32.0, 32.0 + (2.0 * space)))
+            .build());
 
         Self {
             texts,
@@ -47,45 +59,47 @@ impl GMSceneT for TextScene2 {
             context.quit();
         }
 
+        let text = self.texts[0].get_base_mut();
+
         if context.event(GMEventCode::Key1Up) {
-            self.texts[0].align(GMAlign::TopLeft);
+            text.set_align(GMAlign::TopLeft);
         }
 
         if context.event(GMEventCode::Key2Up) {
-            self.texts[0].align(GMAlign::TopCenter);
+            text.set_align(GMAlign::TopCenter);
         }
 
         if context.event(GMEventCode::Key3Up) {
-            self.texts[0].align(GMAlign::TopRight);
+            text.set_align(GMAlign::TopRight);
         }
 
         if context.event(GMEventCode::Key4Up) {
-            self.texts[0].align(GMAlign::MiddleLeft);
+            text.set_align(GMAlign::MiddleLeft);
         }
 
         if context.event(GMEventCode::Key5Up) {
-            self.texts[0].align(GMAlign::MiddleCenter);
+            text.set_align(GMAlign::MiddleCenter);
         }
 
         if context.event(GMEventCode::Key6Up) {
-            self.texts[0].align(GMAlign::MiddleRight);
+            text.set_align(GMAlign::MiddleRight);
         }
 
         if context.event(GMEventCode::Key7Up) {
-            self.texts[0].align(GMAlign::BottomLeft);
+            text.set_align(GMAlign::BottomLeft);
         }
 
         if context.event(GMEventCode::Key8Up) {
-            self.texts[0].align(GMAlign::BottomCenter);
+            text.set_align(GMAlign::BottomCenter);
         }
 
         if context.event(GMEventCode::Key9Up) {
-            self.texts[0].align(GMAlign::BottomRight);
+            text.set_align(GMAlign::BottomRight);
         }
 
         if context.event(GMEventCode::KeyHUp) {
             self.horizontal = !self.horizontal;
-            self.texts[0].set_horizontal(self.horizontal);
+            text.set_horizontal(self.horizontal);
         }
     }
 
