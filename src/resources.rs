@@ -43,7 +43,7 @@ impl GMResources {
                 content
             }
             Err(e) => {
-                error_panic(&format!("Could not load resources: {}", e));
+                error_panic(&format!("Could not load resources: '{}'", e));
             }
         };
 
@@ -52,7 +52,7 @@ impl GMResources {
                 resources
             }
             Err(e) => {
-                error_panic(&format!("JSON error while parsing rescources: {}", e));
+                error_panic(&format!("JSON error while parsing resources: '{}'", e));
             }
         };
 
@@ -97,7 +97,7 @@ impl GMResources {
     }
 
     pub fn create_texture<P: AsRef<Path>>(&self, path: P, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
-        debug!("GMResources::create_texture(), path: '{:?}', cols: {}, unit_width: {}, unit_height: {}",
+        debug!("GMResources::create_texture(), path: '{:?}', cols: '{}', unit_width: '{}', unit_height: '{}'",
             path.as_ref(), cols, unit_width, unit_height);
 
         let image = match self.texture_creator.load_texture(path) {
@@ -116,7 +116,7 @@ impl GMResources {
         debug!("GMResources::add_texture(), name: '{}'", name);
 
         if self.textures.contains_key(name) {
-            error_panic(&format!("A texture with that name already exists: {}", name));
+            error_panic(&format!("A texture with that name already exists: '{}'", name));
         } else {
             self.textures.insert(name.to_string(), Rc::new(texture));
         }
@@ -177,7 +177,7 @@ impl GMResources {
         debug!("GMResources::add_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
-            error_panic(&format!("A font with the name {} already exists!", name));
+            error_panic(&format!("A font with the name '{}' already exists!", name));
         } else {
             self.fonts.insert(name.to_string(), font);
         }
@@ -250,7 +250,7 @@ impl GMResources {
                     .with_repetition(GMRepetition::PingPongForward).build()
             }
             _ => {
-                error_panic(&format!("Unknown animation type: {}", animation_type));
+                error_panic(&format!("Unknown animation type: '{}'", animation_type));
             }
         }
     }
@@ -263,7 +263,7 @@ impl GMResources {
         debug!("GMResources::add_animation2(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
-            error_panic(&format!("An animation with name {} does already exist!", name));
+            error_panic(&format!("An animation with name '{}' does already exist!", name));
         } else {
             self.animations.insert(name.to_string(), animation);
         }

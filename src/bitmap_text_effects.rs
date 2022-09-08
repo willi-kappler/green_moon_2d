@@ -6,7 +6,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
-// use crate::util::{error_panic};
+use crate::util::{error_panic, parse_f32};
 use crate::bitmap_text::{GMBitmapTextBase};
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;
@@ -67,7 +67,7 @@ pub struct GMTextEffectWave {
 
 impl GMTextEffectWave {
     pub fn new(amplitude: f32, speed: f32, offset: f32) -> Self {
-        debug!("GMTextEffectWave::new(), amplitude: {}, speed: {}, offset: {}", amplitude, speed, offset);
+        debug!("GMTextEffectWave::new(), amplitude: '{}', speed: '{}', offset: '{}'", amplitude, speed, offset);
 
         Self {
             amplitude,
@@ -83,13 +83,13 @@ impl GMTextEffectT for GMTextEffectWave {
         let mut offset = 0.0;
 
         if text.get_horizontal() {
-            for bitmap_char in text.get_mut_chars().iter_mut() {
+            for bitmap_char in text.get_chars_mut().iter_mut() {
                 let mut position = bitmap_char.position;
                 position.y += self.amplitude * (self.time + offset).sin();
                 offset += self.offset;
             }
         } else {
-            for bitmap_char in text.get_mut_chars().iter_mut() {
+            for bitmap_char in text.get_chars_mut().iter_mut() {
                 let mut position = bitmap_char.position;
                 position.x += self.amplitude * (self.time + offset).sin();
                 offset += self.offset;
@@ -103,32 +103,32 @@ impl GMTextEffectT for GMTextEffectWave {
         }
     }
 
-    fn send_message(&mut self, message: &str, context: &mut GMContext) {
-        /*
-        match message {
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, data) = parse_f32(message);
+
+        match name {
             "set_amplitude" => {
-                self.amplitude = extract_f32_value(message, data);
+                self.amplitude = data[0];
             }
             "add_amplitude" => {
-                self.amplitude += extract_f32_value(message, data);
+                self.amplitude += data[0];
             }
             "set_speed" => {
-                self.speed = extract_f32_value(message, data);
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += extract_f32_value(message, data);
+                self.speed += data[0];
             }
             "set_offset" => {
-                self.offset = extract_f32_value(message, data);
+                self.offset = data[0];
             }
             "add_offset" => {
-                self.offset += extract_f32_value(message, data);
+                self.offset += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectWave::send_message(), unknown message: {}", message))
+                error_panic(&format!("GMTextEffectWave::send_message(), unknown message: '{}'", message))
             }
         }
-        */
     }
 }
 
@@ -143,7 +143,7 @@ pub struct GMTextEffectShake {
 
 impl GMTextEffectShake {
     pub fn new(radius: f32, speed: f32) -> Self {
-        debug!("GMTextEffectShake::new(), radius: {}", radius);
+        debug!("GMTextEffectShake::new(), radius: '{}'", radius);
 
         let seed = 1;
         let rng = WyRand::new();
@@ -163,7 +163,7 @@ impl GMTextEffectT for GMTextEffectShake {
         self.time += self.speed;
         self.rng.reseed(u64::to_ne_bytes(self.seed));
 
-        for bitmap_char in text.get_mut_chars().iter_mut() {
+        for bitmap_char in text.get_chars_mut().iter_mut() {
             let mut position = bitmap_char.position;
             let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
             let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
@@ -180,25 +180,25 @@ impl GMTextEffectT for GMTextEffectShake {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        /*
-        match message {
+        let (name, data) = parse_f32(message);
+
+        match name {
             "set_speed" => {
-                self.speed = extract_f32_value(message, data);
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += extract_f32_value(message, data);
+                self.speed += data[0];
             }
             "set_radius" => {
-                self.radius = extract_f32_value(message, data);
+                self.radius = data[0];
             }
             "add_radius" => {
-                self.radius += extract_f32_value(message, data);
+                self.radius += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectShake::send_message(), unknown message: {}", message))
+                error_panic(&format!("GMTextEffectShake::send_message(), unknown message: '{}'", message))
             }
         }
-        */
     }
 }
 
@@ -211,6 +211,8 @@ pub struct GMTextEffectRotateChars {
 
 impl GMTextEffectRotateChars {
     pub fn new(speed: f32, offset: f32) -> Self {
+        debug!("GMTextEffectRotateChars::new(), speed: '{}', offset: '{}'", speed, offset);
+
         Self {
             speed,
             offset,
@@ -223,7 +225,7 @@ impl GMTextEffectT for GMTextEffectRotateChars {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         let mut delta = 0.0;
 
-        for bitmap_char in text.get_mut_chars().iter_mut() {
+        for bitmap_char in text.get_chars_mut().iter_mut() {
             bitmap_char.angle = self.time + delta;
             delta += self.offset;
         }
@@ -232,25 +234,25 @@ impl GMTextEffectT for GMTextEffectRotateChars {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        /*
-        match message {
+        let (name, data) = parse_f32(message);
+
+        match name {
             "set_speed" => {
-                self.speed = extract_f32_value(message, data);
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += extract_f32_value(message, data);
+                self.speed += data[0];
             }
             "set_offset" => {
-                self.offset = extract_f32_value(message, data);
+                self.offset = data[0];
             }
             "add_offset" => {
-                self.offset += extract_f32_value(message, data);
+                self.offset += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: {}", message))
+                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: '{}'", message))
             }
         }
-        */
     }
 }
 
@@ -266,6 +268,8 @@ pub struct GMTextEffectScale {
 
 impl GMTextEffectScale {
     pub fn new(factor_min: f32, factor_max: f32, speed: f32, offset: f32) -> Self {
+        debug!("GMTextEffectScale::new(), factor_min: '{}', factor_max: '{}', speed: '{}', offset: '{}'", factor_min, factor_max, speed, offset);
+
         Self {
             factor_min,
             factor_max,

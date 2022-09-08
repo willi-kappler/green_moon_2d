@@ -223,6 +223,21 @@ impl GMBitmapTextBase {
         self.reset_chars2();
     }
 
+    pub fn add_position<T: Into<GMVec2D>>(&mut self, position: T) {
+        self.position.add2(&position.into());
+        self.reset_chars2();
+    }
+
+    pub fn add_position_x(&mut self, x: f32) {
+        self.position.x += x;
+        self.reset_chars2();
+    }
+
+    pub fn add_position_y(&mut self, y: f32) {
+        self.position.y += y;
+        self.reset_chars2();
+    }
+
     pub fn get_position(&self) -> &GMVec2D {
         &self.position
     }
@@ -239,6 +254,21 @@ impl GMBitmapTextBase {
 
     pub fn set_spacing_y(&mut self, y: f32) {
         self.spacing.y = y;
+        self.reset_chars2();
+    }
+
+    pub fn add_spacing<T: Into<GMVec2D>>(&mut self, spacing: T) {
+        self.spacing.add2(&spacing.into());
+        self.reset_chars2();
+    }
+
+    pub fn add_spacing_x(&mut self, x: f32) {
+        self.spacing.x += x;
+        self.reset_chars2();
+    }
+
+    pub fn add_spacing_y(&mut self, y: f32) {
+        self.spacing.y += y;
         self.reset_chars2();
     }
 
@@ -272,7 +302,7 @@ impl GMBitmapTextBase {
         &self.chars
     }
 
-    pub fn get_mut_chars(&mut self) -> &mut Vec<GMBitmapChar> {
+    pub fn get_chars_mut(&mut self) -> &mut Vec<GMBitmapChar> {
         &mut self.chars
     }
 }
@@ -343,27 +373,61 @@ impl GMBitmapTextBuilder {
     }
 
     pub fn with_text<T: Into<String>>(mut self, text: T) -> Self {
-        self.bitmap_text.base.text = text.into();
+        let text = text.into();
+        debug!("GMBitmapTextBuilder::with_text(), text: '{}'", text);
+
+        self.bitmap_text.base.text = text;
         self
     }
 
     pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
-        self.bitmap_text.base.position = position.into();
+        let position = position.into();
+        debug!("GMBitmapTextBuilder::with_position(), position: '{:?}'", position);
+
+        self.bitmap_text.base.position = position;
         self
     }
 
     pub fn with_spacing<T: Into<GMVec2D>>(mut self, spacing: T) -> Self {
-        self.bitmap_text.base.spacing = spacing.into();
+        let spacing = spacing.into();
+        debug!("GMBitmapTextBuilder::with_spacing(), spacing: '{:?}'", spacing);
+
+        self.bitmap_text.base.spacing = spacing;
         self
     }
 
     pub fn with_horizontal(mut self, horizontal: bool) -> Self {
+        debug!("GMBitmapTextBuilder::with_horizontal(), horizontal: '{}'", horizontal);
+
         self.bitmap_text.base.horizontal = horizontal;
         self
     }
 
     pub fn with_align(mut self, align: GMAlign) -> Self {
+        debug!("GMBitmapTextBuilder::with_align(), align: '{:?}'", align);
+
         self.bitmap_text.base.align = align;
+        self
+    }
+
+    pub fn with_effect<T: 'static + GMTextEffectT>(mut self, effect: T) -> Self {
+        debug!("GMBitmapTextBuilder::with_effect()");
+
+        self.bitmap_text.effects.push(Box::new(effect));
+        self
+    }
+
+    pub fn with_effect2(mut self, effect: Box<dyn GMTextEffectT>) -> Self {
+        debug!("GMBitmapTextBuilder::with_effect2()");
+
+        self.bitmap_text.effects.push(effect);
+        self
+    }
+
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMTextEffectT>>) -> Self {
+        debug!("GMBitmapTextBuilder::with_effects()");
+
+        self.bitmap_text.effects.extend(effects);
         self
     }
 

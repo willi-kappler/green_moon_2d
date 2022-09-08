@@ -75,9 +75,11 @@ impl GMSceneManager {
         self.scenes.iter().position(|scene| name == scene.0)
     }
 
+    /*
     pub(crate) fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
         self.add_scene2(name, Box::new(scene));
     }
+    */
 
     pub(crate) fn add_scene2(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
         debug!("GMSceneManager::add_scene2(), name: '{}'", name);
@@ -139,7 +141,7 @@ impl GMSceneManager {
 
     fn push_and_change_scene(&mut self, name: &str, context: &mut GMContext) {
         let current_name = self.get_current_name().to_string();
-        debug!("GMSceneManager::push_and_change_scene(), current scene: '{}', next scene: {}",
+        debug!("GMSceneManager::push_and_change_scene(), current scene: '{}', next scene: '{}'",
             current_name, name);
 
         self.scene_stack.push(current_name);

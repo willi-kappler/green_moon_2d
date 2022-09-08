@@ -84,7 +84,7 @@ pub struct GMAnimationSimple {
 
 impl GMAnimationSimple {
     pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationSimple::new(), frames: {:?}", frames);
+        debug!("GMAnimationSimple::new(), frames: '{:?}'", frames);
 
         Self {
             active: true,
@@ -280,17 +280,23 @@ impl GMAnimationSimpleBuilder {
     }
 
     pub fn with_active(mut self, active: bool) -> Self {
+        debug!("GMAnimationSimpleBuilder::with_active(), active: '{}'", active);
+
         self.animation.active = active;
         self
     }
 
     pub fn with_current_frame(mut self, current_frame: usize) -> Self {
+        debug!("GMAnimationSimpleBuilder::with_current_frame(), current_frame: '{}'", current_frame);
+
         self.animation.current_frame = current_frame;
         self
     }
 
-    pub fn with_repetition(mut self, repetitions: GMRepetition) -> Self {
-        self.animation.repetition = repetitions;
+    pub fn with_repetition(mut self, repetition: GMRepetition) -> Self {
+        debug!("GMAnimationSimpleBuilder::with_repetition(), repetition: '{:?}'", repetition);
+
+        self.animation.repetition = repetition;
         self
     }
 
@@ -298,4 +304,3 @@ impl GMAnimationSimpleBuilder {
         self.animation
     }
 }
-

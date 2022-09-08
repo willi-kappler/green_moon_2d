@@ -26,7 +26,27 @@ pub enum GMRepetition {
 
 #[track_caller]
 pub fn error_panic(message: &str) -> ! {
-    debug!("error_panic() called from: {}", std::panic::Location::caller());
+    debug!("error_panic() called from: '{}'", std::panic::Location::caller());
     error!("{}", message);
     panic!("{}", message);
+}
+
+pub fn parse_f32(message: &str) -> (&str, Vec<f32>) {
+    let mut fields = message.split_whitespace();
+
+    let name = fields.next().unwrap();
+
+    let values = fields.map(|s| s.parse::<f32>().unwrap()).collect();
+
+    (name, values)
+}
+
+pub fn parse_u32(message: &str) -> (&str, Vec<u32>) {
+    let mut fields = message.split_whitespace();
+
+    let name = fields.next().unwrap();
+
+    let values = fields.map(|s| s.parse::<u32>().unwrap()).collect();
+
+    (name, values)
 }

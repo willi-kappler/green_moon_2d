@@ -27,8 +27,8 @@ pub struct GMSpriteBase {
     active: bool,
 
     // User defined data:
-    id: u64,
-    group_id: u64,
+    id: u32,
+    group_id: u32,
     name: String,
     custom_data: String,
 }
@@ -151,19 +151,19 @@ impl GMSpriteBase {
         &mut self.active
     }
 
-    pub fn id(&mut self) -> u64 {
+    pub fn id(&mut self) -> u32 {
         self.id
     }
 
-    pub fn id_mut(&mut self) -> &mut u64 {
+    pub fn id_mut(&mut self) -> &mut u32 {
         &mut self.id
     }
 
-    pub fn group_id(&self) -> u64 {
+    pub fn group_id(&self) -> u32 {
         self.group_id
     }
 
-    pub fn group_id_mut(&mut self) -> &mut u64 {
+    pub fn group_id_mut(&mut self) -> &mut u32 {
         &mut self.group_id
     }
 
@@ -281,68 +281,120 @@ impl GMSpriteBuilder {
     }
 
     pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
-        self.sprite.base.position = position.into();
+        let position = position.into();
+        debug!("GMSpriteBuilder::with_position(), position: '{:?}'", position);
+
+        self.sprite.base.position = position;
         self
     }
 
     pub fn with_velocity<T: Into<GMVec2D>>(mut self, velocity: T) -> Self {
-        self.sprite.base.velocity = velocity.into();
+        let velocity = velocity.into();
+        debug!("GMSpriteBuilder::with_velocity(), velocity: '{:?}'", velocity);
+
+        self.sprite.base.velocity = velocity;
         self
     }
 
     pub fn with_acceleration<T: Into<GMVec2D>>(mut self, acceleration: T) -> Self {
-        self.sprite.base.acceleration = acceleration.into();
+        let acceleration = acceleration.into();
+        debug!("GMSpriteBuilder::with_acceleration(), acceleration: '{:?}'", acceleration);
+
+        self.sprite.base.acceleration = acceleration;
         self
     }
 
     pub fn with_angle(mut self, angle: f32) -> Self {
+        debug!("GMSpriteBuilder::with_angle(), angle: '{}'", angle);
+
         self.sprite.base.angle = angle;
         self
     }
 
     pub fn with_flip_x(mut self, flip_x: bool) -> Self {
+        debug!("GMSpriteBuilder::with_flip_x(), flip_x: '{}'", flip_x);
+
         self.sprite.base.flip_x = flip_x;
         self
     }
 
     pub fn with_flip_y(mut self, flip_y: bool) -> Self {
+        debug!("GMSpriteBuilder::with_flip_y(), flip_y: '{}'", flip_y);
+
         self.sprite.base.flip_y = flip_y;
         self
     }
 
     pub fn with_animation<T: 'static + GMAnimationT>(mut self, animation: T) -> Self {
+        debug!("GMSpriteBuilder::with_animation()");
+
         self.sprite.base.animation = Box::new(animation);
         self
     }
 
     pub fn with_visible(mut self, visible: bool) -> Self {
+        debug!("GMSpriteBuilder::with_visible(), visible: '{}'", visible);
+
         self.sprite.base.visible = visible;
         self
     }
 
 
     pub fn with_active(mut self, active: bool) -> Self {
+        debug!("GMSpriteBuilder::with_active(), active: '{}'", active);
+
         self.sprite.base.active = active;
         self
     }
 
-    pub fn with_id(mut self, id: u64) -> Self {
+    pub fn with_id(mut self, id: u32) -> Self {
+        debug!("GMSpriteBuilder::with_id(), id: '{}'", id);
+
         self.sprite.base.id = id;
         self
     }
 
-    pub fn with_group_id(mut self, group_id: u64) -> Self {
+    pub fn with_group_id(mut self, group_id: u32) -> Self {
+        debug!("GMSpriteBuilder::with_group_id(), group_id: '{}'", group_id);
+
         self.sprite.base.group_id = group_id;
         self
     }
 
-    pub fn with_name(mut self, name: &str) -> Self {
-        self.sprite.base.name = name.to_string();
+    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+        let name = name.into();
+        debug!("GMSpriteBuilder::with_name(), name: '{}'", name);
+
+        self.sprite.base.name = name;
         self
     }
 
-    pub fn with_custom_data(mut self, custom_data: &str) -> Self {
+    pub fn with_custom_data<S: Into<String>>(mut self, custom_data: S) -> Self {
+        let custom_data = custom_data.into();
+        debug!("GMSpriteBuilder::with_custom_data(), custom_data: '{}'", custom_data);
+
         self.sprite.base.custom_data = custom_data.to_string();
+        self
+    }
+
+    pub fn with_effect<T: 'static + GMSpriteEffectT>(mut self, effect: T) -> Self {
+        debug!("GMSpriteBuilder::with_effect()");
+
+        self.sprite.effects.push(Box::new(effect));
+        self
+    }
+
+    pub fn with_effect2(mut self, effect: Box<dyn GMSpriteEffectT>) -> Self {
+        debug!("GMSpriteBuilder::with_effect2()");
+
+        self.sprite.effects.push(effect);
+        self
+    }
+
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMSpriteEffectT>>) -> Self {
+        debug!("GMSpriteBuilder::with_effects()");
+
+        self.sprite.effects.extend(effects);
         self
     }
 

@@ -16,13 +16,13 @@ pub struct GMTexture {
 
 impl Debug for GMTexture {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "GMTexture, cols: {}, unit_width: {}, uni_height: {}", self.cols, self.unit_width, self.unit_height)
+        write!(f, "GMTexture, cols: '{}', unit_width: '{}', uni_height: '{}'", self.cols, self.unit_width, self.unit_height)
     }
 }
 
 impl GMTexture {
     pub fn new(cols: u32, unit_width: u32, unit_height: u32, texture: Texture) -> Self {
-        debug!("GMTexture::new(), cols: {}, unit_width: {}, unit_height: {}", cols, unit_width, unit_height);
+        debug!("GMTexture::new(), cols: '{}', unit_width: '{}', unit_height: '{}'", cols, unit_width, unit_height);
 
         Self {
             cols,
