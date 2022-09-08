@@ -19,7 +19,7 @@ pub struct GMBitmapFont {
 }
 
 impl GMBitmapFont {
-    pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
+    pub fn new(texture: &Rc<GMTexture>, char_mapping: &str) -> Self {
         debug!("GMBitmapFont::new(), char_mapping: '{}'", char_mapping);
 
         let mut mapping = HashMap::new();
@@ -29,7 +29,7 @@ impl GMBitmapFont {
         }
 
         Self {
-            texture,
+            texture: texture.clone(),
             mapping,
         }
     }
@@ -203,8 +203,8 @@ impl GMBitmapTextBase {
         self.reset_chars();
     }
 
-    pub fn set_text(&mut self, text: &str) {
-        self.text = text.to_string();
+    pub fn set_text<T: Into<String>>(&mut self, text: T) {
+        self.text = text.into();
         self.reset_chars();
     }
 
@@ -342,8 +342,8 @@ impl GMBitmapTextBuilder {
         }
     }
 
-    pub fn with_text(mut self, text: &str) -> Self {
-        self.bitmap_text.base.text = text.to_string();
+    pub fn with_text<T: Into<String>>(mut self, text: T) -> Self {
+        self.bitmap_text.base.text = text.into();
         self
     }
 

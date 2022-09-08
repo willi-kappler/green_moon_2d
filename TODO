@@ -12,7 +12,7 @@ Next TODO:
 # Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 
 - Implement send_message()
-- Add simple lexter / parser
+- Add simple lexer / parser
 
 
 - GMMenuItem

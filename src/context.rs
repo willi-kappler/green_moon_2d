@@ -47,7 +47,7 @@ impl GMContext {
         &self.resources
     }
 
-    pub fn get_mut_resources(&mut self) -> &mut GMResources {
+    pub fn get_resources_mut(&mut self) -> &mut GMResources {
         &mut self.resources
     }
 
@@ -68,8 +68,8 @@ impl GMContext {
         todo!("change_resolution: '{}', '{}'", width, height);
     }
 
-    pub fn change_title(&mut self, title: &str) {
-        todo!("change_title: '{}'", title);
+    pub fn change_title<T: Into<String>>(&mut self, title: T) {
+        todo!("change_title: '{}'", title.into());
     }
 
 
@@ -78,32 +78,40 @@ impl GMContext {
         self.scene_messages.pop_front()
     }
 
-    pub fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(name.to_string(), scene));
+    pub fn add_scene<T: 'static + GMSceneT, S: Into<String>>(&mut self, name: S, scene: T) {
+        self.add_scene2(name.into(), Box::new(scene));
     }
 
-    pub fn remove_scene(&mut self, name: &str) {
-        self.scene_messages.push_back(GMSceneManagerMessage::RemoveScene(name.to_string()));
+    pub fn add_scene2<S: Into<String>>(&mut self, name: S, scene: Box<dyn GMSceneT>) {
+        self.scene_messages.push_back(GMSceneManagerMessage::AddScene(name.into(), scene));
     }
 
-    pub fn change_to_scene(&mut self, name: &str) {
-        self.scene_messages.push_back(GMSceneManagerMessage::ChangeToScene(name.to_string()));
+    pub fn remove_scene<S: Into<String>>(&mut self, name: S) {
+        self.scene_messages.push_back(GMSceneManagerMessage::RemoveScene(name.into()));
     }
 
-    pub fn replace_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        self.scene_messages.push_back(GMSceneManagerMessage::ReplaceScene(name.to_string(), scene));
+    pub fn change_to_scene<S: Into<String>>(&mut self, name: S) {
+        self.scene_messages.push_back(GMSceneManagerMessage::ChangeToScene(name.into()));
     }
 
-    pub fn push_and_change_scene(&mut self, name: &str) {
-        self.scene_messages.push_back(GMSceneManagerMessage::PushAndChangeScene(name.to_string()));
+    pub fn replace_scene<T: 'static + GMSceneT, S: Into<String>>(&mut self, name: S, scene: T) {
+        self.replace_scene2(name.into(), Box::new(scene));
+    }
+
+    pub fn replace_scene2<S: Into<String>>(&mut self, name: S, scene: Box<dyn GMSceneT>) {
+        self.scene_messages.push_back(GMSceneManagerMessage::ReplaceScene(name.into(), scene));
+    }
+
+    pub fn push_and_change_scene<S: Into<String>>(&mut self, name: S) {
+        self.scene_messages.push_back(GMSceneManagerMessage::PushAndChangeScene(name.into()));
     }
 
     pub fn pop_and_change_scene(&mut self) {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn send_message(&mut self, scene: &str, message: &str) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.to_string(), message.to_string()));
+    pub fn send_message<S: Into<String>>(&mut self, scene: S, message: S) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into()));
     }
 
     // Update context, called by engine

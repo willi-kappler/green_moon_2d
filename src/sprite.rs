@@ -18,6 +18,7 @@ pub struct GMSpriteBase {
     angle: f32,
     flip_x: bool,
     flip_y: bool,
+    scale: f32,
 
     texture: Rc<GMTexture>,
     animation: Box<dyn GMAnimationT>,
@@ -45,6 +46,7 @@ impl GMSpriteBase {
             angle: 0.0,
             flip_x: false,
             flip_y: false,
+            scale: 1.0,
             texture,
             animation: Box::new(GMAnimationStatic::new(0)),
             visible: true,
@@ -57,120 +59,128 @@ impl GMSpriteBase {
 
     }
 
-    pub fn get_position(&self) -> &GMVec2D {
+    pub fn position(&self) -> &GMVec2D {
         &self.position
     }
 
-    pub fn get_position_mut(&mut self) -> &mut GMVec2D {
+    pub fn position_mut(&mut self) -> &mut GMVec2D {
         &mut self.position
     }
 
-    pub fn get_velocity(&self) -> &GMVec2D {
+    pub fn velocity(&self) -> &GMVec2D {
         &self.velocity
     }
 
-    pub fn get_velocity_mut(&mut self) -> &mut GMVec2D {
+    pub fn velocity_mut(&mut self) -> &mut GMVec2D {
         &mut self.velocity
     }
 
-    pub fn get_acceleration(&self) -> &GMVec2D {
+    pub fn acceleration(&self) -> &GMVec2D {
         &self.acceleration
     }
 
-    pub fn get_acceleration_mut(&mut self) -> &mut GMVec2D {
+    pub fn acceleration_mut(&mut self) -> &mut GMVec2D {
         &mut self.acceleration
     }
 
-    pub fn set_angle(&mut self, angle: f32) {
-        self.angle = angle;
-    }
-
-    pub fn get_angle(&self) -> f32 {
+    pub fn angle(&self) -> f32 {
         self.angle
     }
 
-    pub fn set_flip_x(&mut self, flip_x: bool) {
-        self.flip_x = flip_x;
+    pub fn angle_mut(&mut self) -> &mut f32 {
+        &mut self.angle
     }
 
-    pub fn get_flip_x(&self) -> bool {
+    pub fn flip_x(&self) -> bool {
         self.flip_x
     }
 
-    pub fn set_flip_y(&mut self, flip_y: bool) {
-        self.flip_y = flip_y;
+    pub fn flip_x_mut(&mut self) -> &mut bool {
+        &mut self.flip_x
     }
 
-    pub fn get_flip_y(&self) -> bool {
+    pub fn flip_y(&self) -> bool {
         self.flip_y
     }
 
-    pub fn set_texture(&mut self, texture: &Rc<GMTexture>) {
-        self.texture = texture.clone();
+    pub fn flip_y_mut(&mut self) -> &mut bool {
+        &mut self.flip_y
     }
 
-    pub fn get_texture(&self) -> &Rc<GMTexture> {
+    pub fn scale(&self) -> f32 {
+        self.scale
+    }
+
+    pub fn scale_mut(&mut self) -> &mut f32 {
+        &mut self.scale
+    }
+
+    pub fn texture(&self) -> &Rc<GMTexture> {
         &self.texture
+    }
+
+    pub fn texture_mut(&mut self) -> &mut Rc<GMTexture> {
+        &mut self.texture
     }
 
     pub fn set_animation<T: 'static + GMAnimationT>(&mut self, animation: T) {
         self.animation = Box::new(animation);
     }
 
-    pub fn get_animation(&self) -> &Box<dyn GMAnimationT> {
+    pub fn animation(&self) -> &Box<dyn GMAnimationT> {
         &self.animation
     }
 
-    pub fn get_animation_mut(&mut self) -> &mut Box<dyn GMAnimationT> {
+    pub fn animation_mut(&mut self) -> &mut Box<dyn GMAnimationT> {
         &mut self.animation
     }
 
-    pub fn set_visible(&mut self, visible: bool) {
-        self.visible = visible;
-    }
-
-    pub fn get_visible(&self) -> bool {
+    pub fn visible(&self) -> bool {
         self.visible
     }
 
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
+    pub fn visible_mut(&mut self) -> &mut bool {
+        &mut self.visible
     }
 
-    pub fn get_active(&self) -> bool {
+    pub fn active(&self) -> bool {
         self.active
     }
 
-    pub fn set_id(&mut self, id: u64) {
-        self.id = id;
+    pub fn active_mut(&mut self) -> &mut bool {
+        &mut self.active
     }
 
-    pub fn get_id(&self) -> u64 {
+    pub fn id(&mut self) -> u64 {
         self.id
     }
 
-    pub fn set_group_id(&mut self, group_id: u64) {
-        self.group_id = group_id;
+    pub fn id_mut(&mut self) -> &mut u64 {
+        &mut self.id
     }
 
-    pub fn get_group_id(&self) -> u64 {
+    pub fn group_id(&self) -> u64 {
         self.group_id
     }
 
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
+    pub fn group_id_mut(&mut self) -> &mut u64 {
+        &mut self.group_id
     }
 
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
-    pub fn set_custom_data(&mut self, custom_data: &str) {
-        self.custom_data = custom_data.to_string();
+    pub fn name_mut(&mut self) -> &mut str {
+        &mut self.name
     }
 
-    pub fn get_custom_data(&self) -> &str {
+    pub fn custom_data(&self) -> &str {
         &self.custom_data
+    }
+
+    pub fn custom_data_mut(&mut self) -> &mut str {
+        &mut self.custom_data
     }
 
     pub fn update(&mut self, _context: &mut GMContext) {
@@ -210,7 +220,7 @@ impl GMSprite {
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update(context);
 
-        if self.base.get_active() {
+        if self.base.active() {
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.base, context);
             }
@@ -220,24 +230,28 @@ impl GMSprite {
     pub fn draw(&self, context: &mut GMContext) {
         self.base.draw(context);
 
-        if self.base.get_visible() {
+        if self.base.visible() {
             for effect in self.effects.iter() {
                 effect.draw(&self.base, context);
             }
         }
     }
 
-    pub fn get_base(&self) -> &GMSpriteBase {
+    pub fn base(&self) -> &GMSpriteBase {
         &self.base
     }
 
-    pub fn get_mut_base(&mut self) -> &mut GMSpriteBase {
+    pub fn base_mut(&mut self) -> &mut GMSpriteBase {
         &mut self.base
     }
 
     // Sprite effect methods
     pub fn add_effect<T: 'static + GMSpriteEffectT>(&mut self, effect: T) {
-        self.effects.push(Box::new(effect));
+        self.add_effect2(Box::new(effect));
+    }
+
+    pub fn add_effect2(&mut self, effect: Box<dyn GMSpriteEffectT>) {
+        self.effects.push(effect);
     }
 
     pub fn remove_effect(&mut self, index: usize) {

@@ -75,8 +75,12 @@ impl GMSceneManager {
         self.scenes.iter().position(|scene| name == scene.0)
     }
 
-    pub(crate) fn add_scene(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
-        debug!("GMSceneManager::add_scene(), name: '{}'", name);
+    pub(crate) fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
+        self.add_scene2(name, Box::new(scene));
+    }
+
+    pub(crate) fn add_scene2(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
+        debug!("GMSceneManager::add_scene2(), name: '{}'", name);
 
         match self.scene_index(name) {
             Some(_) => {
@@ -176,7 +180,7 @@ impl GMSceneManager {
         while let Some(message) = context.next_scene_message() {
             match message {
                 AddScene(name, scene) => {
-                    self.add_scene(&name, scene);
+                    self.add_scene2(&name, scene);
                 }
                 ChangeToScene(name) => {
                     self.change_to_scene(&name, context);

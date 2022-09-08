@@ -65,18 +65,18 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
         match self.repetition {
             GMRepetition::OnceForward => {
                 if self.factor < 1.0 {
-                    *sprite.get_position_mut() = self.start + (self.direction * self.factor);
+                    *sprite.position_mut() = self.start + (self.direction * self.factor);
                     self.factor += self.speed;
                 }
             }
             GMRepetition::OnceBackward => {
                 if self.factor > 0.0 {
-                    *sprite.get_position_mut() = self.start + (self.direction * self.factor);
+                    *sprite.position_mut() = self.start + (self.direction * self.factor);
                     self.factor -= self.speed;
                 }
             }
             GMRepetition::LoopForward => {
-                *sprite.get_position_mut() = self.start + (self.direction * self.factor);
+                *sprite.position_mut() = self.start + (self.direction * self.factor);
                 self.factor += self.speed;
 
                 if self.factor > 1.0 {
@@ -84,7 +84,7 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
                 }
             }
             GMRepetition::LoopBackward => {
-                *sprite.get_position_mut() = self.start + (self.direction * self.factor);
+                *sprite.position_mut() = self.start + (self.direction * self.factor);
                 self.factor -= self.speed;
 
                 if self.factor < 0.0 {
@@ -92,7 +92,7 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
                 }
             }
             GMRepetition::PingPongForward => {
-                *sprite.get_position_mut() = self.start + (self.direction * self.factor);
+                *sprite.position_mut() = self.start + (self.direction * self.factor);
                 self.factor += self.speed;
 
                 if self.factor > 1.0 {
@@ -101,7 +101,7 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
                 }
             }
             GMRepetition::PingPongBackward => {
-                *sprite.get_position_mut() = self.end - (self.direction * self.factor);
+                *sprite.position_mut() = self.end - (self.direction * self.factor);
                 self.factor += self.speed;
 
                 if self.factor > 1.0 {

@@ -1,6 +1,7 @@
 
 
 use std::fs;
+use std::path::Path;
 
 use sdl2::gfx::framerate::FPSManager;
 use log::debug;
@@ -54,15 +55,15 @@ impl GMEngine {
         }
     }
 
-    pub fn load_configuration(&mut self, file_name: &str) {
-        debug!("GMEngine::load_configuration(), file_name: '{}'", file_name);
+    pub fn load_configuration<P: AsRef<Path>>(&mut self, path: P) {
+        debug!("GMEngine::load_configuration(), path: '{:?}'", path.as_ref());
 
-        match fs::read_to_string(file_name) {
+        match fs::read_to_string(path.as_ref()) {
             Ok(json) => {
                 self.configuration_from_json(&json);
             }
             Err(e) => {
-                error_panic(&format!("Error in reading file: '{}', '{}'", file_name, e));
+                error_panic(&format!("Error in reading file: '{:?}', '{}'", path.as_ref(), e));
             }
         }
     }
@@ -89,13 +90,13 @@ impl GMEngine {
         self.context = Some(GMContext::new(texture_creator, event_pump, canvas, &self.configuration));
     }
 
-    pub fn load_resources(&mut self, file_name: &str) {
-        debug!("GMEngine::load_resources(), file_name: '{}'", file_name);
+    pub fn load_resources<P: AsRef<Path>>(&mut self, path: P) {
+        debug!("GMEngine::load_resources(), file_name: '{:?}'", path.as_ref());
 
         let context = self.context.as_mut()
             .expect("GMEngine::load_resources(), context not set, call init() on engine first!");
 
-        context.get_mut_resources().load_resources(file_name);
+        context.get_resources_mut().load_resources(path);
     }
 
     pub fn get_resources(&self) -> &GMResources {
@@ -107,19 +108,23 @@ impl GMEngine {
         &context.get_resources()
     }
 
-    pub fn get_mut_resources(&mut self) -> &mut GMResources {
+    pub fn get_resources_mut(&mut self) -> &mut GMResources {
         debug!("GMEngine::get_resources()");
 
         let context = self.context.as_mut()
             .expect("GMEngine::get_resources(), context not set, call init() on engine first!");
 
-        context.get_mut_resources()
+        context.get_resources_mut()
     }
 
-    pub fn add_scene<S: 'static + GMSceneT>(&mut self, name: &str, scene: S) {
-        debug!("GMEngine::add_scene(), name: '{}'", name);
+    pub fn add_scene<T: 'static + GMSceneT>(&mut self, name: &str, scene: T) {
+        self.add_scene2(name, Box::new(scene));
+    }
 
-        self.scene_manager.add_scene(name, Box::new(scene))
+    pub fn add_scene2(&mut self, name: &str, scene: Box<dyn GMSceneT>) {
+        debug!("GMEngine::add_scene2(), name: '{}'", name);
+
+        self.scene_manager.add_scene2(name, scene)
     }
 
     pub fn window_width(&self) -> f32 {

@@ -1,6 +1,7 @@
 
 use std::rc::Rc;
 use std::fs;
+use std::path::Path;
 use std::collections::HashMap;
 
 use sdl2::image::LoadTexture;
@@ -11,17 +12,17 @@ use nanoserde::DeJson;
 
 use log::debug;
 
-use crate::animation::GMAnimationT;
+use crate::animation::{GMAnimationT, GMAnimationSimple, GMAnimationSimpleBuilder};
 use crate::texture::GMTexture;
 use crate::bitmap_text::{GMBitmapFont};
-use crate::util::error_panic;
+use crate::util::{error_panic, GMRepetition};
 
 
 pub struct GMResources {
     texture_creator: TextureCreator<WindowContext>,
     textures: HashMap<String, Rc<GMTexture>>,
     fonts: HashMap<String, Rc<GMBitmapFont>>,
-    animations: HashMap<String, Rc<dyn GMAnimationT>>,
+    animations: HashMap<String, Box<dyn GMAnimationT>>,
 }
 
 impl GMResources {
@@ -34,10 +35,10 @@ impl GMResources {
         }
     }
 
-    pub fn load_resources(&mut self, file_name: &str) {
-        debug!("GMResources::load_resources(), file_name: '{}'", file_name);
+    pub fn load_resources<P: AsRef<Path>>(&mut self, path: P) {
+        debug!("GMResources::load_resources(), file_name: '{:?}'", path.as_ref());
 
-        let json_string = match fs::read_to_string(file_name) {
+        let json_string = match fs::read_to_string(path) {
             Ok(content) => {
                 content
             }
@@ -95,11 +96,11 @@ impl GMResources {
         self.textures.clear();
     }
 
-    pub fn create_texture(&self, file_name: &str, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
-        debug!("GMResources::create_texture(), file_name: '{}', cols: {}, unit_width: {}, unit_height: {}",
-            file_name, cols, unit_width, unit_height);
+    pub fn create_texture<P: AsRef<Path>>(&self, path: P, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
+        debug!("GMResources::create_texture(), path: '{:?}', cols: {}, unit_width: {}, unit_height: {}",
+            path.as_ref(), cols, unit_width, unit_height);
 
-        let image = match self.texture_creator.load_texture(file_name) {
+        let image = match self.texture_creator.load_texture(path) {
             Ok(image) => {
                 image
             }
@@ -139,12 +140,12 @@ impl GMResources {
         }
     }
 
-    pub fn get_texture_clone(&self, name: &str) -> Rc<GMTexture> {
-        debug!("GMResources::get_texture_clone(), name: '{}'", name);
+    pub fn get_texture(&self, name: &str) -> &Rc<GMTexture> {
+        debug!("GMResources::get_texture(), name: '{}'", name);
 
         match self.textures.get(name) {
             Some(texture) => {
-                texture.clone()
+                texture
             }
             None => {
                 self.no_texture_found(name);
@@ -166,7 +167,7 @@ impl GMResources {
     pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Rc<GMBitmapFont> {
         debug!("GMResources::create_bitmap_font(), texture: '{}'", texture);
 
-        let texture = self.get_texture_clone(texture);
+        let texture = self.get_texture(texture);
         let font = GMBitmapFont::new(texture, char_mapping);
 
         Rc::new(font)
@@ -200,12 +201,12 @@ impl GMResources {
         }
     }
 
-    pub fn get_font_clone(&self, name: &str) -> Rc<GMBitmapFont> {
-        debug!("GMResources::get_font_clone(), name: '{}'", name);
+    pub fn get_font(&self, name: &str) -> &Rc<GMBitmapFont> {
+        debug!("GMResources::get_font(), name: '{}'", name);
 
         match self.fonts.get(name) {
             Some(font) => {
-                font.clone()
+                font
             }
             None => {
                 self.no_font_found(name);
@@ -225,14 +226,41 @@ impl GMResources {
         self.animations.clear();
     }
 
-    pub fn create_animation(&self, animation_type: &str, frames: &[(usize, f32)]) -> Rc<dyn GMAnimationT> {
+    pub fn create_animation(&self, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimationSimple {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
-        todo!("create_animation: '{:?}'", frames);
+        match animation_type {
+            "once_forward" => {
+                GMAnimationSimpleBuilder::new(frames).build()
+            }
+            "once_backward" => {
+                GMAnimationSimpleBuilder::new(frames)
+                    .with_repetition(GMRepetition::OnceBackward).build()
+            }
+            "loop_forward" => {
+                GMAnimationSimpleBuilder::new(frames)
+                    .with_repetition(GMRepetition::LoopForward).build()
+            }
+            "loop_backward" => {
+                GMAnimationSimpleBuilder::new(frames)
+                    .with_repetition(GMRepetition::LoopBackward).build()
+            }
+            "ping_pong" => {
+                GMAnimationSimpleBuilder::new(frames)
+                    .with_repetition(GMRepetition::PingPongForward).build()
+            }
+            _ => {
+                error_panic(&format!("Unknown animation type: {}", animation_type));
+            }
+        }
     }
 
-    pub fn add_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) {
-        debug!("GMResources::add_animation(), name: '{}'", name);
+    pub fn add_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
+        self.add_animation2(name, Box::new(animation));
+    }
+
+    pub fn add_animation2(&mut self, name: &str, animation: Box<dyn GMAnimationT>) {
+        debug!("GMResources::add_animation2(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
             error_panic(&format!("An animation with name {} does already exist!", name));
@@ -249,17 +277,17 @@ impl GMResources {
         }
     }
 
-    pub fn replace_animation(&mut self, name: &str, animation: Rc<dyn GMAnimationT>) {
+    pub fn replace_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
         debug!("GMResources::replace_animation(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
-            self.animations.insert(name.to_string(), animation);
+            self.animations.insert(name.to_string(), Box::new(animation));
         } else {
             self.no_animation_found(name);
         }
     }
 
-    pub fn get_animation_clone(&self, name: &str) -> Rc<dyn GMAnimationT> {
+    pub fn get_animation(&self, name: &str) -> Box<dyn GMAnimationT> {
         debug!("GMResources::get_animation_clone(), name: '{}'", name);
 
         match self.animations.get(name) {
@@ -307,7 +335,7 @@ struct GMFontFormat {
 struct GMAnimationFormat {
     name: String,
     animation_type: String,
-    frames: Vec<(usize, f32)>, // (texture index, duration in seconds)
+    frames: Vec<(u32, f32)>, // (texture index, duration in seconds)
 }
 
 #[derive(Debug, DeJson)]
