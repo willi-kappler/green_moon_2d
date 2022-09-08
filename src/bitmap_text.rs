@@ -329,6 +329,8 @@ impl GMBitmapText {
     }
 
     pub fn draw(&self, context: &mut GMContext) {
+        self.base.draw(context);
+
         for effect in self.effects.iter() {
             effect.draw(&self.base, context);
         }
@@ -338,7 +340,7 @@ impl GMBitmapText {
         &self.base
     }
 
-    pub fn get_mut_base(&mut self) -> &mut GMBitmapTextBase {
+    pub fn get_base_mut(&mut self) -> &mut GMBitmapTextBase {
         &mut self.base
     }
 
