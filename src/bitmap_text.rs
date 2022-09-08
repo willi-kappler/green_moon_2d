@@ -321,7 +321,7 @@ impl GMBitmapText {
         }
     }
 
-    // Sprite methods
+    // Text methods
     pub fn update(&mut self, context: &mut GMContext) {
         for effect in self.effects.iter_mut() {
             effect.update(&mut self.base, context);
@@ -342,9 +342,13 @@ impl GMBitmapText {
         &mut self.base
     }
 
-    // Sprite effect methods
+    // Text effect methods
     pub fn add_effect<T: 'static + GMTextEffectT>(&mut self, effect: T) {
-        self.effects.push(Box::new(effect));
+        self.add_effect2(Box::new(effect));
+    }
+
+    pub fn add_effect2(&mut self, effect: Box<dyn GMTextEffectT>) {
+        self.effects.push(effect);
     }
 
     pub fn remove_effect(&mut self, index: usize) {
