@@ -186,10 +186,19 @@ impl GMSpriteBase {
     pub fn update(&mut self, _context: &mut GMContext) {
         if self.active {
             self.animation.update();
+        }
+    }
 
+    pub fn move_step(&mut self) {
+        if self.active {
             self.position.add2(&self.velocity);
             self.velocity.add2(&self.acceleration);
         }
+    }
+
+    pub fn update_move(&mut self, context: &mut GMContext) {
+        self.update(context);
+        self.move_step();
     }
 
     pub fn draw(&self, context: &mut GMContext) {
