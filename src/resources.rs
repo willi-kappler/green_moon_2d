@@ -288,7 +288,7 @@ impl GMResources {
     }
 
     pub fn get_animation(&self, name: &str) -> Box<dyn GMAnimationT> {
-        debug!("GMResources::get_animation_clone(), name: '{}'", name);
+        debug!("GMResources::get_animation(), name: '{}'", name);
 
         match self.animations.get(name) {
             Some(animation) => {

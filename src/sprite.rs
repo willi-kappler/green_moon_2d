@@ -36,7 +36,7 @@ pub struct GMSpriteBase {
 // TODO: Maybe use https://github.com/jbaublitz/getset
 
 impl GMSpriteBase {
-    pub fn new(texture: Rc<GMTexture>) -> Self {
+    pub fn new(texture: &Rc<GMTexture>) -> Self {
         debug!("GMSpriteBase::new()");
 
         Self {
@@ -47,7 +47,7 @@ impl GMSpriteBase {
             flip_x: false,
             flip_y: false,
             scale: 1.0,
-            texture,
+            texture: texture.clone(),
             animation: Box::new(GMAnimationStatic::new(0)),
             visible: true,
             active: true,
@@ -211,13 +211,14 @@ impl GMSpriteBase {
 
 }
 
+#[derive(Debug, Clone)]
 pub struct GMSprite {
     base: GMSpriteBase,
     effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
 impl GMSprite {
-    pub fn new(texture: Rc<GMTexture>) -> Self {
+    pub fn new(texture: &Rc<GMTexture>) -> Self {
         debug!("GMSprite::new()");
 
         Self {
@@ -291,7 +292,7 @@ pub struct GMSpriteBuilder {
 }
 
 impl GMSpriteBuilder {
-    pub fn new(texture: Rc<GMTexture>) -> GMSpriteBuilder {
+    pub fn new(texture: &Rc<GMTexture>) -> GMSpriteBuilder {
         Self {
             sprite: GMSprite::new(texture),
         }
@@ -346,6 +347,13 @@ impl GMSpriteBuilder {
         debug!("GMSpriteBuilder::with_animation()");
 
         self.sprite.base.animation = Box::new(animation);
+        self
+    }
+
+    pub fn with_animation2(mut self, animation: Box<dyn GMAnimationT>) -> Self {
+        debug!("GMSpriteBuilder::with_animation2()");
+
+        self.sprite.base.animation = animation;
         self
     }
 
