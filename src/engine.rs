@@ -68,6 +68,13 @@ impl GMEngine {
         }
     }
 
+    pub fn load_configuration_and_init<P: AsRef<Path>>(&mut self, path: P) {
+        debug!("GMEngine::load_configuration_and_init(), path: '{:?}'", path.as_ref());
+
+        self.load_configuration(path);
+        self.init();
+    }
+
     pub fn init(&mut self) {
         debug!("GMEngine::init()");
 
@@ -88,6 +95,11 @@ impl GMEngine {
         let event_pump = sdl_context.event_pump().expect("GMEngine::init(), could not initialize events");
 
         self.context = Some(GMContext::new(texture_creator, event_pump, canvas, &self.configuration));
+
+        if let Some(resources) = &self.configuration.resources {
+            let path = resources.clone();
+            self.load_resources(path);
+        }
     }
 
     pub fn load_resources<P: AsRef<Path>>(&mut self, path: P) {

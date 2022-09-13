@@ -3,10 +3,11 @@ use nanoserde::DeJson;
 
 #[derive(Debug, Clone, DeJson)]
 pub struct GMConfiguration {
-    pub fps: u32,
-    pub window_title: String,
-    pub screen_width: u32,
-    pub screen_height: u32,
+    pub(crate) fps: u32,
+    pub(crate) window_title: String,
+    pub(crate) screen_width: u32,
+    pub(crate) screen_height: u32,
+    pub(crate) resources: Option<String>,
 }
 
 impl GMConfiguration {
@@ -16,6 +17,7 @@ impl GMConfiguration {
             window_title: "GreenMoon2D".to_string(),
             screen_width: 1024,
             screen_height: 768,
+            resources: None,
         }
     }
 }

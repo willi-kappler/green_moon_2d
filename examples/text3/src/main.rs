@@ -205,9 +205,7 @@ fn main() {
     let _simple_log = WriteLogger::init(LevelFilter::Debug, config, File::create("text3.log").expect("Could not create log file"));
 
     let mut engine = GMEngine::new();
-    engine.load_configuration("config.json");
-    engine.init();
-    engine.load_resources("resources.json");
+    engine.load_configuration_and_init("config.json");
 
     let text3_scene = TextScene3::new(&engine);
 
