@@ -1,0 +1,45 @@
+{
+    "textures": [
+        {
+            "name": "tex_bat1",
+            "file_name": "../assets/sprite_sheets/bat1.png",
+            "cols": 3,
+            "unit_width": 16,
+            "unit_height": 20
+        },
+        {
+            "name": "tex_explosion1",
+            "file_name": "../assets/sprite_sheets/explosion1.png",
+            "cols": 6,
+            "unit_width": 36,
+            "unit_height": 30
+        },
+        {
+            "name": "tex_cuddly",
+            "file_name": "../assets/fonts/cuddly.png",
+            "cols": 10,
+            "unit_width": 32,
+            "unit_height": 32
+        }
+    ],
+    "fonts": [
+        {
+            "name": "font_cuddly",
+            "texture_name": "tex_cuddly",
+            "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- "
+        }
+    ],
+    "animations": [
+        {
+            "name": "anim_bat1",
+            "animation_type": "ping_pong",
+            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+        },
+        {
+            "name": "anim_explosion1",
+            "animation_type": "loop_forward",
+            "frames": [[0, 0.05], [1, 0.05], [2, 0.05], [3, 0.05], [4, 0.05], [5, 0.05]]
+        }
+    ],
+    "sounds": []
+}
