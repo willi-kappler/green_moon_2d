@@ -21,10 +21,8 @@ impl SpriteScene1 {
         let resources = engine.get_resources();
         let window_width = engine.window_width();
 
-        let font = resources.get_font("font_cuddly").clone();
-
         // Move title to the center of the window
-        let title = GMBitmapTextBuilder::new(&font)
+        let title = GMBitmapTextBuilder::new(resources.get_font("font_cuddly"))
             .with_text("SPRITE TEST 1")
             .with_position((window_width / 2.0, 32.0))
             .with_align(GMAlign::TopCenter)
@@ -34,7 +32,12 @@ impl SpriteScene1 {
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_bat1"))
             .with_position((100.0, 100.0))
-            .with_animation2(resources.get_animation("anim_bat1"))
+            .with_animation(resources.get_animation("anim_bat1"))
+            .build());
+
+        sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_explosion1"))
+            .with_position((100.0, 150.0))
+            .with_animation(resources.get_animation("anim_explosion1"))
             .build());
 
         Self {
