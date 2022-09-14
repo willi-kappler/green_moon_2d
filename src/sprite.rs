@@ -4,7 +4,7 @@ use std::rc::Rc;
 use log::debug;
 
 use crate::texture::GMTexture;
-use crate::animation::{GMAnimationT, GMAnimationStatic};
+use crate::animation::{GMAnimation};
 use crate::sprite_effect::{GMSpriteEffectT};
 use crate::context::GMContext;
 use crate::math::GMVec2D;
@@ -21,7 +21,7 @@ pub struct GMSpriteBase {
     scale: f32,
 
     texture: Rc<GMTexture>,
-    animation: Box<dyn GMAnimationT>,
+    animation: GMAnimation,
 
     visible: bool,
     active: bool,
@@ -48,7 +48,7 @@ impl GMSpriteBase {
             flip_y: false,
             scale: 1.0,
             texture: texture.clone(),
-            animation: Box::new(GMAnimationStatic::new(0)),
+            animation: GMAnimation::new(&[(0, 0.0)]),
             visible: true,
             active: true,
             id: 0,
@@ -123,15 +123,15 @@ impl GMSpriteBase {
         &mut self.texture
     }
 
-    pub fn set_animation<T: 'static + GMAnimationT>(&mut self, animation: T) {
-        self.animation = Box::new(animation);
+    pub fn set_animation(&mut self, animation: GMAnimation) {
+        self.animation = animation;
     }
 
-    pub fn animation(&self) -> &Box<dyn GMAnimationT> {
+    pub fn animation(&self) -> &GMAnimation {
         &self.animation
     }
 
-    pub fn animation_mut(&mut self) -> &mut Box<dyn GMAnimationT> {
+    pub fn animation_mut(&mut self) -> &mut GMAnimation {
         &mut self.animation
     }
 
@@ -343,15 +343,8 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_animation<T: 'static + GMAnimationT>(mut self, animation: T) -> Self {
+    pub fn with_animation(mut self, animation: GMAnimation) -> Self {
         debug!("GMSpriteBuilder::with_animation()");
-
-        self.sprite.base.animation = Box::new(animation);
-        self
-    }
-
-    pub fn with_animation2(mut self, animation: Box<dyn GMAnimationT>) -> Self {
-        debug!("GMSpriteBuilder::with_animation2()");
 
         self.sprite.base.animation = animation;
         self

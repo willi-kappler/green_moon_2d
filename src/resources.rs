@@ -12,7 +12,7 @@ use nanoserde::DeJson;
 
 use log::debug;
 
-use crate::animation::{GMAnimationT, GMAnimationSimple, GMAnimationSimpleBuilder};
+use crate::animation::{GMAnimation, GMAnimationBuilder};
 use crate::texture::GMTexture;
 use crate::bitmap_text::{GMBitmapFont};
 use crate::util::{error_panic, GMRepetition};
@@ -22,7 +22,7 @@ pub struct GMResources {
     texture_creator: TextureCreator<WindowContext>,
     textures: HashMap<String, Rc<GMTexture>>,
     fonts: HashMap<String, Rc<GMBitmapFont>>,
-    animations: HashMap<String, Box<dyn GMAnimationT>>,
+    animations: HashMap<String, GMAnimation>,
 }
 
 impl GMResources {
@@ -226,27 +226,27 @@ impl GMResources {
         self.animations.clear();
     }
 
-    pub fn create_animation(&self, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimationSimple {
+    pub fn create_animation(&self, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimation {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
         match animation_type {
             "once_forward" => {
-                GMAnimationSimpleBuilder::new(frames).build()
+                GMAnimationBuilder::new(frames).build()
             }
             "once_backward" => {
-                GMAnimationSimpleBuilder::new(frames)
+                GMAnimationBuilder::new(frames)
                     .with_repetition(GMRepetition::OnceBackward).build()
             }
             "loop_forward" => {
-                GMAnimationSimpleBuilder::new(frames)
+                GMAnimationBuilder::new(frames)
                     .with_repetition(GMRepetition::LoopForward).build()
             }
             "loop_backward" => {
-                GMAnimationSimpleBuilder::new(frames)
+                GMAnimationBuilder::new(frames)
                     .with_repetition(GMRepetition::LoopBackward).build()
             }
             "ping_pong" => {
-                GMAnimationSimpleBuilder::new(frames)
+                GMAnimationBuilder::new(frames)
                     .with_repetition(GMRepetition::PingPongForward).build()
             }
             _ => {
@@ -255,11 +255,7 @@ impl GMResources {
         }
     }
 
-    pub fn add_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
-        self.add_animation2(name, Box::new(animation));
-    }
-
-    pub fn add_animation2(&mut self, name: &str, animation: Box<dyn GMAnimationT>) {
+    pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {
         debug!("GMResources::add_animation2(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
@@ -277,17 +273,17 @@ impl GMResources {
         }
     }
 
-    pub fn replace_animation<T: 'static + GMAnimationT>(&mut self, name: &str, animation: T) {
+    pub fn replace_animation(&mut self, name: &str, animation: GMAnimation) {
         debug!("GMResources::replace_animation(), name: '{}'", name);
 
         if self.animations.contains_key(name) {
-            self.animations.insert(name.to_string(), Box::new(animation));
+            self.animations.insert(name.to_string(), animation);
         } else {
             self.no_animation_found(name);
         }
     }
 
-    pub fn get_animation(&self, name: &str) -> Box<dyn GMAnimationT> {
+    pub fn get_animation(&self, name: &str) -> GMAnimation {
         debug!("GMResources::get_animation(), name: '{}'", name);
 
         match self.animations.get(name) {

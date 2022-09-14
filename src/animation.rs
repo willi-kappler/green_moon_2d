@@ -7,74 +7,9 @@ use crate::timer::GMTimer;
 use crate::util::GMRepetition;
 use crate::context::GMContext;
 
-pub trait GMAnimationT : Debug {
-    fn update(&mut self);
-
-    fn finished(&self) -> bool;
-
-    fn texture_index(&self) -> u32;
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT>;
-
-    fn set_active(&mut self, active: bool);
-
-    fn reverse(&mut self);
-
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-    }
-}
-
-impl Clone for Box<dyn GMAnimationT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
 
 #[derive(Clone, Debug)]
-pub struct GMAnimationStatic {
-    texture_index: u32,
-}
-
-impl GMAnimationStatic {
-    pub fn new(texture_index: u32) -> Self {
-        Self {
-            texture_index,
-        }
-    }
-}
-
-impl GMAnimationT for GMAnimationStatic {
-    fn update(&mut self) {
-        // Nothing to do
-    }
-
-    fn finished(&self) -> bool {
-        true
-    }
-
-    fn texture_index(&self) -> u32 {
-        self.texture_index
-    }
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
-    }
-
-    fn set_active(&mut self, _active: bool) {
-        // Nothing to do
-    }
-
-    fn reverse(&mut self) {
-        // Nothing to do
-    }
-}
-
-
-#[derive(Clone, Debug)]
-pub struct GMAnimationSimple {
+pub struct GMAnimation {
     active: bool,
     current_frame: usize,
     frames: Vec<(u32, f32)>, // index, duration in seconds
@@ -82,9 +17,9 @@ pub struct GMAnimationSimple {
     repetition: GMRepetition,
 }
 
-impl GMAnimationSimple {
+impl GMAnimation {
     pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationSimple::new(), frames: '{:?}'", frames);
+        debug!("GMAnimation::new(), frames: '{:?}'", frames);
 
         Self {
             active: true,
@@ -141,6 +76,7 @@ impl GMAnimationSimple {
     }
 
     pub fn set_new_timer_duration(&mut self) {
+        self.timer.set_active(true);
         self.timer.set_duration(self.frames[self.current_frame].1);
     }
 
@@ -151,10 +87,8 @@ impl GMAnimationSimple {
     pub fn get_repetition(&self) -> GMRepetition {
         self.repetition
     }
-}
 
-impl GMAnimationT for GMAnimationSimple {
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         if self.active && self.timer.finished() {
             match self.repetition {
                 GMRepetition::OnceForward => {
@@ -211,7 +145,7 @@ impl GMAnimationT for GMAnimationSimple {
         }
     }
 
-    fn finished(&self) -> bool {
+    pub fn finished(&self) -> bool {
         match self.repetition {
             GMRepetition::OnceForward => {
                 self.frame_at_end()
@@ -225,21 +159,7 @@ impl GMAnimationT for GMAnimationSimple {
         }
     }
 
-    fn texture_index(&self) -> u32 {
-        self.texture_index()
-    }
-
-    fn clone_box(&self) -> Box<dyn GMAnimationT> {
-        let result = self.clone();
-
-        Box::new(result)
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    fn reverse(&mut self) {
+    pub fn reverse(&mut self) {
         match self.repetition {
             GMRepetition::OnceForward => {
                 self.repetition = GMRepetition::OnceBackward;
@@ -262,20 +182,21 @@ impl GMAnimationT for GMAnimationSimple {
         }
     }
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
         // TODO: implement
         todo!();
     }
 }
 
-pub struct GMAnimationSimpleBuilder {
-    animation: GMAnimationSimple,
+
+pub struct GMAnimationBuilder {
+    animation: GMAnimation,
 }
 
-impl GMAnimationSimpleBuilder {
+impl GMAnimationBuilder {
     pub fn new(frames: &[(u32, f32)]) -> Self {
         Self {
-            animation: GMAnimationSimple::new(frames),
+            animation: GMAnimation::new(frames),
         }
     }
 
@@ -300,7 +221,7 @@ impl GMAnimationSimpleBuilder {
         self
     }
 
-    pub fn build(self) -> GMAnimationSimple {
+    pub fn build(self) -> GMAnimation {
         self.animation
     }
 }
