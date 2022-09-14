@@ -16,6 +16,8 @@ pub struct GMSpriteBase {
     acceleration: GMVec2D,
 
     angle: f32,
+    angle_velocity: f32,
+    angle_acceleration: f32,
     flip_x: bool,
     flip_y: bool,
     scale: f32,
@@ -43,14 +45,20 @@ impl GMSpriteBase {
             position: GMVec2D::new(0.0, 0.0),
             velocity: GMVec2D::new(0.0, 0.0),
             acceleration: GMVec2D::new(0.0, 0.0),
+
             angle: 0.0,
+            angle_velocity: 0.0,
+            angle_acceleration: 0.0,
             flip_x: false,
             flip_y: false,
             scale: 1.0,
+
             texture: texture.clone(),
             animation: GMAnimation::new(&[(0, 0.0)]),
+
             visible: true,
             active: true,
+
             id: 0,
             group_id: 0,
             name: "".to_string(),
@@ -89,6 +97,22 @@ impl GMSpriteBase {
 
     pub fn angle_mut(&mut self) -> &mut f32 {
         &mut self.angle
+    }
+
+    pub fn angle_velocity(&self) -> f32 {
+        self.angle_velocity
+    }
+
+    pub fn angle_velocity_mut(&mut self) -> &mut f32 {
+        &mut self.angle_velocity
+    }
+
+    pub fn angle_acceleration(&self) -> f32 {
+        self.angle_acceleration
+    }
+
+    pub fn angle_acceleration_mut(&mut self) -> &mut f32 {
+        &mut self.angle_acceleration
     }
 
     pub fn flip_x(&self) -> bool {
@@ -193,6 +217,9 @@ impl GMSpriteBase {
         if self.active {
             self.position.add2(&self.velocity);
             self.velocity.add2(&self.acceleration);
+
+            self.angle += self.angle_velocity;
+            self.angle_velocity += self.angle_acceleration;
         }
     }
 
