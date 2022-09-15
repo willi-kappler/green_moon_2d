@@ -336,36 +336,42 @@ impl GMBitmapText {
         }
     }
 
-    pub fn get_base(&self) -> &GMBitmapTextBase {
+    pub fn base(&self) -> &GMBitmapTextBase {
         &self.base
     }
 
-    pub fn get_base_mut(&mut self) -> &mut GMBitmapTextBase {
+    pub fn base_mut(&mut self) -> &mut GMBitmapTextBase {
         &mut self.base
     }
 
     // Text effect methods
     pub fn add_effect<T: 'static + GMTextEffectT>(&mut self, effect: T) {
+        debug!("GMBitmapText::add_effect()");
         self.add_effect2(Box::new(effect));
     }
 
     pub fn add_effect2(&mut self, effect: Box<dyn GMTextEffectT>) {
+        debug!("GMBitmapText::add_effect2()");
         self.effects.push(effect);
     }
 
     pub fn set_effects<T: 'static + GMTextEffectT>(&mut self, effects: Vec<T>) {
+        debug!("GMBitmapText::set_effects()");
         self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMTextEffectT> = Box::new(e); e2}).collect());
     }
 
     pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMTextEffectT>>) {
+        debug!("GMBitmapText::set_effect2()");
         self.effects = effects;
     }
 
     pub fn remove_effect(&mut self, index: usize) {
+        debug!("GMBitmapText::remove_effect(), index: {}", index);
         self.effects.remove(index);
     }
 
     pub fn swap_effects(&mut self, index1: usize, index2: usize) {
+        debug!("GMBitmapText::swap_effects(), index1: {}, index2: {}", index1, index2);
         self.effects.swap(index1, index2);
     }
 

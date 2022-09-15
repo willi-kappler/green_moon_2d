@@ -209,7 +209,7 @@ impl GMSpriteBase {
 
     pub fn update(&mut self, _context: &mut GMContext) {
         if self.active {
-            self.animation.update();
+            self.animation.base_mut().update();
         }
     }
 
@@ -230,7 +230,7 @@ impl GMSpriteBase {
 
     pub fn draw(&self, context: &mut GMContext) {
         if self.visible {
-            let index = self.animation.texture_index();
+            let index = self.animation.base().texture_index();
             self.texture.draw_opt(self.position.x, self.position.y, index,
                 self.angle, self.flip_x, self.flip_y, context);
         }
@@ -284,26 +284,32 @@ impl GMSprite {
 
     // Sprite effect methods
     pub fn add_effect<T: 'static + GMSpriteEffectT>(&mut self, effect: T) {
+        debug!("GMSprite::add_effect()");
         self.add_effect2(Box::new(effect));
     }
 
     pub fn add_effect2(&mut self, effect: Box<dyn GMSpriteEffectT>) {
+        debug!("GMSprite::add_effect2()");
         self.effects.push(effect);
     }
 
     pub fn set_effects<T: 'static + GMSpriteEffectT>(&mut self, effects: Vec<T>) {
+        debug!("GMSprite::set_effects()");
         self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMSpriteEffectT> = Box::new(e); e2}).collect());
     }
 
     pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMSpriteEffectT>>) {
+        debug!("GMSprite::set_effects2()");
         self.effects = effects;
     }
 
     pub fn remove_effect(&mut self, index: usize) {
+        debug!("GMSprite::remove_effect(), index: {}", index);
         self.effects.remove(index);
     }
 
     pub fn swap_effects(&mut self, index1: usize, index2: usize) {
+        debug!("GMSprite::swap_effect(), index1: {}, index2: {}", index1, index2);
         self.effects.swap(index1, index2);
     }
 

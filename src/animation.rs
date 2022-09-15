@@ -6,10 +6,10 @@ use log::debug;
 use crate::timer::GMTimer;
 use crate::util::GMRepetition;
 use crate::context::GMContext;
-
+use crate::animation_effect::GMAnimationEffectT;
 
 #[derive(Clone, Debug)]
-pub struct GMAnimation {
+pub struct GMAnimationBase {
     active: bool,
     current_frame: usize,
     frames: Vec<(u32, f32)>, // index, duration in seconds
@@ -17,9 +17,9 @@ pub struct GMAnimation {
     repetition: GMRepetition,
 }
 
-impl GMAnimation {
+impl GMAnimationBase {
     pub fn new(frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimation::new(), frames: '{:?}'", frames);
+        debug!("GMAnimationBase::new(), frames: '{:?}'", frames);
 
         Self {
             active: true,
@@ -35,20 +35,20 @@ impl GMAnimation {
         self.frames[self.current_frame].0
     }
 
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    pub fn get_active(&self) -> bool {
+    pub fn active(&mut self) -> bool{
         self.active
     }
 
-    pub fn set_frame(&mut self, index: usize) {
-        self.current_frame = index;
+    pub fn active_mut(&mut self) -> &mut bool {
+        &mut self.active
     }
 
-    pub fn get_frame(&self) -> usize {
+    pub fn frame(&mut self) -> usize {
         self.current_frame
+    }
+
+    pub fn frame_mut(&mut self) -> &mut usize {
+        &mut self.current_frame
     }
 
     pub fn inc_frame(&mut self, amount: usize) {
@@ -80,12 +80,12 @@ impl GMAnimation {
         self.timer.set_duration(self.frames[self.current_frame].1);
     }
 
-    pub fn set_repetition(&mut self, repetition: GMRepetition) {
-        self.repetition = repetition;
+    pub fn repetition(&mut self) -> GMRepetition {
+        self.repetition
     }
 
-    pub fn get_repetition(&self) -> GMRepetition {
-        self.repetition
+    pub fn repetition_mut(&mut self) -> &mut GMRepetition {
+        &mut self.repetition
     }
 
     pub fn update(&mut self) {
@@ -181,10 +181,73 @@ impl GMAnimation {
             }
         }
     }
+}
 
-    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        // TODO: implement
-        todo!();
+#[derive(Clone, Debug)]
+pub struct GMAnimation {
+    base: GMAnimationBase,
+    effects: Vec<Box<dyn GMAnimationEffectT>>,
+}
+
+impl GMAnimation {
+    pub fn new(frames: &[(u32, f32)]) -> Self {
+        Self {
+            base: GMAnimationBase::new(frames),
+            effects: Vec::new(),
+        }
+    }
+
+    pub fn update(&mut self, context: &mut GMContext) {
+        self.base.update();
+
+        if self.base.active() {
+            for effect in self.effects.iter_mut() {
+                effect.update(&mut self.base, context);
+            }
+        }
+    }
+
+    pub fn base(&self) -> &GMAnimationBase {
+        &self.base
+    }
+
+    pub fn base_mut(&mut self) -> &mut GMAnimationBase {
+        &mut self.base
+    }
+
+    // Animation effect methods
+    pub fn add_effect<T: 'static + GMAnimationEffectT>(&mut self, effect: T) {
+        debug!("GMAnimation::add_effect()");
+        self.add_effect2(Box::new(effect));
+    }
+
+    pub fn add_effect2(&mut self, effect: Box<dyn GMAnimationEffectT>) {
+        debug!("GMAnimation::add_effect2()");
+        self.effects.push(effect);
+    }
+
+    pub fn set_effects<T: 'static + GMAnimationEffectT>(&mut self, effects: Vec<T>) {
+        debug!("GMAnimation::set_effects()");
+        self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMAnimationEffectT> = Box::new(e); e2}).collect());
+    }
+
+    pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMAnimationEffectT>>) {
+        debug!("GMAnimation::set_effects2()");
+        self.effects = effects;
+    }
+
+    pub fn remove_effect(&mut self, index: usize) {
+        debug!("GMAnimation::remove_effect(), index: {}", index);
+        self.effects.remove(index);
+    }
+
+    pub fn swap_effects(&mut self, index1: usize, index2: usize) {
+        debug!("GMAnimation::swap_effects(), index1: {}, index2: {}", index1, index2);
+        self.effects.swap(index1, index2);
+    }
+
+    pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
+        self.effects[index].send_message(message, context)
     }
 }
 
@@ -203,21 +266,21 @@ impl GMAnimationBuilder {
     pub fn with_active(mut self, active: bool) -> Self {
         debug!("GMAnimationSimpleBuilder::with_active(), active: '{}'", active);
 
-        self.animation.active = active;
+        self.animation.base.active = active;
         self
     }
 
     pub fn with_current_frame(mut self, current_frame: usize) -> Self {
         debug!("GMAnimationSimpleBuilder::with_current_frame(), current_frame: '{}'", current_frame);
 
-        self.animation.current_frame = current_frame;
+        self.animation.base.current_frame = current_frame;
         self
     }
 
     pub fn with_repetition(mut self, repetition: GMRepetition) -> Self {
         debug!("GMAnimationSimpleBuilder::with_repetition(), repetition: '{:?}'", repetition);
 
-        self.animation.repetition = repetition;
+        self.animation.base.repetition = repetition;
         self
     }
 
