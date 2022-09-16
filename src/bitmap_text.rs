@@ -355,13 +355,8 @@ impl GMBitmapText {
         self.effects.push(effect);
     }
 
-    pub fn set_effects<T: 'static + GMTextEffectT>(&mut self, effects: Vec<T>) {
-        debug!("GMBitmapText::set_effects()");
-        self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMTextEffectT> = Box::new(e); e2}).collect());
-    }
-
-    pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMTextEffectT>>) {
-        debug!("GMBitmapText::set_effect2()");
+    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMTextEffectT>>) {
+        debug!("GMBitmapText::set_effect()");
         self.effects = effects;
     }
 

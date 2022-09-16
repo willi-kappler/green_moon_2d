@@ -226,13 +226,8 @@ impl GMAnimation {
         self.effects.push(effect);
     }
 
-    pub fn set_effects<T: 'static + GMAnimationEffectT>(&mut self, effects: Vec<T>) {
+    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMAnimationEffectT>>) {
         debug!("GMAnimation::set_effects()");
-        self.set_effects2(effects.into_iter().map(|e| {let e2: Box<dyn GMAnimationEffectT> = Box::new(e); e2}).collect());
-    }
-
-    pub fn set_effects2(&mut self, effects: Vec<Box<dyn GMAnimationEffectT>>) {
-        debug!("GMAnimation::set_effects2()");
         self.effects = effects;
     }
 
