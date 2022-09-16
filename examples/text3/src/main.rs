@@ -49,22 +49,22 @@ impl TextScene3 {
 
         effects.push(effect.clone());
 
-        effect.set_effects(vec![GMTextEffectWave::new(32.0, 0.1, 0.2)]);
+        effect.set_effects(vec![Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![GMTextEffectShake::new(5.0, 0.2)]);
+        effect.set_effects(vec![Box::new(GMTextEffectShake::new(5.0, 0.2))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![GMTextEffectRotateChars::new(1.0, 10.0)]);
+        effect.set_effects(vec![Box::new(GMTextEffectRotateChars::new(1.0, 10.0))]);
         effects.push(effect.clone());
 
-        effect.set_effects2(vec![
+        effect.set_effects(vec![
             Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
             Box::new(GMTextEffectShake::new(5.0, 0.2))
         ]);
         effects.push(effect.clone());
 
-        effect.set_effects2(vec![
+        effect.set_effects(vec![
             Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
             Box::new(GMTextEffectRotateChars::new(1.0, 10.0))
         ]);
@@ -184,7 +184,7 @@ impl GMSceneT for TextScene3 {
 
         let text = &mut self.effects[self.current_effect];
 
-        text.get_base_mut().reset_chars2();
+        text.base_mut().reset_chars2();
         text.update(context);
 
     }

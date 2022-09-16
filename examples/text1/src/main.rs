@@ -82,7 +82,7 @@ impl TextScene1 {
             debug!("TextScene1::change_font(), current font: {}", self.current_font);
 
             for text in self.texts.iter_mut() {
-                text.get_base_mut().set_font(&self.fonts[self.current_font]);
+                text.base_mut().set_font(&self.fonts[self.current_font]);
             }
         }
     }
@@ -93,7 +93,7 @@ impl TextScene1 {
         debug!("TextScene1::change_spacing(), char_spacing: {}", self.char_spacing);
 
         for text in self.texts.iter_mut() {
-            text.get_base_mut().set_spacing_x(self.char_spacing);
+            text.base_mut().set_spacing_x(self.char_spacing);
         }
     }
 }
