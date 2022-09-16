@@ -27,24 +27,6 @@ impl Clone for Box<dyn GMSpriteEffectT> {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMSpriteEffectEmpty {
-}
-
-impl GMSpriteEffectEmpty {
-    pub fn new() -> Self {
-        debug!("GMSpriteEffectEmpty::new()");
-
-        Self { }
-    }
-}
-
-impl GMSpriteEffectT for GMSpriteEffectEmpty {
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
-        Box::new(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
 pub struct GMSpriteEffectLinearMovement {
     start: GMVec2D,
     end: GMVec2D,

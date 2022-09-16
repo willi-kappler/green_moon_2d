@@ -33,24 +33,6 @@ impl Clone for Box<dyn GMTextEffectT> {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectEmpty {
-}
-
-impl GMTextEffectEmpty {
-    pub fn new() -> Self {
-        debug!("GMTextEffectEmpty::new()");
-
-        Self { }
-    }
-}
-
-impl GMTextEffectT for GMTextEffectEmpty {
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
-        Box::new(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
 pub struct GMTextEffectReset {
 }
 
