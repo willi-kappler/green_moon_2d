@@ -229,30 +229,9 @@ impl GMResources {
     pub fn create_animation(&self, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimation {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
-        match animation_type {
-            "once_forward" => {
-                GMAnimationBuilder::new(frames).build()
-            }
-            "once_backward" => {
-                GMAnimationBuilder::new(frames)
-                    .with_repetition(GMRepetition::OnceBackward).build()
-            }
-            "loop_forward" => {
-                GMAnimationBuilder::new(frames)
-                    .with_repetition(GMRepetition::LoopForward).build()
-            }
-            "loop_backward" => {
-                GMAnimationBuilder::new(frames)
-                    .with_repetition(GMRepetition::LoopBackward).build()
-            }
-            "ping_pong" => {
-                GMAnimationBuilder::new(frames)
-                    .with_repetition(GMRepetition::PingPongForward).build()
-            }
-            _ => {
-                error_panic(&format!("Unknown animation type: '{}'", animation_type));
-            }
-        }
+        let repetition = GMRepetition::from(animation_type);
+        GMAnimationBuilder::new(frames)
+            .with_repetition(repetition).build()
     }
 
     pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {

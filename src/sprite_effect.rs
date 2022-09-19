@@ -5,7 +5,7 @@ use log::debug;
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, parse_string, error_panic};
 
 pub trait GMSpriteEffectT: Debug {
     fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
@@ -105,9 +105,34 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
         }
     }
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        // TODO: implement
-        todo!();
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, values) = parse_string(message);
+
+        match name {
+            "set_start" => {
+                let x = values[0].parse::<f32>().unwrap();
+                let y = values[1].parse::<f32>().unwrap();
+                self.start.x = x;
+                self.start.y = y;
+            }
+            "set_end" => {
+                let x = values[0].parse::<f32>().unwrap();
+                let y = values[1].parse::<f32>().unwrap();
+                self.end.x = x;
+                self.end.y = y;
+            }
+            "set_speed" => {
+                let speed = values[0].parse::<f32>().unwrap();
+                self.speed = speed;
+
+            }
+            "set_repetition" => {
+                self.repetition = GMRepetition::from(values[0]);
+            }
+            _ => {
+                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: '{}'", message))
+            }
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
