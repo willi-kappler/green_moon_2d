@@ -49,25 +49,47 @@ impl TextScene3 {
 
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTEWave::new(32.0, 0.1, 0.2))]);
+        effect.set_effects(vec![Box::new(GMTEWave::new(
+            32.0, // amplitude
+            0.1, // speed
+            0.2 // offset
+            ))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTEShake::new(5.0, 0.2))]);
+        effect.set_effects(vec![Box::new(GMTEShake::new(
+            5.0, // radius
+            0.2 // speed
+            ))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTERotateChars::new(1.0, 10.0))]);
+        effect.set_effects(vec![Box::new(GMTERotateChars::new(
+            1.0, // speed
+            10.0 // offset
+            ))]);
         effects.push(effect.clone());
 
         effect.set_effects(vec![
-            Box::new(GMTEWave::new(32.0, 0.1, 0.2)),
-            Box::new(GMTEShake::new(5.0, 0.2))
-        ]);
+            Box::new(GMTEWave::new(
+                32.0, // amplitude
+                0.1, // speed
+                0.2 // offset
+                )),
+            Box::new(GMTEShake::new(
+                5.0, // radius
+                0.2 // offset
+                ))]);
         effects.push(effect.clone());
 
         effect.set_effects(vec![
-            Box::new(GMTEWave::new(32.0, 0.1, 0.2)),
-            Box::new(GMTERotateChars::new(1.0, 10.0))
-        ]);
+            Box::new(GMTEWave::new(
+                32.0, // amplitude
+                0.1, // speed
+                0.2 // offset
+                )),
+            Box::new(GMTERotateChars::new(
+                1.0, // speed
+                10.0 // offset
+                ))]);
         effects.push(effect.clone());
 
         Self {
