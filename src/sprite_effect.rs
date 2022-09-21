@@ -28,7 +28,7 @@ impl Clone for Box<dyn GMSpriteEffectT> {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMSpriteEffectLinearMovement {
+pub struct GMSELinearMovement {
     start: GMVec2D,
     end: GMVec2D,
     direction: GMVec2D,
@@ -37,14 +37,14 @@ pub struct GMSpriteEffectLinearMovement {
     repetition: GMRepetition,
 }
 
-impl GMSpriteEffectLinearMovement {
+impl GMSELinearMovement {
     pub fn new<T: Into<GMVec2D>>(start: T, end: T, speed: f32, repetition: GMRepetition) -> Self {
-        assert!(speed > 0.0 && speed < 1.0, "GMSpriteEffectLinearMovement::new(), speed must be greater than zero and smaller than one");
+        assert!(speed > 0.0 && speed < 1.0, "GMSELinearMovement::new(), speed must be greater than zero and smaller than one");
 
         let start = start.into();
         let end = end.into();
 
-        debug!("GMSpriteEffectLinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{}'", start, end, speed);
+        debug!("GMSELinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{}'", start, end, speed);
 
         let direction = end - start;
 
@@ -59,7 +59,7 @@ impl GMSpriteEffectLinearMovement {
     }
 }
 
-impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
+impl GMSpriteEffectT for GMSELinearMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         match self.repetition {
             GMRepetition::OnceForward => {
@@ -145,7 +145,7 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
                 }
             }
             _ => {
-                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -156,7 +156,7 @@ impl GMSpriteEffectT for GMSpriteEffectLinearMovement {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMSpriteEffectCircularMovement {
+pub struct GMSECircularMovement {
     center: GMVec2D,
     radius: f32,
     factor: f32,
@@ -165,13 +165,13 @@ pub struct GMSpriteEffectCircularMovement {
     // TODO: set min and max for factor to allow half circle and similar movements
 }
 
-impl GMSpriteEffectCircularMovement {
+impl GMSECircularMovement {
     pub fn new<T: Into<GMVec2D>>(center: T, radius: f32, speed: f32, repetition: GMRepetition) -> Self {
-        assert!(speed > 0.0 && speed < 1.0, "GMSpriteEffectCircularMovement::new(), speed must be greater than zero and smaller than one");
+        assert!(speed > 0.0 && speed < 1.0, "GMSECircularMovement::new(), speed must be greater than zero and smaller than one");
 
         let center = center.into();
 
-        debug!("GMSpriteEffectCircularMovement::new(), center: '{:?}', radius: '{}', speed: '{}'", center, radius, speed);
+        debug!("GMSECircularMovement::new(), center: '{:?}', radius: '{}', speed: '{}'", center, radius, speed);
 
         Self {
             center,
@@ -191,7 +191,7 @@ impl GMSpriteEffectCircularMovement {
     }
 }
 
-impl GMSpriteEffectT for GMSpriteEffectCircularMovement {
+impl GMSpriteEffectT for GMSECircularMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         match self.repetition {
             GMRepetition::OnceForward => {
@@ -266,7 +266,7 @@ impl GMSpriteEffectT for GMSpriteEffectCircularMovement {
                 self.repetition = GMRepetition::from(values[0]);
             }
             _ => {
-                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
             }
         }
     }

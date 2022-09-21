@@ -7,7 +7,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
-use green_moon_2d::bitmap_text_effects::{GMTextEffectWave, GMTextEffectShake, GMTextEffectRotateChars};
+use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars};
 use green_moon_2d::util::GMAlign;
 
 
@@ -49,24 +49,24 @@ impl TextScene3 {
 
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2))]);
+        effect.set_effects(vec![Box::new(GMTEWave::new(32.0, 0.1, 0.2))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTextEffectShake::new(5.0, 0.2))]);
+        effect.set_effects(vec![Box::new(GMTEShake::new(5.0, 0.2))]);
         effects.push(effect.clone());
 
-        effect.set_effects(vec![Box::new(GMTextEffectRotateChars::new(1.0, 10.0))]);
+        effect.set_effects(vec![Box::new(GMTERotateChars::new(1.0, 10.0))]);
         effects.push(effect.clone());
 
         effect.set_effects(vec![
-            Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
-            Box::new(GMTextEffectShake::new(5.0, 0.2))
+            Box::new(GMTEWave::new(32.0, 0.1, 0.2)),
+            Box::new(GMTEShake::new(5.0, 0.2))
         ]);
         effects.push(effect.clone());
 
         effect.set_effects(vec![
-            Box::new(GMTextEffectWave::new(32.0, 0.1, 0.2)),
-            Box::new(GMTextEffectRotateChars::new(1.0, 10.0))
+            Box::new(GMTEWave::new(32.0, 0.1, 0.2)),
+            Box::new(GMTERotateChars::new(1.0, 10.0))
         ]);
         effects.push(effect.clone());
 

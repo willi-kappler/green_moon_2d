@@ -33,18 +33,18 @@ impl Clone for Box<dyn GMTextEffectT> {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectReset {
+pub struct GMTEReset {
 }
 
-impl GMTextEffectReset {
+impl GMTEReset {
     pub fn new() -> Self {
-        debug!("GMTextEffectReset::new()");
+        debug!("GMTEReset::new()");
 
         Self { }
     }
 }
 
-impl GMTextEffectT for GMTextEffectReset {
+impl GMTextEffectT for GMTEReset {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         text.reset_chars();
     }
@@ -55,16 +55,16 @@ impl GMTextEffectT for GMTextEffectReset {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectWave {
+pub struct GMTEWave {
     amplitude: f32,
     speed: f32,
     offset: f32,
     time: f32,
 }
 
-impl GMTextEffectWave {
+impl GMTEWave {
     pub fn new(amplitude: f32, speed: f32, offset: f32) -> Self {
-        debug!("GMTextEffectWave::new(), amplitude: '{}', speed: '{}', offset: '{}'", amplitude, speed, offset);
+        debug!("GMTEWave::new(), amplitude: '{}', speed: '{}', offset: '{}'", amplitude, speed, offset);
 
         Self {
             amplitude,
@@ -75,7 +75,7 @@ impl GMTextEffectWave {
     }
 }
 
-impl GMTextEffectT for GMTextEffectWave {
+impl GMTextEffectT for GMTEWave {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         let mut offset = 0.0;
 
@@ -121,7 +121,7 @@ impl GMTextEffectT for GMTextEffectWave {
                 self.offset += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectWave::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMTEWave::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -132,7 +132,7 @@ impl GMTextEffectT for GMTextEffectWave {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectShake {
+pub struct GMTEShake {
     radius: f32,
     speed: f32,
     time: f32,
@@ -140,9 +140,9 @@ pub struct GMTextEffectShake {
     rng: WyRand,
 }
 
-impl GMTextEffectShake {
+impl GMTEShake {
     pub fn new(radius: f32, speed: f32) -> Self {
-        debug!("GMTextEffectShake::new(), radius: '{}'", radius);
+        debug!("GMTEShake::new(), radius: '{}'", radius);
 
         let seed = 1;
         let rng = WyRand::new();
@@ -157,7 +157,7 @@ impl GMTextEffectShake {
     }
 }
 
-impl GMTextEffectT for GMTextEffectShake {
+impl GMTextEffectT for GMTEShake {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         self.time += self.speed;
         self.rng.reseed(u64::to_ne_bytes(self.seed));
@@ -195,7 +195,7 @@ impl GMTextEffectT for GMTextEffectShake {
                 self.radius += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectShake::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -206,15 +206,15 @@ impl GMTextEffectT for GMTextEffectShake {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectRotateChars {
+pub struct GMTERotateChars {
     speed: f32,
     offset: f32,
     time: f32,
 }
 
-impl GMTextEffectRotateChars {
+impl GMTERotateChars {
     pub fn new(speed: f32, offset: f32) -> Self {
-        debug!("GMTextEffectRotateChars::new(), speed: '{}', offset: '{}'", speed, offset);
+        debug!("GMTERotateChars::new(), speed: '{}', offset: '{}'", speed, offset);
 
         Self {
             speed,
@@ -224,7 +224,7 @@ impl GMTextEffectRotateChars {
     }
 }
 
-impl GMTextEffectT for GMTextEffectRotateChars {
+impl GMTextEffectT for GMTERotateChars {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         let mut delta = 0.0;
 
@@ -253,7 +253,7 @@ impl GMTextEffectT for GMTextEffectRotateChars {
                 self.offset += data[0];
             }
             _ => {
-                error_panic(&format!("GMTextEffectRotateChars::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMTERotateChars::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -265,7 +265,7 @@ impl GMTextEffectT for GMTextEffectRotateChars {
 
 
 #[derive(Debug, Clone)]
-pub struct GMTextEffectScale {
+pub struct GMTEScale {
     factor_min: f32,
     factor_max: f32,
     speed: f32,
@@ -273,9 +273,9 @@ pub struct GMTextEffectScale {
     factor: f32,
 }
 
-impl GMTextEffectScale {
+impl GMTEScale {
     pub fn new(factor_min: f32, factor_max: f32, speed: f32, offset: f32) -> Self {
-        debug!("GMTextEffectScale::new(), factor_min: '{}', factor_max: '{}', speed: '{}', offset: '{}'", factor_min, factor_max, speed, offset);
+        debug!("GMTEScale::new(), factor_min: '{}', factor_max: '{}', speed: '{}', offset: '{}'", factor_min, factor_max, speed, offset);
 
         Self {
             factor_min,
@@ -287,7 +287,7 @@ impl GMTextEffectScale {
     }
 }
 
-impl GMTextEffectT for GMTextEffectScale {
+impl GMTextEffectT for GMTEScale {
     fn update(&mut self, _text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         // TODO:
         todo!();
