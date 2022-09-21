@@ -6,7 +6,8 @@ use log::debug;
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::{GMRepetition, parse_string, error_panic};
+use crate::util::{GMRepetition, parse_string, parse_f32, error_panic};
+use crate::timer::GMTimer;
 
 pub trait GMSpriteEffectT: Debug {
     fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
@@ -267,6 +268,46 @@ impl GMSpriteEffectT for GMSECircularMovement {
             }
             _ => {
                 error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GMSETarget {
+    timer: GMTimer,
+    target_position: GMVec2D,
+}
+
+impl GMSETarget {
+    pub fn new(duration: f32) -> Self {
+        Self {
+            timer: GMTimer::new(duration),
+            target_position: GMVec2D::new(0.0, 0.0),
+        }
+    }
+}
+
+impl GMSpriteEffectT for GMSETarget {
+    fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
+        if self.timer.finished() {
+            self.timer.start();
+        }
+    }
+
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, values) = parse_f32(message);
+
+        match name {
+            "set_duration" => {
+                self.timer.set_duration(values[0]);
+            }
+            _ => {
+                error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
             }
         }
     }
