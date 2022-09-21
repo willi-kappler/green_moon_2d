@@ -37,9 +37,6 @@ impl GMTimer {
 
     pub fn set_duration(&mut self, duration: f32) {
         self.duration = duration;
-        if self.active {
-            self.instant = Instant::now();
-        }
     }
 
     pub fn start(&mut self) {

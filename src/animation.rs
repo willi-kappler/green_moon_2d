@@ -76,8 +76,8 @@ impl GMAnimationBase {
     }
 
     pub fn set_new_timer_duration(&mut self) {
-        self.timer.set_active(true);
         self.timer.set_duration(self.frames[self.current_frame].1);
+        self.timer.start();
     }
 
     pub fn repetition(&mut self) -> GMRepetition {
