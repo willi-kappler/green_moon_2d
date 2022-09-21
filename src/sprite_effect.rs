@@ -121,12 +121,16 @@ impl GMSpriteEffectT for GMSELinearMovement {
                 let y = values[1].parse::<f32>().unwrap();
                 self.start.x = x;
                 self.start.y = y;
+
+                self.direction = self.end - self.start;
             }
             "set_end" => {
                 let x = values[0].parse::<f32>().unwrap();
                 let y = values[1].parse::<f32>().unwrap();
                 self.end.x = x;
                 self.end.y = y;
+
+                self.direction = self.end - self.start;
             }
             "set_speed" => {
                 let speed = values[0].parse::<f32>().unwrap();
@@ -280,21 +284,25 @@ impl GMSpriteEffectT for GMSECircularMovement {
 #[derive(Debug, Clone)]
 pub struct GMSETarget {
     timer: GMTimer,
-    target_position: GMVec2D,
+    name: String,
 }
 
 impl GMSETarget {
-    pub fn new(duration: f32) -> Self {
+    pub fn new<T: Into<String>>(duration: f32, name: T) -> Self {
         Self {
             timer: GMTimer::new(duration),
-            target_position: GMVec2D::new(0.0, 0.0),
+            name: name.into(),
         }
     }
 }
 
 impl GMSpriteEffectT for GMSETarget {
-    fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
+    fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.timer.finished() {
+            let position = sprite.position();
+            let value = format!("{} {}", position.x, position.y);
+            context.set_tag(&self.name, &value);
+
             self.timer.start();
         }
     }
@@ -305,6 +313,7 @@ impl GMSpriteEffectT for GMSETarget {
         match name {
             "set_duration" => {
                 self.timer.set_duration(values[0]);
+                self.timer.start();
             }
             _ => {
                 error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
