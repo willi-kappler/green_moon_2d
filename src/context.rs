@@ -63,6 +63,9 @@ impl GMContext {
         self.tags.insert(name.into(), value.into());
     }
 
+    pub fn remove_tag(&mut self, name: &str) {
+        self.tags.remove(name);
+    }
 
     // Engine messages:
     pub(crate) fn next_engine_message(&mut self) -> Option<GMEngineMessage> {
