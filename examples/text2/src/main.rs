@@ -59,7 +59,7 @@ impl GMSceneT for TextScene2 {
             context.quit();
         }
 
-        let text = self.texts[0].base_mut();
+        let text = &mut self.texts[0].base;
 
         if context.event(GMEventCode::Key1Up) {
             text.set_align(GMAlign::TopLeft);

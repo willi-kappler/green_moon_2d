@@ -206,7 +206,7 @@ impl GMSceneT for TextScene3 {
 
         let text = &mut self.effects[self.current_effect];
 
-        text.base_mut().reset_chars2();
+        text.base.reset_chars2();
         text.update(context);
 
     }
