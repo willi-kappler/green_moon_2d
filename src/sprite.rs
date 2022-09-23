@@ -71,7 +71,7 @@ impl GMSpriteBase {
 
     pub fn update(&mut self, _context: &mut GMContext) {
         if self.active {
-            self.animation.base_mut().update();
+            self.animation.base.update();
         }
     }
 
@@ -92,7 +92,7 @@ impl GMSpriteBase {
 
     pub fn draw(&self, context: &mut GMContext) {
         if self.visible {
-            let index = self.animation.base().texture_index();
+            let index = self.animation.base.texture_index();
             let x = self.position.x + self.offset.x;
             let y = self.position.y + self.offset.y;
 

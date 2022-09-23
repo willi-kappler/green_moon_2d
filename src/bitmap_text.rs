@@ -309,7 +309,7 @@ impl GMBitmapTextBase {
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapText {
-    base: GMBitmapTextBase,
+    pub base: GMBitmapTextBase,
     effects: Vec<Box<dyn GMTextEffectT>>,
 }
 
@@ -334,14 +334,6 @@ impl GMBitmapText {
         for effect in self.effects.iter() {
             effect.draw(&self.base, context);
         }
-    }
-
-    pub fn base(&self) -> &GMBitmapTextBase {
-        &self.base
-    }
-
-    pub fn base_mut(&mut self) -> &mut GMBitmapTextBase {
-        &mut self.base
     }
 
     // Text effect methods

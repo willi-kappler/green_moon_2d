@@ -161,7 +161,7 @@ impl GMAnimationBase {
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
-    base: GMAnimationBase,
+    pub base: GMAnimationBase,
     effects: Vec<Box<dyn GMAnimationEffectT>>,
 }
 
@@ -181,14 +181,6 @@ impl GMAnimation {
                 effect.update(&mut self.base, context);
             }
         }
-    }
-
-    pub fn base(&self) -> &GMAnimationBase {
-        &self.base
-    }
-
-    pub fn base_mut(&mut self) -> &mut GMAnimationBase {
-        &mut self.base
     }
 
     // Animation effect methods
