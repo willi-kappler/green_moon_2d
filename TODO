@@ -12,12 +12,17 @@ Next TODO:
 # Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 
 
+- Use base and offset for sprites
+- Add sprite effect sub-sprite
+- send_message(), send_message_data(), use Box<dyn Any> instead of String
+- Context tags: use Box<dyn Any> instead of String
 - Use cols and rows instead of with and height for texture.
+- Try to use builder macro
+- Add text effect sprite
+
 
 - GMMenuItem
 - GMMenu
-
-
 - GMParticleManager
 - GMBulletManager
 - GMLine
