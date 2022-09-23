@@ -10,11 +10,11 @@ use crate::animation_effect::GMAnimationEffectT;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
-    active: bool,
-    current_frame: usize,
+    pub active: bool,
+    pub current_frame: usize,
     frames: Vec<(u32, f32)>, // index, duration in seconds
     timer: GMTimer,
-    repetition: GMRepetition,
+    pub repetition: GMRepetition,
 }
 
 impl GMAnimationBase {
@@ -33,22 +33,6 @@ impl GMAnimationBase {
     // Other methods
     pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
-    }
-
-    pub fn active(&mut self) -> bool{
-        self.active
-    }
-
-    pub fn active_mut(&mut self) -> &mut bool {
-        &mut self.active
-    }
-
-    pub fn frame(&mut self) -> usize {
-        self.current_frame
-    }
-
-    pub fn frame_mut(&mut self) -> &mut usize {
-        &mut self.current_frame
     }
 
     pub fn inc_frame(&mut self, amount: usize) {
@@ -78,14 +62,6 @@ impl GMAnimationBase {
     pub fn set_new_timer_duration(&mut self) {
         self.timer.set_duration(self.frames[self.current_frame].1);
         self.timer.start();
-    }
-
-    pub fn repetition(&mut self) -> GMRepetition {
-        self.repetition
-    }
-
-    pub fn repetition_mut(&mut self) -> &mut GMRepetition {
-        &mut self.repetition
     }
 
     pub fn update(&mut self) {
@@ -200,7 +176,7 @@ impl GMAnimation {
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update();
 
-        if self.base.active() {
+        if self.base.active {
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.base, context);
             }
