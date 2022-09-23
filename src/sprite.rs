@@ -12,6 +12,7 @@ use crate::math::GMVec2D;
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
     position: GMVec2D,
+    offset: GMVec2D,
     velocity: GMVec2D,
     acceleration: GMVec2D,
 
@@ -43,6 +44,7 @@ impl GMSpriteBase {
 
         Self {
             position: GMVec2D::new(0.0, 0.0),
+            offset: GMVec2D::new(0.0, 0.0),
             velocity: GMVec2D::new(0.0, 0.0),
             acceleration: GMVec2D::new(0.0, 0.0),
 
