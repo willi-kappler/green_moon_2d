@@ -5,11 +5,12 @@ use crate::context::GMContext;
 use crate::animation::GMAnimationBase;
 
 pub trait GMAnimationEffectT: Debug {
-    fn update(&mut self, _animation: &mut GMAnimationBase, _context: &mut GMContext) {
-    }
+    fn update(&mut self, _animation: &mut GMAnimationBase, _context: &mut GMContext);
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
+
+    fn set_active(&mut self, active: bool);
 
     fn clone_box(&self) -> Box<dyn GMAnimationEffectT>;
 }

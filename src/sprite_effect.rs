@@ -19,6 +19,8 @@ pub trait GMSpriteEffectT: Debug {
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
 
+    fn set_active(&mut self, active: bool);
+
     fn clone_box(&self) -> Box<dyn GMSpriteEffectT>;
 }
 
@@ -36,6 +38,7 @@ pub struct GMSELinearMovement {
     factor: f32,
     speed: f32,
     repetition: GMRepetition,
+    active: bool,
 }
 
 impl GMSELinearMovement {
@@ -56,89 +59,92 @@ impl GMSELinearMovement {
             factor: 0.0,
             speed,
             repetition,
+            active: true,
         }
     }
 }
 
 impl GMSpriteEffectT for GMSELinearMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                if self.factor < 1.0 {
+        if self.active {
+            match self.repetition {
+                GMRepetition::OnceForward => {
+                    if self.factor < 1.0 {
+                        *sprite.position_mut() = self.start + (self.direction * self.factor);
+                        self.factor += self.speed;
+                    }
+                }
+                GMRepetition::OnceBackward => {
+                    if self.factor > 0.0 {
+                        *sprite.position_mut() = self.start + (self.direction * self.factor);
+                        self.factor -= self.speed;
+                    }
+                }
+                GMRepetition::LoopForward => {
                     *sprite.position_mut() = self.start + (self.direction * self.factor);
                     self.factor += self.speed;
+
+                    if self.factor > 1.0 {
+                        self.factor = 0.0;
+                    }
                 }
-            }
-            GMRepetition::OnceBackward => {
-                if self.factor > 0.0 {
+                GMRepetition::LoopBackward => {
                     *sprite.position_mut() = self.start + (self.direction * self.factor);
                     self.factor -= self.speed;
-                }
-            }
-            GMRepetition::LoopForward => {
-                *sprite.position_mut() = self.start + (self.direction * self.factor);
-                self.factor += self.speed;
 
-                if self.factor > 1.0 {
-                    self.factor = 0.0;
+                    if self.factor < 0.0 {
+                        self.factor = 1.0;
+                    }
                 }
-            }
-            GMRepetition::LoopBackward => {
-                *sprite.position_mut() = self.start + (self.direction * self.factor);
-                self.factor -= self.speed;
+                GMRepetition::PingPongForward => {
+                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    self.factor += self.speed;
 
-                if self.factor < 0.0 {
-                    self.factor = 1.0;
+                    if self.factor > 1.0 {
+                        self.factor = 1.0;
+                        self.repetition = GMRepetition::PingPongBackward;
+                    }
                 }
-            }
-            GMRepetition::PingPongForward => {
-                *sprite.position_mut() = self.start + (self.direction * self.factor);
-                self.factor += self.speed;
+                GMRepetition::PingPongBackward => {
+                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    self.factor -= self.speed;
 
-                if self.factor > 1.0 {
-                    self.factor = 1.0;
-                    self.repetition = GMRepetition::PingPongBackward;
-                }
-            }
-            GMRepetition::PingPongBackward => {
-                *sprite.position_mut() = self.start + (self.direction * self.factor);
-                self.factor -= self.speed;
-
-                if self.factor > 0.0 {
-                    self.factor = 0.0;
-                    self.repetition = GMRepetition::PingPongForward;
+                    if self.factor > 0.0 {
+                        self.factor = 0.0;
+                        self.repetition = GMRepetition::PingPongForward;
+                    }
                 }
             }
         }
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, values) = parse_string(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_start" => {
-                let x = values[0].parse::<f32>().unwrap();
-                let y = values[1].parse::<f32>().unwrap();
+                let x = data[0].parse::<f32>().unwrap();
+                let y = data[1].parse::<f32>().unwrap();
                 self.start.x = x;
                 self.start.y = y;
 
                 self.direction = self.end - self.start;
             }
             "set_end" => {
-                let x = values[0].parse::<f32>().unwrap();
-                let y = values[1].parse::<f32>().unwrap();
+                let x = data[0].parse::<f32>().unwrap();
+                let y = data[1].parse::<f32>().unwrap();
                 self.end.x = x;
                 self.end.y = y;
 
                 self.direction = self.end - self.start;
             }
             "set_speed" => {
-                let speed = values[0].parse::<f32>().unwrap();
+                let speed = data[0].parse::<f32>().unwrap();
                 self.speed = speed;
 
             }
             "set_repetition" => {
-                self.repetition = GMRepetition::from(values[0]);
+                self.repetition = GMRepetition::from(data[0]);
 
                 match self.repetition {
                     GMRepetition::OnceBackward | GMRepetition::LoopBackward => {
@@ -149,10 +155,17 @@ impl GMSpriteEffectT for GMSELinearMovement {
                     }
                 }
             }
+            "set_active" => {
+                self.active = data[0] == "true";
+            }
             _ => {
                 error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
@@ -167,6 +180,7 @@ pub struct GMSECircularMovement {
     factor: f32,
     speed: f32,
     repetition: GMRepetition,
+    active: bool,
     // TODO: set min and max for factor to allow half circle and similar movements
 }
 
@@ -184,6 +198,7 @@ impl GMSECircularMovement {
             factor: 0.0,
             speed,
             repetition,
+            active: true,
         }
     }
 
@@ -198,82 +213,91 @@ impl GMSECircularMovement {
 
 impl GMSpriteEffectT for GMSECircularMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                if self.factor < 1.0 {
+        if self.active {
+            match self.repetition {
+                GMRepetition::OnceForward => {
+                    if self.factor < 1.0 {
+                        self.set_sprite_pos(sprite);
+                        self.factor += self.speed;
+                    }
+                }
+                GMRepetition::OnceBackward => {
+                    if self.factor > 0.0 {
+                        self.set_sprite_pos(sprite);
+                        self.factor -= self.speed;
+                    }
+                }
+                GMRepetition::LoopForward => {
                     self.set_sprite_pos(sprite);
                     self.factor += self.speed;
+
+                    if self.factor > 1.0 {
+                        self.factor = 0.0;
+                    }
                 }
-            }
-            GMRepetition::OnceBackward => {
-                if self.factor > 0.0 {
+                GMRepetition::LoopBackward => {
                     self.set_sprite_pos(sprite);
                     self.factor -= self.speed;
-                }
-            }
-            GMRepetition::LoopForward => {
-                self.set_sprite_pos(sprite);
-                self.factor += self.speed;
 
-                if self.factor > 1.0 {
-                    self.factor = 0.0;
+                    if self.factor < 0.0 {
+                        self.factor = 1.0;
+                    }
                 }
-            }
-            GMRepetition::LoopBackward => {
-                self.set_sprite_pos(sprite);
-                self.factor -= self.speed;
+                GMRepetition::PingPongForward => {
+                    self.set_sprite_pos(sprite);
+                    self.factor += self.speed;
 
-                if self.factor < 0.0 {
-                    self.factor = 1.0;
+                    if self.factor > 1.0 {
+                        self.factor = 1.0;
+                        self.repetition = GMRepetition::PingPongBackward;
+                    }
                 }
-            }
-            GMRepetition::PingPongForward => {
-                self.set_sprite_pos(sprite);
-                self.factor += self.speed;
+                GMRepetition::PingPongBackward => {
+                    self.set_sprite_pos(sprite);
+                    self.factor -= self.speed;
 
-                if self.factor > 1.0 {
-                    self.factor = 1.0;
-                    self.repetition = GMRepetition::PingPongBackward;
-                }
-            }
-            GMRepetition::PingPongBackward => {
-                self.set_sprite_pos(sprite);
-                self.factor -= self.speed;
-
-                if self.factor < 0.0 {
-                    self.factor = 0.0;
-                    self.repetition = GMRepetition::PingPongForward;
+                    if self.factor < 0.0 {
+                        self.factor = 0.0;
+                        self.repetition = GMRepetition::PingPongForward;
+                    }
                 }
             }
         }
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, values) = parse_string(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_center" => {
-                let x = values[0].parse::<f32>().unwrap();
-                let y = values[1].parse::<f32>().unwrap();
+                let x = data[0].parse::<f32>().unwrap();
+                let y = data[1].parse::<f32>().unwrap();
                 self.center.x = x;
                 self.center.y = y;
             }
             "set_radius" => {
-                let radius = values[0].parse::<f32>().unwrap();
+                let radius = data[0].parse::<f32>().unwrap();
                 self.radius = radius;
             }
             "set_speed" => {
-                let speed = values[0].parse::<f32>().unwrap();
+                let speed = data[0].parse::<f32>().unwrap();
                 self.speed = speed;
 
             }
             "set_repetition" => {
-                self.repetition = GMRepetition::from(values[0]);
+                self.repetition = GMRepetition::from(data[0]);
+            }
+            "set_active" => {
+                self.active = data[0] == "true";
             }
             _ => {
                 error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
@@ -285,6 +309,7 @@ impl GMSpriteEffectT for GMSECircularMovement {
 pub struct GMSETarget {
     timer: GMTimer,
     name: String,
+    active: bool,
 }
 
 impl GMSETarget {
@@ -292,33 +317,43 @@ impl GMSETarget {
         Self {
             timer: GMTimer::new(duration),
             name: name.into(),
+            active: true,
         }
     }
 }
 
 impl GMSpriteEffectT for GMSETarget {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
-        if self.timer.finished() {
-            let position = sprite.position();
-            let value = format!("{} {}", position.x, position.y);
-            context.set_tag(&self.name, &value);
+        if self.active {
+            if self.timer.finished() {
+                let position = sprite.position();
+                let value = format!("{} {}", position.x, position.y);
+                context.set_tag(&self.name, &value);
 
-            self.timer.start();
+                self.timer.start();
+            }
         }
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, values) = parse_f32(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_duration" => {
-                self.timer.set_duration(values[0]);
+                self.timer.set_duration(data[0].parse::<f32>().unwrap());
                 self.timer.start();
+            }
+            "set_active" =>{
+                self.active = data[0] == "true";
             }
             _ => {
                 error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {

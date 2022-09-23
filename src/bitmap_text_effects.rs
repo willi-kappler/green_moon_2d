@@ -6,7 +6,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
-use crate::util::{error_panic, parse_f32};
+use crate::util::{error_panic, parse_f32, parse_string};
 use crate::bitmap_text::{GMBitmapTextBase};
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;
@@ -23,6 +23,8 @@ pub trait GMTextEffectT: Debug {
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
     }
 
+    fn set_active(&mut self, active: bool);
+
     fn clone_box(&self) -> Box<dyn GMTextEffectT>;
 }
 
@@ -34,19 +36,41 @@ impl Clone for Box<dyn GMTextEffectT> {
 
 #[derive(Debug, Clone)]
 pub struct GMTEReset {
+    active: bool,
 }
 
 impl GMTEReset {
     pub fn new() -> Self {
         debug!("GMTEReset::new()");
 
-        Self { }
+        Self {
+            active: true,
+        }
     }
 }
 
 impl GMTextEffectT for GMTEReset {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-        text.reset_chars();
+        if self.active {
+            text.reset_chars();
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, data) = parse_string(message);
+
+        match name {
+            "set_active" => {
+                self.active = data[0] == "true";
+            }
+            _ => {
+                error_panic(&format!("GMTEReset::send_message(), unknown message: '{}'", message))
+            }
+        }        
     }
 
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
@@ -60,6 +84,7 @@ pub struct GMTEWave {
     speed: f32,
     offset: f32,
     time: f32,
+    active: bool,
 }
 
 impl GMTEWave {
@@ -71,59 +96,69 @@ impl GMTEWave {
             speed,
             offset,
             time: 0.0,
+            active: true,
         }
     }
 }
 
 impl GMTextEffectT for GMTEWave {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-        let mut offset = 0.0;
+        if self.active {
+            let mut offset = 0.0;
 
-        if text.get_horizontal() {
-            for bitmap_char in text.get_chars_mut().iter_mut() {
-                bitmap_char.position.y += self.amplitude * (self.time + offset).sin();
-                offset += self.offset;
+            if text.get_horizontal() {
+                for bitmap_char in text.get_chars_mut().iter_mut() {
+                    bitmap_char.position.y += self.amplitude * (self.time + offset).sin();
+                    offset += self.offset;
+                }
+            } else {
+                for bitmap_char in text.get_chars_mut().iter_mut() {
+                    bitmap_char.position.x += self.amplitude * (self.time + offset).sin();
+                    offset += self.offset;
+                }
             }
-        } else {
-            for bitmap_char in text.get_chars_mut().iter_mut() {
-                bitmap_char.position.x += self.amplitude * (self.time + offset).sin();
-                offset += self.offset;
+
+            self.time += self.speed;
+
+            if self.time > TAU {
+                self.time -= TAU;
             }
-        }
-
-        self.time += self.speed;
-
-        if self.time > TAU {
-            self.time -= TAU;
         }
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_f32(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_amplitude" => {
-                self.amplitude = data[0];
+                self.amplitude = data[0].parse::<f32>().unwrap();
             }
             "add_amplitude" => {
-                self.amplitude += data[0];
+                self.amplitude += data[0].parse::<f32>().unwrap();
             }
             "set_speed" => {
-                self.speed = data[0];
+                self.speed = data[0].parse::<f32>().unwrap();
             }
             "add_speed" => {
-                self.speed += data[0];
+                self.speed += data[0].parse::<f32>().unwrap();
             }
             "set_offset" => {
-                self.offset = data[0];
+                self.offset = data[0].parse::<f32>().unwrap();
             }
             "add_offset" => {
-                self.offset += data[0];
+                self.offset += data[0].parse::<f32>().unwrap();
+            }
+            "set_active" =>{
+                self.active = data[0] == "true";
             }
             _ => {
                 error_panic(&format!("GMTEWave::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
@@ -138,6 +173,7 @@ pub struct GMTEShake {
     time: f32,
     seed: u64,
     rng: WyRand,
+    active: bool,
 }
 
 impl GMTEShake {
@@ -153,51 +189,60 @@ impl GMTEShake {
             time: 0.0,
             seed,
             rng,
+            active: true,
         }
     }
 }
 
 impl GMTextEffectT for GMTEShake {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-        self.time += self.speed;
-        self.rng.reseed(u64::to_ne_bytes(self.seed));
+        if self.active {
+            self.time += self.speed;
+            self.rng.reseed(u64::to_ne_bytes(self.seed));
 
-        for bitmap_char in text.get_chars_mut().iter_mut() {
-            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            for bitmap_char in text.get_chars_mut().iter_mut() {
+                let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+                let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
 
-            let position = &mut bitmap_char.position;
-            position.x += dx;
-            position.y += dy;
+                let position = &mut bitmap_char.position;
+                position.x += dx;
+                position.y += dy;
+            }
+
+            if self.time > 1.0 {
+                self.time = 0.0;
+                self.seed += 1;
+            }
         }
-
-        if self.time > 1.0 {
-            self.time = 0.0;
-            self.seed += 1;
-        }
-
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_f32(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_speed" => {
-                self.speed = data[0];
+                self.speed = data[0].parse::<f32>().unwrap();
             }
             "add_speed" => {
-                self.speed += data[0];
+                self.speed += data[0].parse::<f32>().unwrap();
             }
             "set_radius" => {
-                self.radius = data[0];
+                self.radius = data[0].parse::<f32>().unwrap();
             }
             "add_radius" => {
-                self.radius += data[0];
+                self.radius += data[0].parse::<f32>().unwrap();
+            }
+            "set_active" =>{
+                self.active = data[0] == "true";
             }
             _ => {
                 error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
@@ -210,6 +255,7 @@ pub struct GMTERotateChars {
     speed: f32,
     offset: f32,
     time: f32,
+    active: bool,
 }
 
 impl GMTERotateChars {
@@ -220,42 +266,52 @@ impl GMTERotateChars {
             speed,
             offset,
             time: 0.0,
+            active: true,
         }
     }
 }
 
 impl GMTextEffectT for GMTERotateChars {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-        let mut delta = 0.0;
+        if self.active {
+            let mut delta = 0.0;
 
-        for bitmap_char in text.get_chars_mut().iter_mut() {
-            bitmap_char.angle = self.time + delta;
-            delta += self.offset;
+            for bitmap_char in text.get_chars_mut().iter_mut() {
+                bitmap_char.angle = self.time + delta;
+                delta += self.offset;
+            }
+
+            self.time += self.speed;
         }
-
-        self.time += self.speed;
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_f32(message);
+        let (name, data) = parse_string(message);
 
         match name {
             "set_speed" => {
-                self.speed = data[0];
+                self.speed = data[0].parse::<f32>().unwrap();
             }
             "add_speed" => {
-                self.speed += data[0];
+                self.speed += data[0].parse::<f32>().unwrap();
             }
             "set_offset" => {
-                self.offset = data[0];
+                self.offset = data[0].parse::<f32>().unwrap();
             }
             "add_offset" => {
-                self.offset += data[0];
+                self.offset += data[0].parse::<f32>().unwrap();
+            }
+            "set_active" =>{
+                self.active = data[0] == "true"
             }
             _ => {
                 error_panic(&format!("GMTERotateChars::send_message(), unknown message: '{}'", message))
             }
         }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
@@ -271,6 +327,7 @@ pub struct GMTEScale {
     speed: f32,
     offset: f32,
     factor: f32,
+    active: bool,
 }
 
 impl GMTEScale {
@@ -283,6 +340,7 @@ impl GMTEScale {
             speed,
             offset,
             factor: factor_min,
+            active: true,
         }
     }
 }
@@ -293,9 +351,33 @@ impl GMTextEffectT for GMTEScale {
         todo!();
     }
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        // TODO:
-        todo!();
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, data) = parse_string(message);
+
+        match name {
+            "set_factor_min" => {
+                self.factor_min = data[0].parse::<f32>().unwrap();
+            }
+            "set_factor_max" => {
+                self.factor_max = data[0].parse::<f32>().unwrap();
+            }
+            "set_speed" => {                
+                self.speed = data[0].parse::<f32>().unwrap();
+            }
+            "set_offset" => {
+                self.offset = data[0].parse::<f32>().unwrap();
+            }
+            "set_active" => {
+                self.active = data[0] == "true";
+            }
+            _ => {
+                error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
