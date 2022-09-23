@@ -1,8 +1,6 @@
-# Try using SDL again
+Try using SDL again!
 - Start with examples and top down approach
 - More traits
-
-Next TODO:
 
 # More text effects
 # GMSprite
@@ -10,12 +8,14 @@ Next TODO:
 # Refactor GMAnimation
 # Add GMAnimationT::send_message() and send_message_data()
 # Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
+# Context tags: use Box<dyn Any> instead of String
+# Use base and offset for sprites
 
 
-- Use base and offset for sprites
+Next TODO:
+
 - Add sprite effect sub-sprite
 - send_message(), send_message_data(), use Box<dyn Any> instead of String
-- Context tags: use Box<dyn Any> instead of String
 - Use cols and rows instead of with and height for texture.
 - Try to use builder macro
 - Add text effect sprite
