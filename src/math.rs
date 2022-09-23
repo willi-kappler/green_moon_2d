@@ -31,7 +31,7 @@ impl GMVec2D {
         self.y  = self.y / l;
     }
 
-    pub fn norm_new(&self) -> Self {
+    pub fn norm2(&self) -> Self {
         let l = self.len();
 
         Self {
@@ -262,5 +262,80 @@ impl GMCircle {
 
     pub fn circ_point2(&self, point: &GMVec2D) -> GMVec2D {
         self.circ_point(point.x, point.y)
+    }
+}
+
+pub struct GMInterpolateF32 {
+    start: f32,
+    end: f32,
+    speed: f32,
+    direction: f32,
+    factor: f32,
+}
+
+impl GMInterpolateF32 {
+    pub fn new(start: f32, end: f32, speed: f32) -> Self {
+        assert!(speed > 0.0 && speed < 1.0, "GMInterpolateF32: speed must be between 0.0 and 1.0");
+        let direction = end - start;
+
+        Self {
+            start,
+            end,
+            speed,
+            direction,
+            factor: 0.0,
+        }
+    }
+
+    pub fn inc(&mut self) -> f32 {
+        let value = self.start + (self.direction * self.factor);
+
+        if self.factor < 1.0 {
+            self.factor += self.speed;
+            if self.factor > 1.0 {
+                self.factor = 1.0;
+            }    
+        }
+
+        value
+    }
+
+    pub fn dec(&mut self) -> f32 {
+        let value = self.start + (self.direction * self.factor);
+
+        if self.factor > 0.0 {
+            self.factor -= self.speed;
+            if self.factor < 0.0 {
+                self.factor = 0.0;
+            }    
+        }
+
+        value
+    }
+
+    pub fn reset(&mut self) {
+        self.factor = 0.0;
+    }
+
+    pub fn reverse(&mut self) {
+        (self.start, self.end) = (self.end, self.start);
+        self.direction = self.end - self.start;
+        self.factor = 1.0 - self.factor;
+    }
+
+    pub fn set_start(&mut self, start: f32) {
+        self.start = start;
+        self.direction = self.end - self.start;
+    }
+
+    pub fn set_end(&mut self, end: f32) {
+        self.end = end;
+        self.direction = self.end - self.start;
+    }
+
+    pub fn set_speed(&mut self, speed: f32) {
+        assert!(speed > 0.0 && speed < 1.0, "GMInterpolateF32: speed must be between 0.0 and 1.0");
+
+        self.speed = speed;
     }
 }
