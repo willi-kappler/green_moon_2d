@@ -6,7 +6,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
-use crate::util::{error_panic, parse_f32, parse_string};
+use crate::util::{error_panic, parse_f32};
 use crate::bitmap_text::{GMBitmapTextBase};
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;
