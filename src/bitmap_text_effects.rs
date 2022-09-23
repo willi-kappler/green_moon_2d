@@ -60,19 +60,6 @@ impl GMTextEffectT for GMTEReset {
         self.active = active;
     }
 
-    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
-
-        match name {
-            "set_active" => {
-                self.active = data[0] == "true";
-            }
-            _ => {
-                error_panic(&format!("GMTEReset::send_message(), unknown message: '{}'", message))
-            }
-        }        
-    }
-
     fn clone_box(&self) -> Box<dyn GMTextEffectT> {
         Box::new(self.clone())
     }
@@ -127,29 +114,26 @@ impl GMTextEffectT for GMTEWave {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
+        let (name, data) = parse_f32(message);
 
         match name {
             "set_amplitude" => {
-                self.amplitude = data[0].parse::<f32>().unwrap();
+                self.amplitude = data[0];
             }
             "add_amplitude" => {
-                self.amplitude += data[0].parse::<f32>().unwrap();
+                self.amplitude += data[0];
             }
             "set_speed" => {
-                self.speed = data[0].parse::<f32>().unwrap();
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += data[0].parse::<f32>().unwrap();
+                self.speed += data[0];
             }
             "set_offset" => {
-                self.offset = data[0].parse::<f32>().unwrap();
+                self.offset = data[0];
             }
             "add_offset" => {
-                self.offset += data[0].parse::<f32>().unwrap();
-            }
-            "set_active" =>{
-                self.active = data[0] == "true";
+                self.offset += data[0];
             }
             _ => {
                 error_panic(&format!("GMTEWave::send_message(), unknown message: '{}'", message))
@@ -217,23 +201,20 @@ impl GMTextEffectT for GMTEShake {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
+        let (name, data) = parse_f32(message);
 
         match name {
             "set_speed" => {
-                self.speed = data[0].parse::<f32>().unwrap();
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += data[0].parse::<f32>().unwrap();
+                self.speed += data[0];
             }
             "set_radius" => {
-                self.radius = data[0].parse::<f32>().unwrap();
+                self.radius = data[0];
             }
             "add_radius" => {
-                self.radius += data[0].parse::<f32>().unwrap();
-            }
-            "set_active" =>{
-                self.active = data[0] == "true";
+                self.radius += data[0];
             }
             _ => {
                 error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
@@ -286,23 +267,20 @@ impl GMTextEffectT for GMTERotateChars {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
+        let (name, data) = parse_f32(message);
 
         match name {
             "set_speed" => {
-                self.speed = data[0].parse::<f32>().unwrap();
+                self.speed = data[0];
             }
             "add_speed" => {
-                self.speed += data[0].parse::<f32>().unwrap();
+                self.speed += data[0];
             }
             "set_offset" => {
-                self.offset = data[0].parse::<f32>().unwrap();
+                self.offset = data[0];
             }
             "add_offset" => {
-                self.offset += data[0].parse::<f32>().unwrap();
-            }
-            "set_active" =>{
-                self.active = data[0] == "true"
+                self.offset += data[0];
             }
             _ => {
                 error_panic(&format!("GMTERotateChars::send_message(), unknown message: '{}'", message))
@@ -352,23 +330,20 @@ impl GMTextEffectT for GMTEScale {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
+        let (name, data) = parse_f32(message);
 
         match name {
             "set_factor_min" => {
-                self.factor_min = data[0].parse::<f32>().unwrap();
+                self.factor_min = data[0];
             }
             "set_factor_max" => {
-                self.factor_max = data[0].parse::<f32>().unwrap();
+                self.factor_max = data[0];
             }
             "set_speed" => {                
-                self.speed = data[0].parse::<f32>().unwrap();
+                self.speed = data[0];
             }
             "set_offset" => {
-                self.offset = data[0].parse::<f32>().unwrap();
-            }
-            "set_active" => {
-                self.active = data[0] == "true";
+                self.offset = data[0];
             }
             _ => {
                 error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))

@@ -155,9 +155,6 @@ impl GMSpriteEffectT for GMSELinearMovement {
                     }
                 }
             }
-            "set_active" => {
-                self.active = data[0] == "true";
-            }
             _ => {
                 error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
             }
@@ -287,9 +284,6 @@ impl GMSpriteEffectT for GMSECircularMovement {
             "set_repetition" => {
                 self.repetition = GMRepetition::from(data[0]);
             }
-            "set_active" => {
-                self.active = data[0] == "true";
-            }
             _ => {
                 error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
             }
@@ -336,15 +330,12 @@ impl GMSpriteEffectT for GMSETarget {
     }
 
     fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
+        let (name, data) = parse_f32(message);
 
         match name {
             "set_duration" => {
-                self.timer.set_duration(data[0].parse::<f32>().unwrap());
+                self.timer.set_duration(data[0]);
                 self.timer.start();
-            }
-            "set_active" =>{
-                self.active = data[0] == "true";
             }
             _ => {
                 error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
