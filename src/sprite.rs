@@ -233,7 +233,10 @@ impl GMSpriteBase {
     pub fn draw(&self, context: &mut GMContext) {
         if self.visible {
             let index = self.animation.base().texture_index();
-            self.texture.draw_opt(self.position.x, self.position.y, index,
+            let x = self.position.x + self.offset.x;
+            let y = self.position.y + self.offset.y;
+
+            self.texture.draw_opt(x, y, index,
                 self.angle, self.flip_x, self.flip_y, context);
         }
     }
