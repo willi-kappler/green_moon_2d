@@ -50,6 +50,11 @@ impl GMVec2D {
         self.y = other.y;
     }
 
+    pub fn set3(&mut self, other: GMVec2D) {
+        self.x = other.x;
+        self.y = other.y;
+    }
+
     pub fn add1(&mut self, x: f32, y: f32) {
         self.x += x;
         self.y += y;
