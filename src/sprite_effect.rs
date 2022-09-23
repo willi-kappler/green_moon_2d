@@ -351,3 +351,63 @@ impl GMSpriteEffectT for GMSETarget {
         Box::new(self.clone())
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct GMSEFollow {
+    timer: GMTimer,
+    target_name: String,
+    speed: f32,
+    active: bool,
+}
+
+impl GMSEFollow {
+    pub fn new<T: Into<String>>(duration: f32, name: T, speed: f32) -> Self {
+        Self {
+            timer: GMTimer::new(duration),
+            target_name: name.into(),
+            speed,
+            active: true,
+        }
+    }
+}
+
+impl GMSpriteEffectT for GMSEFollow {
+    fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
+        if self.active {
+            if self.timer.finished() {
+                let position = context.get_tag(&self.target_name).unwrap();
+                let mut data = position.split_whitespace();
+                let x = data.next().unwrap().parse::<f32>().unwrap();
+                let y = data.next().unwrap().parse::<f32>().unwrap();
+                let mut direction = GMVec2D::new(x - sprite.position().x, y - sprite.position().y);
+                direction.norm();
+                direction.mul2(self.speed);
+                sprite.velocity_mut().set3(direction);
+
+                self.timer.start();
+            }
+        }
+    }
+
+    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        let (name, data) = parse_f32(message);
+
+        match name {
+            "set_duration" => {
+                self.timer.set_duration(data[0]);
+                self.timer.start();
+            }
+            _ => {
+                error_panic(&format!("GMSEFollow::send_message(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+        Box::new(self.clone())
+    }
+}
