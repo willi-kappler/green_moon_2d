@@ -1,6 +1,6 @@
 
-
 use std::collections::{VecDeque, HashMap};
+use std::any::Any;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -22,7 +22,7 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
-    tags: HashMap<String, String>,
+    tags: HashMap<String, Box<dyn Any>>,
     window_width: f32,
     window_height: f32,
 }
@@ -55,12 +55,12 @@ impl GMContext {
     }
 
     // Tags:
-    pub fn get_tag(&self, name: &str) -> Option<&str> {
-        self.tags.get(name).map(|s| s.as_str())
+    pub fn get_tag(&self, name: &str) -> Option<&Box<dyn Any>> {
+        self.tags.get(name)
     }
 
-    pub fn set_tag<T: Into<String>>(&mut self, name: T, value: T) {
-        self.tags.insert(name.into(), value.into());
+    pub fn set_tag<T: Into<String>>(&mut self, name: T, value: Box<dyn Any>) {
+        self.tags.insert(name.into(), value);
     }
 
     pub fn remove_tag(&mut self, name: &str) {

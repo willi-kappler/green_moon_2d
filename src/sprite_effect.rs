@@ -321,8 +321,7 @@ impl GMSpriteEffectT for GMSETarget {
         if self.active {
             if self.timer.finished() {
                 let position = sprite.position();
-                let value = format!("{} {}", position.x, position.y);
-                context.set_tag(&self.name, &value);
+                context.set_tag(&self.name, Box::new((position.x, position.y)));
 
                 self.timer.start();
             }
@@ -376,9 +375,7 @@ impl GMSpriteEffectT for GMSEFollow {
         if self.active {
             if self.timer.finished() {
                 let position = context.get_tag(&self.target_name).unwrap();
-                let mut data = position.split_whitespace();
-                let x = data.next().unwrap().parse::<f32>().unwrap();
-                let y = data.next().unwrap().parse::<f32>().unwrap();
+                let (x, y) = position.downcast_ref::<(f32, f32)>().unwrap();
                 let mut direction = GMVec2D::new(x - sprite.position().x, y - sprite.position().y);
                 direction.norm();
                 direction.mul2(self.speed);
