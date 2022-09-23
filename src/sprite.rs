@@ -11,29 +11,29 @@ use crate::math::GMVec2D;
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
-    position: GMVec2D,
-    offset: GMVec2D,
-    velocity: GMVec2D,
-    acceleration: GMVec2D,
+    pub position: GMVec2D,
+    pub offset: GMVec2D,
+    pub velocity: GMVec2D,
+    pub acceleration: GMVec2D,
 
-    angle: f32,
-    angle_velocity: f32,
-    angle_acceleration: f32,
-    flip_x: bool,
-    flip_y: bool,
-    scale: f32,
+    pub angle: f32,
+    pub angle_velocity: f32,
+    pub angle_acceleration: f32,
+    pub flip_x: bool,
+    pub flip_y: bool,
+    pub scale: f32,
 
-    texture: Rc<GMTexture>,
-    animation: GMAnimation,
+    pub texture: Rc<GMTexture>,
+    pub animation: GMAnimation,
 
-    visible: bool,
-    active: bool,
+    pub visible: bool,
+    pub active: bool,
 
     // User defined data:
-    id: u32,
-    group_id: u32,
-    name: String,
-    custom_data: String,
+    pub id: u32,
+    pub group_id: u32,
+    pub name: String,
+    pub custom_data: String,
 }
 
 // TODO: Maybe use https://github.com/jbaublitz/getset
@@ -67,146 +67,6 @@ impl GMSpriteBase {
             custom_data: "".to_string()
         }
 
-    }
-
-    pub fn position(&self) -> &GMVec2D {
-        &self.position
-    }
-
-    pub fn position_mut(&mut self) -> &mut GMVec2D {
-        &mut self.position
-    }
-
-    pub fn velocity(&self) -> &GMVec2D {
-        &self.velocity
-    }
-
-    pub fn velocity_mut(&mut self) -> &mut GMVec2D {
-        &mut self.velocity
-    }
-
-    pub fn acceleration(&self) -> &GMVec2D {
-        &self.acceleration
-    }
-
-    pub fn acceleration_mut(&mut self) -> &mut GMVec2D {
-        &mut self.acceleration
-    }
-
-    pub fn angle(&self) -> f32 {
-        self.angle
-    }
-
-    pub fn angle_mut(&mut self) -> &mut f32 {
-        &mut self.angle
-    }
-
-    pub fn angle_velocity(&self) -> f32 {
-        self.angle_velocity
-    }
-
-    pub fn angle_velocity_mut(&mut self) -> &mut f32 {
-        &mut self.angle_velocity
-    }
-
-    pub fn angle_acceleration(&self) -> f32 {
-        self.angle_acceleration
-    }
-
-    pub fn angle_acceleration_mut(&mut self) -> &mut f32 {
-        &mut self.angle_acceleration
-    }
-
-    pub fn flip_x(&self) -> bool {
-        self.flip_x
-    }
-
-    pub fn flip_x_mut(&mut self) -> &mut bool {
-        &mut self.flip_x
-    }
-
-    pub fn flip_y(&self) -> bool {
-        self.flip_y
-    }
-
-    pub fn flip_y_mut(&mut self) -> &mut bool {
-        &mut self.flip_y
-    }
-
-    pub fn scale(&self) -> f32 {
-        self.scale
-    }
-
-    pub fn scale_mut(&mut self) -> &mut f32 {
-        &mut self.scale
-    }
-
-    pub fn texture(&self) -> &Rc<GMTexture> {
-        &self.texture
-    }
-
-    pub fn texture_mut(&mut self) -> &mut Rc<GMTexture> {
-        &mut self.texture
-    }
-
-    pub fn set_animation(&mut self, animation: GMAnimation) {
-        self.animation = animation;
-    }
-
-    pub fn animation(&self) -> &GMAnimation {
-        &self.animation
-    }
-
-    pub fn animation_mut(&mut self) -> &mut GMAnimation {
-        &mut self.animation
-    }
-
-    pub fn visible(&self) -> bool {
-        self.visible
-    }
-
-    pub fn visible_mut(&mut self) -> &mut bool {
-        &mut self.visible
-    }
-
-    pub fn active(&self) -> bool {
-        self.active
-    }
-
-    pub fn active_mut(&mut self) -> &mut bool {
-        &mut self.active
-    }
-
-    pub fn id(&mut self) -> u32 {
-        self.id
-    }
-
-    pub fn id_mut(&mut self) -> &mut u32 {
-        &mut self.id
-    }
-
-    pub fn group_id(&self) -> u32 {
-        self.group_id
-    }
-
-    pub fn group_id_mut(&mut self) -> &mut u32 {
-        &mut self.group_id
-    }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn name_mut(&mut self) -> &mut str {
-        &mut self.name
-    }
-
-    pub fn custom_data(&self) -> &str {
-        &self.custom_data
-    }
-
-    pub fn custom_data_mut(&mut self) -> &mut str {
-        &mut self.custom_data
     }
 
     pub fn update(&mut self, _context: &mut GMContext) {
@@ -245,7 +105,7 @@ impl GMSpriteBase {
 
 #[derive(Debug, Clone)]
 pub struct GMSprite {
-    base: GMSpriteBase,
+    pub base: GMSpriteBase,
     effects: Vec<Box<dyn GMSpriteEffectT>>,
 }
 
@@ -262,7 +122,7 @@ impl GMSprite {
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update(context);
 
-        if self.base.active() {
+        if self.base.active {
             for effect in self.effects.iter_mut() {
                 effect.update(&mut self.base, context);
             }
@@ -272,19 +132,11 @@ impl GMSprite {
     pub fn draw(&self, context: &mut GMContext) {
         self.base.draw(context);
 
-        if self.base.visible() {
+        if self.base.visible {
             for effect in self.effects.iter() {
                 effect.draw(&self.base, context);
             }
         }
-    }
-
-    pub fn base(&self) -> &GMSpriteBase {
-        &self.base
-    }
-
-    pub fn base_mut(&mut self) -> &mut GMSpriteBase {
-        &mut self.base
     }
 
     // Sprite effect methods

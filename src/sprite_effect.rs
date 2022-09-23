@@ -70,18 +70,18 @@ impl GMSpriteEffectT for GMSELinearMovement {
             match self.repetition {
                 GMRepetition::OnceForward => {
                     if self.factor < 1.0 {
-                        *sprite.position_mut() = self.start + (self.direction * self.factor);
+                        sprite.position = self.start + (self.direction * self.factor);
                         self.factor += self.speed;
                     }
                 }
                 GMRepetition::OnceBackward => {
                     if self.factor > 0.0 {
-                        *sprite.position_mut() = self.start + (self.direction * self.factor);
+                        sprite.position = self.start + (self.direction * self.factor);
                         self.factor -= self.speed;
                     }
                 }
                 GMRepetition::LoopForward => {
-                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    sprite.position = self.start + (self.direction * self.factor);
                     self.factor += self.speed;
 
                     if self.factor > 1.0 {
@@ -89,7 +89,7 @@ impl GMSpriteEffectT for GMSELinearMovement {
                     }
                 }
                 GMRepetition::LoopBackward => {
-                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    sprite.position = self.start + (self.direction * self.factor);
                     self.factor -= self.speed;
 
                     if self.factor < 0.0 {
@@ -97,7 +97,7 @@ impl GMSpriteEffectT for GMSELinearMovement {
                     }
                 }
                 GMRepetition::PingPongForward => {
-                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    sprite.position = self.start + (self.direction * self.factor);
                     self.factor += self.speed;
 
                     if self.factor > 1.0 {
@@ -106,7 +106,7 @@ impl GMSpriteEffectT for GMSELinearMovement {
                     }
                 }
                 GMRepetition::PingPongBackward => {
-                    *sprite.position_mut() = self.start + (self.direction * self.factor);
+                    sprite.position = self.start + (self.direction * self.factor);
                     self.factor -= self.speed;
 
                     if self.factor > 0.0 {
@@ -204,7 +204,7 @@ impl GMSECircularMovement {
         let x = self.center.x + (self.radius * angle.cos());
         let y = self.center.y + (self.radius * angle.sin());
 
-        sprite.position_mut().set1(x, y);
+        sprite.position.set1(x, y);
     }
 }
 
@@ -320,7 +320,7 @@ impl GMSpriteEffectT for GMSETarget {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.active {
             if self.timer.finished() {
-                let position = sprite.position();
+                let position = sprite.position;
                 context.set_tag(&self.name, Box::new((position.x, position.y)));
 
                 self.timer.start();
@@ -376,10 +376,10 @@ impl GMSpriteEffectT for GMSEFollow {
             if self.timer.finished() {
                 let position = context.get_tag(&self.target_name).unwrap();
                 let (x, y) = position.downcast_ref::<(f32, f32)>().unwrap();
-                let mut direction = GMVec2D::new(x - sprite.position().x, y - sprite.position().y);
+                let mut direction = GMVec2D::new(x - sprite.position.x, y - sprite.position.y);
                 direction.norm();
                 direction.mul2(self.speed);
-                sprite.velocity_mut().set3(direction);
+                sprite.velocity.set3(direction);
 
                 self.timer.start();
             }
