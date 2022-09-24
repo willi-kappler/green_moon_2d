@@ -7,6 +7,7 @@ use crate::timer::GMTimer;
 use crate::util::GMRepetition;
 use crate::context::GMContext;
 use crate::animation_effect::GMAnimationEffectT;
+use crate::data::GMData;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
@@ -211,6 +212,10 @@ impl GMAnimation {
 
     pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message(message, context)
+    }
+
+    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
+        self.effects[index].send_message_data(message, data, context)
     }
 }
 

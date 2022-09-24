@@ -7,6 +7,7 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::bitmap_text_effects::GMTextEffectT;
+use crate::data::GMData;
 use crate::texture::GMTexture;
 use crate::context::GMContext;
 use crate::util::{error_panic, GMAlign};
@@ -364,6 +365,10 @@ impl GMBitmapText {
 
     pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message(message, context)
+    }
+
+    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
+        self.effects[index].send_message_data(message, data, context)
     }
 }
 

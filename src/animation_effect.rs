@@ -3,11 +3,15 @@ use std::fmt::Debug;
 
 use crate::context::GMContext;
 use crate::animation::GMAnimationBase;
+use crate::data::GMData;
 
 pub trait GMAnimationEffectT: Debug {
     fn update(&mut self, _animation: &mut GMAnimationBase, _context: &mut GMContext);
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
     }
 
     fn set_active(&mut self, active: bool);

@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use log::debug;
 
+use crate::data::GMData;
 use crate::texture::GMTexture;
 use crate::animation::{GMAnimation};
 use crate::sprite_effect::{GMSpriteEffectT};
@@ -167,6 +168,10 @@ impl GMSprite {
 
     pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message(message, context)
+    }
+
+    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
+        self.effects[index].send_message_data(message, data, context)
     }
 }
 

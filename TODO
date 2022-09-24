@@ -14,10 +14,11 @@ Try using SDL again!
 
 Next TODO:
 
-- Add sprite effect sub-sprite
-- send_message(), send_message_data(), use Box<dyn Any> instead of String
-- Use cols and rows instead of with and height for texture.
+- effect message: set_active
 - Try to use builder macro
+- macros for GMData and conversion
+- Add sprite effect sub-sprite
+- Use cols and rows instead of with and height for texture.
 - Add text effect sprite
 
 

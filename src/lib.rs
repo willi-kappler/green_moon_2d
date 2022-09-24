@@ -6,6 +6,7 @@ pub mod bitmap_text_effects;
 pub mod collision;
 pub mod configuration;
 pub mod context;
+pub mod data;
 pub mod engine;
 pub mod input;
 pub mod math;

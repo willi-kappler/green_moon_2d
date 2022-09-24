@@ -46,27 +46,3 @@ pub fn error_panic(message: &str) -> ! {
     error!("{}", message);
     panic!("{}", message);
 }
-
-pub fn parse_string(message: &str) -> (&str, Vec<&str>) {
-    let mut fields = message.split_whitespace();
-
-    let name = fields.next().unwrap();
-
-    let values: Vec<&str> = fields.collect();
-
-    (name, values)
-}
-
-pub fn parse_f32(message: &str) -> (&str, Vec<f32>) {
-    let (name, fields) = parse_string(message);
-    let values = fields.iter().map(|s| s.parse::<f32>().unwrap()).collect();
-
-    (name, values)
-}
-
-pub fn parse_u32(message: &str) -> (&str, Vec<u32>) {
-    let (name, fields) = parse_string(message);
-    let values = fields.iter().map(|s| s.parse::<u32>().unwrap()).collect();
-
-    (name, values)
-}

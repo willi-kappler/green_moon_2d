@@ -1,6 +1,5 @@
 
 use std::collections::{VecDeque, HashMap};
-use std::any::Any;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -14,6 +13,7 @@ use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
+use crate::data::GMData;
 
 
 pub struct GMContext {
@@ -22,7 +22,7 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
-    tags: HashMap<String, Box<dyn Any>>,
+    tags: HashMap<String, GMData>,
     window_width: f32,
     window_height: f32,
 }
@@ -55,11 +55,11 @@ impl GMContext {
     }
 
     // Tags:
-    pub fn get_tag(&self, name: &str) -> Option<&Box<dyn Any>> {
+    pub fn get_tag(&self, name: &str) -> Option<&GMData> {
         self.tags.get(name)
     }
 
-    pub fn set_tag<T: Into<String>>(&mut self, name: T, value: Box<dyn Any>) {
+    pub fn set_tag<T: Into<String>>(&mut self, name: T, value: GMData) {
         self.tags.insert(name.into(), value);
     }
 

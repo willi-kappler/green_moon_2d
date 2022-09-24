@@ -6,8 +6,9 @@ use log::debug;
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::{GMRepetition, parse_string, parse_f32, error_panic};
+use crate::util::{GMRepetition, error_panic};
 use crate::timer::GMTimer;
+use crate::data::GMData;
 
 pub trait GMSpriteEffectT: Debug {
     fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
@@ -17,6 +18,9 @@ pub trait GMSpriteEffectT: Debug {
     }
 
     fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    }
+
+    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
     }
 
     fn set_active(&mut self, active: bool);
@@ -118,33 +122,24 @@ impl GMSpriteEffectT for GMSELinearMovement {
         }
     }
 
-    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
-
-        match name {
+    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
             "set_start" => {
-                let x = data[0].parse::<f32>().unwrap();
-                let y = data[1].parse::<f32>().unwrap();
-                self.start.x = x;
-                self.start.y = y;
+                self.start = data.into();
 
                 self.direction = self.end - self.start;
             }
             "set_end" => {
-                let x = data[0].parse::<f32>().unwrap();
-                let y = data[1].parse::<f32>().unwrap();
-                self.end.x = x;
-                self.end.y = y;
+                self.end = data.into();
 
                 self.direction = self.end - self.start;
             }
             "set_speed" => {
-                let speed = data[0].parse::<f32>().unwrap();
-                self.speed = speed;
+                self.speed = data.into();
 
             }
             "set_repetition" => {
-                self.repetition = GMRepetition::from(data[0]);
+                self.repetition = data.into();
 
                 match self.repetition {
                     GMRepetition::OnceBackward | GMRepetition::LoopBackward => {
@@ -262,27 +257,20 @@ impl GMSpriteEffectT for GMSECircularMovement {
         }
     }
 
-    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_string(message);
-
-        match name {
+    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
             "set_center" => {
-                let x = data[0].parse::<f32>().unwrap();
-                let y = data[1].parse::<f32>().unwrap();
-                self.center.x = x;
-                self.center.y = y;
+                self.center = data.into();
             }
             "set_radius" => {
-                let radius = data[0].parse::<f32>().unwrap();
-                self.radius = radius;
+                self.radius = data.into();
             }
             "set_speed" => {
-                let speed = data[0].parse::<f32>().unwrap();
-                self.speed = speed;
+                self.speed = data.into();
 
             }
             "set_repetition" => {
-                self.repetition = GMRepetition::from(data[0]);
+                self.repetition = data.into();
             }
             _ => {
                 error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
@@ -321,19 +309,17 @@ impl GMSpriteEffectT for GMSETarget {
         if self.active {
             if self.timer.finished() {
                 let position = sprite.position;
-                context.set_tag(&self.name, Box::new((position.x, position.y)));
+                context.set_tag(&self.name, position.into());
 
                 self.timer.start();
             }
         }
     }
 
-    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_f32(message);
-
-        match name {
+    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
             "set_duration" => {
-                self.timer.set_duration(data[0]);
+                self.timer.set_duration(data.into());
                 self.timer.start();
             }
             _ => {
@@ -374,9 +360,10 @@ impl GMSpriteEffectT for GMSEFollow {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.active {
             if self.timer.finished() {
-                let position = context.get_tag(&self.target_name).unwrap();
-                let (x, y) = position.downcast_ref::<(f32, f32)>().unwrap();
-                let mut direction = GMVec2D::new(x - sprite.position.x, y - sprite.position.y);
+                let data = context.get_tag(&self.target_name).unwrap().clone();
+                let position: GMVec2D = data.into();
+
+                let mut direction = position - sprite.position;
                 direction.norm();
                 direction.mul2(self.speed);
                 sprite.velocity.set3(direction);
@@ -386,12 +373,10 @@ impl GMSpriteEffectT for GMSEFollow {
         }
     }
 
-    fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        let (name, data) = parse_f32(message);
-
-        match name {
+    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
             "set_duration" => {
-                self.timer.set_duration(data[0]);
+                self.timer.set_duration(data.into());
                 self.timer.start();
             }
             _ => {
