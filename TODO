@@ -10,12 +10,16 @@ Try using SDL again!
 # Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
 # Context tags: use Box<dyn Any> instead of String
 # Use base and offset for sprites
+# Use GMData instead of Any or String
 
 
 Next TODO:
 
 - effect message: set_active
+- use base / offset for sprite effects (movement)
 - Try to use builder macro
+- Refactor to GMEffect ? (https://docs.rs/tower/latest/src/tower/util/boxed_clone.rs.html#111)
+- Messages for sprites in GMContext
 - macros for GMData and conversion
 - Add sprite effect sub-sprite
 - Use cols and rows instead of with and height for texture.
