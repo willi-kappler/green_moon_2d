@@ -9,30 +9,8 @@ use crate::math::GMVec2D;
 use crate::util::{GMRepetition, error_panic};
 use crate::timer::GMTimer;
 use crate::data::GMData;
+use crate::effect::GMEffectT;
 
-pub trait GMSpriteEffectT: Debug {
-    fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
-    }
-
-    fn draw(&self, _sprite: &GMSpriteBase, _context: &mut GMContext) {
-    }
-
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-    }
-
-    fn set_active(&mut self, active: bool);
-
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT>;
-}
-
-impl Clone for Box<dyn GMSpriteEffectT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
@@ -68,7 +46,7 @@ impl GMSELinearMovement {
     }
 }
 
-impl GMSpriteEffectT for GMSELinearMovement {
+impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
             match self.repetition {
@@ -160,7 +138,7 @@ impl GMSpriteEffectT for GMSELinearMovement {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
         Box::new(self.clone())
     }
 }
@@ -203,7 +181,7 @@ impl GMSECircularMovement {
     }
 }
 
-impl GMSpriteEffectT for GMSECircularMovement {
+impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
             match self.repetition {
@@ -282,7 +260,7 @@ impl GMSpriteEffectT for GMSECircularMovement {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
         Box::new(self.clone())
     }
 }
@@ -304,7 +282,7 @@ impl GMSETarget {
     }
 }
 
-impl GMSpriteEffectT for GMSETarget {
+impl GMEffectT<GMSpriteBase> for GMSETarget {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.active {
             if self.timer.finished() {
@@ -332,7 +310,7 @@ impl GMSpriteEffectT for GMSETarget {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
         Box::new(self.clone())
     }
 }
@@ -356,7 +334,7 @@ impl GMSEFollow {
     }
 }
 
-impl GMSpriteEffectT for GMSEFollow {
+impl GMEffectT<GMSpriteBase> for GMSEFollow {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.active {
             if self.timer.finished() {
@@ -389,7 +367,7 @@ impl GMSpriteEffectT for GMSEFollow {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMSpriteEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
         Box::new(self.clone())
     }
 }

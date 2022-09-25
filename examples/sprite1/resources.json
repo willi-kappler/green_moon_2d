@@ -40,7 +40,7 @@
         {
             "name": "anim_bat1",
             "animation_type": "ping_pong_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+            "frames": [[0, 0.08], [1, 0.08], [2, 0.08]]
         },
         {
             "name": "anim_explosion1",

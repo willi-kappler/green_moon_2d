@@ -6,9 +6,9 @@ use log::debug;
 use crate::data::GMData;
 use crate::texture::GMTexture;
 use crate::animation::{GMAnimation};
-use crate::sprite_effect::{GMSpriteEffectT};
-use crate::context::GMContext;
+use crate::context::{GMContext, GMObjectMessage};
 use crate::math::GMVec2D;
+use crate::effect::{GMEffectManager, GMEffectT};
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
@@ -57,7 +57,7 @@ impl GMSpriteBase {
             scale: 1.0,
 
             texture: texture.clone(),
-            animation: GMAnimation::new(&[(0, 0.0)]),
+            animation: GMAnimation::new("", &[(0, 0.0)]),
 
             visible: true,
             active: true,
@@ -70,9 +70,9 @@ impl GMSpriteBase {
 
     }
 
-    pub fn update(&mut self, _context: &mut GMContext) {
+    pub fn update(&mut self, context: &mut GMContext) {
         if self.active {
-            self.animation.base.update();
+            self.animation.update(context);
         }
     }
 
@@ -102,12 +102,19 @@ impl GMSpriteBase {
         }
     }
 
+    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+        todo!();
+    }
+
+    pub fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
+        todo!();
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct GMSprite {
     pub base: GMSpriteBase,
-    effects: Vec<Box<dyn GMSpriteEffectT>>,
+    pub effects: GMEffectManager<GMSpriteBase>,
 }
 
 impl GMSprite {
@@ -116,7 +123,7 @@ impl GMSprite {
 
         Self {
             base: GMSpriteBase::new(texture),
-            effects: Vec::new(),
+            effects: GMEffectManager::new(),
         }
     }
 
@@ -124,9 +131,7 @@ impl GMSprite {
         self.base.update(context);
 
         if self.base.active {
-            for effect in self.effects.iter_mut() {
-                effect.update(&mut self.base, context);
-            }
+            self.effects.update(&mut self.base, context);
         }
     }
 
@@ -134,44 +139,29 @@ impl GMSprite {
         self.base.draw(context);
 
         if self.base.visible {
-            for effect in self.effects.iter() {
-                effect.draw(&self.base, context);
-            }
+            self.effects.draw(&self.base, context);
         }
     }
 
-    // Sprite effect methods
-    pub fn add_effect<T: 'static + GMSpriteEffectT>(&mut self, effect: T) {
-        debug!("GMSprite::add_effect()");
-        self.add_effect2(Box::new(effect));
-    }
+    pub fn check_messages(&mut self, context: &mut GMContext) {
+        let mut messages = context.get_object_messages(&self.base.name);
 
-    pub fn add_effect2(&mut self, effect: Box<dyn GMSpriteEffectT>) {
-        debug!("GMSprite::add_effect2()");
-        self.effects.push(effect);
-    }
-
-    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMSpriteEffectT>>) {
-        debug!("GMSprite::set_effects()");
-        self.effects = effects;
-    }
-
-    pub fn remove_effect(&mut self, index: usize) {
-        debug!("GMSprite::remove_effect(), index: {}", index);
-        self.effects.remove(index);
-    }
-
-    pub fn swap_effects(&mut self, index1: usize, index2: usize) {
-        debug!("GMSprite::swap_effect(), index1: {}, index2: {}", index1, index2);
-        self.effects.swap(index1, index2);
-    }
-
-    pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
-        self.effects[index].send_message(message, context)
-    }
-
-    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
-        self.effects[index].send_message_data(message, data, context)
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Simple(message) => {
+                    self.base.send_message(&message, context);
+                }
+                GMObjectMessage::Data(message, data) => {
+                    self.base.send_message_data(&message, data, context);
+                }
+                GMObjectMessage::SimpleEffect(index, message) => {
+                    self.effects.send_effect_message(index, &message, context);
+                }
+                GMObjectMessage::DataEffect(index, message, data) => {
+                    self.effects.send_effect_message_data(index, &message, data, context);
+                }
+            }
+        }
     }
 }
 
@@ -285,24 +275,24 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_effect<T: 'static + GMSpriteEffectT>(mut self, effect: T) -> Self {
+    pub fn with_effect<T: 'static + GMEffectT<GMSpriteBase>>(mut self, effect: T) -> Self {
         debug!("GMSpriteBuilder::with_effect()");
 
-        self.sprite.effects.push(Box::new(effect));
+        self.sprite.effects.add_effect(effect);
         self
     }
 
-    pub fn with_effect2(mut self, effect: Box<dyn GMSpriteEffectT>) -> Self {
+    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMSpriteBase>>) -> Self {
         debug!("GMSpriteBuilder::with_effect2()");
 
-        self.sprite.effects.push(effect);
+        self.sprite.effects.add_effect2(effect);
         self
     }
 
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMSpriteEffectT>>) -> Self {
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>>) -> Self {
         debug!("GMSpriteBuilder::with_effects()");
 
-        self.sprite.effects.extend(effects);
+        self.sprite.effects.set_effects(effects);
         self
     }
 

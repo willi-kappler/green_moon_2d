@@ -6,12 +6,12 @@ use std::fmt::Debug;
 
 use log::debug;
 
-use crate::bitmap_text_effects::GMTextEffectT;
 use crate::data::GMData;
 use crate::texture::GMTexture;
-use crate::context::GMContext;
+use crate::context::{GMContext, GMObjectMessage};
 use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
+use crate::effect::{GMEffectManager, GMEffectT};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -88,6 +88,9 @@ pub struct GMBitmapTextBase {
     horizontal: bool,
     size: GMSize,
     align: GMAlign,
+    pub active: bool,
+    pub visible: bool,
+    pub name: String,
 
     chars: Vec<GMBitmapChar>,
 }
@@ -104,6 +107,9 @@ impl GMBitmapTextBase {
             horizontal: true,
             size: GMSize::new(0.0, 0.0),
             align: GMAlign::TopLeft,
+            active: true,
+            visible: true,
+            name: "".to_string(),
             chars: Vec::new(),
         }
     }
@@ -306,69 +312,63 @@ impl GMBitmapTextBase {
     pub fn get_chars_mut(&mut self) -> &mut Vec<GMBitmapChar> {
         &mut self.chars
     }
+
+    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+        todo!();
+    }
+
+    pub fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
+        todo!();
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapText {
     pub base: GMBitmapTextBase,
-    effects: Vec<Box<dyn GMTextEffectT>>,
+    pub effects: GMEffectManager<GMBitmapTextBase>,
 }
 
 impl GMBitmapText {
     pub fn new(bitmap_font: &Rc<GMBitmapFont>) -> Self {
         Self {
             base: GMBitmapTextBase::new(bitmap_font),
-            effects: Vec::new(),
+            effects: GMEffectManager::new(),
         }
     }
 
-    // Text methods
     pub fn update(&mut self, context: &mut GMContext) {
-        for effect in self.effects.iter_mut() {
-            effect.update(&mut self.base, context);
+        if self.base.active {
+            self.effects.update(&mut self.base, context);
         }
     }
 
     pub fn draw(&self, context: &mut GMContext) {
         self.base.draw(context);
 
-        for effect in self.effects.iter() {
-            effect.draw(&self.base, context);
+        if self.base.visible {
+            self.effects.draw(&self.base, context);
         }
     }
 
-    // Text effect methods
-    pub fn add_effect<T: 'static + GMTextEffectT>(&mut self, effect: T) {
-        debug!("GMBitmapText::add_effect()");
-        self.add_effect2(Box::new(effect));
-    }
+    pub fn check_messages(&mut self, context: &mut GMContext) {
+        let mut messages = context.get_object_messages(&self.base.name);
 
-    pub fn add_effect2(&mut self, effect: Box<dyn GMTextEffectT>) {
-        debug!("GMBitmapText::add_effect2()");
-        self.effects.push(effect);
-    }
-
-    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMTextEffectT>>) {
-        debug!("GMBitmapText::set_effect()");
-        self.effects = effects;
-    }
-
-    pub fn remove_effect(&mut self, index: usize) {
-        debug!("GMBitmapText::remove_effect(), index: {}", index);
-        self.effects.remove(index);
-    }
-
-    pub fn swap_effects(&mut self, index1: usize, index2: usize) {
-        debug!("GMBitmapText::swap_effects(), index1: {}, index2: {}", index1, index2);
-        self.effects.swap(index1, index2);
-    }
-
-    pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
-        self.effects[index].send_message(message, context)
-    }
-
-    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
-        self.effects[index].send_message_data(message, data, context)
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Simple(message) => {
+                    self.base.send_message(&message, context);
+                }
+                GMObjectMessage::Data(message, data) => {
+                    self.base.send_message_data(&message, data, context);
+                }
+                GMObjectMessage::SimpleEffect(index, message) => {
+                    self.effects.send_effect_message(index, &message, context);
+                }
+                GMObjectMessage::DataEffect(index, message, data) => {
+                    self.effects.send_effect_message_data(index, &message, data, context);
+                }
+            }
+        }
     }
 }
 
@@ -422,24 +422,24 @@ impl GMBitmapTextBuilder {
         self
     }
 
-    pub fn with_effect<T: 'static + GMTextEffectT>(mut self, effect: T) -> Self {
+    pub fn with_effect<T: 'static + GMEffectT<GMBitmapTextBase>>(mut self, effect: T) -> Self {
         debug!("GMBitmapTextBuilder::with_effect()");
 
-        self.bitmap_text.effects.push(Box::new(effect));
+        self.bitmap_text.effects.add_effect(effect);
         self
     }
 
-    pub fn with_effect2(mut self, effect: Box<dyn GMTextEffectT>) -> Self {
+    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMBitmapTextBase>>) -> Self {
         debug!("GMBitmapTextBuilder::with_effect2()");
 
-        self.bitmap_text.effects.push(effect);
+        self.bitmap_text.effects.add_effect2(effect);
         self
     }
 
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMTextEffectT>>) -> Self {
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMBitmapTextBase>>>) -> Self {
         debug!("GMBitmapTextBuilder::with_effects()");
 
-        self.bitmap_text.effects.extend(effects);
+        self.bitmap_text.effects.set_effects(effects);
         self
     }
 
@@ -452,5 +452,3 @@ impl GMBitmapTextBuilder {
 // TODO: Add GMTextBlock
 
 // TODO: Add GMTextList
-
-

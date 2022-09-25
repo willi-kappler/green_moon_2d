@@ -9,34 +9,11 @@ use crate::context::GMContext;
 use crate::bitmap_text::{GMBitmapTextBase};
 use crate::data::GMData;
 use crate::util::{error_panic};
+use crate::effect::GMEffectT;
+
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;
 
-
-
-pub trait GMTextEffectT: Debug {
-    fn update(&mut self, _text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-    }
-
-    fn draw(&self, _text: &GMBitmapTextBase, _context: &mut GMContext) {
-    }
-
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-    }
-
-    fn set_active(&mut self, active: bool);
-
-    fn clone_box(&self) -> Box<dyn GMTextEffectT>;
-}
-
-impl Clone for Box<dyn GMTextEffectT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct GMTEReset {
@@ -53,7 +30,7 @@ impl GMTEReset {
     }
 }
 
-impl GMTextEffectT for GMTEReset {
+impl GMEffectT<GMBitmapTextBase> for GMTEReset {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         if self.active {
             text.reset_chars();
@@ -64,7 +41,7 @@ impl GMTextEffectT for GMTEReset {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
         Box::new(self.clone())
     }
 }
@@ -92,7 +69,7 @@ impl GMTEWave {
     }
 }
 
-impl GMTextEffectT for GMTEWave {
+impl GMEffectT<GMBitmapTextBase> for GMTEWave {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         if self.active {
             let mut offset = 0.0;
@@ -151,7 +128,7 @@ impl GMTextEffectT for GMTEWave {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
         Box::new(self.clone())
     }
 }
@@ -184,7 +161,7 @@ impl GMTEShake {
     }
 }
 
-impl GMTextEffectT for GMTEShake {
+impl GMEffectT<GMBitmapTextBase> for GMTEShake {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         if self.active {
             self.time += self.speed;
@@ -232,7 +209,7 @@ impl GMTextEffectT for GMTEShake {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
         Box::new(self.clone())
     }
 }
@@ -258,7 +235,7 @@ impl GMTERotateChars {
     }
 }
 
-impl GMTextEffectT for GMTERotateChars {
+impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
     fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         if self.active {
             let mut delta = 0.0;
@@ -298,7 +275,7 @@ impl GMTextEffectT for GMTERotateChars {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
         Box::new(self.clone())
     }
 }
@@ -329,7 +306,7 @@ impl GMTEScale {
     }
 }
 
-impl GMTextEffectT for GMTEScale {
+impl GMEffectT<GMBitmapTextBase> for GMTEScale {
     fn update(&mut self, _text: &mut GMBitmapTextBase, _context: &mut GMContext) {
         // TODO:
         todo!();
@@ -359,7 +336,7 @@ impl GMTextEffectT for GMTEScale {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
         Box::new(self.clone())
     }
 }
