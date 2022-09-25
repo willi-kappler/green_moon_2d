@@ -15,10 +15,24 @@ use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
 use crate::data::GMData;
 
+#[derive(Clone, Debug)]
+pub enum GMObjectMessageKind {
+    Simple(String),
+    Data(String, GMData),
+    SimpleEffect(usize, String),
+    DataEffect(usize, String, GMData),
+}
+
+#[derive(Clone, Debug)]
+pub struct GMObjectMessage {
+    pub sender: String,
+    pub message: GMObjectMessageKind,
+}
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
+    object_messages: HashMap<String, Vec<GMObjectMessage>>,
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
@@ -36,6 +50,7 @@ impl GMContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
+            object_messages: HashMap::new(),
             canvas,
             input,
             resources,
@@ -126,8 +141,73 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn send_message<S: Into<String>>(&mut self, scene: S, message: S) {
+    pub fn send_scene_message<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T) {
         self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into()));
+    }
+
+    pub fn send_scene_message_data<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T, data: GMData) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessageData(scene.into(), message.into(), data));
+    }
+
+    // Object messages
+    pub fn get_object_messages(&mut self, name: &str) -> Vec<GMObjectMessage> {
+        match self.object_messages.remove(name) {
+            Some(message) => {
+                message
+            }
+            None => {
+                Vec::new()
+            }
+        }
+    }
+
+    pub fn send_object_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
+        let receiver = receiver.into();
+
+        match self.object_messages.get_mut(&receiver) {
+            Some(messages) => {
+                messages.push(message)
+            }
+            None => {
+                self.object_messages.insert(receiver, vec![message]);
+            }
+        }
+    }
+
+    pub fn send_om_simple<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, message: U) {
+        let message = GMObjectMessage{
+            sender: sender.into(),
+            message: GMObjectMessageKind::Simple(message.into()),
+        };
+
+        self.send_object_message(receiver, message);
+    }
+
+    pub fn send_om_data<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, message: U, data: GMData) {
+        let message = GMObjectMessage{
+            sender: sender.into(),
+            message: GMObjectMessageKind::Data(message.into(), data),
+        };
+
+        self.send_object_message(receiver, message);
+    }
+
+    pub fn send_om_simple_effect<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, index: usize, message: U) {
+        let message = GMObjectMessage{
+            sender: sender.into(),
+            message: GMObjectMessageKind::SimpleEffect(index, message.into()),
+        };
+
+        self.send_object_message(receiver, message);
+    }
+
+    pub fn send_om_data_effect<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, index: usize, message: U, data: GMData) {
+        let message = GMObjectMessage{
+            sender: sender.into(),
+            message: GMObjectMessageKind::DataEffect(index, message.into(), data),
+        };
+
+        self.send_object_message(receiver, message);
     }
 
     // Update context, called by engine
