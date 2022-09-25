@@ -1,26 +1,23 @@
 
 use std::fmt::Debug;
 
-use crate::context::GMContext;
+// use crate::context::GMContext;
 use crate::animation::GMAnimationBase;
-use crate::data::GMData;
+// use crate::data::GMData;
+use crate::effect::GMEffectT;
 
-pub trait GMAnimationEffectT: Debug {
-    fn update(&mut self, _animation: &mut GMAnimationBase, _context: &mut GMContext);
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-    }
-
-    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-    }
-
-    fn set_active(&mut self, active: bool);
-
-    fn clone_box(&self) -> Box<dyn GMAnimationEffectT>;
+#[derive(Clone, Debug)]
+pub struct GMAESimple {
+    pub active: bool,
 }
 
-impl Clone for Box<dyn GMAnimationEffectT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
+impl GMEffectT<GMAnimationBase> for GMAESimple {
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMAnimationBase>> {
+        Box::new(self.clone())
     }
 }

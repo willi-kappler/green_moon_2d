@@ -7,6 +7,7 @@ pub mod collision;
 pub mod configuration;
 pub mod context;
 pub mod data;
+pub mod effect;
 pub mod engine;
 pub mod input;
 pub mod math;
