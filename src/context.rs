@@ -16,23 +16,17 @@ use crate::configuration::GMConfiguration;
 use crate::data::GMData;
 
 #[derive(Clone, Debug)]
-pub enum GMObjectMessageKind {
+pub enum GMObjectMessage {
     Simple(String),
     Data(String, GMData),
     SimpleEffect(usize, String),
     DataEffect(usize, String, GMData),
 }
 
-#[derive(Clone, Debug)]
-pub struct GMObjectMessage {
-    pub sender: String,
-    pub message: GMObjectMessageKind,
-}
-
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
-    object_messages: HashMap<String, Vec<GMObjectMessage>>,
+    object_messages: HashMap<String, VecDeque<GMObjectMessage>>,
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
@@ -150,13 +144,13 @@ impl GMContext {
     }
 
     // Object messages
-    pub fn get_object_messages(&mut self, name: &str) -> Vec<GMObjectMessage> {
+    pub fn get_object_messages(&mut self, name: &str) -> VecDeque<GMObjectMessage> {
         match self.object_messages.remove(name) {
             Some(message) => {
                 message
             }
             None => {
-                Vec::new()
+                VecDeque::new()
             }
         }
     }
@@ -166,48 +160,30 @@ impl GMContext {
 
         match self.object_messages.get_mut(&receiver) {
             Some(messages) => {
-                messages.push(message)
+                messages.push_back(message)
             }
             None => {
-                self.object_messages.insert(receiver, vec![message]);
+                let mut messages = VecDeque::new();
+                messages.push_back(message);
+                self.object_messages.insert(receiver, messages);
             }
         }
     }
 
-    pub fn send_om_simple<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, message: U) {
-        let message = GMObjectMessage{
-            sender: sender.into(),
-            message: GMObjectMessageKind::Simple(message.into()),
-        };
-
-        self.send_object_message(receiver, message);
+    pub fn send_om_simple<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
+        self.send_object_message(receiver, GMObjectMessage::Simple(message.into()));
     }
 
-    pub fn send_om_data<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, message: U, data: GMData) {
-        let message = GMObjectMessage{
-            sender: sender.into(),
-            message: GMObjectMessageKind::Data(message.into(), data),
-        };
-
-        self.send_object_message(receiver, message);
+    pub fn send_om_data<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
+        self.send_object_message(receiver, GMObjectMessage::Data(message.into(), data));
     }
 
-    pub fn send_om_simple_effect<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, index: usize, message: U) {
-        let message = GMObjectMessage{
-            sender: sender.into(),
-            message: GMObjectMessageKind::SimpleEffect(index, message.into()),
-        };
-
-        self.send_object_message(receiver, message);
+    pub fn send_om_simple_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
+        self.send_object_message(receiver, GMObjectMessage::SimpleEffect(index, message.into()));
     }
 
-    pub fn send_om_data_effect<S: Into<String>, T: Into<String>, U: Into<String>>(&mut self, sender: S, receiver: T, index: usize, message: U, data: GMData) {
-        let message = GMObjectMessage{
-            sender: sender.into(),
-            message: GMObjectMessageKind::DataEffect(index, message.into(), data),
-        };
-
-        self.send_object_message(receiver, message);
+    pub fn send_om_data_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
+        self.send_object_message(receiver, GMObjectMessage::DataEffect(index, message.into(), data));
     }
 
     // Update context, called by engine
