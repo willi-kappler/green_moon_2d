@@ -5,13 +5,14 @@ use log::debug;
 
 use crate::timer::GMTimer;
 use crate::util::GMRepetition;
-use crate::context::GMContext;
+use crate::context::{GMContext, GMObjectMessage};
 use crate::data::GMData;
 use crate::effect::GMEffectManager;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
     pub active: bool,
+    pub name: String,
     pub current_frame: usize,
     frames: Vec<(u32, f32)>, // index, duration in seconds
     timer: GMTimer,
@@ -19,11 +20,12 @@ pub struct GMAnimationBase {
 }
 
 impl GMAnimationBase {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
+    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
         debug!("GMAnimationBase::new(), frames: '{:?}'", frames);
 
         Self {
             active: true,
+            name: name.into(),
             current_frame: 0,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
@@ -176,9 +178,9 @@ pub struct GMAnimation {
 }
 
 impl GMAnimation {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
+    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
         Self {
-            base: GMAnimationBase::new(frames),
+            base: GMAnimationBase::new(name, frames),
             effects: GMEffectManager::new(),
         }
     }
@@ -190,6 +192,27 @@ impl GMAnimation {
             self.effects.update(&mut self.base, context);
         }
     }
+
+    pub fn check_messages(&mut self, context: &mut GMContext) {
+        let mut messages = context.get_object_messages(&self.base.name);
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Simple(message) => {
+                    self.base.send_message(&message, context);
+                }
+                GMObjectMessage::Data(message, data) => {
+                    self.base.send_message_data(&message, data, context);
+                }
+                GMObjectMessage::SimpleEffect(index, message) => {
+                    self.effects.send_effect_message(index, &message, context);
+                }
+                GMObjectMessage::DataEffect(index, message, data) => {
+                    self.effects.send_effect_message_data(index, &message, data, context);
+                }
+            }
+        }
+    }
 }
 
 
@@ -198,9 +221,9 @@ pub struct GMAnimationBuilder {
 }
 
 impl GMAnimationBuilder {
-    pub fn new(frames: &[(u32, f32)]) -> Self {
+    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
         Self {
-            animation: GMAnimation::new(frames),
+            animation: GMAnimation::new(name, frames),
         }
     }
 
