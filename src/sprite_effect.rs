@@ -14,13 +14,13 @@ use crate::effect::GMEffectT;
 
 #[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
-    start: GMVec2D,
-    end: GMVec2D,
-    direction: GMVec2D,
-    factor: f32,
-    speed: f32,
-    repetition: GMRepetition,
-    active: bool,
+    pub start: GMVec2D,
+    pub end: GMVec2D,
+    pub direction: GMVec2D,
+    pub factor: f32,
+    pub speed: f32,
+    pub repetition: GMRepetition,
+    pub active: bool,
 }
 
 impl GMSELinearMovement {
@@ -44,6 +44,20 @@ impl GMSELinearMovement {
             active: true,
         }
     }
+
+    pub fn is_finished(&self) -> bool {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.factor == 1.0
+            }
+            GMRepetition::OnceBackward => {
+                self.factor == 0.0
+            }
+            _ => {
+                false
+            }
+        }
+    }
 }
 
 impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
@@ -54,12 +68,18 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
                     if self.factor < 1.0 {
                         sprite.position = self.start + (self.direction * self.factor);
                         self.factor += self.speed;
+                        if self.factor > 1.0 {
+                            self.factor = 1.0;
+                        }
                     }
                 }
                 GMRepetition::OnceBackward => {
                     if self.factor > 0.0 {
                         sprite.position = self.start + (self.direction * self.factor);
                         self.factor -= self.speed;
+                        if self.factor < 0.0 {
+                            self.factor = 0.0;
+                        }
                     }
                 }
                 GMRepetition::LoopForward => {
@@ -104,17 +124,14 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
         match message {
             "set_start" => {
                 self.start = data.into();
-
                 self.direction = self.end - self.start;
             }
             "set_end" => {
                 self.end = data.into();
-
                 self.direction = self.end - self.start;
             }
             "set_speed" => {
                 self.speed = data.into();
-
             }
             "set_repetition" => {
                 self.repetition = data.into();
@@ -144,13 +161,112 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
 }
 
 #[derive(Debug, Clone)]
+pub struct GMSEPolygonMovement {
+    pub positions: Vec<GMVec2D>,
+    pub speeds: Vec<f32>,
+    pub repetition: GMRepetition,
+    pub active: bool,
+    pub current_index: usize,
+    pub linear_movement: GMSELinearMovement,
+}
+
+impl GMSEPolygonMovement {
+    pub fn new(positions: Vec<GMVec2D>, speeds: Vec<f32>, repetition: GMRepetition) -> Self {
+        assert!(positions.len() > 2, "GMSEPolygonMovement::new(), at least two positions expected: {:?}", positions);
+        assert!(positions.len() == speeds.len() + 1, "GMSEPolygonMovement::new(), number of speeds must be one less than number of positions: {:?}", speeds);
+
+        debug!("GMSEPolygonMovement::new(), positions: {:?}, speeds: {:?}, repetition: {:?}", positions, speeds, repetition);
+
+        let linear_movement = GMSELinearMovement::new(
+        positions[0].clone(),
+          positions[1].clone(),
+        speeds[0],
+   GMRepetition::OnceForward);
+
+        Self {
+            positions,
+            speeds,
+            repetition,
+            active: true,
+            current_index: 0,
+            linear_movement,
+        }
+    }
+
+    pub fn reset_movement(&mut self) {
+        self.linear_movement.start = self.positions[self.current_index];
+        self.linear_movement.end = self.positions[self.current_index + 1];
+        self.linear_movement.direction = self.linear_movement.end - self.linear_movement.start;
+        self.linear_movement.speed = self.speeds[self.current_index];
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
+    fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
+        if self.active {
+            self.linear_movement.update(sprite, context);
+
+            match self.repetition {
+                GMRepetition::OnceForward => {
+                    if self.linear_movement.is_finished() {
+                        if self.current_index < self.speeds.len() - 1 {
+                            self.current_index += 1;
+                            self.reset_movement();
+                            self.linear_movement.factor = 0.0;
+                        }
+                    }
+                }
+                GMRepetition::OnceBackward => {
+                    todo!();
+                }
+                GMRepetition::LoopForward => {
+                    if self.linear_movement.is_finished() {
+                        self.current_index += 1;
+                        if self.current_index >= self.speeds.len() {
+                            self.current_index = 0;
+                            self.reset_movement();
+                            self.linear_movement.factor = 0.0;
+                        }
+                    }
+                }
+                GMRepetition::LoopBackward => {
+                    todo!();
+                }
+                GMRepetition::PingPongForward => {
+                    todo!();
+                }
+                GMRepetition::PingPongBackward => {
+                    todo!();
+                }
+            }
+        }
+    }
+
+    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            _ => {
+                error_panic(&format!("GMSEPolygonMovement::send_message(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMSECircularMovement {
-    center: GMVec2D,
-    radius: f32,
-    factor: f32,
-    speed: f32,
-    repetition: GMRepetition,
-    active: bool,
+    pub center: GMVec2D,
+    pub radius: f32,
+    pub factor: f32,
+    pub speed: f32,
+    pub repetition: GMRepetition,
+    pub active: bool,
     // TODO: set min and max for factor to allow half circle and similar movements
 }
 
@@ -267,9 +383,9 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
 
 #[derive(Debug, Clone)]
 pub struct GMSETarget {
-    timer: GMTimer,
-    name: String,
-    active: bool,
+    pub timer: GMTimer,
+    pub name: String,
+    pub active: bool,
 }
 
 impl GMSETarget {
@@ -317,10 +433,10 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
 
 #[derive(Debug, Clone)]
 pub struct GMSEFollow {
-    timer: GMTimer,
-    target_name: String,
-    speed: f32,
-    active: bool,
+    pub timer: GMTimer,
+    pub target_name: String,
+    pub speed: f32,
+    pub active: bool,
 }
 
 impl GMSEFollow {
