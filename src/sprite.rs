@@ -1,5 +1,6 @@
 
 use std::rc::Rc;
+use std::collections::HashSet;
 
 use log::debug;
 
@@ -9,6 +10,7 @@ use crate::animation::{GMAnimation};
 use crate::context::{GMContext, GMObjectMessage};
 use crate::math::GMVec2D;
 use crate::effect::{GMEffectManager, GMEffectT};
+use crate::util::error_panic;
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
@@ -31,10 +33,9 @@ pub struct GMSpriteBase {
     pub active: bool,
 
     // User defined data:
-    pub id: u32,
-    pub group_id: u32,
     pub name: String,
-    pub custom_data: String,
+    pub groups: HashSet<String>,
+    pub custom_data: GMData,
 }
 
 // TODO: Maybe use https://github.com/jbaublitz/getset
@@ -62,10 +63,9 @@ impl GMSpriteBase {
             visible: true,
             active: true,
 
-            id: 0,
-            group_id: 0,
             name: "".to_string(),
-            custom_data: "".to_string()
+            groups: HashSet::new(),
+            custom_data: GMData::None,
         }
 
     }
@@ -102,12 +102,73 @@ impl GMSpriteBase {
         }
     }
 
-    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        todo!();
+    pub fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        // error_panic("GMSpriteBase::send_message(), no message defined yet");
+        match message {
+            "clear_groups" => {
+                self.groups.clear();
+            }
+            _ => {
+                error_panic(&format!("GMSpriteBase::send_message(), unknown message: '{}'", message))
+            }
+        }
     }
 
-    pub fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-        todo!();
+    pub fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_position" => {
+                self.position = data.into();
+            }
+            "set_offset" => {
+                self.offset = data.into();
+            }
+            "set_velocity" => {
+                self.velocity = data.into();
+            }
+            "set_acceleration" => {
+                self.acceleration = data.into();
+            }
+            "set_angle" => {
+                self.angle = data.into();
+            }
+            "set_angle_velocity" => {
+                self.angle_velocity = data.into();
+            }
+            "set_angle_acceleration" => {
+                self.angle_acceleration = data.into();
+            }
+            "set_flip_x" => {
+                self.flip_x = data.into();
+            }
+            "set_flip_y" => {
+                self.flip_y = data.into();
+            }
+            "set_texture" => {
+                self.texture = data.into();
+            }
+            "set_animation" => {
+                self.animation = data.into();
+            }
+            "set_visible" => {
+                self.visible = data.into();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            "set_name" => {
+                self.name = data.into();
+            }
+            "add_group" => {
+                self.groups.insert(data.into());
+            }
+            "remove_group" => {
+                let group: String = data.into();
+                self.groups.remove(&group);
+            }
+            _ => {
+                error_panic(&format!("GMSpriteBase::send_message_data(), unknown message: '{}'", message))
+            }
+        }
     }
 }
 
@@ -245,20 +306,6 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_id(mut self, id: u32) -> Self {
-        debug!("GMSpriteBuilder::with_id(), id: '{}'", id);
-
-        self.sprite.base.id = id;
-        self
-    }
-
-    pub fn with_group_id(mut self, group_id: u32) -> Self {
-        debug!("GMSpriteBuilder::with_group_id(), group_id: '{}'", group_id);
-
-        self.sprite.base.group_id = group_id;
-        self
-    }
-
     pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
         let name = name.into();
         debug!("GMSpriteBuilder::with_name(), name: '{}'", name);
@@ -267,11 +314,25 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_custom_data<S: Into<String>>(mut self, custom_data: S) -> Self {
-        let custom_data = custom_data.into();
-        debug!("GMSpriteBuilder::with_custom_data(), custom_data: '{}'", custom_data);
+    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+        let group = group.into();
+        debug!("GMSpriteBuilder::with_group(), group: '{}'", group);
 
-        self.sprite.base.custom_data = custom_data.to_string();
+        self.sprite.base.groups.insert(group);
+        self
+    }
+
+    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+        debug!("GMSpriteBuilder::with_groups(), groups: '{:?}'", groups);
+
+        self.sprite.base.groups = groups;
+        self
+    }
+
+    pub fn with_custom_data(mut self, custom_data: GMData) -> Self {
+        debug!("GMSpriteBuilder::with_custom_data(), custom_data: '{:?}'", custom_data);
+
+        self.sprite.base.custom_data = custom_data;
         self
     }
 
