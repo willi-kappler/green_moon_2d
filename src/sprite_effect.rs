@@ -149,7 +149,7 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSELinearMovement::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
@@ -251,7 +251,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEPolygonMovement::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEPolygonMovement::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
@@ -376,7 +376,7 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSECircularMovement::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
@@ -399,9 +399,12 @@ pub struct GMSETarget {
 
 impl GMSETarget {
     pub fn new<T: Into<String>>(duration: f32, name: T) -> Self {
+        let name = name.into();
+        debug!("GMSETarget::new(), duration: '{}', name: '{}'", duration, name);
+
         Self {
             timer: GMTimer::new(duration),
-            name: name.into(),
+            name,
             active: true,
         }
     }
@@ -429,7 +432,7 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSETarget::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
@@ -453,6 +456,9 @@ pub struct GMSEFollow {
 
 impl GMSEFollow {
     pub fn new<T: Into<String>>(duration: f32, name: T, speed: f32) -> Self {
+        let name = name.into();
+        debug!("GMSEFollow::new(), duration: '{}', name: '{}', speed: '{}'", duration, name, speed);
+
         Self {
             timer: GMTimer::new(duration),
             target_name: name.into(),
@@ -489,7 +495,7 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEFollow::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEFollow::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
