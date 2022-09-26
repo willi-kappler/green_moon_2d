@@ -46,6 +46,9 @@ pub enum GMData {
     I64(i64),
     I64I64(i64, i64),
     I64I64I64(i64, i64, i64),
+    USize(usize),
+    USizeUSize(usize, usize),
+    USizeUSizeUSize(usize, usize, usize),
     F32(f32),
     F32F32(f32, f32),
     F32F32F32(f32, f32, f32),
@@ -82,6 +85,18 @@ impl From<u8> for GMData {
 impl From<(u8, u8)> for GMData {
     fn from(data: (u8, u8)) -> Self {
         GMData::U8U8(data.0, data.1)
+    }
+}
+
+impl From<(u8, u8, u8)> for GMData {
+    fn from(data: (u8, u8, u8)) -> Self {
+        GMData::U8U8U8(data.0, data.1, data.2)
+    }
+}
+
+impl From<usize> for GMData {
+    fn from(data: usize) -> Self {
+        GMData::USize(data)
     }
 }
 
@@ -125,22 +140,42 @@ impl From<GMData> for u8 {
     }
 }
 
-impl From<GMData> for f32 {
-    fn from(data: GMData) -> Self {
-        if let GMData::F32(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected F32, got {:?}", data))
-        }
-    }
-}
-
 impl From<GMData> for (u8, u8) {
     fn from(data: GMData) -> Self {
         if let GMData::U8U8(data1, data2) = data {
             (data1, data2)
         } else {
             error_panic(&format!("Expected U8U8, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for (u8, u8, u8) {
+    fn from(data: GMData) -> Self {
+        if let GMData::U8U8U8(data1, data2, data3) = data {
+            (data1, data2, data3)
+        } else {
+            error_panic(&format!("Expected U8U8U8, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for usize {
+    fn from(data: GMData) -> Self {
+        if let GMData::USize(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected U8, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for f32 {
+    fn from(data: GMData) -> Self {
+        if let GMData::F32(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected F32, got {:?}", data))
         }
     }
 }
