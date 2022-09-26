@@ -145,6 +145,9 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
                     }
                 }
             }
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
             }
@@ -244,6 +247,9 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
 
     fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMSEPolygonMovement::send_message(), unknown message: '{}'", message))
             }
@@ -366,6 +372,9 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
             "set_repetition" => {
                 self.repetition = data.into();
             }
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
             }
@@ -415,6 +424,9 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
             "set_duration" => {
                 self.timer.set_duration(data.into());
                 self.timer.start();
+            }
+            "set_active" => {
+                self.active = data.into();
             }
             _ => {
                 error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
@@ -472,6 +484,9 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
             "set_duration" => {
                 self.timer.set_duration(data.into());
                 self.timer.start();
+            }
+            "set_active" => {
+                self.active = data.into();
             }
             _ => {
                 error_panic(&format!("GMSEFollow::send_message(), unknown message: '{}'", message))
