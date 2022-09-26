@@ -1,8 +1,11 @@
 
 use std::any::Any;
 use std::fmt::Debug;
+use std::rc::Rc;
 
 use crate::math::GMVec2D;
+use crate::animation::GMAnimation;
+use crate::texture::GMTexture;
 use crate::util::{error_panic, GMRepetition};
 
 pub trait GMAnyT: Debug {
@@ -21,6 +24,7 @@ impl Clone for Box<dyn GMAnyT> {
 
 #[derive(Debug, Clone)]
 pub enum GMData {
+    None,
     Bool(bool),
     U8(u8),
     U8U8(u8, u8),
@@ -63,6 +67,8 @@ pub enum GMData {
     Vec2DVec2D(GMVec2D, GMVec2D),
     Vec2DVec2DVec2D(GMVec2D, GMVec2D, GMVec2D),
     Repetition(GMRepetition),
+    Texture(Rc<GMTexture>),
+    Animation(GMAnimation),
     Tuple(Box<GMData>, Box<GMData>),
     Vec(Box<GMData>),
     Custom(Box<dyn GMAnyT>),
@@ -106,6 +112,12 @@ impl From<f32> for GMData {
     }
 }
 
+impl From<String> for GMData {
+    fn from(data: String) -> Self {
+        GMData::String(data)
+    }
+}
+
 impl From<GMVec2D> for GMData {
     fn from(data: GMVec2D) -> Self {
         GMData::Vec2D(data)
@@ -117,6 +129,20 @@ impl From<GMRepetition> for GMData {
         GMData::Repetition(data)
     }
 }
+
+impl From<Rc<GMTexture>> for GMData {
+    fn from(data: Rc<GMTexture>) -> Self {
+        GMData::Texture(data)
+    }
+}
+
+impl From<GMAnimation> for GMData {
+    fn from(data: GMAnimation) -> Self {
+        GMData::Animation(data)
+    }
+}
+
+
 
 
 
@@ -180,6 +206,16 @@ impl From<GMData> for f32 {
     }
 }
 
+impl From<GMData> for String {
+    fn from(data: GMData) -> Self {
+        if let GMData::String(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected String, got {:?}", data))
+        }
+    }
+}
+
 impl From<GMData> for GMVec2D {
     fn from(data: GMData) -> Self {
         if let GMData::Vec2D(data) = data {
@@ -196,6 +232,26 @@ impl From<GMData> for GMRepetition {
             data
         } else {
             error_panic(&format!("Expected Repetition, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for Rc<GMTexture> {
+    fn from(data: GMData) -> Self {
+        if let GMData::Texture(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected Texture, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for GMAnimation {
+    fn from(data: GMData) -> Self {
+        if let GMData::Animation(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected Animation, got {:?}", data))
         }
     }
 }
