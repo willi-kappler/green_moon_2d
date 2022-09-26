@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::timer::GMTimer;
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, error_panic};
 use crate::context::{GMContext, GMObjectMessage};
 use crate::data::GMData;
 use crate::effect::GMEffectManager;
@@ -14,8 +14,8 @@ pub struct GMAnimationBase {
     pub active: bool,
     pub name: String,
     pub current_frame: usize,
-    frames: Vec<(u32, f32)>, // index, duration in seconds
-    timer: GMTimer,
+    pub frames: Vec<(u32, f32)>, // index, duration in seconds
+    pub timer: GMTimer,
     pub repetition: GMRepetition,
 }
 
@@ -161,12 +161,35 @@ impl GMAnimationBase {
         }
     }
 
-    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        todo!();
+    pub fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+        match message {
+            "set_new_timer_duration" => {
+                self.set_new_timer_duration();
+            }
+            "reverse" => {
+                self.reverse();
+            }
+            _ => {
+                error_panic(&format!("GMAnimationBase::send_message(), unknown message: '{}'", message))
+            }
+        }
     }
 
-    pub fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-        todo!();
+    pub fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "inc_frame" => {
+                self.inc_frame(data.into());
+            }
+            "dec_frame" => {
+                self.dec_frame(data.into());
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMAnimationBase::send_message_data(), unknown message: '{}'", message))
+            }
+        }
     }
 
 }
