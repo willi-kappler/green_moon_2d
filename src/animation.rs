@@ -1,5 +1,6 @@
 
 use std::fmt::Debug;
+use std::collections::HashSet;
 
 use log::debug;
 
@@ -13,6 +14,7 @@ use crate::effect::GMEffectManager;
 pub struct GMAnimationBase {
     pub active: bool,
     pub name: String,
+    pub groups: HashSet<String>,
     pub current_frame: usize,
     pub frames: Vec<(u32, f32)>, // index, duration in seconds
     pub timer: GMTimer,
@@ -26,6 +28,7 @@ impl GMAnimationBase {
         Self {
             active: true,
             name: name.into(),
+            groups: HashSet::new(),
             current_frame: 0,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
@@ -161,7 +164,7 @@ impl GMAnimationBase {
         }
     }
 
-    pub fn send_message(&mut self, message: &str, _context: &mut GMContext) {
+    pub fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_new_timer_duration" => {
                 self.set_new_timer_duration();
@@ -169,14 +172,6 @@ impl GMAnimationBase {
             "reverse" => {
                 self.reverse();
             }
-            _ => {
-                error_panic(&format!("GMAnimationBase::send_message(), unknown message: '{}'", message))
-            }
-        }
-    }
-
-    pub fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
-        match message {
             "inc_frame" => {
                 self.inc_frame(data.into());
             }
@@ -187,9 +182,13 @@ impl GMAnimationBase {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMAnimationBase::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMAnimationBase::send_message), unknown message: '{}'", message))
             }
         }
+    }
+
+    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
     }
 
 }
@@ -221,17 +220,24 @@ impl GMAnimation {
 
         while let Some(message) = messages.pop_front() {
             match message {
-                GMObjectMessage::Simple(message) => {
-                    self.base.send_message(&message, context);
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::Data(message, data) => {
-                    self.base.send_message_data(&message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
-                GMObjectMessage::SimpleEffect(index, message) => {
-                    self.effects.send_effect_message(index, &message, context);
+            }
+        }
+
+        let mut messages = context.get_group_messages(&self.base.groups);
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::DataEffect(index, message, data) => {
-                    self.effects.send_effect_message_data(index, &message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
             }
         }

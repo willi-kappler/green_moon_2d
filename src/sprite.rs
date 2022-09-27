@@ -38,8 +38,6 @@ pub struct GMSpriteBase {
     pub custom_data: GMData,
 }
 
-// TODO: Maybe use https://github.com/jbaublitz/getset
-
 impl GMSpriteBase {
     pub fn new(texture: &Rc<GMTexture>) -> Self {
         debug!("GMSpriteBase::new()");
@@ -102,19 +100,7 @@ impl GMSpriteBase {
         }
     }
 
-    pub fn send_message(&mut self, message: &str, _context: &mut GMContext) {
-        // error_panic("GMSpriteBase::send_message(), no message defined yet");
-        match message {
-            "clear_groups" => {
-                self.groups.clear();
-            }
-            _ => {
-                error_panic(&format!("GMSpriteBase::send_message(), unknown message: '{}'", message))
-            }
-        }
-    }
-
-    pub fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    pub fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
                 self.position = data.into();
@@ -165,11 +151,19 @@ impl GMSpriteBase {
                 let group: String = data.into();
                 self.groups.remove(&group);
             }
+            "clear_group" => {
+                self.groups.clear();
+            }
             _ => {
-                error_panic(&format!("GMSpriteBase::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSpriteBase::send_message(), unknown message: '{}'", message))
             }
         }
     }
+
+    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
+    }
+
 }
 
 #[derive(Debug, Clone)]
@@ -209,17 +203,24 @@ impl GMSprite {
 
         while let Some(message) = messages.pop_front() {
             match message {
-                GMObjectMessage::Simple(message) => {
-                    self.base.send_message(&message, context);
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::Data(message, data) => {
-                    self.base.send_message_data(&message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
-                GMObjectMessage::SimpleEffect(index, message) => {
-                    self.effects.send_effect_message(index, &message, context);
+            }
+        }
+
+        let mut messages = context.get_group_messages(&self.base.groups);
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::DataEffect(index, message, data) => {
-                    self.effects.send_effect_message_data(index, &message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
             }
         }

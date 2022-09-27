@@ -1,5 +1,5 @@
 
-use std::collections::{VecDeque, HashMap};
+use std::collections::{VecDeque, HashMap, HashSet};
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -17,16 +17,16 @@ use crate::data::GMData;
 
 #[derive(Clone, Debug)]
 pub enum GMObjectMessage {
-    Simple(String),
-    Data(String, GMData),
-    SimpleEffect(usize, String),
-    DataEffect(usize, String, GMData),
+    Base(String, GMData),
+    Effect(usize, String, GMData),
 }
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
     object_messages: HashMap<String, VecDeque<GMObjectMessage>>,
+    message_store_index: usize,
+    message_get_index: usize,
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
@@ -45,6 +45,8 @@ impl GMContext {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
             object_messages: HashMap::new(),
+            message_store_index: 0,
+            message_get_index: 1,
             canvas,
             input,
             resources,
@@ -155,6 +157,15 @@ impl GMContext {
         }
     }
 
+    pub fn get_group_messages(&mut self, groups: &HashSet<String>) -> VecDeque<GMObjectMessage> {
+        if groups.len() == 0 {
+            VecDeque::new()
+        } else {
+            // TODO: filter messaages by group
+            todo!();
+        }
+    }
+
     pub fn send_object_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
         let receiver = receiver.into();
 
@@ -170,25 +181,52 @@ impl GMContext {
         }
     }
 
-    pub fn send_om_simple<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
-        self.send_object_message(receiver, GMObjectMessage::Simple(message.into()));
+    pub fn send_group_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
+        let receiver = receiver.into();
+        // TODO: use a second hashmap
+        todo!();
     }
 
-    pub fn send_om_data<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
-        self.send_object_message(receiver, GMObjectMessage::Data(message.into(), data));
+    pub fn send_om_base<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
+        self.send_object_message(receiver, GMObjectMessage::Base(message.into(), data));
     }
 
-    pub fn send_om_simple_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
-        self.send_object_message(receiver, GMObjectMessage::SimpleEffect(index, message.into()));
+    pub fn send_om_base2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
+        self.send_object_message(receiver, GMObjectMessage::Base(message.into(), GMData::None));
     }
 
-    pub fn send_om_data_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
-        self.send_object_message(receiver, GMObjectMessage::DataEffect(index, message.into(), data));
+    pub fn send_om_group<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
+        self.send_group_message(receiver, GMObjectMessage::Base(message.into(), data));
+    }
+
+    pub fn send_om_group2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
+        self.send_group_message(receiver, GMObjectMessage::Base(message.into(), GMData::None));
+    }
+
+    pub fn send_om_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
+        self.send_object_message(receiver, GMObjectMessage::Effect(index, message.into(), data));
+    }
+
+    pub fn send_om_effect2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
+        self.send_object_message(receiver, GMObjectMessage::Effect(index, message.into(), GMData::None));
+    }
+
+    pub fn send_om_group_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
+        self.send_group_message(receiver, GMObjectMessage::Effect(index, message.into(), data));
+    }
+
+    pub fn send_om_group_effect2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
+        self.send_group_message(receiver, GMObjectMessage::Effect(index, message.into(), GMData::None));
     }
 
     // Update context, called by engine
     pub(crate) fn update(&mut self) {
         self.input.update();
+
+        // Swap store and get index for messages:
+        self.message_store_index = 1 - self.message_store_index;
+        // Get index must be different than store index.
+        self.message_get_index = 1 - self.message_store_index;
     }
 
     // Events, called by user code

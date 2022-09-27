@@ -13,10 +13,11 @@ pub trait GMEffectT<T>: Debug {
     fn draw(&self, _base: &T, _context: &mut GMContext) {
     }
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    fn send_message(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
     }
 
-    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
+    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
     }
 
     fn set_active(&mut self, active: bool);
@@ -95,11 +96,11 @@ impl<T> GMEffectManager<T> {
         self.effects.swap(index1, index2);
     }
 
-    pub fn send_effect_message(&mut self, index: usize, message: &str, context: &mut GMContext) {
-        self.effects[index].send_message(message, context)
+    pub fn send_effect_message(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
+        self.effects[index].send_message(message, data, context)
     }
 
-    pub fn send_effect_message_data(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
-        self.effects[index].send_message_data(message, data, context)
+    pub fn send_effect_message2(&mut self, index: usize, message: &str, context: &mut GMContext) {
+        self.effects[index].send_message2(message, context)
     }
 }

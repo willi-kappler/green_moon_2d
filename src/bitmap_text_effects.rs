@@ -74,13 +74,13 @@ impl GMEffectT<GMBitmapTextBase> for GMTEWave {
         if self.active {
             let mut offset = 0.0;
 
-            if text.get_horizontal() {
-                for bitmap_char in text.get_chars_mut().iter_mut() {
+            if text.horizontal {
+                for bitmap_char in text.chars.iter_mut() {
                     bitmap_char.position.y += self.amplitude * (self.time + offset).sin();
                     offset += self.offset;
                 }
             } else {
-                for bitmap_char in text.get_chars_mut().iter_mut() {
+                for bitmap_char in text.chars.iter_mut() {
                     bitmap_char.position.x += self.amplitude * (self.time + offset).sin();
                     offset += self.offset;
                 }
@@ -94,7 +94,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEWave {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
 
         match message {
             "set_amplitude" => {
@@ -167,7 +167,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEShake {
             self.time += self.speed;
             self.rng.reseed(u64::to_ne_bytes(self.seed));
 
-            for bitmap_char in text.get_chars_mut().iter_mut() {
+            for bitmap_char in text.chars.iter_mut() {
                 let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
                 let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
 
@@ -183,7 +183,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEShake {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_speed" => {
                 self.speed = data.into();
@@ -240,7 +240,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
         if self.active {
             let mut delta = 0.0;
 
-            for bitmap_char in text.get_chars_mut().iter_mut() {
+            for bitmap_char in text.chars.iter_mut() {
                 bitmap_char.angle = self.time + delta;
                 delta += self.offset;
             }
@@ -249,7 +249,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_speed" => {
                 self.speed = data.into();
@@ -312,7 +312,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
         todo!();
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_factor_min" => {
                 self.factor_min = data.into();

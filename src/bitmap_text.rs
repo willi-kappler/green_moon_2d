@@ -1,6 +1,6 @@
 
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::fmt::Debug;
 
@@ -80,19 +80,20 @@ impl GMBitmapChar {
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapTextBase {
-    font: Rc<GMBitmapFont>,
-    text: String,
+    pub font: Rc<GMBitmapFont>,
+    pub text: String,
 
-    position: GMVec2D,
-    spacing: GMVec2D,
-    horizontal: bool,
-    size: GMSize,
-    align: GMAlign,
+    pub position: GMVec2D,
+    pub spacing: GMVec2D,
+    pub horizontal: bool,
+    pub size: GMSize,
+    pub align: GMAlign,
     pub active: bool,
     pub visible: bool,
     pub name: String,
+    pub groups: HashSet<String>,
 
-    chars: Vec<GMBitmapChar>,
+    pub chars: Vec<GMBitmapChar>,
 }
 
 impl GMBitmapTextBase {
@@ -110,6 +111,7 @@ impl GMBitmapTextBase {
             active: true,
             visible: true,
             name: "".to_string(),
+            groups: HashSet::new(),
             chars: Vec::new(),
         }
     }
@@ -245,10 +247,6 @@ impl GMBitmapTextBase {
         self.reset_chars2();
     }
 
-    pub fn get_position(&self) -> &GMVec2D {
-        &self.position
-    }
-
     pub fn set_spacing<T: Into<GMVec2D>>(&mut self, spacing: T) {
         self.spacing = spacing.into();
         self.reset_chars2();
@@ -279,19 +277,11 @@ impl GMBitmapTextBase {
         self.reset_chars2();
     }
 
-    pub fn get_spacing(&self) -> &GMVec2D {
-        &self.spacing
-    }
-
     pub fn set_horizontal(&mut self, horizontal: bool) {
         if self.horizontal != horizontal {
             self.horizontal = horizontal;
             self.reset_chars2();
         }
-    }
-
-    pub fn get_horizontal(&self) -> bool {
-        self.horizontal
     }
 
     pub fn set_align(&mut self, align: GMAlign) {
@@ -301,25 +291,18 @@ impl GMBitmapTextBase {
         }
     }
 
-    pub fn get_align(&self) -> &GMAlign {
-        &self.align
+    pub fn send_message(&mut self, message: &str, _data: GMData, _context: &mut GMContext) {
+        match message {
+            _ => {
+                error_panic(&format!("GMBitmapTextBase::send_message(), unknown message: '{}'", message))
+            }
+        }
     }
 
-    pub fn get_chars(&self) -> &Vec<GMBitmapChar> {
-        &self.chars
+    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
     }
 
-    pub fn get_chars_mut(&mut self) -> &mut Vec<GMBitmapChar> {
-        &mut self.chars
-    }
-
-    pub fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
-        todo!();
-    }
-
-    pub fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-        todo!();
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -355,17 +338,24 @@ impl GMBitmapText {
 
         while let Some(message) = messages.pop_front() {
             match message {
-                GMObjectMessage::Simple(message) => {
-                    self.base.send_message(&message, context);
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::Data(message, data) => {
-                    self.base.send_message_data(&message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
-                GMObjectMessage::SimpleEffect(index, message) => {
-                    self.effects.send_effect_message(index, &message, context);
+            }
+        }
+
+        let mut messages = context.get_group_messages(&self.base.groups);
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
                 }
-                GMObjectMessage::DataEffect(index, message, data) => {
-                    self.effects.send_effect_message_data(index, &message, data, context);
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_effect_message(index, &message, data, context);
                 }
             }
         }

@@ -120,7 +120,7 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_start" => {
                 self.start = data.into();
@@ -196,11 +196,13 @@ impl GMSEPolygonMovement {
         }
     }
 
-    pub fn reset_movement(&mut self) {
+    pub fn reset_movement(&mut self, factor: f32, repetition: GMRepetition) {
         self.linear_movement.start = self.positions[self.current_index];
         self.linear_movement.end = self.positions[self.current_index + 1];
         self.linear_movement.direction = self.linear_movement.end - self.linear_movement.start;
         self.linear_movement.speed = self.speeds[self.current_index];
+        self.linear_movement.factor = factor;
+        self.linear_movement.repetition = repetition;
     }
 }
 
@@ -214,38 +216,47 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                     if self.linear_movement.is_finished() {
                         if self.current_index < self.speeds.len() - 1 {
                             self.current_index += 1;
-                            self.reset_movement();
-                            self.linear_movement.factor = 0.0;
+                            self.reset_movement(0.0, GMRepetition::OnceForward);
                         }
                     }
                 }
                 GMRepetition::OnceBackward => {
-                    todo!();
+                    if self.linear_movement.is_finished() {
+                        if self.current_index > 0 {
+                            self.current_index -= 1;
+                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                        }
+                    }
                 }
                 GMRepetition::LoopForward => {
                     if self.linear_movement.is_finished() {
                         self.current_index += 1;
                         if self.current_index >= self.speeds.len() {
                             self.current_index = 0;
-                            self.reset_movement();
-                            self.linear_movement.factor = 0.0;
+                            self.reset_movement(0.0, GMRepetition::OnceForward);
                         }
                     }
                 }
                 GMRepetition::LoopBackward => {
-                    todo!();
+                    if self.linear_movement.is_finished() {
+                        self.current_index -= 1;
+                        if self.current_index >= self.speeds.len() {
+                            self.current_index = self.speeds.len() - 1;
+                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                        }
+                    }
                 }
                 GMRepetition::PingPongForward => {
-                    todo!();
+                    todo!(); // TODO:
                 }
                 GMRepetition::PingPongBackward => {
-                    todo!();
+                    todo!(); // TODO:
                 }
             }
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_active" => {
                 self.active = data.into();
@@ -357,7 +368,7 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_center" => {
                 self.center = data.into();
@@ -367,7 +378,6 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
             }
             "set_speed" => {
                 self.speed = data.into();
-
             }
             "set_repetition" => {
                 self.repetition = data.into();
@@ -422,7 +432,7 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_duration" => {
                 self.timer.set_duration(data.into());
@@ -485,7 +495,7 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
         }
     }
 
-    fn send_message_data(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_duration" => {
                 self.timer.set_duration(data.into());
