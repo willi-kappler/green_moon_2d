@@ -24,7 +24,8 @@ pub enum GMObjectMessage {
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
-    object_messages: HashMap<String, VecDeque<GMObjectMessage>>,
+    object_messages: [HashMap<String, VecDeque<GMObjectMessage>>; 2],
+    group_messages: [HashMap<String, VecDeque<GMObjectMessage>>; 2],
     message_store_index: usize,
     message_get_index: usize,
     canvas: Canvas<Window>,
@@ -44,7 +45,8 @@ impl GMContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
-            object_messages: HashMap::new(),
+            object_messages: [HashMap::new(), HashMap::new()],
+            group_messages: [HashMap::new(), HashMap::new()],
             message_store_index: 0,
             message_get_index: 1,
             canvas,
@@ -147,9 +149,11 @@ impl GMContext {
 
     // Object messages
     pub fn get_object_messages(&mut self, name: &str) -> VecDeque<GMObjectMessage> {
-        match self.object_messages.remove(name) {
-            Some(message) => {
-                message
+        let get_messages = &mut self.object_messages[self.message_get_index];
+
+        match get_messages.remove(name) {
+            Some(messages) => {
+                messages
             }
             None => {
                 VecDeque::new()
@@ -162,29 +166,56 @@ impl GMContext {
             VecDeque::new()
         } else {
             // TODO: filter messaages by group
-            todo!();
+            let get_messages = &mut self.group_messages[self.message_get_index];
+            let mut result = VecDeque::new();
+
+            for name in groups.iter() {
+                match get_messages.get(name) {
+                    Some(messages) => {
+                        for message in messages.iter() {
+                            result.push_back(message.clone())
+                        }
+                    }
+                    None => {
+                        // Nothing to do...
+                    }
+                }    
+            }
+
+            result
         }
     }
 
     pub fn send_object_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
         let receiver = receiver.into();
+        let store_messages = &mut self.object_messages[self.message_store_index];
 
-        match self.object_messages.get_mut(&receiver) {
+        match store_messages.get_mut(&receiver) {
             Some(messages) => {
                 messages.push_back(message)
             }
             None => {
                 let mut messages = VecDeque::new();
                 messages.push_back(message);
-                self.object_messages.insert(receiver, messages);
+                store_messages.insert(receiver, messages);
             }
         }
     }
 
     pub fn send_group_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
         let receiver = receiver.into();
-        // TODO: use a second hashmap
-        todo!();
+        let store_messages = &mut self.group_messages[self.message_store_index];
+
+        match store_messages.get_mut(&receiver) {
+            Some(messages) => {
+                messages.push_back(message)
+            }
+            None => {
+                let mut messages = VecDeque::new();
+                messages.push_back(message);
+                store_messages.insert(receiver, messages);
+            }
+        }
     }
 
     pub fn send_om_base<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
@@ -219,7 +250,7 @@ impl GMContext {
         self.send_group_message(receiver, GMObjectMessage::Effect(index, message.into(), GMData::None));
     }
 
-    // Update context, called by engine
+    // Update context, called by engine once per frame
     pub(crate) fn update(&mut self) {
         self.input.update();
 
@@ -227,6 +258,10 @@ impl GMContext {
         self.message_store_index = 1 - self.message_store_index;
         // Get index must be different than store index.
         self.message_get_index = 1 - self.message_store_index;
+
+        // Remove all old messages from store:
+        self.object_messages[self.message_store_index].clear();
+        self.group_messages[self.message_store_index].clear();
     }
 
     // Events, called by user code
