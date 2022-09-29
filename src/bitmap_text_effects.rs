@@ -288,6 +288,7 @@ pub struct GMTEScale {
     speed: f32,
     offset: f32,
     factor: f32,
+    time: f32,
     active: bool,
 }
 
@@ -301,6 +302,7 @@ impl GMTEScale {
             speed,
             offset,
             factor: factor_min,
+            time: 0.0,
             active: true,
         }
     }
@@ -308,8 +310,10 @@ impl GMTEScale {
 
 impl GMEffectT<GMBitmapTextBase> for GMTEScale {
     fn update(&mut self, _text: &mut GMBitmapTextBase, _context: &mut GMContext) {
-        // TODO:
-        todo!();
+        if self.active {
+
+            self.time += self.speed;
+        }
     }
 
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
