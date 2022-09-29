@@ -22,8 +22,7 @@ pub(crate) enum GMSceneManagerMessage {
     PushAndChangeScene(String),
     RemoveScene(String),
     ReplaceScene(String, Box<dyn GMSceneT>),
-    SendMessage(String, String),
-    SendMessageData(String, String, GMData),
+    SendMessage(String, String, GMData),
 }
 
 pub trait GMSceneT: Debug {
@@ -34,10 +33,11 @@ pub trait GMSceneT: Debug {
 
     fn draw(&self, context: &mut GMContext);
 
-    fn send_message(&mut self, _message: &str, _context: &mut GMContext) {
+    fn send_message(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
     }
 
-    fn send_message_data(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
+    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
     }
 }
 
@@ -162,12 +162,12 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message(&mut self, scene: &str, message: &str, context: &mut GMContext) {
+    fn send_message(&mut self, scene: &str, message: &str, data: GMData, context: &mut GMContext) {
         debug!("GMSceneManager::send_message(), name: '{}', message: '{}'", scene, message);
 
         match self.scene_index(scene) {
             Some(index) => {
-                self.scenes[index].1.send_message(message, context);
+                self.scenes[index].1.send_message(message, data, context);
             }
             None => {
                 self.scene_does_not_exist("GMSceneManager::send_message()", scene);
@@ -175,17 +175,10 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message_data(&mut self, scene: &str, message: &str, data: GMData, context: &mut GMContext) {
-        debug!("GMSceneManager::send_message(), name: '{}', message: '{}'", scene, message);
+    fn send_message2(&mut self, scene: &str, message: &str, context: &mut GMContext) {
+        debug!("GMSceneManager::send_message2(), name: '{}', message: '{}'", scene, message);
 
-        match self.scene_index(scene) {
-            Some(index) => {
-                self.scenes[index].1.send_message_data(message, data, context);
-            }
-            None => {
-                self.scene_does_not_exist("GMSceneManager::send_message()", scene);
-            }
-        }
+        self.send_message(scene, message, GMData::None, context);
     }
 
     pub(crate) fn update(&mut self, context: &mut GMContext) {
@@ -211,11 +204,8 @@ impl GMSceneManager {
                 ReplaceScene(name, scene) => {
                     self.replace_scene(&name, scene);
                 }
-                SendMessage(scene, message) => {
-                    self.send_message(&scene, &message, context);
-                }
-                SendMessageData(scene, message, data) => {
-                    self.send_message_data(&scene, &message, data, context);
+                SendMessage(scene, message, data) => {
+                    self.send_message(&scene, &message, data, context);
                 }
             }
         }

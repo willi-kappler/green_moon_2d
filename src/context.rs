@@ -139,12 +139,12 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn send_scene_message<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into()));
+    pub fn send_scene_message<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T, data: GMData) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into(), data));
     }
 
-    pub fn send_scene_message_data<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T, data: GMData) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessageData(scene.into(), message.into(), data));
+    pub fn send_scene_message2<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T) {
+        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into(), GMData::None));
     }
 
     // Object messages
