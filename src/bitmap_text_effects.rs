@@ -118,6 +118,9 @@ impl GMEffectT<GMBitmapTextBase> for GMTEWave {
                 let data: f32 = data.into();
                 self.offset += data;
             }
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMTEWave::send_message(), unknown message: '{}'", message))
             }
@@ -199,6 +202,9 @@ impl GMEffectT<GMBitmapTextBase> for GMTEShake {
                 let data: f32 = data.into();
                 self.radius += data;
             }
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
             }
@@ -265,6 +271,9 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
                 let data: f32 = data.into();
                 self.offset += data;
             }
+            "set_active" => {
+                self.active = data.into();
+            }
             _ => {
                 error_panic(&format!("GMTERotateChars::send_message(), unknown message: '{}'", message))
             }
@@ -329,6 +338,9 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
             }
             "set_offset" => {
                 self.offset = data.into();
+            }
+            "set_active" => {
+                self.active = data.into();
             }
             _ => {
                 error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
