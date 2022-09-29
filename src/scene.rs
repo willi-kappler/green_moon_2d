@@ -175,12 +175,6 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message2(&mut self, scene: &str, message: &str, context: &mut GMContext) {
-        debug!("GMSceneManager::send_message2(), name: '{}', message: '{}'", scene, message);
-
-        self.send_message(scene, message, GMData::None, context);
-    }
-
     pub(crate) fn update(&mut self, context: &mut GMContext) {
         use GMSceneManagerMessage::*;
 
