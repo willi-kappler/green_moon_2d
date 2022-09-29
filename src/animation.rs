@@ -209,10 +209,7 @@ impl GMAnimation {
 
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update();
-
-        if self.base.active {
-            self.effects.update(&mut self.base, context);
-        }
+        self.effects.update(&mut self.base, context);
     }
 
     pub fn check_messages(&mut self, context: &mut GMContext) {

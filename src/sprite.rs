@@ -184,18 +184,12 @@ impl GMSprite {
 
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update(context);
-
-        if self.base.active {
-            self.effects.update(&mut self.base, context);
-        }
+        self.effects.update(&mut self.base, context);
     }
 
     pub fn draw(&self, context: &mut GMContext) {
         self.base.draw(context);
-
-        if self.base.visible {
-            self.effects.draw(&self.base, context);
-        }
+        self.effects.draw(&self.base, context);
     }
 
     pub fn check_messages(&mut self, context: &mut GMContext) {

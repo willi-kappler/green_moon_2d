@@ -88,7 +88,6 @@ pub struct GMBitmapTextBase {
     pub horizontal: bool,
     pub size: GMSize,
     pub align: GMAlign,
-    pub active: bool,
     pub visible: bool,
     pub name: String,
     pub groups: HashSet<String>,
@@ -108,7 +107,6 @@ impl GMBitmapTextBase {
             horizontal: true,
             size: GMSize::new(0.0, 0.0),
             align: GMAlign::TopLeft,
-            active: true,
             visible: true,
             name: "".to_string(),
             groups: HashSet::new(),
@@ -320,17 +318,12 @@ impl GMBitmapText {
     }
 
     pub fn update(&mut self, context: &mut GMContext) {
-        if self.base.active {
-            self.effects.update(&mut self.base, context);
-        }
+        self.effects.update(&mut self.base, context);
     }
 
     pub fn draw(&self, context: &mut GMContext) {
         self.base.draw(context);
-
-        if self.base.visible {
-            self.effects.draw(&self.base, context);
-        }
+        self.effects.draw(&self.base, context);
     }
 
     pub fn check_messages(&mut self, context: &mut GMContext) {
