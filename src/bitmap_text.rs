@@ -51,11 +51,11 @@ impl GMBitmapFont {
     }
 
     pub fn draw(&self, index: u32, x: f32, y: f32, context: &mut GMContext) {
-        self.draw_opt(index, x, y, 0.0, false, false, context);
+        self.draw_opt(index, x, y, 0.0, 1.0, false, false, context);
     }
 
-    pub fn draw_opt(&self, index: u32, x: f32, y: f32, angle: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
-        self.texture.draw_opt(x, y, index, angle, flip_x, flip_y, context);
+    pub fn draw_opt(&self, index: u32, x: f32, y: f32, angle: f32, scale: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
+        self.texture.draw_opt(x, y, index, angle, scale, flip_x, flip_y, context);
     }
 }
 
@@ -199,7 +199,8 @@ impl GMBitmapTextBase {
     pub fn draw(&self, context: &mut GMContext) {
         for bitmap_char in self.chars.iter() {
             let position = bitmap_char.position;
-            self.font.draw_opt(bitmap_char.index, position.x, position.y, bitmap_char.angle, false, false, context);
+            self.font.draw_opt(bitmap_char.index, position.x, position.y, bitmap_char.angle, bitmap_char.scale,
+                false, false, context);
         }
     }
 

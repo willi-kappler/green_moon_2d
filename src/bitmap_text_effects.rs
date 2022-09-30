@@ -292,25 +292,23 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
 
 #[derive(Debug, Clone)]
 pub struct GMTEScale {
-    factor_min: f32,
-    factor_max: f32,
+    amplitude: f32,
+    base: f32,
     speed: f32,
     offset: f32,
-    factor: f32,
     time: f32,
     active: bool,
 }
 
 impl GMTEScale {
-    pub fn new(factor_min: f32, factor_max: f32, speed: f32, offset: f32) -> Self {
-        debug!("GMTEScale::new(), factor_min: '{}', factor_max: '{}', speed: '{}', offset: '{}'", factor_min, factor_max, speed, offset);
+    pub fn new(amplitude: f32, base: f32, speed: f32, offset: f32) -> Self {
+        debug!("GMTEScale::new(), amplitude: '{}', base: '{}', speed: '{}', offset: '{}'", amplitude, base, speed, offset);
 
         Self {
-            factor_min,
-            factor_max,
+            amplitude,
+            base,
             speed,
             offset,
-            factor: factor_min,
             time: 0.0,
             active: true,
         }
@@ -318,8 +316,14 @@ impl GMTEScale {
 }
 
 impl GMEffectT<GMBitmapTextBase> for GMTEScale {
-    fn update(&mut self, _text: &mut GMBitmapTextBase, _context: &mut GMContext) {
+    fn update(&mut self, text: &mut GMBitmapTextBase, _context: &mut GMContext) {
+        let mut offset = 0.0;
+
         if self.active {
+            for bitmap_char in text.chars.iter_mut() {
+                bitmap_char.scale = self.base + (self.amplitude * (self.time + offset).sin());
+                offset += self.offset;
+            }
 
             self.time += self.speed;
         }
@@ -327,17 +331,33 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
 
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
-            "set_factor_min" => {
-                self.factor_min = data.into();
+            "set_amplitude" => {
+                self.amplitude = data.into();
             }
-            "set_factor_max" => {
-                self.factor_max = data.into();
+            "add_amplitude" => {
+                let data: f32 = data.into();
+                self.amplitude += data;
+            }
+            "set_base" => {
+                self.base = data.into();
+            }
+            "add_base" => {
+                let data: f32 = data.into();
+                self.base += data;
             }
             "set_speed" => {
                 self.speed = data.into();
             }
+            "add_speed" => {
+                let data: f32 = data.into();
+                self.speed += data;
+            }
             "set_offset" => {
                 self.offset = data.into();
+            }
+            "add_offset" => {
+                let data: f32 = data.into();
+                self.offset += data;
             }
             "set_active" => {
                 self.active = data.into();

@@ -7,7 +7,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
-use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars};
+use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
 use green_moon_2d::util::GMAlign;
 
 
@@ -68,6 +68,14 @@ impl TextScene3 {
             ))]);
         effects.push(effect.clone());
 
+        effect.effects.set_effects(vec![Box::new(GMTEScale::new(
+            0.2, // amplitude
+            1.0, // base
+            0.1, // speed
+            0.2, // offset
+            ))]);
+        effects.push(effect.clone());
+
         effect.effects.set_effects(vec![
             Box::new(GMTEWave::new(
                 32.0, // amplitude
@@ -113,12 +121,15 @@ impl TextScene3 {
                 effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             3 => {
-                effect.effects.send_effect_message(0, "add_speed", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", delta.into(), context);
             }
             4 => {
                 effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             5 => {
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
+            }
+            6 => {
                 effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             _ => {
@@ -135,18 +146,21 @@ impl TextScene3 {
                 // Nothing to do
             }
             1 => {
-                effect.effects.send_effect_message(0, "add_offset", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_offset", delta.into(), context);
             }
             2 => {
-                effect.effects.send_effect_message(0, "add_radius", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_radius", delta.into(), context);
             }
             3 => {
                 effect.effects.send_effect_message(0, "add_offset", (delta * 10.0).into(), context);
             }
             4 => {
-                effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(0, "add_offset", delta.into(), context);
             }
             5 => {
+                effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
+            }
+            6 => {
                 effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
             }
             _ => {
@@ -186,6 +200,10 @@ impl GMSceneT for TextScene3 {
 
         if context.event(GMEventCode::Key6Up) {
             self.current_effect = 5;
+        }
+
+        if context.event(GMEventCode::Key7Up) {
+            self.current_effect = 6;
         }
 
         if context.event(GMEventCode::KeyUpUp) {

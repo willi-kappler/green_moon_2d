@@ -95,8 +95,8 @@ impl GMSpriteBase {
             let x = self.position.x + self.offset.x;
             let y = self.position.y + self.offset.y;
 
-            self.texture.draw_opt(x, y, index,
-                self.angle, self.flip_x, self.flip_y, context);
+            self.texture.draw_opt(x, y, index, self.angle, self.scale,
+                self.flip_x, self.flip_y, context);
         }
     }
 
