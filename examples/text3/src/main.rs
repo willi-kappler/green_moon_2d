@@ -100,6 +100,20 @@ impl TextScene3 {
                 ))]);
         effects.push(effect.clone());
 
+        effect.effects.set_effects(vec![
+            Box::new(GMTEWave::new(
+                32.0, // amplitude
+                0.1, // speed
+                0.2 // offset
+                )),
+            Box::new(GMTEScale::new(
+                0.2, // amplitude
+                1.0, // base
+                0.1, // speed
+                0.2, // offset
+                    ))]);
+        effects.push(effect.clone());
+
         Self {
             texts,
             effects,
@@ -132,6 +146,9 @@ impl TextScene3 {
             6 => {
                 effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
+            7 => {
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
+            }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
             }
@@ -162,6 +179,9 @@ impl TextScene3 {
             }
             6 => {
                 effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
+            }
+            7 => {
+                effect.effects.send_effect_message(1, "add_offset", delta.into(), context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
@@ -204,6 +224,10 @@ impl GMSceneT for TextScene3 {
 
         if context.event(GMEventCode::Key7Up) {
             self.current_effect = 6;
+        }
+
+        if context.event(GMEventCode::Key8Up) {
+            self.current_effect = 7;
         }
 
         if context.event(GMEventCode::KeyUpUp) {
