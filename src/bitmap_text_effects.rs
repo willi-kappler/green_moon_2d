@@ -363,7 +363,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMTEShake::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMTEScale::send_message(), unknown message: '{}'", message))
             }
         }
     }
