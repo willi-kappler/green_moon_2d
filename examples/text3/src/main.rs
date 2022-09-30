@@ -107,19 +107,19 @@ impl TextScene3 {
                 // Nothing to do
             }
             1 => {
-                effect.effects.send_effect_message_data(0, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             2 => {
-                effect.effects.send_effect_message_data(0, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             3 => {
-                effect.effects.send_effect_message_data(0, "add_speed", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", (delta).into(), context);
             }
             4 => {
-                effect.effects.send_effect_message_data(0, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             5 => {
-                effect.effects.send_effect_message_data(0, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(0, "add_speed", (delta * 0.1).into(), context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
@@ -135,19 +135,19 @@ impl TextScene3 {
                 // Nothing to do
             }
             1 => {
-                effect.effects.send_effect_message_data(0, "add_offset", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_offset", (delta).into(), context);
             }
             2 => {
-                effect.effects.send_effect_message_data(0, "add_radius", (delta).into(), context);
+                effect.effects.send_effect_message(0, "add_radius", (delta).into(), context);
             }
             3 => {
-                effect.effects.send_effect_message_data(0, "add_offset", (delta * 10.0).into(), context);
+                effect.effects.send_effect_message(0, "add_offset", (delta * 10.0).into(), context);
             }
             4 => {
-                effect.effects.send_effect_message_data(1, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
             }
             5 => {
-                effect.effects.send_effect_message_data(1, "add_speed", (delta * 0.1).into(), context);
+                effect.effects.send_effect_message(1, "add_speed", (delta * 0.1).into(), context);
             }
             _ => {
                 panic!("Unknown effect index: '{}'", self.current_effect);
