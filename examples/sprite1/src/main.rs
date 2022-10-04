@@ -7,9 +7,11 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
-use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
-use green_moon_2d::sprite_effect::{GMSELinearMovement, GMSECircularMovement};
+use green_moon_2d::sprite::{GMSpriteBase, GMSprite, GMSpriteBuilder};
+use green_moon_2d::sprite_effect::{GMSELinearMovement, GMSECircularMovement,
+    GMSETimed};
 use green_moon_2d::util::{GMAlign, GMRepetition};
+use green_moon_2d::effect::GMEffectT;
 
 #[derive(Debug)]
 struct SpriteScene1 {
@@ -31,7 +33,7 @@ impl SpriteScene1 {
 
         let mut sprites = Vec::new();
 
-        let effect1 = GMSELinearMovement::new(
+        let effect = GMSELinearMovement::new(
             (100.0, 100.0), // start position
             (900.0, 100.0), // end position
             0.004, // speed
@@ -40,7 +42,7 @@ impl SpriteScene1 {
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_bat1"))
             .with_position((100.0, 100.0))
             .with_animation(resources.get_animation("anim_bat1"))
-            .with_effect(effect1)
+            .with_effect(effect)
             .build());
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_explosion1"))
@@ -48,16 +50,26 @@ impl SpriteScene1 {
             .with_animation(resources.get_animation("anim_explosion1"))
             .build());
 
-        let effect2 = GMSECircularMovement::new(
+        let effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>> = vec![Box::new(GMSECircularMovement::new(
             (200.0, 300.0), // center
             50.0, // radius
             0.01, // speed
-            GMRepetition::LoopForward);
+            GMRepetition::LoopForward)),
+
+            Box::new(GMSETimed::new(
+                3.0, // duration
+                true, // repeat
+                // Closure:
+                |sprite, _| -> () {
+                    sprite.flip_x = !sprite.flip_x;
+                }
+            ))
+        ];
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ghost1"))
             .with_position((200.0, 300.0))
             .with_animation(resources.get_animation("anim_ghost1"))
-            .with_effect(effect2)
+            .with_effects(effects)
             .build());
 
         Self {
