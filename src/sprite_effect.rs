@@ -175,7 +175,7 @@ pub struct GMSEPolygonMovement {
 
 impl GMSEPolygonMovement {
     pub fn new(positions: Vec<GMVec2D>, speeds: Vec<f32>, repetition: GMRepetition) -> Self {
-        assert!(positions.len() > 2, "GMSEPolygonMovement::new(), at least two positions expected: {:?}", positions);
+        assert!(positions.len() >= 3, "GMSEPolygonMovement::new(), at least three positions expected: {:?}", positions);
         assert!(positions.len() == speeds.len() + 1, "GMSEPolygonMovement::new(), number of speeds must be one less than number of positions: {:?}", speeds);
 
         debug!("GMSEPolygonMovement::new(), positions: {:?}, speeds: {:?}, repetition: {:?}", positions, speeds, repetition);
@@ -233,8 +233,8 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         self.current_index += 1;
                         if self.current_index >= self.speeds.len() {
                             self.current_index = 0;
-                            self.reset_movement(0.0, GMRepetition::OnceForward);
                         }
+                        self.reset_movement(0.0, GMRepetition::OnceForward);
                     }
                 }
                 GMRepetition::LoopBackward => {
@@ -242,15 +242,33 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         self.current_index -= 1;
                         if self.current_index >= self.speeds.len() {
                             self.current_index = self.speeds.len() - 1;
-                            self.reset_movement(1.0, GMRepetition::OnceBackward);
                         }
+                        self.reset_movement(1.0, GMRepetition::OnceBackward);
                     }
                 }
                 GMRepetition::PingPongForward => {
-                    todo!(); // TODO:
+                    if self.linear_movement.is_finished() {
+                        self.current_index += 1;
+                        if self.current_index >= self.speeds.len() {
+                            self.current_index = self.speeds.len() - 1;
+                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                            self.repetition = GMRepetition::PingPongBackward;
+                        } else {
+                            self.reset_movement(0.0, GMRepetition::OnceForward);
+                        }
+                    }
                 }
                 GMRepetition::PingPongBackward => {
-                    todo!(); // TODO:
+                    if self.linear_movement.is_finished() {
+                        self.current_index -= 1;
+                        if self.current_index >= self.speeds.len() {
+                            self.current_index = 0;
+                            self.reset_movement(0.0, GMRepetition::OnceForward);
+                            self.repetition = GMRepetition::PingPongForward;
+                        } else {
+                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                        }
+                    }
                 }
             }
         }
@@ -441,6 +459,9 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
             "set_active" => {
                 self.active = data.into();
             }
+            "set_name" => {
+                self.name = data.into();
+            }
             _ => {
                 error_panic(&format!("GMSETarget::send_message_data(), unknown message: '{}'", message))
             }
@@ -504,8 +525,83 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
             "set_active" => {
                 self.active = data.into();
             }
+            "set_target_name" => {
+                self.target_name = data.into();
+            }
             _ => {
                 error_panic(&format!("GMSEFollow::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone)]
+pub struct GMSETimed {
+    pub timer: GMTimer,
+    pub active: bool,
+    pub repeat: bool,
+    pub closure: fn(&mut GMSpriteBase, &mut GMContext) -> (),
+}
+
+impl Debug for GMSETimed {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GMSETimed")
+            .field("timer", &self.timer)
+            .field("active", &self.active)
+            .field("repeat", &self.repeat)
+            .finish()
+    }
+}
+
+impl GMSETimed {
+    pub fn new(duration: f32, repeat: bool, closure: fn(&mut GMSpriteBase, &mut GMContext) -> ()) -> Self {
+        debug!("GMSETarget::new(), duration: '{}', repeat: {}", duration, repeat);
+
+        Self {
+            timer: GMTimer::new(duration),
+            active: true,
+            repeat,
+            closure,
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSETimed {
+    fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
+        if self.active {
+            if self.timer.finished() {
+
+                (self.closure)(sprite, context);
+
+                if self.repeat {
+                    self.timer.start();
+                }
+            }
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_duration" => {
+                self.timer.set_duration(data.into());
+                self.timer.start();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            "set_repeat" => {
+                self.repeat = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSETimed::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
