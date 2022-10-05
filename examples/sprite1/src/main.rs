@@ -9,7 +9,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::sprite::{GMSpriteBase, GMSprite, GMSpriteBuilder};
 use green_moon_2d::sprite_effect::{GMSELinearMovement, GMSECircularMovement,
-    GMSETimed};
+    GMSETimed, GMSERotator};
 use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::effect::GMEffectT;
 
@@ -71,6 +71,20 @@ impl SpriteScene1 {
             .with_animation(resources.get_animation("anim_ghost1"))
             .with_effects(effects)
             .build());
+
+        let effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>> = vec![Box::new(GMSERotator::new(
+            0.0, // initial angle
+            -20.0, // min angle
+            20.0, // max angle
+            2.0)), // speed
+        ];
+
+
+        sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ice_cream1"))
+            .with_position((400.0, 200.0))
+            .with_effects(effects)
+            .build());
+
 
         Self {
             title,
