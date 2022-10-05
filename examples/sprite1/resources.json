@@ -3,28 +3,24 @@
         {
             "name": "tex_bat1",
             "file_name": "../assets/sprite_sheets/bat1.png",
-            "cols": 3,
             "unit_width": 16,
             "unit_height": 20
         },
         {
             "name": "tex_explosion1",
             "file_name": "../assets/sprite_sheets/explosion1.png",
-            "cols": 7,
             "unit_width": 36,
             "unit_height": 30
         },
         {
             "name": "tex_ghost1",
             "file_name": "../assets/sprite_sheets/ghost1.png",
-            "cols": 3,
             "unit_width": 40,
             "unit_height": 41
         },
         {
             "name": "tex_cuddly",
             "file_name": "../assets/fonts/cuddly.png",
-            "cols": 10,
             "unit_width": 32,
             "unit_height": 32
         }

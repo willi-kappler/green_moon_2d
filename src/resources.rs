@@ -57,7 +57,7 @@ impl GMResources {
         };
 
         for texture in resources.textures {
-            let new_texture = self.create_texture(&texture.file_name, texture.cols, texture.unit_width, texture.unit_height);
+            let new_texture = self.create_texture(&texture.file_name, texture.unit_width, texture.unit_height);
             self.add_texture(&texture.name, new_texture);
         }
 
@@ -96,9 +96,9 @@ impl GMResources {
         self.textures.clear();
     }
 
-    pub fn create_texture<P: AsRef<Path>>(&self, path: P, cols: u32, unit_width: u32, unit_height: u32) -> GMTexture {
-        debug!("GMResources::create_texture(), path: '{:?}', cols: '{}', unit_width: '{}', unit_height: '{}'",
-            path.as_ref(), cols, unit_width, unit_height);
+    pub fn create_texture<P: AsRef<Path>>(&self, path: P, unit_width: u32, unit_height: u32) -> GMTexture {
+        debug!("GMResources::create_texture(), path: '{:?}', unit_width: '{}', unit_height: '{}'",
+            path.as_ref(), unit_width, unit_height);
 
         let image = match self.texture_creator.load_texture(path) {
             Ok(image) => {
@@ -109,7 +109,7 @@ impl GMResources {
             }
         };
 
-        GMTexture::new(cols, unit_width, unit_height, image)
+        GMTexture::new(unit_width, unit_height, image)
     }
 
     pub fn add_texture(&mut self, name: &str, texture: GMTexture) {
@@ -294,7 +294,6 @@ struct GMResourceFormat {
 struct GMTextureFormat {
     name: String,
     file_name: String,
-    cols: u32,
     unit_width: u32,
     unit_height: u32,
 }

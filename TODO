@@ -14,17 +14,17 @@ Try using SDL again!
 # Refactor to GMEffect ? (https://docs.rs/tower/latest/src/tower/util/boxed_clone.rs.html#111)
 # Messages for sprites in GMContext
 # effect message: set_active
+# Refactor GMObjectMessage, use array of size 2 and flip index: store_message, read_message
+# Use two Hashmaps: one for normal messages and one for group messages.
+# Use cols and rows instead of with and height for texture.
 
 
 Next TODO:
 
 - use base / offset for sprite effects (movement)
-- Refactor GMObjectMessage, use array of size 2 and flip index: store_message, read_message
-- Use two Hashmaps: one for normal messages and one for group messages.
-- Try to use builder macro
+- (Try to use builder macro)
 - macros for GMData and conversion
 - Add sprite effect sub-sprite
-- Use cols and rows instead of with and height for texture.
 - Add text effect sprite
 - Add mouse events
 

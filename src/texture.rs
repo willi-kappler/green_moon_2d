@@ -21,8 +21,11 @@ impl Debug for GMTexture {
 }
 
 impl GMTexture {
-    pub fn new(cols: u32, unit_width: u32, unit_height: u32, texture: Texture) -> Self {
-        debug!("GMTexture::new(), cols: '{}', unit_width: '{}', unit_height: '{}'", cols, unit_width, unit_height);
+    pub fn new(unit_width: u32, unit_height: u32, texture: Texture) -> Self {
+        debug!("GMTexture::new(), unit_width: '{}', unit_height: '{}'", unit_width, unit_height);
+
+        let query = texture.query();
+        let cols = query.width / unit_width;
 
         Self {
             cols,
