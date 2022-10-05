@@ -19,6 +19,18 @@
             "unit_height": 41
         },
         {
+            "name": "tex_ice_cream1",
+            "file_name": "../assets/sprite_sheets/ice_cream1.png",
+            "unit_width": 25,
+            "unit_height": 30
+        },
+        {
+            "name": "tex_ice_cream2",
+            "file_name": "../assets/sprite_sheets/ice_cream2.png",
+            "unit_width": 32,
+            "unit_height": 32
+        },
+        {
             "name": "tex_cuddly",
             "file_name": "../assets/fonts/cuddly.png",
             "unit_width": 32,
