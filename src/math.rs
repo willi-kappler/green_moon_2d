@@ -266,77 +266,36 @@ impl GMCircle {
 }
 
 pub struct GMInterpolateF32 {
-    start: f32,
-    end: f32,
-    speed: f32,
-    direction: f32,
-    factor: f32,
+    pub start: f32,
+    pub end: f32,
+    pub speed: f32,
+    pub value: f32,
+
+    // Add repetition
 }
 
 impl GMInterpolateF32 {
     pub fn new(start: f32, end: f32, speed: f32) -> Self {
-        assert!(speed > 0.0 && speed < 1.0, "GMInterpolateF32: speed must be between 0.0 and 1.0");
-        let direction = end - start;
-
         Self {
             start,
             end,
             speed,
-            direction,
-            factor: 0.0,
+            value: start,
         }
     }
 
-    pub fn inc(&mut self) -> f32 {
-        let value = self.start + (self.direction * self.factor);
+    pub fn update(&mut self) {
+        self.value += self.speed;
 
-        if self.factor < 1.0 {
-            self.factor += self.speed;
-            if self.factor > 1.0 {
-                self.factor = 1.0;
-            }    
+        if self.value > self.start {
+            self.value = self.start;
+        } else if self.value < self.end {
+            self.value = self.end;
         }
-
-        value
-    }
-
-    pub fn dec(&mut self) -> f32 {
-        let value = self.start + (self.direction * self.factor);
-
-        if self.factor > 0.0 {
-            self.factor -= self.speed;
-            if self.factor < 0.0 {
-                self.factor = 0.0;
-            }    
-        }
-
-        value
-    }
-
-    pub fn reset(&mut self) {
-        self.factor = 0.0;
     }
 
     pub fn reverse(&mut self) {
-        (self.start, self.end) = (self.end, self.start);
-        self.direction = self.end - self.start;
-        self.factor = 1.0 - self.factor;
-    }
-
-    pub fn set_start(&mut self, start: f32) {
-        self.start = start;
-        self.direction = self.end - self.start;
-    }
-
-    pub fn set_end(&mut self, end: f32) {
-        self.end = end;
-        self.direction = self.end - self.start;
-    }
-
-    pub fn set_speed(&mut self, speed: f32) {
-        assert!(speed > 0.0 && speed < 1.0, "GMInterpolateF32: speed must be between 0.0 and 1.0");
-
-        self.speed = speed;
+        self.speed = -self.speed;
     }
 }
 
@@ -346,6 +305,7 @@ pub struct GMInterpolateVec2D {
     speed: f32,
     direction: GMVec2D,
     factor: f32,
+    // TODO: refactor
 }
 
 impl GMInterpolateVec2D {
