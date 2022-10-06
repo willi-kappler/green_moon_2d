@@ -11,6 +11,7 @@ use crate::timer::GMTimer;
 use crate::data::GMData;
 use crate::effect::GMEffectT;
 
+pub type GMBoxSpriteEffect = Box<dyn GMEffectT<GMSpriteBase>>;
 
 #[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
@@ -616,7 +617,7 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMSERotator {
+pub struct GMSERotating {
     pub angle: f32,
     pub min_angle: f32,
     pub max_angle: f32,
@@ -624,9 +625,9 @@ pub struct GMSERotator {
     pub active: bool,
 }
 
-impl GMSERotator {
+impl GMSERotating {
     pub fn new(angle: f32, min_angle: f32, max_angle: f32, speed: f32) -> Self {
-        debug!("GMSERotator::new(), angle: '{}', min_angle: '{}', max_angle: '{}', speed: '{}'", angle, min_angle, max_angle, speed);
+        debug!("GMSERotating::new(), angle: '{}', min_angle: '{}', max_angle: '{}', speed: '{}'", angle, min_angle, max_angle, speed);
 
         Self {
             angle,
@@ -638,7 +639,7 @@ impl GMSERotator {
     }
 }
 
-impl GMEffectT<GMSpriteBase> for GMSERotator {
+impl GMEffectT<GMSpriteBase> for GMSERotating {
     fn update(&mut self, base: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
             base.angle = self.angle;

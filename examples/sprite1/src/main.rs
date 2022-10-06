@@ -8,8 +8,8 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::sprite::{GMSpriteBase, GMSprite, GMSpriteBuilder};
-use green_moon_2d::sprite_effect::{GMSELinearMovement, GMSECircularMovement,
-    GMSETimed, GMSERotator};
+use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSELinearMovement, GMSECircularMovement,
+    GMSETimed, GMSERotating};
 use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::effect::GMEffectT;
 
@@ -50,7 +50,7 @@ impl SpriteScene1 {
             .with_animation(resources.get_animation("anim_explosion1"))
             .build());
 
-        let effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>> = vec![Box::new(GMSECircularMovement::new(
+        let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSECircularMovement::new(
             (200.0, 300.0), // center
             50.0, // radius
             0.01, // speed
@@ -72,7 +72,7 @@ impl SpriteScene1 {
             .with_effects(effects)
             .build());
 
-        let effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>> = vec![Box::new(GMSERotator::new(
+        let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSERotating::new(
             0.0, // initial angle
             -20.0, // min angle
             20.0, // max angle
