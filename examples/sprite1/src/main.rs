@@ -7,11 +7,10 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
-use green_moon_2d::sprite::{GMSpriteBase, GMSprite, GMSpriteBuilder};
+use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
 use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSELinearMovement, GMSECircularMovement,
-    GMSETimed, GMSERotating};
+    GMSETimed, GMSERotating, GMSEScaling};
 use green_moon_2d::util::{GMAlign, GMRepetition};
-use green_moon_2d::effect::GMEffectT;
 
 #[derive(Debug)]
 struct SpriteScene1 {
@@ -33,10 +32,11 @@ impl SpriteScene1 {
 
         let mut sprites = Vec::new();
 
+        // Bat
         let effect = GMSELinearMovement::new(
             (100.0, 100.0), // start position
             (900.0, 100.0), // end position
-            0.004, // speed
+            4.0, // speed
             GMRepetition::LoopForward);
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_bat1"))
@@ -45,11 +45,13 @@ impl SpriteScene1 {
             .with_effect(effect)
             .build());
 
+        // Explosion
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_explosion1"))
             .with_position((100.0, 150.0))
             .with_animation(resources.get_animation("anim_explosion1"))
             .build());
 
+        // Ghost
         let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSECircularMovement::new(
             (200.0, 300.0), // center
             50.0, // radius
@@ -72,19 +74,25 @@ impl SpriteScene1 {
             .with_effects(effects)
             .build());
 
-        let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSERotating::new(
+        // Ice cream
+        let effect1 = GMSERotating::new(
             0.0, // initial angle
             -20.0, // min angle
             20.0, // max angle
-            2.0)), // speed
-        ];
+            2.0); // speed
+
+        let effect2 = GMSEScaling::new(
+            1.0, // initial size
+            0.5, // min size
+            2.0, // max size
+            0.1); // speed
 
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ice_cream1"))
             .with_position((400.0, 200.0))
-            .with_effects(effects)
+            .with_effect(effect1)
+            .with_effect(effect2)
             .build());
-
 
         Self {
             title,
