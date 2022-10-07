@@ -49,6 +49,7 @@ pub fn error_panic(message: &str) -> ! {
     panic!("{}", message);
 }
 
+#[derive(Debug, Clone)]
 pub struct GMInterpolateF32 {
     start: f32,
     end: f32,
@@ -172,6 +173,7 @@ impl GMInterpolateF32 {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct GMInterpolateVec2D {
     start: GMVec2D,
     end: GMVec2D,
@@ -269,6 +271,17 @@ impl GMInterpolateVec2D {
         assert!(self.speed > 0.0 && self.speed < self.length, "GMInterpolateVec2D::check_speed(), speed must be between 0.0 and {}", self.length);
     }
 
+    pub fn reset(&mut self) {
+        match self.repetition {
+            GMRepetition::OnceForward | GMRepetition::LoopForward | GMRepetition::PingPongForward => {
+                self.value = 0.0;
+            }
+            _ => {
+                self.value = self.length;
+            }
+        }
+    }
+
     pub fn set_start(&mut self, start: GMVec2D) {
         self.start = start;
 
@@ -294,6 +307,15 @@ impl GMInterpolateVec2D {
     pub fn set_speed(&mut self, speed: f32) {
         self.speed = speed;
 
+        self.check_speed();
+    }
+
+    pub fn set_start_end_speed<T: Into<GMVec2D>>(&mut self, start: T, end: T, speed: f32) {
+        self.start = start.into();
+        self.end = end.into();
+        self.speed = speed;
+
+        self.check_length();
         self.check_speed();
     }
 

@@ -6,7 +6,7 @@ use log::debug;
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::{GMRepetition, error_panic};
+use crate::util::{GMRepetition, GMInterpolateVec2D, error_panic};
 use crate::timer::GMTimer;
 use crate::data::GMData;
 use crate::effect::GMEffectT;
@@ -15,136 +15,51 @@ pub type GMBoxSpriteEffect = Box<dyn GMEffectT<GMSpriteBase>>;
 
 #[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
-    pub start: GMVec2D,
-    pub end: GMVec2D,
-    pub direction: GMVec2D,
-    pub factor: f32,
-    pub speed: f32,
-    pub repetition: GMRepetition,
+    pub interpolation: GMInterpolateVec2D,
     pub active: bool,
 }
 
 impl GMSELinearMovement {
     pub fn new<T: Into<GMVec2D>>(start: T, end: T, speed: f32, repetition: GMRepetition) -> Self {
-        assert!(speed > 0.0 && speed < 1.0, "GMSELinearMovement::new(), speed must be greater than zero and smaller than one");
+        let mut interpolation = GMInterpolateVec2D::new(start, end, speed);
 
-        let start = start.into();
-        let end = end.into();
-
-        debug!("GMSELinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{}'", start, end, speed);
-
-        let direction = end - start;
 
         Self {
-            start,
-            end,
-            direction,
-            factor: 0.0,
-            speed,
-            repetition,
+            interpolation,
             active: true,
         }
     }
 
     pub fn is_finished(&self) -> bool {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                self.factor == 1.0
-            }
-            GMRepetition::OnceBackward => {
-                self.factor == 0.0
-            }
-            _ => {
-                false
-            }
-        }
+        self.interpolation.is_finished()
     }
 }
 
 impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
-            match self.repetition {
-                GMRepetition::OnceForward => {
-                    if self.factor < 1.0 {
-                        sprite.position = self.start + (self.direction * self.factor);
-                        self.factor += self.speed;
-                        if self.factor > 1.0 {
-                            self.factor = 1.0;
-                        }
-                    }
-                }
-                GMRepetition::OnceBackward => {
-                    if self.factor > 0.0 {
-                        sprite.position = self.start + (self.direction * self.factor);
-                        self.factor -= self.speed;
-                        if self.factor < 0.0 {
-                            self.factor = 0.0;
-                        }
-                    }
-                }
-                GMRepetition::LoopForward => {
-                    sprite.position = self.start + (self.direction * self.factor);
-                    self.factor += self.speed;
-
-                    if self.factor > 1.0 {
-                        self.factor = 0.0;
-                    }
-                }
-                GMRepetition::LoopBackward => {
-                    sprite.position = self.start + (self.direction * self.factor);
-                    self.factor -= self.speed;
-
-                    if self.factor < 0.0 {
-                        self.factor = 1.0;
-                    }
-                }
-                GMRepetition::PingPongForward => {
-                    sprite.position = self.start + (self.direction * self.factor);
-                    self.factor += self.speed;
-
-                    if self.factor > 1.0 {
-                        self.factor = 1.0;
-                        self.repetition = GMRepetition::PingPongBackward;
-                    }
-                }
-                GMRepetition::PingPongBackward => {
-                    sprite.position = self.start + (self.direction * self.factor);
-                    self.factor -= self.speed;
-
-                    if self.factor > 0.0 {
-                        self.factor = 0.0;
-                        self.repetition = GMRepetition::PingPongForward;
-                    }
-                }
-            }
+            self.interpolation.update();
+            sprite.position = self.interpolation.get_position();
         }
     }
 
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_start" => {
-                self.start = data.into();
-                self.direction = self.end - self.start;
+                let start = data.into();
+                self.interpolation.set_start(start);
             }
             "set_end" => {
-                self.end = data.into();
-                self.direction = self.end - self.start;
+                let start = data.into();
+                self.interpolation.set_end(start);
             }
             "set_speed" => {
-                self.speed = data.into();
+                let start = data.into();
+                self.interpolation.set_speed(start);
             }
             "set_repetition" => {
-                self.repetition = data.into();
-
-                match self.repetition {
-                    GMRepetition::OnceBackward | GMRepetition::LoopBackward => {
-                        self.factor = 1.0;
-                    }
-                    _ => {
-                        self.factor = 0.0;
-                    }
-                }
+                let repetition = data.into();
+                self.interpolation.repetition = repetition;
             }
             "set_active" => {
                 self.active = data.into();
@@ -197,13 +112,13 @@ impl GMSEPolygonMovement {
         }
     }
 
-    pub fn reset_movement(&mut self, factor: f32, repetition: GMRepetition) {
-        self.linear_movement.start = self.positions[self.current_index];
-        self.linear_movement.end = self.positions[self.current_index + 1];
-        self.linear_movement.direction = self.linear_movement.end - self.linear_movement.start;
-        self.linear_movement.speed = self.speeds[self.current_index];
-        self.linear_movement.factor = factor;
-        self.linear_movement.repetition = repetition;
+    pub fn reset_movement(&mut self, repetition: GMRepetition) {
+        let start = self.positions[self.current_index];
+        let end = self.positions[self.current_index + 1];
+        let speed = self.speeds[self.current_index];
+        self.linear_movement.interpolation.set_start_end_speed(start, end, speed);
+        self.linear_movement.interpolation.repetition = repetition;
+        self.linear_movement.interpolation.reset();
     }
 }
 
@@ -217,7 +132,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                     if self.linear_movement.is_finished() {
                         if self.current_index < self.speeds.len() - 1 {
                             self.current_index += 1;
-                            self.reset_movement(0.0, GMRepetition::OnceForward);
+                            self.reset_movement(GMRepetition::OnceForward);
                         }
                     }
                 }
@@ -225,7 +140,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                     if self.linear_movement.is_finished() {
                         if self.current_index > 0 {
                             self.current_index -= 1;
-                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                            self.reset_movement(GMRepetition::OnceBackward);
                         }
                     }
                 }
@@ -235,7 +150,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         if self.current_index >= self.speeds.len() {
                             self.current_index = 0;
                         }
-                        self.reset_movement(0.0, GMRepetition::OnceForward);
+                        self.reset_movement(GMRepetition::OnceForward);
                     }
                 }
                 GMRepetition::LoopBackward => {
@@ -244,7 +159,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         if self.current_index >= self.speeds.len() {
                             self.current_index = self.speeds.len() - 1;
                         }
-                        self.reset_movement(1.0, GMRepetition::OnceBackward);
+                        self.reset_movement(GMRepetition::OnceBackward);
                     }
                 }
                 GMRepetition::PingPongForward => {
@@ -252,10 +167,10 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         self.current_index += 1;
                         if self.current_index >= self.speeds.len() {
                             self.current_index = self.speeds.len() - 1;
-                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                            self.reset_movement(GMRepetition::OnceBackward);
                             self.repetition = GMRepetition::PingPongBackward;
                         } else {
-                            self.reset_movement(0.0, GMRepetition::OnceForward);
+                            self.reset_movement(GMRepetition::OnceForward);
                         }
                     }
                 }
@@ -264,10 +179,10 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
                         self.current_index -= 1;
                         if self.current_index >= self.speeds.len() {
                             self.current_index = 0;
-                            self.reset_movement(0.0, GMRepetition::OnceForward);
+                            self.reset_movement(GMRepetition::OnceForward);
                             self.repetition = GMRepetition::PingPongForward;
                         } else {
-                            self.reset_movement(1.0, GMRepetition::OnceBackward);
+                            self.reset_movement(GMRepetition::OnceBackward);
                         }
                     }
                 }
@@ -280,6 +195,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
             "set_active" => {
                 self.active = data.into();
             }
+            // TODO: Add more messages, set_repetition, add_position, remove_position, ...
             _ => {
                 error_panic(&format!("GMSEPolygonMovement::send_message_data(), unknown message: '{}'", message))
             }
