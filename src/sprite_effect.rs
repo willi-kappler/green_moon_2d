@@ -6,7 +6,7 @@ use log::debug;
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::{GMRepetition, GMInterpolateVec2D, error_panic};
+use crate::util::{GMRepetition, GMInterpolateVec2D, GMInterpolateF32, error_panic};
 use crate::timer::GMTimer;
 use crate::data::GMData;
 use crate::effect::GMEffectT;
@@ -21,8 +21,14 @@ pub struct GMSELinearMovement {
 
 impl GMSELinearMovement {
     pub fn new<T: Into<GMVec2D>>(start: T, end: T, speed: f32, repetition: GMRepetition) -> Self {
-        let mut interpolation = GMInterpolateVec2D::new(start, end, speed);
+        let start = start.into();
+        let end = end.into();
 
+        debug!("GMSELinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{:?}'", start, end, speed);
+
+        let mut interpolation = GMInterpolateVec2D::new(start, end, speed);
+        interpolation.repetition = repetition;
+        interpolation.reset();
 
         Self {
             interpolation,
@@ -534,10 +540,7 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
 
 #[derive(Debug, Clone)]
 pub struct GMSERotating {
-    pub angle: f32,
-    pub min_angle: f32,
-    pub max_angle: f32,
-    pub speed: f32,
+    pub interpolate: GMInterpolateF32,
     pub active: bool,
 }
 
@@ -545,11 +548,12 @@ impl GMSERotating {
     pub fn new(angle: f32, min_angle: f32, max_angle: f32, speed: f32) -> Self {
         debug!("GMSERotating::new(), angle: '{}', min_angle: '{}', max_angle: '{}', speed: '{}'", angle, min_angle, max_angle, speed);
 
+        let mut interpolate = GMInterpolateF32::new(min_angle, max_angle, speed);
+        interpolate.repetition = GMRepetition::PingPongForward;
+        interpolate.set_value(angle);
+
         Self {
-            angle,
-            min_angle,
-            max_angle,
-            speed,
+            interpolate,
             active: true,
         }
     }
@@ -558,33 +562,28 @@ impl GMSERotating {
 impl GMEffectT<GMSpriteBase> for GMSERotating {
     fn update(&mut self, base: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
-            base.angle = self.angle;
-
-            self.angle += self.speed;
-
-            if self.angle > self.max_angle {
-                self.angle = self.max_angle;
-                self.speed = - self.speed.abs();
-            } else if self.angle < self.min_angle {
-                self.angle = self.min_angle;
-                self.speed = self.speed.abs();
-            }
+            self.interpolate.update();
+            base.angle = self.interpolate.get_value();
         }
     }
 
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_angle" => {
-                self.angle = data.into();
+                let angle = data.into();
+                self.interpolate.set_value(angle);
             }
             "set_min_angle" => {
-                self.min_angle = data.into();
+                let min_angle = data.into();
+                self.interpolate.set_start(min_angle);
             }
             "set_max_angle" => {
-                self.max_angle = data.into();
+                let max_angle = data.into();
+                self.interpolate.set_end(max_angle);
             }
             "set_speed" => {
-                self.speed = data.into();
+                let speed = data.into();
+                self.interpolate.set_speed(speed);
             }
             "set_active" => {
                 self.active = data.into();
@@ -603,4 +602,48 @@ impl GMEffectT<GMSpriteBase> for GMSERotating {
         Box::new(self.clone())
     }
 
+}
+
+#[derive(Debug, Clone)]
+pub struct GMSEScaling {
+    size: f32,
+    min_size: f32,
+    max_size: f32,
+    speed: f32,
+    active: bool,
+}
+
+impl GMSEScaling {
+    pub fn new(size: f32, min_size: f32, max_size: f32, speed: f32) -> Self {
+        Self {
+            size,
+            min_size,
+            max_size,
+            speed,
+            active: true,
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSEScaling {
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+        Box::new(self.clone())
+    }
+
+    fn update(&mut self, _base: &mut GMSpriteBase, _context: &mut GMContext) {
+    }
+
+    fn draw(&self, _base: &GMSpriteBase, _context: &mut GMContext) {
+    }
+
+    fn send_message(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
+    }
+
+    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
+    }
 }
