@@ -31,6 +31,12 @@
             "unit_height": 32
         },
         {
+            "name": "tex_head1",
+            "file_name": "../assets/sprite_sheets/head1.png",
+            "unit_width": 44,
+            "unit_height": 64
+        },
+        {
             "name": "tex_cuddly",
             "file_name": "../assets/fonts/cuddly.png",
             "unit_width": 32,
@@ -58,6 +64,11 @@
         {
             "name": "anim_ghost1",
             "animation_type": "ping_pong_forward",
+            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+        },
+        {
+            "name": "anim_head1",
+            "animation_type": "loop_forward",
             "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
         }
     ],
