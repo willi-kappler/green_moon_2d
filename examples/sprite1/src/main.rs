@@ -53,6 +53,7 @@ impl SpriteScene1 {
             .build());
 
         // Ghost
+        // Add multiple effects as vec.
         let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSECircularMovement::new(
             (200.0, 300.0), // center
             50.0, // radius
@@ -76,6 +77,7 @@ impl SpriteScene1 {
             .build());
 
         // Ice cream
+        // Add effects individually
         let effect1 = GMSERotating::new(
             0.0, // initial angle
             -20.0, // min angle
@@ -139,6 +141,11 @@ impl SpriteScene1 {
             .with_position((512.0, 384.0))
             .with_animation(resources.get_animation("anim_head1"))
             .with_effect(effect1)
+            .build());
+
+        // Ice cream 2
+        sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ice_cream2"))
+            .with_position((800.0, 50.0))
             .build());
 
         Self {
