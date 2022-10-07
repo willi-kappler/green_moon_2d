@@ -9,8 +9,9 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
 use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSELinearMovement, GMSECircularMovement,
-    GMSETimed, GMSERotating, GMSEScaling};
+    GMSEPolygonMovement, GMSETimed, GMSERotating, GMSEScaling};
 use green_moon_2d::util::{GMAlign, GMRepetition};
+use green_moon_2d::math::GMVec2D;
 
 #[derive(Debug)]
 struct SpriteScene1 {
@@ -79,19 +80,46 @@ impl SpriteScene1 {
             0.0, // initial angle
             -20.0, // min angle
             20.0, // max angle
-            2.0); // speed
+            2.0 // speed
+        );
 
         let effect2 = GMSEScaling::new(
             1.0, // initial size
             0.5, // min size
-            2.0, // max size
-            0.1); // speed
+            1.5, // max size
+            0.01 // speed
+        );
 
+        let positions = vec![
+            GMVec2D::new(400.0, 200.0),
+            GMVec2D::new(900.0, 300.0),
+            GMVec2D::new(900.0, 600.0),
+            GMVec2D::new(100.0, 700.0),
+            GMVec2D::new(100.0, 400.0),
+            GMVec2D::new(300.0, 400.0),
+            GMVec2D::new(400.0, 200.0),
+        ];
+
+        let speeds = vec![
+            2.0,
+            4.0,
+            5.0,
+            1.0,
+            3.0,
+            1.0,
+        ];
+
+        let effect3 = GMSEPolygonMovement::new(
+            positions, // polygon corners
+            speeds, // movement speed between corners
+            GMRepetition::LoopForward,
+        );
 
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ice_cream1"))
             .with_position((400.0, 200.0))
             .with_effect(effect1)
             .with_effect(effect2)
+            .with_effect(effect3)
             .build());
 
         Self {
