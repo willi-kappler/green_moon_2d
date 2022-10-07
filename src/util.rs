@@ -141,8 +141,7 @@ impl GMInterpolateF32 {
     }
 
     pub fn set_value(&mut self, value: f32) {
-        let difference = self.end - self.start;
-        assert!(value >= 0.0 && value <= difference, "GMInterpolateF32::set_value(), value must be between 0.0 and {}", difference);
+        assert!(value >= self.start && value <= self.end, "GMInterpolateF32::set_value(), value must be between {} and {}", self.start, self.end);
 
         self.value = value;
     }
@@ -151,11 +150,25 @@ impl GMInterpolateF32 {
         assert!(value >= 0.0 && value <= 1.0, "GMInterpolateF32::set_value_norm(), value must be between 0.0 and 1.0");
 
         let difference = self.end - self.start;
-        self.value = difference * value;
+        self.value = self.start + (difference * value);
     }
 
     pub fn get_value(&self) -> f32 {
         self.value
+    }
+
+    pub fn is_finished(&self) -> bool {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.value == self.end
+            }
+            GMRepetition::OnceBackward => {
+                self.value == self.start
+            }
+            _ => {
+                false
+            }
+        }
     }
 }
 
@@ -298,5 +311,19 @@ impl GMInterpolateVec2D {
 
     pub fn get_position(&self) -> GMVec2D {
         self.position.clone()
+    }
+
+    pub fn is_finished(&self) -> bool {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.value == self.length
+            }
+            GMRepetition::OnceBackward => {
+                self.value == 0.0
+            }
+            _ => {
+                false
+            }
+        }
     }
 }
