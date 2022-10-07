@@ -171,7 +171,9 @@ pub struct GMInterpolateVec2D {
 }
 
 impl GMInterpolateVec2D {
-    pub fn new(start: GMVec2D, end: GMVec2D, speed: f32) -> Self {
+    pub fn new<T: Into<GMVec2D>>(start: T, end: T, speed: f32) -> Self {
+        let start = start.into();
+        let end = end.into();
         let direction = end - start;
         let length = direction.len();
 
