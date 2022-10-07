@@ -315,6 +315,10 @@ impl GMInterpolateVec2D {
         self.end = end.into();
         self.speed = speed;
 
+        let direction = self.end - self.start;
+        self.length = direction.len();
+        self.direction = direction.norm2();
+
         self.check_length();
         self.check_speed();
     }
