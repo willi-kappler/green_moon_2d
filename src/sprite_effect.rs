@@ -24,7 +24,7 @@ impl GMSELinearMovement {
         let start = start.into();
         let end = end.into();
 
-        debug!("GMSELinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{:?}'", start, end, speed);
+        debug!("GMSELinearMovement::new(), start: '{:?}', end: '{:?}', speed: '{}'", start, end, speed);
 
         let mut interpolation = GMInterpolateVec2D::new(start, end, speed);
         interpolation.repetition = repetition;
@@ -606,26 +606,58 @@ impl GMEffectT<GMSpriteBase> for GMSERotating {
 
 #[derive(Debug, Clone)]
 pub struct GMSEScaling {
-    size: f32,
-    min_size: f32,
-    max_size: f32,
-    speed: f32,
+    interpolate: GMInterpolateF32,
     active: bool,
 }
 
 impl GMSEScaling {
     pub fn new(size: f32, min_size: f32, max_size: f32, speed: f32) -> Self {
+        debug!("GMSEScaling::new(), size: '{}', min_size: '{}', max_size: '{}', speed: '{}'", size, min_size, max_size, speed);
+
+        let mut interpolate = GMInterpolateF32::new(min_size, max_size, speed);
+        interpolate.repetition = GMRepetition::PingPongForward;
+        interpolate.set_value(size);
+
         Self {
-            size,
-            min_size,
-            max_size,
-            speed,
+            interpolate,
             active: true,
         }
     }
 }
 
 impl GMEffectT<GMSpriteBase> for GMSEScaling {
+    fn update(&mut self, base: &mut GMSpriteBase, _context: &mut GMContext) {
+        self.interpolate.update();
+        base.scale = self.interpolate.get_value();
+}
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_size" => {
+                let size = data.into();
+                self.interpolate.set_value(size);
+            }
+            "set_min_size" => {
+                let min_size = data.into();
+                self.interpolate.set_start(min_size);
+            }
+            "set_max_size" => {
+                let max_size = data.into();
+                self.interpolate.set_end(max_size);
+            }
+            "set_speed" => {
+                let speed = data.into();
+                self.interpolate.set_speed(speed);
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSETimed::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
     fn set_active(&mut self, active: bool) {
         self.active = active;
     }
@@ -634,16 +666,4 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
         Box::new(self.clone())
     }
 
-    fn update(&mut self, _base: &mut GMSpriteBase, _context: &mut GMContext) {
-    }
-
-    fn draw(&self, _base: &GMSpriteBase, _context: &mut GMContext) {
-    }
-
-    fn send_message(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-    }
-
-    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
-    }
 }
