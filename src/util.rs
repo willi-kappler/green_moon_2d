@@ -210,16 +210,38 @@ impl GMInterpolateVec2D {
                 self.position = self.start + (self.direction * self.value);
             },
             GMRepetition::LoopForward => {
+                self.value += self.speed;
+                if self.value > self.length {
+                    self.value = 0.0;
+                }
 
+                self.position = self.start + (self.direction * self.value);
             },
             GMRepetition::LoopBackward => {
+                self.value -= self.speed;
+                if self.value < 0.0 {
+                    self.value = self.length;
+                }
 
+                self.position = self.start + (self.direction * self.value);
             },
             GMRepetition::PingPongForward => {
+                self.value += self.speed;
+                if self.value > self.length {
+                    self.value = self.length;
+                    self.repetition = GMRepetition::PingPongBackward;
+                }
 
+                self.position = self.start + (self.direction * self.value);
             },
             GMRepetition::PingPongBackward => {
+                self.value -= self.speed;
+                if self.value < 0.0 {
+                    self.value = 0.0;
+                    self.repetition = GMRepetition::PingPongForward;
+                }
 
+                self.position = self.start + (self.direction * self.value);
             },
         }
     }
