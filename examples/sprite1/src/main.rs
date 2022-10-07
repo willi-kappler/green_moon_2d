@@ -9,7 +9,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
 use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSELinearMovement, GMSECircularMovement,
-    GMSEPolygonMovement, GMSETimed, GMSERotating, GMSEScaling};
+    GMSEPolygonMovement, GMSETimed, GMSERotating, GMSEScaling, GMSETarget, GMSEFollow};
 use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::math::GMVec2D;
 
@@ -34,7 +34,7 @@ impl SpriteScene1 {
         let mut sprites = Vec::new();
 
         // Bat
-        let effect = GMSELinearMovement::new(
+        let effect1 = GMSELinearMovement::new(
             (100.0, 100.0), // start position
             (900.0, 100.0), // end position
             4.0, // speed
@@ -43,7 +43,7 @@ impl SpriteScene1 {
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_bat1"))
             .with_position((100.0, 100.0))
             .with_animation(resources.get_animation("anim_bat1"))
-            .with_effect(effect)
+            .with_effect(effect1)
             .build());
 
         // Explosion
@@ -103,7 +103,7 @@ impl SpriteScene1 {
         let speeds = vec![
             2.0,
             4.0,
-            5.0,
+            3.0,
             1.0,
             3.0,
             1.0,
@@ -115,11 +115,30 @@ impl SpriteScene1 {
             GMRepetition::LoopForward,
         );
 
+        let effect4 = GMSETarget::new(
+            1.0, // Update once per second
+            "ice_cream", // name of target
+        );
+
         sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_ice_cream1"))
             .with_position((400.0, 200.0))
             .with_effect(effect1)
             .with_effect(effect2)
             .with_effect(effect3)
+            .with_effect(effect4)
+            .build());
+
+        // Head
+        let effect1 = GMSEFollow::new(
+            1.0, // Update once per second
+            "ice_cream", // name of target
+            0.8, // speed of follower
+        );
+
+        sprites.push(GMSpriteBuilder::new(resources.get_texture("tex_head1"))
+            .with_position((512.0, 384.0))
+            .with_animation(resources.get_animation("anim_head1"))
+            .with_effect(effect1)
             .build());
 
         Self {
@@ -140,6 +159,9 @@ impl GMSceneT for SpriteScene1 {
         for sprite in self.sprites.iter_mut() {
             sprite.update(context)
         }
+
+        let head_index = 4;
+        self.sprites[head_index].base.move_step();
     }
 
     fn draw(&self, context: &mut GMContext) {
