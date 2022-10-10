@@ -336,7 +336,7 @@ impl GMBitmapText {
                     self.base.send_message(&message, data, context);
                 }
                 GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_effect_message(index, &message, data, context);
+                    self.effects.send_message(index, &message, data, context);
                 }
             }
         }
@@ -349,7 +349,7 @@ impl GMBitmapText {
                     self.base.send_message(&message, data, context);
                 }
                 GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_effect_message(index, &message, data, context);
+                    self.effects.send_message(index, &message, data, context);
                 }
             }
         }
