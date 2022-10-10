@@ -17,16 +17,17 @@ Try using SDL again!
 # Refactor GMObjectMessage, use array of size 2 and flip index: store_message, read_message
 # Use two Hashmaps: one for normal messages and one for group messages.
 # Use cols and rows instead of with and height for texture.
+# (Try to use builder macro)
 
 
 Next TODO:
 
 - use base / offset for sprite effects (movement)
-- (Try to use builder macro)
 - macros for GMData and conversion
 - Add sprite effect sub-sprite
 - Add text effect sprite
 - Add mouse events
+- Refactor generic effects
 
 
 - GMMenuItem
