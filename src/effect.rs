@@ -96,11 +96,11 @@ impl<T> GMEffectManager<T> {
         self.effects.swap(index1, index2);
     }
 
-    pub fn send_effect_message(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
+    pub fn send_message(&mut self, index: usize, message: &str, data: GMData, context: &mut GMContext) {
         self.effects[index].send_message(message, data, context)
     }
 
-    pub fn send_effect_message2(&mut self, index: usize, message: &str, context: &mut GMContext) {
+    pub fn send_message2(&mut self, index: usize, message: &str, context: &mut GMContext) {
         self.effects[index].send_message2(message, context)
     }
 }
