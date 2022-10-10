@@ -61,7 +61,7 @@ impl SpriteScene1 {
             GMRepetition::LoopForward)),
 
             Box::new(GMSETimed::new(
-                3.0, // duration
+                3.0, // duration, call closure after every three seconds
                 true, // repeat
                 // Closure:
                 |sprite, _| -> () {
