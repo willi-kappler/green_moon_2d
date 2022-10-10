@@ -11,11 +11,16 @@ pub mod effect;
 pub mod engine;
 pub mod input;
 pub mod math;
+pub mod menu;
+pub mod menu_item;
+pub mod particle_manager;
 pub mod resources;
 pub mod scene;
 pub mod sprite;
 pub mod sprite_effect;
 pub mod texture;
+pub mod tilemap;
+pub mod tileset;
 pub mod timer;
 pub mod util;
 
