@@ -163,7 +163,6 @@ impl GMSpriteBase {
     pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
         self.send_message(message, GMData::None, context);
     }
-
 }
 
 #[derive(Debug, Clone)]
@@ -201,7 +200,7 @@ impl GMSprite {
                     self.base.send_message(&message, data, context);
                 }
                 GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_effect_message(index, &message, data, context);
+                    self.effects.send_message(index, &message, data, context);
                 }
             }
         }
@@ -214,7 +213,7 @@ impl GMSprite {
                     self.base.send_message(&message, data, context);
                 }
                 GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_effect_message(index, &message, data, context);
+                    self.effects.send_message(index, &message, data, context);
                 }
             }
         }
