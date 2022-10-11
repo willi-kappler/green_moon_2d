@@ -1,4 +1,7 @@
 
+
+use std::collections::HashSet;
+
 use log::debug;
 
 use crate::sprite::GMSprite;
@@ -19,6 +22,7 @@ pub struct GMParticleManagerBase {
     pub visible: bool,
     pub position: GMVec2D,
     pub name: String,
+    pub groups: HashSet<String>,
 }
 
 impl GMParticleManagerBase {
@@ -44,6 +48,7 @@ impl GMParticleManagerBase {
             visible: true,
             position,
             name: "".to_string(),
+            groups: HashSet::new(),
         }
     }
 
@@ -110,6 +115,19 @@ impl GMParticleManager {
 
     pub fn check_messages(&mut self, context: &mut GMContext) {
         let mut messages = context.get_object_messages(&self.base.name);
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                GMObjectMessage::Base(message, data) => {
+                    self.base.send_message(&message, data, context);
+                }
+                GMObjectMessage::Effect(index, message, data) => {
+                    self.effects.send_message(index, &message, data, context);
+                }
+            }
+        }
+
+        let mut messages = context.get_group_messages(&self.base.groups);
 
         while let Some(message) = messages.pop_front() {
             match message {
