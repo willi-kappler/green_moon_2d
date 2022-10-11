@@ -321,5 +321,4 @@ impl GMSpriteBuilder {
     pub fn build(self) -> GMSprite {
         self.sprite
     }
-
 }
