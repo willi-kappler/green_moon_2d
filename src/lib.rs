@@ -15,6 +15,7 @@ pub mod math;
 pub mod menu;
 pub mod menu_item;
 pub mod object_manager;
+pub mod particle_effects;
 pub mod particle_manager;
 pub mod resources;
 pub mod scene;
