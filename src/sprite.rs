@@ -182,7 +182,7 @@ impl GMSprite {
     }
 
     pub fn update(&mut self, context: &mut GMContext) {
-        self.base.update(context);
+        self.base.update_move(context);
         self.effects.update(&mut self.base, context);
     }
 
