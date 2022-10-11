@@ -92,13 +92,25 @@ impl GMObjectBaseT for GMParticleManagerBase {
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
-                self.position = data.into();
+                let position: GMVec2D = data.into();
+                self.set_position(position);
+            }
+            "set_life_time" => {
+                let life_time: f32 = data.into();
+                self.set_life_time(life_time);
+            }
+            "set_max_number_of_particles" => {
+                let max_num_of_particles: usize = data.into();
+                self.set_max_num_of_particles(max_num_of_particles);
             }
             "set_visible" => {
                 self.visible = data.into();
             }
             "set_active" => {
                 self.active = data.into();
+            }
+            "set_name" => {
+                self.name = data.into();
             }
             "add_group" => {
                 self.groups.insert(data.into());
