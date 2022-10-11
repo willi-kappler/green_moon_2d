@@ -6,9 +6,10 @@ use log::debug;
 
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition, error_panic};
-use crate::context::{GMContext, GMObjectMessage};
+use crate::context::GMContext;
 use crate::data::GMData;
 use crate::effect::GMEffectManager;
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
@@ -70,7 +71,46 @@ impl GMAnimationBase {
         self.timer.start();
     }
 
-    pub fn update(&mut self) {
+    pub fn finished(&self) -> bool {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.frame_at_end()
+            }
+            GMRepetition::OnceBackward => {
+                self.frame_at_start()
+            }
+            _ => {
+                false
+            }
+        }
+    }
+
+    pub fn reverse(&mut self) {
+        match self.repetition {
+            GMRepetition::OnceForward => {
+                self.repetition = GMRepetition::OnceBackward;
+            }
+            GMRepetition::OnceBackward => {
+                self.repetition = GMRepetition::OnceForward;
+            }
+            GMRepetition::LoopForward => {
+                self.repetition = GMRepetition::LoopBackward;
+            }
+            GMRepetition::LoopBackward => {
+                self.repetition = GMRepetition::LoopForward;
+            }
+            GMRepetition::PingPongForward => {
+                self.repetition = GMRepetition::PingPongBackward;
+            }
+            GMRepetition::PingPongBackward => {
+                self.repetition = GMRepetition::PingPongForward;
+            }
+        }
+    }
+}
+
+impl GMObjectBaseT for GMAnimationBase {
+    fn update(&mut self, _context: &mut GMContext) {
         if self.active && self.timer.finished() {
             match self.repetition {
                 GMRepetition::OnceForward => {
@@ -127,44 +167,7 @@ impl GMAnimationBase {
         }
     }
 
-    pub fn finished(&self) -> bool {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                self.frame_at_end()
-            }
-            GMRepetition::OnceBackward => {
-                self.frame_at_start()
-            }
-            _ => {
-                false
-            }
-        }
-    }
-
-    pub fn reverse(&mut self) {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                self.repetition = GMRepetition::OnceBackward;
-            }
-            GMRepetition::OnceBackward => {
-                self.repetition = GMRepetition::OnceForward;
-            }
-            GMRepetition::LoopForward => {
-                self.repetition = GMRepetition::LoopBackward;
-            }
-            GMRepetition::LoopBackward => {
-                self.repetition = GMRepetition::LoopForward;
-            }
-            GMRepetition::PingPongForward => {
-                self.repetition = GMRepetition::PingPongBackward;
-            }
-            GMRepetition::PingPongBackward => {
-                self.repetition = GMRepetition::PingPongForward;
-            }
-        }
-    }
-
-    pub fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_new_timer_duration" => {
                 self.set_new_timer_duration();
@@ -187,17 +190,17 @@ impl GMAnimationBase {
         }
     }
 
-    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
+    fn name(&self) -> &str {
+        &self.name
     }
 
+    fn groups(&self) -> &HashSet<String> {
+        &self.groups
+    }
 }
 
-#[derive(Clone, Debug)]
-pub struct GMAnimation {
-    pub base: GMAnimationBase,
-    pub effects: GMEffectManager<GMAnimationBase>,
-}
+
+pub type GMAnimation = GMObjectManager<GMAnimationBase>;
 
 impl GMAnimation {
     pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
@@ -206,41 +209,7 @@ impl GMAnimation {
             effects: GMEffectManager::new(),
         }
     }
-
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.base.update();
-        self.effects.update(&mut self.base, context);
-    }
-
-    pub fn check_messages(&mut self, context: &mut GMContext) {
-        let mut messages = context.get_object_messages(&self.base.name);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-
-        let mut messages = context.get_group_messages(&self.base.groups);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-    }
 }
-
 
 pub struct GMAnimationBuilder {
     animation: GMAnimation,

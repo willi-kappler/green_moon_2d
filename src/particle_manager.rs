@@ -8,9 +8,10 @@ use crate::sprite::GMSprite;
 use crate::timer::GMTimer;
 use crate::math::GMVec2D;
 use crate::effect::{GMEffectManager, GMEffectT};
-use crate::context::{GMContext, GMObjectMessage};
+use crate::context::GMContext;
 use crate::data::GMData;
 use crate::util::error_panic;
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
 
 pub struct GMParticleManagerBase {
@@ -52,7 +53,10 @@ impl GMParticleManagerBase {
         }
     }
 
-    pub fn update(&mut self, context: &mut GMContext) {
+}
+
+impl GMObjectBaseT for GMParticleManagerBase {
+    fn update(&mut self, context: &mut GMContext) {
         if self.active {
             for (_, sprite) in self.particles.iter_mut() {
                 sprite.update(context);
@@ -60,7 +64,7 @@ impl GMParticleManagerBase {
         }
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut GMContext) {
         if self.visible {
             for (_, sprite) in self.particles.iter() {
                 sprite.draw(context);
@@ -68,7 +72,7 @@ impl GMParticleManagerBase {
         }
     }
 
-    pub fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
                 self.position = data.into();
@@ -85,59 +89,25 @@ impl GMParticleManagerBase {
         }
     }
 
-    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn groups(&self) -> &HashSet<String> {
+        &self.groups
     }
 }
 
-pub struct GMParticleManager {
-    pub base: GMParticleManagerBase,
-    pub effects: GMEffectManager<GMParticleManagerBase>,
-}
+
+pub type GMParticleManager = GMObjectManager<GMParticleManagerBase>;
 
 impl GMParticleManager {
     pub fn new(max_num_of_particles: usize, particle_sprite: GMSprite, life_time: f32, position: GMVec2D) -> Self {
+        debug!("GMParticleManager::new()");
+
         Self {
             base: GMParticleManagerBase::new(max_num_of_particles, particle_sprite, life_time, position),
             effects: GMEffectManager::new(),
-        }
-    }
-
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.base.update(context);
-        self.effects.update(&mut self.base, context);
-    }
-
-    pub fn draw(&self, context: &mut GMContext) {
-        self.base.draw(context);
-        self.effects.draw(&self.base, context);
-    }
-
-    pub fn check_messages(&mut self, context: &mut GMContext) {
-        let mut messages = context.get_object_messages(&self.base.name);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-
-        let mut messages = context.get_group_messages(&self.base.groups);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
         }
     }
 }

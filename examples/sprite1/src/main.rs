@@ -166,9 +166,6 @@ impl GMSceneT for SpriteScene1 {
         for sprite in self.sprites.iter_mut() {
             sprite.update(context)
         }
-
-        let head_index = 4;
-        self.sprites[head_index].base.move_step();
     }
 
     fn draw(&self, context: &mut GMContext) {

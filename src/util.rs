@@ -1,10 +1,6 @@
 
 use log::{error, debug};
 
-use crate::math::GMVec2D;
-use crate::effect::GMEffectManager;
-use crate::context::{GMContext, GMObjectMessage};
-
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMAlign {
     TopLeft,

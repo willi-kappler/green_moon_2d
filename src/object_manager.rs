@@ -5,20 +5,31 @@ use crate::context::{GMContext, GMObjectMessage};
 use crate::effect::GMEffectManager;
 use crate::data::GMData;
 
-pub trait GMObjectManagerT {
-    fn update(&mut self, context: &mut GMContext);
-    fn draw(&self, context: &mut GMContext);
-    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext);
+pub trait GMObjectBaseT {
+    fn update(&mut self, _context: &mut GMContext) {
+    }
+
+    fn draw(&self, _context: &mut GMContext) {
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, context: &mut GMContext);
+
+    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
+        self.send_message(message, GMData::None, context);
+    }
+
     fn name(&self) -> &str;
+
     fn groups(&self) -> &HashSet<String>;
 }
 
+#[derive(Debug, Clone)]
 pub struct GMObjectManager<T> {
-    base: T,
-    effects: GMEffectManager<T>,
+    pub base: T,
+    pub effects: GMEffectManager<T>,
 }
 
-impl<T: GMObjectManagerT> GMObjectManager<T> {
+impl<T: GMObjectBaseT> GMObjectManager<T> {
     pub fn update(&mut self, context: &mut GMContext) {
         self.base.update(context);
         self.effects.update(&mut self.base, context);

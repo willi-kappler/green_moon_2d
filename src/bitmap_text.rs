@@ -8,10 +8,11 @@ use log::debug;
 
 use crate::data::GMData;
 use crate::texture::GMTexture;
-use crate::context::{GMContext, GMObjectMessage};
+use crate::context::GMContext;
 use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
 use crate::effect::{GMEffectManager, GMEffectT};
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -196,14 +197,6 @@ impl GMBitmapTextBase {
         }
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
-        for bitmap_char in self.chars.iter() {
-            let position = bitmap_char.position;
-            self.font.draw_opt(bitmap_char.index, position.x, position.y, bitmap_char.angle, bitmap_char.scale,
-                false, false, context);
-        }
-    }
-
     pub fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
         // Even if the dimension of each char is equal, the mapping could be different.
         // So just reset all the characters
@@ -289,8 +282,18 @@ impl GMBitmapTextBase {
             self.reset_chars2();
         }
     }
+}
 
-    pub fn send_message(&mut self, message: &str, _data: GMData, _context: &mut GMContext) {
+impl GMObjectBaseT for GMBitmapTextBase {
+    fn draw(&self, context: &mut GMContext) {
+        for bitmap_char in self.chars.iter() {
+            let position = bitmap_char.position;
+            self.font.draw_opt(bitmap_char.index, position.x, position.y, bitmap_char.angle, bitmap_char.scale,
+                false, false, context);
+        }
+    }
+
+    fn send_message(&mut self, message: &str, _data: GMData, _context: &mut GMContext) {
         match message {
             _ => {
                 error_panic(&format!("GMBitmapTextBase::send_message(), unknown message: '{}'", message))
@@ -298,17 +301,16 @@ impl GMBitmapTextBase {
         }
     }
 
-    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
+    fn name(&self) -> &str {
+        &self.name
     }
 
+    fn groups(&self) -> &HashSet<String> {
+        &self.groups
+    }
 }
 
-#[derive(Debug, Clone)]
-pub struct GMBitmapText {
-    pub base: GMBitmapTextBase,
-    pub effects: GMEffectManager<GMBitmapTextBase>,
-}
+pub type GMBitmapText = GMObjectManager<GMBitmapTextBase>;
 
 impl GMBitmapText {
     pub fn new(bitmap_font: &Rc<GMBitmapFont>) -> Self {
@@ -317,45 +319,7 @@ impl GMBitmapText {
             effects: GMEffectManager::new(),
         }
     }
-
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.effects.update(&mut self.base, context);
-    }
-
-    pub fn draw(&self, context: &mut GMContext) {
-        self.base.draw(context);
-        self.effects.draw(&self.base, context);
-    }
-
-    pub fn check_messages(&mut self, context: &mut GMContext) {
-        let mut messages = context.get_object_messages(&self.base.name);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-
-        let mut messages = context.get_group_messages(&self.base.groups);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-    }
 }
-
 
 pub struct GMBitmapTextBuilder {
     bitmap_text: GMBitmapText,

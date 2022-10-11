@@ -7,10 +7,11 @@ use log::debug;
 use crate::data::GMData;
 use crate::texture::GMTexture;
 use crate::animation::{GMAnimation};
-use crate::context::{GMContext, GMObjectMessage};
+use crate::context::GMContext;
 use crate::math::GMVec2D;
 use crate::effect::{GMEffectManager, GMEffectT};
 use crate::util::error_panic;
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
@@ -84,12 +85,16 @@ impl GMSpriteBase {
         }
     }
 
-    pub fn update(&mut self, context: &mut GMContext) {
+
+}
+
+impl GMObjectBaseT for GMSpriteBase {
+    fn update(&mut self, context: &mut GMContext) {
         self.update_anim(context);
         self.update_move();
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut GMContext) {
         if self.visible {
             let index = self.animation.base.texture_index();
             let x = self.position.x + self.offset.x;
@@ -100,7 +105,7 @@ impl GMSpriteBase {
         }
     }
 
-    pub fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
                 self.position = data.into();
@@ -159,17 +164,17 @@ impl GMSpriteBase {
             }
         }
     }
+    fn name(&self) -> &str {
+        &self.name
+    }
 
-    pub fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
+    fn groups(&self) -> &HashSet<String> {
+        &self.groups
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct GMSprite {
-    pub base: GMSpriteBase,
-    pub effects: GMEffectManager<GMSpriteBase>,
-}
+
+pub type GMSprite = GMObjectManager<GMSpriteBase>;
 
 impl GMSprite {
     pub fn new(texture: &Rc<GMTexture>) -> Self {
@@ -178,44 +183,6 @@ impl GMSprite {
         Self {
             base: GMSpriteBase::new(texture),
             effects: GMEffectManager::new(),
-        }
-    }
-
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.base.update(context);
-        self.effects.update(&mut self.base, context);
-    }
-
-    pub fn draw(&self, context: &mut GMContext) {
-        self.base.draw(context);
-        self.effects.draw(&self.base, context);
-    }
-
-    pub fn check_messages(&mut self, context: &mut GMContext) {
-        let mut messages = context.get_object_messages(&self.base.name);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
-        }
-
-        let mut messages = context.get_group_messages(&self.base.groups);
-
-        while let Some(message) = messages.pop_front() {
-            match message {
-                GMObjectMessage::Base(message, data) => {
-                    self.base.send_message(&message, data, context);
-                }
-                GMObjectMessage::Effect(index, message, data) => {
-                    self.effects.send_message(index, &message, data, context);
-                }
-            }
         }
     }
 }
