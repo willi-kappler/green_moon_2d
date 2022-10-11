@@ -192,5 +192,28 @@ impl GMParticleManagerBuilder {
         self
     }
 
+    pub fn with_effect<T: 'static + GMEffectT<GMParticleManagerBase>>(mut self, effect: T) -> Self {
+        debug!("GMParticleManagerBuilder::with_effect()");
 
+        self.particle_manager.effects.add_effect(effect);
+        self
+    }
+
+    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMParticleManagerBase>>) -> Self {
+        debug!("GMParticleManagerBuilder::with_effect2()");
+
+        self.particle_manager.effects.add_effect2(effect);
+        self
+    }
+
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMParticleManagerBase>>>) -> Self {
+        debug!("GMParticleManagerBuilder::with_effects()");
+
+        self.particle_manager.effects.set_effects(effects);
+        self
+    }
+
+    pub fn build(self) -> GMParticleManager {
+        self.particle_manager
+    }
 }
