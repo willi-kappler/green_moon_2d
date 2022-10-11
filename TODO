@@ -18,6 +18,7 @@ Try using SDL again!
 # Use two Hashmaps: one for normal messages and one for group messages.
 # Use cols and rows instead of with and height for texture.
 # (Try to use builder macro)
+# Refactor generic effects
 
 
 Next TODO:
@@ -26,8 +27,8 @@ Next TODO:
 - macros for GMData and conversion
 - Add sprite effect sub-sprite
 - Add text effect sprite
+- Add text effect circle
 - Add mouse events
-- Refactor generic effects
 
 
 - GMMenuItem

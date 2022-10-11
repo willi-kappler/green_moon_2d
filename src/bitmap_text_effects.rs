@@ -376,3 +376,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
         Box::new(self.clone())
     }
 }
+
+pub struct GMTECircle {
+    // TODO: chars move around circle, optionally rotated to radial direction
+}
