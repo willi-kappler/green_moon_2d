@@ -27,27 +27,17 @@ pub struct GMParticleManagerBase {
 }
 
 impl GMParticleManagerBase {
-    pub fn new(max_num_of_particles: usize, particle_sprite: GMSprite, life_time: f32, position: GMVec2D) -> Self {
-        debug!("GMParticleManagerBase::new(), max_num_of_particles: '{}', life_time: '{}', position: '{:?}'",
-            max_num_of_particles, life_time, position);
-
-        let mut particles = Vec::with_capacity(max_num_of_particles);
-
-        for _ in 0..max_num_of_particles {
-            let mut sprite = particle_sprite.clone();
-            sprite.base.position = position;
-
-            particles.push((GMTimer::new(life_time), sprite));
-        }
+    pub fn new(particle_sprite: GMSprite) -> Self {
+        debug!("GMParticleManagerBase::new()");
 
         Self {
-            max_num_of_particles,
+            max_num_of_particles: 0,
             particle_sprite,
-            life_time,
-            particles,
+            life_time: 0.0,
+            particles: Vec::new(),
             active: true,
             visible: true,
-            position,
+            position: GMVec2D::new(0.0, 0.0),
             name: "".to_string(),
             groups: HashSet::new(),
         }
@@ -102,24 +92,105 @@ impl GMObjectBaseT for GMParticleManagerBase {
 pub type GMParticleManager = GMObjectManager<GMParticleManagerBase>;
 
 impl GMParticleManager {
-    pub fn new(max_num_of_particles: usize, particle_sprite: GMSprite, life_time: f32, position: GMVec2D) -> Self {
+    pub fn new(particle_sprite: GMSprite) -> Self {
         debug!("GMParticleManager::new()");
 
         Self {
-            base: GMParticleManagerBase::new(max_num_of_particles, particle_sprite, life_time, position),
+            base: GMParticleManagerBase::new(particle_sprite),
             effects: GMEffectManager::new(),
         }
     }
 }
 
 pub struct GMParticleManagerBuilder {
-
+    particle_manager: GMParticleManager,
 }
 
 impl GMParticleManagerBuilder {
-    pub fn new() -> Self {
+    pub fn new(particle_sprite: GMSprite) -> Self {
         Self {
-
+            particle_manager: GMParticleManager::new(particle_sprite),
         }
     }
+
+    pub fn with_life_time(mut self, life_time: f32) -> Self {
+        debug!("GMParticleManager::with_life_time(), life_time: {}", life_time);
+        let base = &mut self.particle_manager.base;
+        base.life_time = life_time;
+
+        for (duration, _) in base.particles.iter_mut() {
+            duration.set_duration(life_time);
+        }
+
+        self
+    }
+
+    pub fn with_max_num_of_particles(mut self, max_num_of_particles: usize) -> Self {
+        debug!("GMParticleManager::with_max_num_of_particles(), max_num_of_particles: {}", max_num_of_particles);
+        let base = &mut self.particle_manager.base;
+        base.max_num_of_particles = max_num_of_particles;
+        base.particles = Vec::with_capacity(max_num_of_particles);
+
+        for _ in 0..max_num_of_particles {
+            base.particles.push((
+                GMTimer::new(base.life_time), base.particle_sprite.clone()
+            ));
+        }
+
+        self
+    }
+
+    pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
+        let position = position.into();
+        debug!("GMParticleManagerBuilder::with_position(), position: '{:?}'", position);
+        let base = &mut self.particle_manager.base;
+        base.position = position;
+        base.particle_sprite.base.position = position;
+
+        for (_, sprite) in base.particles.iter_mut() {
+            sprite.base.position = position;
+        }
+
+        self
+    }
+
+    pub fn with_visible(mut self, visible: bool) -> Self {
+        debug!("GMParticleManagerBuilder::with_visible(), visible: '{}'", visible);
+
+        self.particle_manager.base.visible = visible;
+        self
+    }
+
+
+    pub fn with_active(mut self, active: bool) -> Self {
+        debug!("GMParticleManagerBuilder::with_active(), active: '{}'", active);
+
+        self.particle_manager.base.active = active;
+        self
+    }
+
+    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+        let name = name.into();
+        debug!("GMParticleManagerBuilder::with_name(), name: '{}'", name);
+
+        self.particle_manager.base.name = name;
+        self
+    }
+
+    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+        let group = group.into();
+        debug!("GMParticleManagerBuilder::with_group(), group: '{}'", group);
+
+        self.particle_manager.base.groups.insert(group);
+        self
+    }
+
+    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+        debug!("GMParticleManagerBuilder::with_groups(), groups: '{:?}'", groups);
+
+        self.particle_manager.base.groups = groups;
+        self
+    }
+
+
 }
