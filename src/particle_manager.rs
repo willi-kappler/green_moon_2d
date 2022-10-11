@@ -73,14 +73,6 @@ impl GMParticleManagerBase {
 }
 
 impl GMObjectBaseT for GMParticleManagerBase {
-    fn update(&mut self, context: &mut GMContext) {
-        if self.active {
-            for (_, sprite) in self.particles.iter_mut() {
-                sprite.update(context);
-            }
-        }
-    }
-
     fn draw(&self, context: &mut GMContext) {
         if self.visible {
             for (_, sprite) in self.particles.iter() {
