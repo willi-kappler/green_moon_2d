@@ -43,6 +43,33 @@ impl GMParticleManagerBase {
         }
     }
 
+    pub fn set_life_time(&mut self, life_time: f32) {
+        self.life_time = life_time;
+
+        for (duration, _) in self.particles.iter_mut() {
+            duration.set_duration(life_time);
+        }
+    }
+
+    pub fn set_max_num_of_particles(&mut self, max_num_of_particles: usize) {
+        self.max_num_of_particles = max_num_of_particles;
+        self.particles = Vec::with_capacity(max_num_of_particles);
+
+        for _ in 0..max_num_of_particles {
+            self.particles.push((
+                GMTimer::new(self.life_time), self.particle_sprite.clone()
+            ));
+        }
+    }
+
+    pub fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
+        self.position = position.into();
+        self.particle_sprite.base.position = self.position;
+
+        for (_, sprite) in self.particles.iter_mut() {
+            sprite.base.position = self.position;
+        }
+    }
 }
 
 impl GMObjectBaseT for GMParticleManagerBase {
@@ -72,6 +99,16 @@ impl GMObjectBaseT for GMParticleManagerBase {
             }
             "set_active" => {
                 self.active = data.into();
+            }
+            "add_group" => {
+                self.groups.insert(data.into());
+            }
+            "remove_group" => {
+                let group: String = data.into();
+                self.groups.remove(&group);
+            }
+            "clear_group" => {
+                self.groups.clear();
             }
             _ => {
                 error_panic(&format!("GMSpriteBase::send_message(), unknown message: '{}'", message))
@@ -115,27 +152,14 @@ impl GMParticleManagerBuilder {
 
     pub fn with_life_time(mut self, life_time: f32) -> Self {
         debug!("GMParticleManager::with_life_time(), life_time: {}", life_time);
-        let base = &mut self.particle_manager.base;
-        base.life_time = life_time;
-
-        for (duration, _) in base.particles.iter_mut() {
-            duration.set_duration(life_time);
-        }
+        self.particle_manager.base.set_life_time(life_time);
 
         self
     }
 
     pub fn with_max_num_of_particles(mut self, max_num_of_particles: usize) -> Self {
         debug!("GMParticleManager::with_max_num_of_particles(), max_num_of_particles: {}", max_num_of_particles);
-        let base = &mut self.particle_manager.base;
-        base.max_num_of_particles = max_num_of_particles;
-        base.particles = Vec::with_capacity(max_num_of_particles);
-
-        for _ in 0..max_num_of_particles {
-            base.particles.push((
-                GMTimer::new(base.life_time), base.particle_sprite.clone()
-            ));
-        }
+        self.particle_manager.base.set_max_num_of_particles(max_num_of_particles);
 
         self
     }
@@ -143,13 +167,7 @@ impl GMParticleManagerBuilder {
     pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
         let position = position.into();
         debug!("GMParticleManagerBuilder::with_position(), position: '{:?}'", position);
-        let base = &mut self.particle_manager.base;
-        base.position = position;
-        base.particle_sprite.base.position = position;
-
-        for (_, sprite) in base.particles.iter_mut() {
-            sprite.base.position = position;
-        }
+        self.particle_manager.base.set_position(position);
 
         self
     }
