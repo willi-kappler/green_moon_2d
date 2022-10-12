@@ -35,7 +35,7 @@ impl GMEffectT<GMParticleManagerBase> for GMPECircular {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSELinearMovement::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMPECircular::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
