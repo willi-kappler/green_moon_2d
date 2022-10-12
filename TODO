@@ -29,6 +29,7 @@ Next TODO:
 - Add text effect sprite
 - Add text effect circle
 - Add mouse events
+- Refactor GMSprite: move velocity, acceleration, angular velocity, etc. to sprite effect
 
 
 - GMMenuItem
