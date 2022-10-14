@@ -17,12 +17,8 @@ use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 pub struct GMSpriteBase {
     pub position: GMVec2D,
     pub offset: GMVec2D,
-    pub velocity: GMVec2D,
-    pub acceleration: GMVec2D,
 
     pub angle: f32,
-    pub angle_velocity: f32,
-    pub angle_acceleration: f32,
     pub flip_x: bool,
     pub flip_y: bool,
     pub scale: f32,
@@ -46,12 +42,8 @@ impl GMSpriteBase {
         Self {
             position: GMVec2D::new(0.0, 0.0),
             offset: GMVec2D::new(0.0, 0.0),
-            velocity: GMVec2D::new(0.0, 0.0),
-            acceleration: GMVec2D::new(0.0, 0.0),
 
             angle: 0.0,
-            angle_velocity: 0.0,
-            angle_acceleration: 0.0,
             flip_x: false,
             flip_y: false,
             scale: 1.0,
@@ -68,30 +60,13 @@ impl GMSpriteBase {
         }
 
     }
-
-    pub fn update_anim(&mut self, context: &mut GMContext) {
-        if self.active {
-            self.animation.update(context);
-        }
-    }
-
-    pub fn update_move(&mut self) {
-        if self.active {
-            self.position.add2(&self.velocity);
-            self.velocity.add2(&self.acceleration);
-
-            self.angle += self.angle_velocity;
-            self.angle_velocity += self.angle_acceleration;
-        }
-    }
-
-
 }
 
 impl GMObjectBaseT for GMSpriteBase {
     fn update(&mut self, context: &mut GMContext) {
-        self.update_anim(context);
-        self.update_move();
+        if self.active {
+            self.animation.update(context);
+        }
     }
 
     fn draw(&self, context: &mut GMContext) {
@@ -113,20 +88,8 @@ impl GMObjectBaseT for GMSpriteBase {
             "set_offset" => {
                 self.offset = data.into();
             }
-            "set_velocity" => {
-                self.velocity = data.into();
-            }
-            "set_acceleration" => {
-                self.acceleration = data.into();
-            }
             "set_angle" => {
                 self.angle = data.into();
-            }
-            "set_angle_velocity" => {
-                self.angle_velocity = data.into();
-            }
-            "set_angle_acceleration" => {
-                self.angle_acceleration = data.into();
             }
             "set_flip_x" => {
                 self.flip_x = data.into();
@@ -187,8 +150,6 @@ impl GMSprite {
     }
 }
 
-// TODO: Maybe use https://github.com/colin-kiegel/rust-derive-builder
-
 pub struct GMSpriteBuilder {
     sprite: GMSprite,
 }
@@ -205,22 +166,6 @@ impl GMSpriteBuilder {
         debug!("GMSpriteBuilder::with_position(), position: '{:?}'", position);
 
         self.sprite.base.position = position;
-        self
-    }
-
-    pub fn with_velocity<T: Into<GMVec2D>>(mut self, velocity: T) -> Self {
-        let velocity = velocity.into();
-        debug!("GMSpriteBuilder::with_velocity(), velocity: '{:?}'", velocity);
-
-        self.sprite.base.velocity = velocity;
-        self
-    }
-
-    pub fn with_acceleration<T: Into<GMVec2D>>(mut self, acceleration: T) -> Self {
-        let acceleration = acceleration.into();
-        debug!("GMSpriteBuilder::with_acceleration(), acceleration: '{:?}'", acceleration);
-
-        self.sprite.base.acceleration = acceleration;
         self
     }
 

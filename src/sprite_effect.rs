@@ -406,6 +406,7 @@ pub struct GMSEFollow {
     pub timer: GMTimer,
     pub target_name: String,
     pub speed: f32,
+    pub direction: GMVec2D,
     pub active: bool,
 }
 
@@ -418,6 +419,7 @@ impl GMSEFollow {
             timer: GMTimer::new(duration),
             target_name: name.into(),
             speed,
+            direction: GMVec2D::new(0.0, 0.0),
             active: true,
         }
     }
@@ -426,14 +428,15 @@ impl GMSEFollow {
 impl GMEffectT<GMSpriteBase> for GMSEFollow {
     fn update(&mut self, sprite: &mut GMSpriteBase, context: &mut GMContext) {
         if self.active {
+            sprite.position.add2(&self.direction);
+
             if self.timer.finished() {
                 let data = context.get_tag(&self.target_name).unwrap().clone();
                 let position: GMVec2D = data.into();
 
-                let mut direction = position - sprite.position;
-                direction.norm();
-                direction.mul2(self.speed);
-                sprite.velocity.set3(direction);
+                self.direction = position - sprite.position;
+                self.direction.norm();
+                self.direction.mul2(self.speed);
 
                 self.timer.start();
             }
