@@ -15,6 +15,56 @@ use crate::effect::GMEffectT;
 pub type GMBoxSpriteEffect = Box<dyn GMEffectT<GMSpriteBase>>;
 
 #[derive(Debug, Clone)]
+pub struct GMSEVelocity {
+    pub velocity: GMVec2D,
+    pub active: bool,
+}
+
+impl GMSEVelocity {
+    pub fn new<T: Into<GMVec2D>>(velocity: T) -> Self {
+        let velocity = velocity.into();
+
+        debug!("GMSEVelocity::new(), velocity: '{:?}'", velocity);
+
+        Self {
+            velocity,
+            active: true
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSEVelocity {
+    fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
+        if self.active {
+            sprite.position.add2(&self.velocity);
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_velocity" => {
+                let velocity = data.into();
+                self.velocity = velocity;
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSEVelocity::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
     pub interpolation: GMInterpolateVec2D,
     pub active: bool,
