@@ -14,6 +14,8 @@ use crate::effect::GMEffectT;
 // use crate::sprite::GMSprite;
 // use crate::sprite_effect::GMSpriteEffectT;
 
+pub type GMBoxBitmapTextEffect = Box<dyn GMEffectT<GMBitmapTextBase>>;
+
 
 #[derive(Debug, Clone)]
 pub struct GMTEReset {
@@ -41,7 +43,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEReset {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
+    fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
 }
@@ -131,7 +133,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEWave {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
+    fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
 }
@@ -215,7 +217,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEShake {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
+    fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
 }
@@ -284,7 +286,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
+    fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
 }
@@ -372,7 +374,7 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMBitmapTextBase>> {
+    fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
 }

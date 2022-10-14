@@ -81,7 +81,7 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -213,7 +213,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -337,7 +337,7 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -396,7 +396,7 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -465,7 +465,7 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -537,7 +537,7 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 }
@@ -602,7 +602,7 @@ impl GMEffectT<GMSpriteBase> for GMSERotating {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 
@@ -666,7 +666,7 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
         self.active = active;
     }
 
-    fn clone_box(&self) -> Box<dyn GMEffectT<GMSpriteBase>> {
+    fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
 
