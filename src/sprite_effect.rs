@@ -220,7 +220,6 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
 
 #[derive(Debug, Clone)]
 pub struct GMSECircularMovement {
-    pub center: GMVec2D,
     pub radius: f32,
     pub factor: f32,
     pub speed: f32,
@@ -230,15 +229,12 @@ pub struct GMSECircularMovement {
 }
 
 impl GMSECircularMovement {
-    pub fn new<T: Into<GMVec2D>>(center: T, radius: f32, speed: f32, repetition: GMRepetition) -> Self {
+    pub fn new(radius: f32, speed: f32, repetition: GMRepetition) -> Self {
         assert!(speed > 0.0 && speed < 1.0, "GMSECircularMovement::new(), speed must be greater than zero and smaller than one");
 
-        let center = center.into();
-
-        debug!("GMSECircularMovement::new(), center: '{:?}', radius: '{}', speed: '{}'", center, radius, speed);
+        debug!("GMSECircularMovement::new(), radius: '{}', speed: '{}'", radius, speed);
 
         Self {
-            center,
             radius,
             factor: 0.0,
             speed,
@@ -249,10 +245,10 @@ impl GMSECircularMovement {
 
     fn set_sprite_pos(&self, sprite: &mut GMSpriteBase) {
         let angle = TAU * self.factor;
-        let x = self.center.x + (self.radius * angle.cos());
-        let y = self.center.y + (self.radius * angle.sin());
+        let x = self.radius * angle.cos();
+        let y = self.radius * angle.sin();
 
-        sprite.position.set1(x, y);
+        sprite.offset.set1(x, y);
     }
 }
 
@@ -312,9 +308,6 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
 
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
-            "set_center" => {
-                self.center = data.into();
-            }
             "set_radius" => {
                 self.radius = data.into();
             }

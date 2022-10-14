@@ -55,7 +55,6 @@ impl SpriteScene1 {
         // Ghost
         // Add multiple effects as vec.
         let effects: Vec<GMBoxSpriteEffect> = vec![Box::new(GMSECircularMovement::new(
-            (200.0, 300.0), // center
             50.0, // radius
             0.01, // speed
             GMRepetition::LoopForward)),
