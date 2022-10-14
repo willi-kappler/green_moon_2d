@@ -59,7 +59,10 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
                 self.velocity = GMVec2D::new(x, y);
             }
             "set_random_speed" => {
-                let speed: f32 = data.into();
+                let (min, max): (f32, f32) = data.into();
+                let length = max - min;
+                let mut rng = WyRand::new();
+                let speed = min + (rng.generate::<f32>() * length);
                 self.velocity.mul2(speed);
             }
             "set_active" => {
@@ -138,6 +141,58 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct GMSERotation {
+    pub speed: f32,
+    pub active: bool,
+}
+
+impl GMSERotation {
+    pub fn new(speed: f32) -> Self {
+        debug!("GMSERotation::new(), speed: '{:?}'", speed);
+
+        Self {
+            speed,
+            active: true
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSERotation {
+    fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
+        if self.active {
+            sprite.angle += self.speed;
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_speed" => {
+                self.speed = data.into()
+            }
+            "set_random_speed" => {
+                let (min, max): (f32, f32) = data.into();
+                let length = max - min;
+                let mut rng = WyRand::new();
+                self.speed = min + (rng.generate::<f32>() * length);
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSERotation::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> GMBoxSpriteEffect {
+        Box::new(self.clone())
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct GMSELinearMovement {
