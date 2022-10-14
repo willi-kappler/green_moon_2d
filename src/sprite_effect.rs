@@ -108,7 +108,7 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEVelocity::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEAcceleration::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
