@@ -1,7 +1,8 @@
 use std::fmt::Debug;
-use std::f32::consts::TAU;
+use std::f32::consts::{TAU, PI};
 
 use log::debug;
+use nanorand::{WyRand, Rng};
 
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
@@ -45,6 +46,21 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
             "set_velocity" => {
                 let velocity = data.into();
                 self.velocity = velocity;
+            }
+            "set_random_direction" => {
+                let (min, max): (f32, f32) = data.into();
+                let length = max - min;
+                let mut rng = WyRand::new();
+                let angle = min + (rng.generate::<f32>() * length);
+                let rad = angle * PI / 180.0;
+                let x = rad.cos();
+                let y = rad.sin();
+
+                self.velocity = GMVec2D::new(x, y);
+            }
+            "set_random_speed" => {
+                let speed: f32 = data.into();
+                self.velocity.mul2(speed);
             }
             "set_active" => {
                 self.active = data.into();
