@@ -14,6 +14,7 @@ use crate::util::error_panic;
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
 
+#[derive(Debug, Clone)]
 pub struct GMParticleManagerBase {
     pub max_num_of_particles: usize,
     pub particle_sprite: GMSprite,
