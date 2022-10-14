@@ -112,6 +112,12 @@ impl From<f32> for GMData {
     }
 }
 
+impl From<(f32, f32)> for GMData {
+    fn from(data: (f32, f32)) -> Self {
+        GMData::F32F32(data.0, data.1)
+    }
+}
+
 impl From<String> for GMData {
     fn from(data: String) -> Self {
         GMData::String(data)
@@ -202,6 +208,16 @@ impl From<GMData> for f32 {
             data
         } else {
             error_panic(&format!("Expected F32, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for (f32, f32) {
+    fn from(data: GMData) -> Self {
+        if let GMData::F32F32(data1, data2) = data {
+            (data1, data2)
+        } else {
+            error_panic(&format!("Expected F32F32, got {:?}", data))
         }
     }
 }
