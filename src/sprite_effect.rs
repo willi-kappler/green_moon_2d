@@ -151,14 +151,14 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMSERotation {
+pub struct GMSERotation1 {
     pub speed: f32,
     pub active: bool,
 }
 
-impl GMSERotation {
+impl GMSERotation1 {
     pub fn new(speed: f32) -> Self {
-        debug!("GMSERotation::new(), speed: '{:?}'", speed);
+        debug!("GMSERotation1::new(), speed: '{:?}'", speed);
 
         Self {
             speed,
@@ -167,7 +167,7 @@ impl GMSERotation {
     }
 }
 
-impl GMEffectT<GMSpriteBase> for GMSERotation {
+impl GMEffectT<GMSpriteBase> for GMSERotation1 {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
             sprite.angle += self.speed;
@@ -187,7 +187,7 @@ impl GMEffectT<GMSpriteBase> for GMSERotation {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSERotation::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSERotation1::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
@@ -199,6 +199,80 @@ impl GMEffectT<GMSpriteBase> for GMSERotation {
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct GMSERotation2 {
+    pub interpolate: GMInterpolateF32,
+    pub active: bool,
+}
+
+impl GMSERotation2 {
+    pub fn new(angle: f32, min_angle: f32, max_angle: f32, speed: f32) -> Self {
+        debug!("GMSERotation2::new(), angle: '{}', min_angle: '{}', max_angle: '{}', speed: '{}'", angle, min_angle, max_angle, speed);
+
+        let mut interpolate = GMInterpolateF32::new(min_angle, max_angle, speed);
+        interpolate.repetition = GMRepetition::PingPongForward;
+        interpolate.set_value(angle);
+
+        Self {
+            interpolate,
+            active: true,
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSERotation2 {
+    fn update(&mut self, base: &mut GMSpriteBase, _context: &mut GMContext) {
+        if self.active {
+            self.interpolate.update();
+            base.angle = self.interpolate.get_value();
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_angle" => {
+                let angle = data.into();
+                self.interpolate.set_value(angle);
+            }
+            "set_min_angle" => {
+                let min_angle = data.into();
+                self.interpolate.set_start(min_angle);
+            }
+            "set_max_angle" => {
+                let max_angle = data.into();
+                self.interpolate.set_end(max_angle);
+            }
+            "set_speed" => {
+                let speed = data.into();
+                self.interpolate.set_speed(speed);
+            }
+            "set_random_speed" => {
+                let (min, max): (f32, f32) = data.into();
+                let speed = random_range_f32(min, max);
+                self.interpolate.set_speed(speed);
+            }
+            "set_repetition" => {
+                self.interpolate.repetition = data.into();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSERotation2::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> GMBoxSpriteEffect {
+        Box::new(self.clone())
+    }
+
 }
 
 #[derive(Debug, Clone)]
@@ -722,71 +796,6 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct GMSERotating {
-    pub interpolate: GMInterpolateF32,
-    pub active: bool,
-}
-
-impl GMSERotating {
-    pub fn new(angle: f32, min_angle: f32, max_angle: f32, speed: f32) -> Self {
-        debug!("GMSERotating::new(), angle: '{}', min_angle: '{}', max_angle: '{}', speed: '{}'", angle, min_angle, max_angle, speed);
-
-        let mut interpolate = GMInterpolateF32::new(min_angle, max_angle, speed);
-        interpolate.repetition = GMRepetition::PingPongForward;
-        interpolate.set_value(angle);
-
-        Self {
-            interpolate,
-            active: true,
-        }
-    }
-}
-
-impl GMEffectT<GMSpriteBase> for GMSERotating {
-    fn update(&mut self, base: &mut GMSpriteBase, _context: &mut GMContext) {
-        if self.active {
-            self.interpolate.update();
-            base.angle = self.interpolate.get_value();
-        }
-    }
-
-    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
-        match message {
-            "set_angle" => {
-                let angle = data.into();
-                self.interpolate.set_value(angle);
-            }
-            "set_min_angle" => {
-                let min_angle = data.into();
-                self.interpolate.set_start(min_angle);
-            }
-            "set_max_angle" => {
-                let max_angle = data.into();
-                self.interpolate.set_end(max_angle);
-            }
-            "set_speed" => {
-                let speed = data.into();
-                self.interpolate.set_speed(speed);
-            }
-            "set_active" => {
-                self.active = data.into();
-            }
-            _ => {
-                error_panic(&format!("GMSETimed::send_message_data(), unknown message: '{}'", message))
-            }
-        }
-    }
-
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    fn clone_box(&self) -> GMBoxSpriteEffect {
-        Box::new(self.clone())
-    }
-
-}
 
 #[derive(Debug, Clone)]
 pub struct GMSEScaling {
@@ -833,11 +842,19 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
                 let speed = data.into();
                 self.interpolate.set_speed(speed);
             }
+            "set_random_speed" => {
+                let (min, max): (f32, f32) = data.into();
+                let speed = random_range_f32(min, max);
+                self.interpolate.set_speed(speed);
+            }
+            "set_repetition" => {
+                self.interpolate.repetition = data.into();
+            }
             "set_active" => {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSETimed::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEScaling::send_message_data(), unknown message: '{}'", message))
             }
         }
     }
