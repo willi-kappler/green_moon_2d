@@ -2,12 +2,11 @@ use std::fmt::Debug;
 use std::f32::consts::{TAU, PI};
 
 use log::debug;
-use nanorand::{WyRand, Rng};
 
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
-use crate::util::{GMRepetition, error_panic};
+use crate::util::{GMRepetition, error_panic, random_range_f32};
 use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32};
 use crate::timer::GMTimer;
 use crate::data::GMData;
@@ -49,9 +48,7 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
             }
             "set_random_direction" => {
                 let (min, max): (f32, f32) = data.into();
-                let length = max - min;
-                let mut rng = WyRand::new();
-                let angle = min + (rng.generate::<f32>() * length);
+                let angle = random_range_f32(min, max);
                 let rad = angle * PI / 180.0;
                 let x = rad.cos();
                 let y = rad.sin();
@@ -60,9 +57,7 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
             }
             "set_random_speed" => {
                 let (min, max): (f32, f32) = data.into();
-                let length = max - min;
-                let mut rng = WyRand::new();
-                let speed = min + (rng.generate::<f32>() * length);
+                let speed = random_range_f32(min, max);
                 self.velocity.mul2(speed);
             }
             "set_active" => {
@@ -119,6 +114,20 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
                 let velocity = data.into();
                 self.velocity = velocity;
             }
+            "set_random_velocity_direction" => {
+                let (min, max): (f32, f32) = data.into();
+                let angle = random_range_f32(min, max);
+                let rad = angle * PI / 180.0;
+                let x = rad.cos();
+                let y = rad.sin();
+
+                self.velocity = GMVec2D::new(x, y);
+            }
+            "set_random_speed" => {
+                let (min, max): (f32, f32) = data.into();
+                let speed = random_range_f32(min, max);
+                self.velocity.mul2(speed);
+            }
             "set_acceleration" => {
                 let acceleration = data.into();
                 self.acceleration = acceleration;
@@ -172,9 +181,7 @@ impl GMEffectT<GMSpriteBase> for GMSERotation {
             }
             "set_random_speed" => {
                 let (min, max): (f32, f32) = data.into();
-                let length = max - min;
-                let mut rng = WyRand::new();
-                self.speed = min + (rng.generate::<f32>() * length);
+                self.speed = random_range_f32(min, max);
             }
             "set_active" => {
                 self.active = data.into();

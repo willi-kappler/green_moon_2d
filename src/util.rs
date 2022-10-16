@@ -1,4 +1,6 @@
 
+
+use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
@@ -45,4 +47,11 @@ pub fn error_panic(message: &str) -> ! {
     debug!("error_panic() called from: '{}'", std::panic::Location::caller());
     error!("{}", message);
     panic!("{}", message);
+}
+
+pub fn random_range_f32(min: f32, max: f32) -> f32 {
+    let length = max - min;
+    let mut rng = WyRand::new();
+    let result = min + (rng.generate::<f32>() * length);
+    result
 }
