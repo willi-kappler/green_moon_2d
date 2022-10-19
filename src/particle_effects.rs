@@ -8,24 +8,34 @@ use crate::util::error_panic;
 pub type GMBoxParticleEffect = Box<dyn GMEffectT<GMParticleManagerBase>>;
 
 #[derive(Debug, Clone)]
-pub struct GMPECircular {
-    pub min_angle: f32,
-    pub max_angle: f32,
-    pub min_speed: f32,
-    pub max_speed: f32,
-    pub active: bool,
+pub struct GMPESimple {
+    messages: Vec<(usize, String, GMData)>,
+    active: bool,
 }
 
-impl GMPECircular {
+impl GMPESimple {
     pub fn new() -> Self {
-        todo!();
+        Self {
+            messages: Vec::new(),
+            active: true,
+        }
     }
 }
 
-impl GMEffectT<GMParticleManagerBase> for GMPECircular {
-    fn update(&mut self, particle_manager: &mut GMParticleManagerBase, _context: &mut GMContext) {
-        if self.active {
-            todo!();
+impl GMEffectT<GMParticleManagerBase> for GMPESimple {
+    fn update(&mut self, base: &mut GMParticleManagerBase, context: &mut GMContext) {
+        if self.active && base.active {
+            for (duration, sprite) in base.particles.iter_mut() {
+                if sprite.base.active {
+                    if duration.finished() {
+                        duration.start();
+                        sprite.base.position = base.position;
+                        for (index, message, data) in self.messages.iter() {
+                            sprite.effects.send_message(*index, message, data.clone(), context)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -35,7 +45,7 @@ impl GMEffectT<GMParticleManagerBase> for GMPECircular {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMPECircular::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMPESimple::send_message_data(), unknown message: '{}'", message))
             }
         }
     }

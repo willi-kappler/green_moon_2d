@@ -82,6 +82,14 @@ impl GMObjectBaseT for GMParticleManagerBase {
         }
     }
 
+    fn update(&mut self, context: &mut GMContext) {
+        if self.active {
+            for (_, sprite) in self.particles.iter_mut() {
+                sprite.update(context);
+            }
+        }
+    }
+
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
