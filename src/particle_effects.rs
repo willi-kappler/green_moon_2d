@@ -1,4 +1,6 @@
 
+use log::debug;
+
 use crate::context::GMContext;
 use crate::particle_manager::{GMParticleManagerBase, GMParticleState};
 use crate::effect::GMEffectT;
@@ -30,8 +32,10 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
                     match state {
                         GMParticleState::Waiting => {
                             if timer.finished() {
+                                // debug!("GMPESimple::update(), Waiting, timer finished");
                                 let run_time = random_range_f32(base.run_time.0, base.run_time.1);
                                 timer.set_duration(run_time);
+                                timer.start();
 
                                 *state = GMParticleState::Running;
 
@@ -44,8 +48,11 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
                         }
                         GMParticleState::Running => {
                             if timer.finished() {
+                                // debug!("GMPESimple::update(), Running, timer finished");
                                 let wait_time = random_range_f32(base.wait_time.0, base.wait_time.1);
                                 timer.set_duration(wait_time);
+                                timer.start();
+
                                 *state = GMParticleState::Waiting;
                             } else {
                                 sprite.update(context);
