@@ -49,9 +49,9 @@ impl GMTexture {
         let src_rect = Rect::new(sx, sy, self.unit_width, self.unit_height);
         let new_width = ((self.unit_width as f32) * scale) as u32;
         let new_height = ((self.unit_height as f32) * scale) as u32;
-        let dx = (dx as u32) - (new_width / 2);
-        let dy = (dy as u32) - (new_height / 2);
-        let dst_rect = Rect::new(dx as i32, dy as i32, new_width, new_height);
+        let dx = (dx as i32) - ((new_width / 2) as i32);
+        let dy = (dy as i32) - ((new_height / 2) as i32);
+        let dst_rect = Rect::new(dx, dy, new_width, new_height);
 
         context.draw_texture_opt(&self.texture, src_rect, dst_rect, angle as f64, flip_x, flip_y);
     }
