@@ -10,16 +10,23 @@ use crate::math::GMVec2D;
 use crate::effect::{GMEffectManager, GMEffectT};
 use crate::context::GMContext;
 use crate::data::GMData;
-use crate::util::error_panic;
+use crate::util::{error_panic, random_range_f32};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
+
+#[derive(Debug, Clone)]
+pub enum GMParticleState {
+    Waiting,
+    Running,
+}
 
 #[derive(Debug, Clone)]
 pub struct GMParticleManagerBase {
     pub max_num_of_particles: usize,
     pub particle_sprite: GMSprite,
-    pub life_time: f32,
-    pub particles: Vec<(GMTimer, GMSprite)>,
+    pub wait_time: (f32, f32),
+    pub run_time: (f32, f32),
+    pub particles: Vec<(GMParticleState, GMTimer, GMSprite)>,
     pub active: bool,
     pub visible: bool,
     pub position: GMVec2D,
@@ -34,7 +41,8 @@ impl GMParticleManagerBase {
         Self {
             max_num_of_particles: 0,
             particle_sprite,
-            life_time: 0.0,
+            wait_time: (0.0, 0.0),
+            run_time: (0.0, 0.0),
             particles: Vec::new(),
             active: true,
             visible: true,
@@ -44,21 +52,17 @@ impl GMParticleManagerBase {
         }
     }
 
-    pub fn set_life_time(&mut self, life_time: f32) {
-        self.life_time = life_time;
-
-        for (duration, _) in self.particles.iter_mut() {
-            duration.set_duration(life_time);
-        }
-    }
-
     pub fn set_max_num_of_particles(&mut self, max_num_of_particles: usize) {
         self.max_num_of_particles = max_num_of_particles;
         self.particles = Vec::with_capacity(max_num_of_particles);
 
         for _ in 0..max_num_of_particles {
+            let wait_time = random_range_f32(self.wait_time.0, self.wait_time.1);
+
             self.particles.push((
-                GMTimer::new(self.life_time), self.particle_sprite.clone()
+                GMParticleState::Waiting,
+                GMTimer::new(wait_time),
+                self.particle_sprite.clone()
             ));
         }
     }
@@ -67,38 +71,24 @@ impl GMParticleManagerBase {
         self.position = position.into();
         self.particle_sprite.base.position = self.position;
 
-        for (_, sprite) in self.particles.iter_mut() {
+        for (_, _, sprite) in self.particles.iter_mut() {
             sprite.base.position = self.position;
         }
     }
 }
 
 impl GMObjectBaseT for GMParticleManagerBase {
-    fn draw(&self, context: &mut GMContext) {
-        if self.visible {
-            for (_, sprite) in self.particles.iter() {
-                sprite.draw(context);
-            }
-        }
-    }
-
-    fn update(&mut self, context: &mut GMContext) {
-        if self.active {
-            for (_, sprite) in self.particles.iter_mut() {
-                sprite.update(context);
-            }
-        }
-    }
-
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_position" => {
                 let position: GMVec2D = data.into();
                 self.set_position(position);
             }
-            "set_life_time" => {
-                let life_time: f32 = data.into();
-                self.set_life_time(life_time);
+            "set_wait_time" => {
+                self.wait_time = data.into();
+            }
+            "set_run_time" => {
+                self.run_time = data.into();
             }
             "set_max_number_of_particles" => {
                 let max_num_of_particles: usize = data.into();
@@ -163,9 +153,16 @@ impl GMParticleManagerBuilder {
         }
     }
 
-    pub fn with_life_time(mut self, life_time: f32) -> Self {
-        debug!("GMParticleManager::with_life_time(), life_time: {}", life_time);
-        self.particle_manager.base.set_life_time(life_time);
+    pub fn with_wait_time(mut self, min: f32, max: f32) -> Self {
+        debug!("GMParticleManager::with_wait_time(), min: '{}', max: '{}'", min, max);
+        self.particle_manager.base.wait_time = (min, max);
+
+        self
+    }
+
+    pub fn with_run_time(mut self, min: f32, max: f32) -> Self {
+        debug!("GMParticleManager::with_run_time(), min: '{}', max: '{}'", min, max);
+        self.particle_manager.base.run_time = (min, max);
 
         self
     }
