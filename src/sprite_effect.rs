@@ -171,6 +171,12 @@ impl GMEffectT<GMSpriteBase> for GMSERotation1 {
     fn update(&mut self, sprite: &mut GMSpriteBase, _context: &mut GMContext) {
         if self.active {
             sprite.angle += self.speed;
+
+            if sprite.angle > 360.0 {
+                sprite.angle -= 360.0;
+            } else if sprite.angle < 0.0 {
+                sprite.angle += 360.0;
+            }
         }
     }
 
