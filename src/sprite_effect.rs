@@ -43,8 +43,8 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_velocity" => {
-                let velocity = data.into();
-                self.velocity = velocity;
+                let velocity: (f32, f32) = data.into();
+                self.velocity = velocity.into();
             }
             "set_random_direction" => {
                 let (min, max): (f32, f32) = data.into();
@@ -111,8 +111,8 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
     fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
             "set_velocity" => {
-                let velocity = data.into();
-                self.velocity = velocity;
+                let velocity: (f32, f32) = data.into();
+                self.velocity = velocity.into();
             }
             "set_random_velocity_direction" => {
                 let (min, max): (f32, f32) = data.into();
@@ -129,8 +129,8 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
                 self.velocity.mul2(speed);
             }
             "set_acceleration" => {
-                let acceleration = data.into();
-                self.acceleration = acceleration;
+                let acceleration: (f32, f32) = data.into();
+                self.acceleration = acceleration.into();
             }
             "set_active" => {
                 self.active = data.into();
