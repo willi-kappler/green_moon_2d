@@ -7,6 +7,12 @@
             "unit_height": 18
         },
         {
+            "name": "tex_particle2",
+            "file_name": "../assets/sprite_sheets/particle2.png",
+            "unit_width": 18,
+            "unit_height": 18
+        },
+        {
             "name": "tex_cuddly",
             "file_name": "../assets/fonts/cuddly.png",
             "unit_width": 32,

@@ -36,12 +36,12 @@ impl ParticleScene2 {
             .with_align(GMAlign::TopCenter)
             .build();
 
-        let se_wind = GMSEVelocity::new((-3.0, 0.0));
+        let se_wind = GMSEVelocity::new((1.0, 0.0));
 
         // Particle Manager 1
         let sprite_effect1 = GMSEVelocity::new((0.0, 0.0));
 
-        let head_sprite1 = GMSpriteBuilder::new(resources.get_texture("tex_particle1"))
+        let particle_sprite1 = GMSpriteBuilder::new(resources.get_texture("tex_particle1"))
             .with_position((0.0, 0.0))
             .with_animation(resources.get_animation("anim_particle1"))
             .with_effect(sprite_effect1.clone())
@@ -57,7 +57,7 @@ impl ParticleScene2 {
 
         let particle_effect1 = GMPESimple::new(messages1);
 
-        let particle_manager1 = GMParticleManagerBuilder::new(head_sprite1)
+        let particle_manager1 = GMParticleManagerBuilder::new(particle_sprite1)
             .with_position((X_OFFSET, window_height / 2.0))
             .with_wait_time(1.0, 1.5)
             .with_run_time(1.0, 3.0)
@@ -69,7 +69,7 @@ impl ParticleScene2 {
         let se_gravity = GMSEAcceleration::new((0.0, 0.0), (0.0, 0.05));
         let sprite_effect2 = GMSERotation1::new(10.0);
 
-        let head_sprite2 = GMSpriteBuilder::new(resources.get_texture("tex_particle1"))
+        let particle_sprite2 = GMSpriteBuilder::new(resources.get_texture("tex_particle2"))
             .with_position((0.0, 0.0))
             .with_animation(resources.get_animation("anim_particle1"))
             // Sprite effect velocity, index 0:
@@ -94,7 +94,7 @@ impl ParticleScene2 {
 
         let particle_effect2 = GMPESimple::new(messages2);
 
-        let particle_manager2 = GMParticleManagerBuilder::new(head_sprite2)
+        let particle_manager2 = GMParticleManagerBuilder::new(particle_sprite2)
             .with_position((window_width - X_OFFSET, window_height / 2.0))
             .with_wait_time(1.0, 1.5)
             .with_run_time(1.0, 3.0)
