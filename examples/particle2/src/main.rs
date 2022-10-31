@@ -7,12 +7,11 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
-use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
-use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSEVelocity, GMSEAcceleration, GMSERotation1};
+use green_moon_2d::sprite::{GMSpriteBuilder};
+use green_moon_2d::sprite_effect::{GMSEVelocity, GMSEAcceleration, GMSERotation1};
 use green_moon_2d::particle_manager::{GMParticleManager, GMParticleManagerBuilder};
 use green_moon_2d::particle_effects::{GMPESimple};
-use green_moon_2d::util::{GMAlign, GMRepetition};
-use green_moon_2d::math::GMVec2D;
+use green_moon_2d::util::{GMAlign};
 use green_moon_2d::data::GMData;
 
 #[derive(Debug)]
@@ -36,7 +35,7 @@ impl ParticleScene2 {
             .with_align(GMAlign::TopCenter)
             .build();
 
-        let se_wind = GMSEVelocity::new((1.0, 0.0));
+        let se_wind = GMSEVelocity::new((-3.0, 0.0));
 
         // Particle Manager 1
         let sprite_effect1 = GMSEVelocity::new((0.0, 0.0));
@@ -51,8 +50,8 @@ impl ParticleScene2 {
 
         let messages1 = vec![
             // Index 0 for velocity sprite effect:
-            (0, "set_random_direction".to_string(), GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
-            (0, "set_random_speed".to_string(), GMData::F32F32(3.0, 4.0)) // sprite effect index, message, data
+            (0, "set_random_direction", GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
+            (0, "set_random_speed", GMData::F32F32(3.0, 4.0)) // sprite effect index, message, data
         ];
 
         let particle_effect1 = GMPESimple::new(messages1);
@@ -84,12 +83,12 @@ impl ParticleScene2 {
 
         let messages2 = vec![
             // Index 0 for velocity sprite effect:
-            (0, "set_random_direction".to_string(), GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
-            (0, "set_random_speed".to_string(), GMData::F32F32(3.0, 4.0)), // sprite effect index, message, data
+            (0, "set_random_direction", GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
+            (0, "set_random_speed", GMData::F32F32(3.0, 4.0)), // sprite effect index, message, data
             // Now index 1 for for the rotation sprite effect:
-            (1, "set_random_speed".to_string(), GMData::F32F32(-10.0, 10.0)), // sprite effect index, message, data
+            (1, "set_random_speed", GMData::F32F32(-10.0, 10.0)), // sprite effect index, message, data
             // Now index 2 for for the gravity sprite effect:
-            (2, "set_velocity".to_string(), GMData::F32F32(0.0, 0.0)) // sprite effect index, message, data
+            (2, "set_velocity", GMData::F32F32(0.0, 0.0)) // sprite effect index, message, data
         ];
 
         let particle_effect2 = GMPESimple::new(messages2);
