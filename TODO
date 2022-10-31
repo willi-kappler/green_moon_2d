@@ -18,6 +18,8 @@ Try using SDL again!
 # Use two Hashmaps: one for normal messages and one for group messages.
 # Use cols and rows instead of with and height for texture.
 # (Try to use builder macro)
+# GMParticleManager
+
 # Refactor generic effects
 
 
@@ -34,7 +36,6 @@ Next TODO:
 
 - GMMenuItem
 - GMMenu
-- GMParticleManager
 - GMBulletManager
 - GMLine
 - GMBorder
