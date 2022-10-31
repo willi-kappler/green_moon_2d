@@ -50,7 +50,7 @@ pub fn error_panic(message: &str) -> ! {
 }
 
 pub fn random_range_f32(min: f32, max: f32) -> f32 {
-    assert!(min < max, "random_range_f32(), min must be smaller than max: '{}' >= '{}'", min, max);
+    assert!(min <= max, "random_range_f32(), min must be smaller than max: '{}' >= '{}'", min, max);
     let length = max - min;
     let mut rng = WyRand::new();
     let result = min + (rng.generate::<f32>() * length);
