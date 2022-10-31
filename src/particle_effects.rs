@@ -1,5 +1,5 @@
 
-use log::debug;
+// use log::debug;
 
 use crate::context::GMContext;
 use crate::particle_manager::{GMParticleManagerBase, GMParticleState};
@@ -16,9 +16,9 @@ pub struct GMPESimple {
 }
 
 impl GMPESimple {
-    pub fn new(messages: Vec<(usize, String, GMData)>) -> Self {
+    pub fn new<S: Into<String>>(mut messages: Vec<(usize, S, GMData)>) -> Self {
         Self {
-            messages: messages,
+            messages: messages.drain(0..).map(|(i, s, d)| (i, s.into(), d)).collect(),
             active: true,
         }
     }
