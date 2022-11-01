@@ -11,6 +11,7 @@ pub mod effect;
 pub mod engine;
 pub mod input;
 pub mod interpolation;
+pub mod line;
 pub mod math;
 pub mod menu;
 pub mod menu_item;
