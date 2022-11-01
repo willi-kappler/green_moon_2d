@@ -79,6 +79,54 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
 }
 
 #[derive(Debug, Clone)]
+pub struct GMSEMaxSpeed {
+    pub max_speed: f32,
+    active: bool,
+}
+
+impl GMSEMaxSpeed {
+    pub fn new(max_speed: f32) -> Self {
+        debug!("GMSEMaxSpeed::new(), max_speed: {}", max_speed);
+
+        Self {
+            max_speed,
+            active: true,
+        }
+    }
+}
+
+impl GMEffectT<GMSpriteBase> for GMSEMaxSpeed {
+    fn update(&mut self, _sprite: &mut GMSpriteBase, _context: &mut GMContext) {
+        if self.active {
+            // TODO: implement max speed
+            todo!();
+        }
+    }
+
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_max_speed" => {
+                self.max_speed = data.into();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            _ => {
+                error_panic(&format!("GMSEMaxSpeed::send_message_data(), unknown message: '{}'", message))
+            }
+        }
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
+
+    fn clone_box(&self) -> GMBoxSpriteEffect {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct GMSEAcceleration {
     pub velocity: GMVec2D,
     pub acceleration: GMVec2D,
@@ -113,6 +161,10 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
             "set_velocity" => {
                 let velocity: (f32, f32) = data.into();
                 self.velocity = velocity.into();
+            }
+            "reset_velocity" => {
+                self.velocity.x = 0.0;
+                self.velocity.y = 0.0;
             }
             "set_random_velocity_direction" => {
                 let (min, max): (f32, f32) = data.into();
