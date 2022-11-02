@@ -26,7 +26,20 @@ impl GMLine {
             line_mode: GMLineMode::Number(number),
         };
 
-        result.set_number(number);
+        result.end_point_changed();
+        result
+    }
+
+    pub fn new2(start: GMVec2D, end: GMVec2D, sprite: GMSprite, spacing: f32) -> Self {
+        let mut result = Self {
+            start: start.into(),
+            end: end.into(),
+            init_sprite: sprite,
+            sprites: Vec::new(),
+            line_mode: GMLineMode::Spacing(spacing),
+        };
+
+        result.end_point_changed();
         result
     }
 
