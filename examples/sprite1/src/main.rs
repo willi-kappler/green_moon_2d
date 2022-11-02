@@ -9,7 +9,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::sprite::{GMSprite, GMSpriteBuilder};
 use green_moon_2d::sprite_effect::{GMBoxSpriteEffect, GMSELinearMovement, GMSECircularMovement,
-    GMSEPolygonMovement, GMSETimed, GMSERotating, GMSEScaling, GMSETarget, GMSEFollow};
+    GMSEPolygonMovement, GMSETimed, GMSERotation2, GMSEScaling, GMSETarget, GMSEFollow};
 use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::math::GMVec2D;
 
@@ -77,7 +77,7 @@ impl SpriteScene1 {
 
         // Ice cream
         // Add effects individually
-        let effect1 = GMSERotating::new(
+        let effect1 = GMSERotation2::new(
             0.0, // initial angle
             -20.0, // min angle
             20.0, // max angle
