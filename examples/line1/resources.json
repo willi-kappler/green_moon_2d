@@ -1,0 +1,31 @@
+{
+    "textures": [
+        {
+            "name": "tex_head1",
+            "file_name": "../assets/sprite_sheets/head1.png",
+            "unit_width": 44,
+            "unit_height": 64
+        },
+        {
+            "name": "tex_cuddly",
+            "file_name": "../assets/fonts/cuddly.png",
+            "unit_width": 32,
+            "unit_height": 32
+        }
+    ],
+    "fonts": [
+        {
+            "name": "font_cuddly",
+            "texture_name": "tex_cuddly",
+            "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- "
+        }
+    ],
+    "animations": [
+        {
+            "name": "anim_head1",
+            "animation_type": "loop_forward",
+            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+        }
+    ],
+    "sounds": []
+}
