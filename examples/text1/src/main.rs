@@ -6,7 +6,7 @@ use std::rc::Rc;
 use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
-use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode, GMResources};
+use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder, GMBitmapFont};
 use green_moon_2d::util::GMAlign;
 
@@ -23,7 +23,7 @@ impl TextScene1 {
         let resources = engine.get_resources();
         let window_width = engine.window_width();
 
-        const space: f32 = 50.0;
+        const SPACE: f32 = 50.0;
         let mut fonts = Vec::new();
 
         fonts.push(resources.get_font("font_bbc").clone());
@@ -44,27 +44,27 @@ impl TextScene1 {
 
         texts.push(GMBitmapTextBuilder::new(font)
             .with_text("PRESS NUMBER TO CHANGE FONT")
-            .with_position((32.0, 32.0 + (1.0 * space)))
+            .with_position((32.0, 32.0 + (1.0 * SPACE)))
             .build());
 
         texts.push(GMBitmapTextBuilder::new(font)
             .with_text("1 - BBC")
-            .with_position((32.0, 32.0 + (2.0 * space)))
+            .with_position((32.0, 32.0 + (2.0 * SPACE)))
             .build());
 
         texts.push(GMBitmapTextBuilder::new(font)
             .with_text("2 - BLAGGER")
-            .with_position((32.0, 32.0 + (3.0 * space)))
+            .with_position((32.0, 32.0 + (3.0 * SPACE)))
             .build());
 
         texts.push(GMBitmapTextBuilder::new(font)
             .with_text("3 - CUDDLY")
-            .with_position((32.0, 32.0 + (4.0 * space)))
+            .with_position((32.0, 32.0 + (4.0 * SPACE)))
             .build());
 
         texts.push(GMBitmapTextBuilder::new(font)
             .with_text("CURSOR TO CHANGE H-SPACING")
-            .with_position((32.0, 32.0 + (5.0 * space)))
+            .with_position((32.0, 32.0 + (5.0 * SPACE)))
             .build());
 
         Self {

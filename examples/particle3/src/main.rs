@@ -12,7 +12,6 @@ use green_moon_2d::sprite_effect::{GMSEVelocity};
 use green_moon_2d::particle_manager::{GMParticleManager, GMParticleManagerBuilder};
 use green_moon_2d::particle_effects::{GMPESpiral};
 use green_moon_2d::util::{GMAlign};
-use green_moon_2d::data::GMData;
 
 #[derive(Debug)]
 struct ParticleScene3 {

@@ -22,7 +22,7 @@ impl TextScene2 {
 
         let font = resources.get_font("font_cuddly");
 
-        const space: f32 = 50.0;
+        const SPACE: f32 = 50.0;
         let mut texts = Vec::new();
 
         // Move title to the center of the window
@@ -35,13 +35,13 @@ impl TextScene2 {
 
         texts.push(GMBitmapTextBuilder::new(&font)
             .with_text("PRESS NUMBER TO CHANGE ALIGN")
-            .with_position((32.0, 32.0 + (1.0 * space)))
+            .with_position((32.0, 32.0 + (1.0 * SPACE)))
             .build());
 
 
         texts.push(GMBitmapTextBuilder::new(&font)
             .with_text("PRESS H TO TOGGLE HORIZONTAL")
-            .with_position((32.0, 32.0 + (2.0 * space)))
+            .with_position((32.0, 32.0 + (2.0 * SPACE)))
             .build());
 
         Self {

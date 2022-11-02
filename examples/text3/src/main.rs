@@ -2,7 +2,6 @@
 
 use std::fs::File;
 
-use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
@@ -25,17 +24,17 @@ impl TextScene3 {
 
         let font = resources.get_font("font_cuddly");
 
-        const space: f32 = 50.0;
+        const SPACE: f32 = 50.0;
         let mut texts = Vec::new();
 
         texts.push(GMBitmapTextBuilder::new(&font)
             .with_text("PRESS NUMBER TO CHANGE EFFECT")
-            .with_position((32.0, 32.0 + (5.0 * space)))
+            .with_position((32.0, 32.0 + (5.0 * SPACE)))
             .build());
 
         texts.push(GMBitmapTextBuilder::new(&font)
             .with_text("CURSOR TO CHANGE SETTING")
-            .with_position((32.0, 32.0 + (6.0 * space)))
+            .with_position((32.0, 32.0 + (6.0 * SPACE)))
             .build());
 
         let mut effects: Vec<GMBitmapText> = Vec::new();
@@ -43,7 +42,7 @@ impl TextScene3 {
         // Move title to the center of the window
         let mut effect = GMBitmapTextBuilder::new(&font)
             .with_text("TEXT TEST 3")
-            .with_position((window_width / 2.0, 32.0 + (1.0 * space)))
+            .with_position((window_width / 2.0, 32.0 + (1.0 * SPACE)))
             .with_align(GMAlign::TopCenter)
             .build();
 
