@@ -32,6 +32,7 @@ Next TODO:
 - Add text effect sprite
 - Add text effect circle
 - Add mouse events
+- Add get_property(name: &str) -> GMData for effects
 
 
 - GMMenuItem
