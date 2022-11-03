@@ -20,6 +20,7 @@ pub mod particle_effects;
 pub mod particle_manager;
 pub mod resources;
 pub mod scene;
+pub mod score;
 pub mod sprite;
 pub mod sprite_effect;
 pub mod texture;

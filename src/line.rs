@@ -18,6 +18,8 @@ pub struct GMLine {
     line_mode: GMLineMode,
 }
 
+// TODO: Maybe add effect for lines
+
 impl GMLine {
     pub fn new<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, number: u32) -> Self {
         let mut result = Self {

@@ -19,7 +19,8 @@ Try using SDL again!
 # Use cols and rows instead of with and height for texture.
 # (Try to use builder macro)
 # GMParticleManager
-
+# GMLine
+# Refactor GMSprite: move velocity, acceleration, angular velocity, etc. to sprite effect
 # Refactor generic effects
 
 
@@ -31,13 +32,11 @@ Next TODO:
 - Add text effect sprite
 - Add text effect circle
 - Add mouse events
-- Refactor GMSprite: move velocity, acceleration, angular velocity, etc. to sprite effect
 
 
 - GMMenuItem
 - GMMenu
 - GMBulletManager
-- GMLine
 - GMBorder
 - GMScore
 - GMHealthbar
