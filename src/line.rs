@@ -3,11 +3,13 @@ use crate::math::GMVec2D;
 use crate::sprite::GMSprite;
 use crate::context::GMContext;
 
+#[derive(Debug, Clone)]
 enum GMLineMode {
     Number(u32),
     Spacing(f32),
 }
 
+#[derive(Debug, Clone)]
 pub struct GMLine {
     start: GMVec2D,
     end: GMVec2D,
@@ -17,7 +19,7 @@ pub struct GMLine {
 }
 
 impl GMLine {
-    pub fn new(start: GMVec2D, end: GMVec2D, sprite: GMSprite, number: u32) -> Self {
+    pub fn new<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, number: u32) -> Self {
         let mut result = Self {
             start: start.into(),
             end: end.into(),
@@ -30,7 +32,7 @@ impl GMLine {
         result
     }
 
-    pub fn new2(start: GMVec2D, end: GMVec2D, sprite: GMSprite, spacing: f32) -> Self {
+    pub fn new2<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, spacing: f32) -> Self {
         let mut result = Self {
             start: start.into(),
             end: end.into(),
@@ -43,14 +45,22 @@ impl GMLine {
         result
     }
 
-    pub fn set_start(&mut self, start: GMVec2D) {
-        self.start = start;
+    pub fn get_start(&self) -> GMVec2D {
+        self.start
+    }
+
+    pub fn get_end(&self) -> GMVec2D {
+        self.end
+    }
+
+    pub fn set_start<V: Into<GMVec2D>>(&mut self, start: V) {
+        self.start = start.into();
 
         self.end_point_changed();
     }
 
-    pub fn set_end(&mut self, end: GMVec2D) {
-        self.end = end;
+    pub fn set_end<V: Into<GMVec2D>>(&mut self, end: V) {
+        self.end = end.into();
 
         self.end_point_changed();
     }
