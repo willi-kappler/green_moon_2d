@@ -16,6 +16,7 @@ struct LineScene1 {
     title: GMBitmapText,
     line1: GMLine,
     line2: GMLine,
+    y_pos: f32,
 }
 
 impl LineScene1 {
@@ -23,7 +24,8 @@ impl LineScene1 {
         let resources = engine.get_resources();
         let window_width = engine.window_width();
         let window_height = engine.window_height();
-        const X_OFFSET: f32 = 350.0;
+        let y_center = window_height / 2.0;
+        const X_OFFSET: f32 = 500.0;
 
         // Move title to the center of the window
         let title = GMBitmapTextBuilder::new(resources.get_font("font_cuddly"))
@@ -32,13 +34,22 @@ impl LineScene1 {
             .with_align(GMAlign::TopCenter)
             .build();
 
-        let line1 = GMLine::new();
-        let line2 = GMLine::new2();
+        let line_sprite1 = GMSpriteBuilder::new(resources.get_texture("tex_particle1"))
+            .with_position((0.0, 0.0))
+            .with_animation(resources.get_animation("anim_particle1"))
+            .build();
+
+        // Number of sprites fixed:
+        let line1 = GMLine::new((32.0, y_center), (X_OFFSET, 0.0), line_sprite1.clone(), 20);
+
+        // Spacing fixed:
+        let line2 = GMLine::new2((window_width - 32.0, y_center), (window_width - X_OFFSET, 0.0), line_sprite1, 32.0);
 
         Self {
             title,
             line1,
             line2,
+            y_pos: 0.0,
         }
     }
 }
@@ -51,8 +62,23 @@ impl GMSceneT for LineScene1 {
             context.quit();
         }
 
-        self.line1.update(context);
-        self.line2.update(context);
+        // self.line1.update(context);
+        // self.line2.update(context);
+
+        self.line1.init_sprite.update(context);
+        self.line2.init_sprite.update(context);
+
+        self.y_pos += 4.0;
+
+        if self.y_pos >= 768.0 {
+            self.y_pos = 0.0;
+        }
+
+        let x1 = self.line1.get_end().x;
+        self.line1.set_end((x1, self.y_pos));
+
+        let x2 = self.line2.get_end().x;
+        self.line2.set_end((x2, self.y_pos));
     }
 
     fn draw(&self, context: &mut GMContext) {

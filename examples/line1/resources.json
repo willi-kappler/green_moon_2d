@@ -1,10 +1,10 @@
 {
     "textures": [
         {
-            "name": "tex_head1",
-            "file_name": "../assets/sprite_sheets/head1.png",
-            "unit_width": 44,
-            "unit_height": 64
+            "name": "tex_particle1",
+            "file_name": "../assets/sprite_sheets/particle1.png",
+            "unit_width": 18,
+            "unit_height": 18
         },
         {
             "name": "tex_cuddly",
@@ -22,9 +22,9 @@
     ],
     "animations": [
         {
-            "name": "anim_head1",
+            "name": "anim_particle1",
             "animation_type": "loop_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+            "frames": [[0, 0.1], [1, 0.1], [2, 0.1], [3, 0.1]]
         }
     ],
     "sounds": []
