@@ -9,13 +9,13 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::util::{GMAlign};
 use green_moon_2d::sprite::{GMSpriteBuilder};
-use green_moon_2d::line::GMLine;
+use green_moon_2d::line::GMLineBase;
 
 #[derive(Debug)]
 struct LineScene1 {
     title: GMBitmapText,
-    line1: GMLine,
-    line2: GMLine,
+    line1: GMLineBase,
+    line2: GMLineBase,
     y_pos: f32,
 }
 
@@ -40,10 +40,10 @@ impl LineScene1 {
             .build();
 
         // Number of sprites fixed:
-        let line1 = GMLine::new((32.0, y_center), (X_OFFSET, 0.0), line_sprite1.clone(), 20);
+        let line1 = GMLineBase::new((32.0, y_center), (X_OFFSET, 0.0), line_sprite1.clone(), 20);
 
         // Spacing fixed:
-        let line2 = GMLine::new2((window_width - 32.0, y_center), (window_width - X_OFFSET, 0.0), line_sprite1, 32.0);
+        let line2 = GMLineBase::new2((window_width - 32.0, y_center), (window_width - X_OFFSET, 0.0), line_sprite1, 32.0);
 
         Self {
             title,
@@ -65,8 +65,8 @@ impl GMSceneT for LineScene1 {
         // self.line1.update(context);
         // self.line2.update(context);
 
-        self.line1.init_sprite.update(context);
-        self.line2.init_sprite.update(context);
+        self.line1.update(context);
+        self.line2.update(context);
 
         self.y_pos += 4.0;
 
@@ -74,10 +74,10 @@ impl GMSceneT for LineScene1 {
             self.y_pos = 0.0;
         }
 
-        let x1 = self.line1.get_end().x;
+        let x1 = self.line1.end.x;
         self.line1.set_end((x1, self.y_pos));
 
-        let x2 = self.line2.get_end().x;
+        let x2 = self.line2.end.x;
         self.line2.set_end((x2, self.y_pos));
     }
 
