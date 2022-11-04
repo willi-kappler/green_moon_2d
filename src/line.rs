@@ -4,23 +4,23 @@ use crate::sprite::GMSprite;
 use crate::context::GMContext;
 
 #[derive(Debug, Clone)]
-enum GMLineMode {
+pub enum GMLineMode {
     Number(u32),
     Spacing(f32),
 }
 
 #[derive(Debug, Clone)]
-pub struct GMLine {
-    start: GMVec2D,
-    end: GMVec2D,
+pub struct GMLineBase {
+    pub start: GMVec2D,
+    pub end: GMVec2D,
     pub init_sprite: GMSprite,
-    sprites: Vec<GMSprite>,
-    line_mode: GMLineMode,
+    pub sprites: Vec<GMSprite>,
+    pub line_mode: GMLineMode,
 }
 
 // TODO: Maybe add effect for lines
 
-impl GMLine {
+impl GMLineBase {
     pub fn new<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, number: u32) -> Self {
         let mut result = Self {
             start: start.into(),
@@ -47,14 +47,6 @@ impl GMLine {
         result
     }
 
-    pub fn get_start(&self) -> GMVec2D {
-        self.start
-    }
-
-    pub fn get_end(&self) -> GMVec2D {
-        self.end
-    }
-
     pub fn set_start<V: Into<GMVec2D>>(&mut self, start: V) {
         self.start = start.into();
 
@@ -67,7 +59,7 @@ impl GMLine {
         self.end_point_changed();
     }
 
-    fn end_point_changed(&mut self) {
+    pub fn end_point_changed(&mut self) {
         let direction = self.end - self.start;
         let length = direction.len();
 
@@ -103,16 +95,29 @@ impl GMLine {
         self.set_sprites(number, spacing, direction);
     }
 
-    fn set_sprites(&mut self, number: u32, spacing: f32, mut direction: GMVec2D) {
+    pub fn set_sprites(&mut self, number: u32, spacing: f32, mut direction: GMVec2D) {
         direction.norm();
 
-        self.sprites.clear();
+        // If more sprites are needed just add them
+        let diff = ((number as i32) - (self.sprites.len() as i32)) as i32;
 
-        for i in 0..number {
-            let pos = self.start + (direction * (spacing * (i as f32)));
-            let mut new_sprite = self.init_sprite.clone();
-            new_sprite.base.position = pos;
-            self.sprites.push(new_sprite);
+        for _ in 0..diff {
+            self.sprites.push(self.init_sprite.clone());
+        }
+
+        // Now re-calculate the positions of all sprites, and disable the ones that are not needed.
+        for i in 0..self.sprites.len() {
+            let sprite = &mut self.sprites[i].base;
+
+            if i <= (number as usize) {
+                let new_position = self.start + (direction * (spacing * (i as f32)));
+                sprite.position = new_position;
+                sprite.active = true;
+                sprite.visible = true;
+            } else {
+                sprite.active = false;
+                sprite.visible = false;
+            }
         }
     }
 
