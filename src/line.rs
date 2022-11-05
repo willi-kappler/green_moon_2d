@@ -1,7 +1,13 @@
 
+use std::collections::HashSet;
+
 use crate::math::GMVec2D;
 use crate::sprite::GMSprite;
 use crate::context::GMContext;
+use crate::effect::{GMEffectManager, GMEffectT};
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
+
+use log::debug;
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -16,6 +22,8 @@ pub struct GMLineBase {
     pub init_sprite: GMSprite,
     pub sprites: Vec<GMSprite>,
     pub line_mode: GMLineMode,
+    pub name: String,
+    pub groups: HashSet<String>,
 }
 
 // TODO: Maybe add effect for lines
@@ -28,6 +36,8 @@ impl GMLineBase {
             init_sprite: sprite,
             sprites: Vec::new(),
             line_mode: GMLineMode::Number(number),
+            name: "".to_string(),
+            groups: HashSet::new(),
         };
 
         result.end_point_changed();
@@ -41,6 +51,8 @@ impl GMLineBase {
             init_sprite: sprite,
             sprites: Vec::new(),
             line_mode: GMLineMode::Spacing(spacing),
+            name: "".to_string(),
+            groups: HashSet::new(),
         };
 
         result.end_point_changed();
@@ -120,16 +132,98 @@ impl GMLineBase {
             }
         }
     }
+}
 
-    pub fn update(&mut self, context: &mut GMContext) {
+impl GMObjectBaseT for GMLineBase {
+    fn update(&mut self, context: &mut GMContext) {
         for sprite in self.sprites.iter_mut() {
             sprite.update(context);
         }
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut GMContext) {
         for sprite in self.sprites.iter() {
             sprite.draw(context);
         }
+    }
+
+    fn send_message(&mut self, message: &str, data: crate::data::GMData, context: &mut GMContext) {
+        todo!()
+    }
+
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn groups(&self) -> &std::collections::HashSet<String> {
+        &self.groups
+    }
+}
+
+pub type GMLine = GMObjectManager<GMLineBase>;
+
+impl GMLine {
+    pub fn new(sprite: GMSprite) -> Self {
+        Self {
+            base: GMLineBase::new((0.0, 0.0), (0.0, 0.0), sprite, 0),
+            effects: GMEffectManager::new(),
+        }
+    }
+}
+
+pub struct GMLineBuilder {
+    line: GMLine,
+}
+
+impl GMLineBuilder {
+    pub fn new(sprite: GMSprite) -> Self {
+        Self {
+            line: GMLine::new(sprite),
+        }
+    }
+
+    pub fn with_start<S: Into<GMVec2D>>(mut self, start: S) -> Self {
+        self.line.base.start = start.into();
+        self
+    }
+
+    pub fn with_end<S: Into<GMVec2D>>(mut self, end: S) -> Self {
+        self.line.base.end = end.into();
+        self
+    }
+
+    pub fn with_number(mut self, number: u32) -> Self {
+        self.line.base.set_number(number);
+        self
+    }
+
+    pub fn with_spacing(mut self, spacing: f32) -> Self {
+        self.line.base.set_spacing(spacing);
+        self
+    }
+
+    pub fn with_effect<T: 'static + GMEffectT<GMLineBase>>(mut self, effect: T) -> Self {
+        debug!("GMLineBuilder::with_effect()");
+
+        self.line.effects.add_effect(effect);
+        self
+    }
+
+    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMLineBase>>) -> Self {
+        debug!("GMLineBuilder::with_effect2()");
+
+        self.line.effects.add_effect2(effect);
+        self
+    }
+
+    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMLineBase>>>) -> Self {
+        debug!("GMLineBuilder::with_effects()");
+
+        self.line.effects.set_effects(effects);
+        self
+    }
+
+    pub fn build(self) -> GMLine {
+        self.line
     }
 }

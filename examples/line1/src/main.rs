@@ -9,13 +9,13 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapTextBuilder};
 use green_moon_2d::util::{GMAlign};
 use green_moon_2d::sprite::{GMSpriteBuilder};
-use green_moon_2d::line::GMLineBase;
+use green_moon_2d::line::{GMLine, GMLineBuilder};
 
 #[derive(Debug)]
 struct LineScene1 {
     title: GMBitmapText,
-    line1: GMLineBase,
-    line2: GMLineBase,
+    line1: GMLine,
+    line2: GMLine,
     y_pos: f32,
 }
 
@@ -40,10 +40,18 @@ impl LineScene1 {
             .build();
 
         // Number of sprites fixed:
-        let line1 = GMLineBase::new((32.0, y_center), (X_OFFSET, 0.0), line_sprite1.clone(), 20);
+        let line1 = GMLineBuilder::new(line_sprite1.clone())
+            .with_start((32.0, y_center))
+            .with_end((X_OFFSET, 0.0))
+            .with_number(20)
+            .build();
 
         // Spacing fixed:
-        let line2 = GMLineBase::new2((window_width - 32.0, y_center), (window_width - X_OFFSET, 0.0), line_sprite1, 32.0);
+        let line2 = GMLineBuilder::new(line_sprite1)
+            .with_start((window_width - 32.0, y_center))
+            .with_end((window_width - X_OFFSET, 0.0))
+            .with_spacing(32.0)
+            .build();
 
         Self {
             title,
@@ -62,9 +70,6 @@ impl GMSceneT for LineScene1 {
             context.quit();
         }
 
-        // self.line1.update(context);
-        // self.line2.update(context);
-
         self.line1.update(context);
         self.line2.update(context);
 
@@ -74,11 +79,11 @@ impl GMSceneT for LineScene1 {
             self.y_pos = 0.0;
         }
 
-        let x1 = self.line1.end.x;
-        self.line1.set_end((x1, self.y_pos));
+        let x1 = self.line1.base.end.x;
+        self.line1.base.set_end((x1, self.y_pos));
 
-        let x2 = self.line2.end.x;
-        self.line2.set_end((x2, self.y_pos));
+        let x2 = self.line2.base.end.x;
+        self.line2.base.set_end((x2, self.y_pos));
     }
 
     fn draw(&self, context: &mut GMContext) {
