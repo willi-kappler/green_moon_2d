@@ -64,7 +64,7 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEVelocity::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEVelocity::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -75,6 +75,17 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEVelocity::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -112,7 +123,7 @@ impl GMEffectT<GMSpriteBase> for GMSEMaxSpeed {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEMaxSpeed::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEMaxSpeed::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -123,6 +134,17 @@ impl GMEffectT<GMSpriteBase> for GMSEMaxSpeed {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEMaxSpeed::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -188,7 +210,7 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEAcceleration::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEAcceleration::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -199,6 +221,17 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEAcceleration::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -245,7 +278,7 @@ impl GMEffectT<GMSpriteBase> for GMSERotation1 {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSERotation1::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSERotation1::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -256,6 +289,17 @@ impl GMEffectT<GMSpriteBase> for GMSERotation1 {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSERotation::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -318,7 +362,7 @@ impl GMEffectT<GMSpriteBase> for GMSERotation2 {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSERotation2::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSERotation2::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -331,6 +375,16 @@ impl GMEffectT<GMSpriteBase> for GMSERotation2 {
         Box::new(self.clone())
     }
 
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSERotation2::get_property(), unknown property: '{}'", name))
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -391,7 +445,7 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSELinearMovement::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSELinearMovement::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -402,6 +456,17 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSELinearMovement::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -523,7 +588,7 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
             }
             // TODO: Add more messages, set_repetition, add_position, remove_position, ...
             _ => {
-                error_panic(&format!("GMSEPolygonMovement::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEPolygonMovement::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -534,6 +599,17 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEPolygonMovement::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -640,7 +716,7 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSECircularMovement::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSECircularMovement::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -651,6 +727,17 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSECircularMovement::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -699,7 +786,7 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
                 self.name = data.into();
             }
             _ => {
-                error_panic(&format!("GMSETarget::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSETarget::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -710,6 +797,17 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSETarget::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -768,7 +866,7 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
                 self.target_name = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEFollow::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEFollow::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -779,6 +877,17 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEFollow::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -840,7 +949,7 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
                 self.repeat = data.into();
             }
             _ => {
-                error_panic(&format!("GMSETimed::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSETimed::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -851,6 +960,17 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
 
     fn clone_box(&self) -> GMBoxSpriteEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSETimed::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -912,7 +1032,7 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMSEScaling::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMSEScaling::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -925,4 +1045,15 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
         Box::new(self.clone())
     }
 
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMSEScaling::get_property(), unknown property: '{}'", name))
+            }
+        }
+    }
 }

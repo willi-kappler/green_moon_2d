@@ -93,7 +93,7 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMPESimple::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMPESimple::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -104,6 +104,17 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
 
     fn clone_box(&self) -> Box<dyn GMEffectT<GMParticleManagerBase>> {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMPESimple::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -153,27 +164,27 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
                     match state {
                         GMParticleState::Waiting => {
                             sprite.base.position = base.position;
-        
+
                             for (index, message, data) in self.messages.iter() {
                                 sprite.effects.send_message(*index, message, data.clone(), context)
                             }
-    
+
                             if self.timer.finished() {
                                 self.timer.set_duration(self.wait_time);
                                 self.timer.start();
-                                
+
                                 let rad = self.angle * PI / 180.0;
                                 let vx: f32 = rad.cos() * self.particle_speed;
                                 let vy: f32 = rad.sin() * self.particle_speed;
-        
+
                                 sprite.effects.send_message(0, "set_velocity", (vx, vy).into(), context);
-        
+
                                 self.angle += self.angle_speed;
-        
+
                                 if self.angle > 360.0 {
                                     self.angle -= 360.0;
                                 }
-        
+
                                 let run_time = random_range_f32(base.run_time.0, base.run_time.1);
                                 timer.set_duration(run_time);
                                 timer.start();
@@ -209,7 +220,7 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
                 self.active = data.into();
             }
             _ => {
-                error_panic(&format!("GMPESpiral::send_message_data(), unknown message: '{}'", message))
+                error_panic(&format!("GMPESpiral::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -220,5 +231,16 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
 
     fn clone_box(&self) -> Box<dyn GMEffectT<GMParticleManagerBase>> {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "" => {
+                todo!()
+            }
+            _ => {
+                error_panic(&format!("GMPESpiral::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }

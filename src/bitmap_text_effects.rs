@@ -46,6 +46,17 @@ impl GMEffectT<GMBitmapTextBase> for GMTEReset {
     fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "active" => {
+                self.active.into()
+            }
+            _ => {
+                error_panic(&format!("GMSEReset::get_property(), unknown property: '{}'", name))
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -136,6 +147,26 @@ impl GMEffectT<GMBitmapTextBase> for GMTEWave {
     fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "amplitude" => {
+                self.amplitude.into()
+            }
+            "speed" => {
+                self.speed.into()
+            }
+            "offset" => {
+                self.offset.into()
+            }
+            "active" => {
+                self.active.into()
+            }
+            _ => {
+                error_panic(&format!("GMSEWave::get_property(), unknown property: '{}'", name))
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -220,6 +251,26 @@ impl GMEffectT<GMBitmapTextBase> for GMTEShake {
     fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
     }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "radius" => {
+                self.radius.into()
+            }
+            "speed" => {
+                self.speed.into()
+            }
+            "seed" => {
+                self.seed.into()
+            }
+            "active" => {
+                self.active.into()
+            }
+            _ => {
+                error_panic(&format!("GMSEShake::get_property(), unknown property: '{}'", name))
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -288,6 +339,23 @@ impl GMEffectT<GMBitmapTextBase> for GMTERotateChars {
 
     fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "speed" => {
+                self.speed.into()
+            }
+            "offset" => {
+                self.offset.into()
+            }
+            "active" => {
+                self.active.into()
+            }
+            _ => {
+                error_panic(&format!("GMSERotateChars::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 
@@ -376,6 +444,29 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
 
     fn clone_box(&self) -> GMBoxBitmapTextEffect {
         Box::new(self.clone())
+    }
+
+    fn get_property(&self, name: &str) -> GMData {
+        match name {
+            "amplitude" => {
+                self.amplitude.into()
+            }
+            "base" => {
+                self.base.into()
+            }
+            "speed" => {
+                self.speed.into()
+            }
+            "offset" => {
+                self.offset.into()
+            }
+            "active" => {
+                self.active.into()
+            }
+            _ => {
+                error_panic(&format!("GMSEScale::get_property(), unknown property: '{}'", name))
+            }
+        }
     }
 }
 

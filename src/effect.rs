@@ -23,6 +23,8 @@ pub trait GMEffectT<T>: Debug {
     fn set_active(&mut self, active: bool);
 
     fn clone_box(&self) -> Box<dyn GMEffectT<T>>;
+
+    fn get_property(&self, name: &str) -> GMData;
 }
 
 impl<T> Clone for Box<dyn GMEffectT<T>> {
