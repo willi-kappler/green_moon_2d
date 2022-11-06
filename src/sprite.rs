@@ -127,6 +127,7 @@ impl GMObjectBaseT for GMSpriteBase {
             }
         }
     }
+
     fn name(&self) -> &str {
         &self.name
     }
@@ -136,13 +137,10 @@ impl GMObjectBaseT for GMSpriteBase {
     }
 }
 
-
 pub type GMSprite = GMObjectManager<GMSpriteBase>;
 
 impl GMSprite {
     pub fn new(texture: &Rc<GMTexture>) -> Self {
-        debug!("GMSprite::new()");
-
         Self {
             base: GMSpriteBase::new(texture),
             effects: GMEffectManager::new(),

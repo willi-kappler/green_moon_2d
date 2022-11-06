@@ -89,6 +89,7 @@ pub struct GMBitmapTextBase {
     pub horizontal: bool,
     pub size: GMSize,
     pub align: GMAlign,
+    pub active: bool,
     pub visible: bool,
     pub name: String,
     pub groups: HashSet<String>,
@@ -108,6 +109,7 @@ impl GMBitmapTextBase {
             horizontal: true,
             size: GMSize::new(0.0, 0.0),
             align: GMAlign::TopLeft,
+            active: true,
             visible: true,
             name: "".to_string(),
             groups: HashSet::new(),
@@ -293,8 +295,67 @@ impl GMObjectBaseT for GMBitmapTextBase {
         }
     }
 
-    fn send_message(&mut self, message: &str, _data: GMData, _context: &mut GMContext) {
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
         match message {
+            "set_font" => {
+                todo!();
+            }
+            "set_font2" => {
+                todo!();
+            }
+            "set_text" => {
+                let text: String = data.into();
+                self.set_text(text);
+            }
+            "set_text2" => {
+                self.text = data.into();
+            }
+            "set_position" => {
+                let position: GMVec2D = data.into();
+                self.set_position(position);
+            }
+            "set_position2" => {
+                self.position = data.into();
+            }
+            "set_spacing" => {
+                let spacing: GMVec2D = data.into();
+                self.set_spacing(spacing);
+            }
+            "set_spacing2" => {
+                self.spacing = data.into();
+            }
+            "set_horizontal" => {
+                let horizontal: bool = data.into();
+                self.set_horizontal(horizontal);
+            }
+            "set_horizontal2" => {
+                self.horizontal = data.into();
+            }
+            "set_align" => {
+                todo!();
+            }
+            "set_align2" => {
+                todo!();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            "set_visible" => {
+                self.visible = data.into();
+            }
+            "set_name" => {
+                self.name = data.into();
+            }
+            "add_group" => {
+                self.groups.insert(data.into());
+            }
+            "remove_group" => {
+                let group: String = data.into();
+                self.groups.remove(&group);
+            }
+            "clear_group" => {
+                self.groups.clear();
+            }
             _ => {
                 error_panic(&format!("GMBitmapTextBase::send_message(), unknown message: '{}'", message))
             }
@@ -308,6 +369,7 @@ impl GMObjectBaseT for GMBitmapTextBase {
     fn groups(&self) -> &HashSet<String> {
         &self.groups
     }
+
 }
 
 pub type GMBitmapText = GMObjectManager<GMBitmapTextBase>;
@@ -367,6 +429,44 @@ impl GMBitmapTextBuilder {
         debug!("GMBitmapTextBuilder::with_align(), align: '{:?}'", align);
 
         self.bitmap_text.base.align = align;
+        self
+    }
+
+    pub fn with_visible(mut self, visible: bool) -> Self {
+        debug!("GMBitmapTextBuilder::with_visible(), visible: '{}'", visible);
+
+        self.bitmap_text.base.visible = visible;
+        self
+    }
+
+
+    pub fn with_active(mut self, active: bool) -> Self {
+        debug!("GMBitmapTextBuilder::with_active(), active: '{}'", active);
+
+        self.bitmap_text.base.active = active;
+        self
+    }
+
+    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+        let name = name.into();
+        debug!("GMBitmapTextBuilder::with_name(), name: '{}'", name);
+
+        self.bitmap_text.base.name = name;
+        self
+    }
+
+    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+        let group = group.into();
+        debug!("GMBitmapTextBuilder::with_group(), group: '{}'", group);
+
+        self.bitmap_text.base.groups.insert(group);
+        self
+    }
+
+    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+        debug!("GMBitmapTextBuilder::with_groups(), groups: '{:?}'", groups);
+
+        self.bitmap_text.base.groups = groups;
         self
     }
 

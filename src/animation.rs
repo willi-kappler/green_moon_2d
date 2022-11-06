@@ -24,11 +24,13 @@ pub struct GMAnimationBase {
 
 impl GMAnimationBase {
     pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
-        debug!("GMAnimationBase::new(), frames: '{:?}'", frames);
+        let name = name.into();
+
+        debug!("GMAnimationBase::new(), name: '{}', frames: '{:?}'", name, frames);
 
         Self {
             active: true,
-            name: name.into(),
+            name,
             groups: HashSet::new(),
             current_frame: 0,
             frames: frames.to_vec(),
@@ -184,8 +186,21 @@ impl GMObjectBaseT for GMAnimationBase {
             "set_active" => {
                 self.active = data.into();
             }
+            "set_name" => {
+                self.name = data.into();
+            }
+            "add_group" => {
+                self.groups.insert(data.into());
+            }
+            "remove_group" => {
+                let group: String = data.into();
+                self.groups.remove(&group);
+            }
+            "clear_group" => {
+                self.groups.clear();
+            }
             _ => {
-                error_panic(&format!("GMAnimationBase::send_message), unknown message: '{}'", message))
+                error_panic(&format!("GMAnimationBase::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -223,21 +238,44 @@ impl GMAnimationBuilder {
     }
 
     pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMAnimationSimpleBuilder::with_active(), active: '{}'", active);
+        debug!("GMAnimationBuilder::with_active(), active: '{}'", active);
 
         self.animation.base.active = active;
         self
     }
 
+    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+        let name = name.into();
+        debug!("GMAnimationBuilder::with_name(), name: '{}'", name);
+
+        self.animation.base.name = name;
+        self
+    }
+
+    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+        let group = group.into();
+        debug!("GMAnimationBuilder::with_group(), group: '{}'", group);
+
+        self.animation.base.groups.insert(group);
+        self
+    }
+
+    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+        debug!("GMAnimationBuilder::with_groups(), groups: '{:?}'", groups);
+
+        self.animation.base.groups = groups;
+        self
+    }
+
     pub fn with_current_frame(mut self, current_frame: usize) -> Self {
-        debug!("GMAnimationSimpleBuilder::with_current_frame(), current_frame: '{}'", current_frame);
+        debug!("GMAnimationBuilder::with_current_frame(), current_frame: '{}'", current_frame);
 
         self.animation.base.current_frame = current_frame;
         self
     }
 
     pub fn with_repetition(mut self, repetition: GMRepetition) -> Self {
-        debug!("GMAnimationSimpleBuilder::with_repetition(), repetition: '{:?}'", repetition);
+        debug!("GMAnimationBuilder::with_repetition(), repetition: '{:?}'", repetition);
 
         self.animation.base.repetition = repetition;
         self

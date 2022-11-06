@@ -1,13 +1,15 @@
 
 use std::collections::HashSet;
 
+use log::debug;
+
 use crate::math::GMVec2D;
 use crate::sprite::GMSprite;
 use crate::context::GMContext;
 use crate::effect::{GMEffectManager, GMEffectT};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
-
-use log::debug;
+use crate::util::error_panic;
+use crate::data::GMData;
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -24,39 +26,25 @@ pub struct GMLineBase {
     pub line_mode: GMLineMode,
     pub name: String,
     pub groups: HashSet<String>,
+    pub active: bool,
+    pub visible: bool,
 }
 
-// TODO: Maybe add effect for lines
-
 impl GMLineBase {
-    pub fn new<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, number: u32) -> Self {
-        let mut result = Self {
-            start: start.into(),
-            end: end.into(),
+    pub fn new(sprite: GMSprite) -> Self {
+        debug!("GMLineBase::new()");
+
+        Self {
+            start: GMVec2D::new(0.0, 0.0),
+            end: GMVec2D::new(0.0, 0.0),
             init_sprite: sprite,
             sprites: Vec::new(),
-            line_mode: GMLineMode::Number(number),
+            line_mode: GMLineMode::Number(0),
             name: "".to_string(),
             groups: HashSet::new(),
-        };
-
-        result.end_point_changed();
-        result
-    }
-
-    pub fn new2<V: Into<GMVec2D>>(start: V, end: V, sprite: GMSprite, spacing: f32) -> Self {
-        let mut result = Self {
-            start: start.into(),
-            end: end.into(),
-            init_sprite: sprite,
-            sprites: Vec::new(),
-            line_mode: GMLineMode::Spacing(spacing),
-            name: "".to_string(),
-            groups: HashSet::new(),
-        };
-
-        result.end_point_changed();
-        result
+            active: true,
+            visible: true,
+        }
     }
 
     pub fn set_start<V: Into<GMVec2D>>(&mut self, start: V) {
@@ -136,19 +124,76 @@ impl GMLineBase {
 
 impl GMObjectBaseT for GMLineBase {
     fn update(&mut self, context: &mut GMContext) {
-        for sprite in self.sprites.iter_mut() {
-            sprite.update(context);
+        if self.active {
+            for sprite in self.sprites.iter_mut() {
+                sprite.update(context);
+            }
         }
     }
 
     fn draw(&self, context: &mut GMContext) {
-        for sprite in self.sprites.iter() {
-            sprite.draw(context);
+        if self.visible {
+            for sprite in self.sprites.iter() {
+                sprite.draw(context);
+            }
         }
     }
 
-    fn send_message(&mut self, message: &str, data: crate::data::GMData, context: &mut GMContext) {
-        todo!()
+    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
+        match message {
+            "set_start" => {
+                let start: GMVec2D = data.into();
+                self.set_start(start);
+            }
+            "set_start2" => {
+                self.start = data.into();
+            }
+            "set_end" => {
+                let end: GMVec2D = data.into();
+                self.set_end(end);
+            }
+            "set_end2" => {
+                self.end = data.into();
+            }
+            "set_number" => {
+                let number: u32 = data.into();
+                self.set_number(number);
+            }
+            "set_number2" => {
+                let number: u32 = data.into();
+                self.line_mode = GMLineMode::Number(number);
+            }
+            "set_spacing" => {
+                let spacing: f32 = data.into();
+                self.set_spacing(spacing);
+            }
+            "set_spacing2" => {
+                let spacing: f32 = data.into();
+                self.line_mode = GMLineMode::Spacing(spacing);
+            }
+            "set_visible" => {
+                self.visible = data.into();
+            }
+            "set_active" => {
+                self.active = data.into();
+            }
+            "set_name" => {
+                self.name = data.into();
+            }
+            "add_group" => {
+                self.groups.insert(data.into());
+            }
+            "remove_group" => {
+                let group: String = data.into();
+                self.groups.remove(&group);
+            }
+            "clear_group" => {
+                self.groups.clear();
+            }
+            _ => {
+                error_panic(&format!("GMLineBase::send_message(), unknown message: '{}'", message))
+            }
+        }
     }
 
     fn name(&self) -> &str {
@@ -165,7 +210,7 @@ pub type GMLine = GMObjectManager<GMLineBase>;
 impl GMLine {
     pub fn new(sprite: GMSprite) -> Self {
         Self {
-            base: GMLineBase::new((0.0, 0.0), (0.0, 0.0), sprite, 0),
+            base: GMLineBase::new(sprite),
             effects: GMEffectManager::new(),
         }
     }
@@ -183,22 +228,72 @@ impl GMLineBuilder {
     }
 
     pub fn with_start<S: Into<GMVec2D>>(mut self, start: S) -> Self {
-        self.line.base.start = start.into();
+        let start = start.into();
+
+        debug!("GMLineBuilder::with_start(), start: '{}'", start);
+
+        self.line.base.start = start;
         self
     }
 
     pub fn with_end<S: Into<GMVec2D>>(mut self, end: S) -> Self {
-        self.line.base.end = end.into();
+        let end = end.into();
+
+        debug!("GMLineBuilder::end(), end: '{}'", end);
+
+        self.line.base.end = end;
         self
     }
 
     pub fn with_number(mut self, number: u32) -> Self {
+        debug!("GMLineBuilder::with_number(), number: '{}'", number);
+
         self.line.base.set_number(number);
         self
     }
 
     pub fn with_spacing(mut self, spacing: f32) -> Self {
+        debug!("GMLineBuilder::with_spacing(), spacing: '{}'", spacing);
+
         self.line.base.set_spacing(spacing);
+        self
+    }
+
+    pub fn with_visible(mut self, visible: bool) -> Self {
+        debug!("GMLineBuilder::with_visible(), visible: '{}'", visible);
+
+        self.line.base.visible = visible;
+        self
+    }
+
+
+    pub fn with_active(mut self, active: bool) -> Self {
+        debug!("GMLineBuilder::with_active(), active: '{}'", active);
+
+        self.line.base.active = active;
+        self
+    }
+
+    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+        let name = name.into();
+        debug!("GMLineBuilder::with_name(), name: '{}'", name);
+
+        self.line.base.name = name;
+        self
+    }
+
+    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+        let group = group.into();
+        debug!("GMLineBuilder::with_group(), group: '{}'", group);
+
+        self.line.base.groups.insert(group);
+        self
+    }
+
+    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+        debug!("GMLineBuilder::with_groups(), groups: '{:?}'", groups);
+
+        self.line.base.groups = groups;
         self
     }
 

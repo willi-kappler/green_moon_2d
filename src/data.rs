@@ -100,6 +100,24 @@ impl From<(u8, u8, u8)> for GMData {
     }
 }
 
+impl From<u32> for GMData {
+    fn from(data: u32) -> Self {
+        GMData::U32(data)
+    }
+}
+
+impl From<(u32, u32)> for GMData {
+    fn from(data: (u32, u32)) -> Self {
+        GMData::U32U32(data.0, data.1)
+    }
+}
+
+impl From<(u32, u32, u32)> for GMData {
+    fn from(data: (u32, u32, u32)) -> Self {
+        GMData::U32U32U32(data.0, data.1, data.2)
+    }
+}
+
 impl From<usize> for GMData {
     fn from(data: usize) -> Self {
         GMData::USize(data)
@@ -188,6 +206,36 @@ impl From<GMData> for (u8, u8, u8) {
             (data1, data2, data3)
         } else {
             error_panic(&format!("Expected U8U8U8, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for u32 {
+    fn from(data: GMData) -> Self {
+        if let GMData::U32(data) = data {
+            data
+        } else {
+            error_panic(&format!("Expected U32, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for (u32, u32) {
+    fn from(data: GMData) -> Self {
+        if let GMData::U32U32(data1, data2) = data {
+            (data1, data2)
+        } else {
+            error_panic(&format!("Expected U32U32, got {:?}", data))
+        }
+    }
+}
+
+impl From<GMData> for (u32, u32, u32) {
+    fn from(data: GMData) -> Self {
+        if let GMData::U32U32U32(data1, data2, data3) = data {
+            (data1, data2, data3)
+        } else {
+            error_panic(&format!("Expected U32U32U32, got {:?}", data))
         }
     }
 }

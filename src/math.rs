@@ -1,5 +1,5 @@
 use std::ops::{Add, Sub, Mul};
-
+use std::fmt::Display;
 
 
 #[derive(Copy, Clone, Debug)]
@@ -124,6 +124,12 @@ impl From<(f32, f32)> for GMVec2D {
     }
 }
 
+impl Display for GMVec2D {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(x: {}, y: {})", self.x, self.y)
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMSize {
     pub width: f32,
@@ -151,6 +157,12 @@ impl Default for GMSize {
 impl From<(f32, f32)> for GMSize {
     fn from((width, height): (f32, f32)) -> Self {
         GMSize { width, height }
+    }
+}
+
+impl Display for GMSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(w: {}, h: {})", self.width, self.height)
     }
 }
 
@@ -214,6 +226,13 @@ impl From<(f32, f32, f32, f32)> for GMRectangle {
         GMRectangle { x1, x2, y1, y2 }
     }
 }
+
+impl Display for GMRectangle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(x1: {}, y1: {}, x2: {}, y2: {})", self.x1, self.y1, self.x2, self.y2)
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMCircle {
     pub x: f32,
@@ -262,5 +281,11 @@ impl GMCircle {
 
     pub fn circ_point2(&self, point: &GMVec2D) -> GMVec2D {
         self.circ_point(point.x, point.y)
+    }
+}
+
+impl Display for GMCircle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(x: {}, y: {}, r: {})", self.x, self.y, self.radius)
     }
 }

@@ -1,9 +1,7 @@
 
 use std::fmt::Debug;
 
-// use crate::context::GMContext;
 use crate::animation::GMAnimationBase;
-// use crate::data::GMData;
 use crate::effect::GMEffectT;
 
 

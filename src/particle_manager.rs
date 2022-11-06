@@ -114,7 +114,7 @@ impl GMObjectBaseT for GMParticleManagerBase {
                 self.groups.clear();
             }
             _ => {
-                error_panic(&format!("GMSpriteBase::send_message(), unknown message: '{}'", message))
+                error_panic(&format!("GMParticleBase::send_message(), unknown message: '{}'", message))
             }
         }
     }
@@ -128,13 +128,10 @@ impl GMObjectBaseT for GMParticleManagerBase {
     }
 }
 
-
 pub type GMParticleManager = GMObjectManager<GMParticleManagerBase>;
 
 impl GMParticleManager {
     pub fn new(particle_sprite: GMSprite) -> Self {
-        debug!("GMParticleManager::new()");
-
         Self {
             base: GMParticleManagerBase::new(particle_sprite),
             effects: GMEffectManager::new(),
@@ -155,6 +152,7 @@ impl GMParticleManagerBuilder {
 
     pub fn with_wait_time(mut self, min: f32, max: f32) -> Self {
         debug!("GMParticleManager::with_wait_time(), min: '{}', max: '{}'", min, max);
+
         self.particle_manager.base.wait_time = (min, max);
 
         self
@@ -162,6 +160,7 @@ impl GMParticleManagerBuilder {
 
     pub fn with_run_time(mut self, min: f32, max: f32) -> Self {
         debug!("GMParticleManager::with_run_time(), min: '{}', max: '{}'", min, max);
+
         self.particle_manager.base.run_time = (min, max);
 
         self
@@ -169,6 +168,7 @@ impl GMParticleManagerBuilder {
 
     pub fn with_max_num_of_particles(mut self, max_num_of_particles: usize) -> Self {
         debug!("GMParticleManager::with_max_num_of_particles(), max_num_of_particles: {}", max_num_of_particles);
+
         self.particle_manager.base.set_max_num_of_particles(max_num_of_particles);
 
         self
@@ -176,7 +176,9 @@ impl GMParticleManagerBuilder {
 
     pub fn with_position<T: Into<GMVec2D>>(mut self, position: T) -> Self {
         let position = position.into();
+
         debug!("GMParticleManagerBuilder::with_position(), position: '{:?}'", position);
+
         self.particle_manager.base.set_position(position);
 
         self
@@ -199,6 +201,7 @@ impl GMParticleManagerBuilder {
 
     pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
         let name = name.into();
+
         debug!("GMParticleManagerBuilder::with_name(), name: '{}'", name);
 
         self.particle_manager.base.name = name;
@@ -207,6 +210,7 @@ impl GMParticleManagerBuilder {
 
     pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
         let group = group.into();
+
         debug!("GMParticleManagerBuilder::with_group(), group: '{}'", group);
 
         self.particle_manager.base.groups.insert(group);
