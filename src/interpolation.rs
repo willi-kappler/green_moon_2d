@@ -84,14 +84,26 @@ impl GMInterpolateF32 {
         self.check_bounds();
     }
 
+    pub fn get_start(&self) -> f32 {
+        self.start
+    }
+
     pub fn set_end(&mut self, end: f32) {
         self.end = end;
         self.check_bounds();
     }
 
+    pub fn get_end(&self) -> f32 {
+        self.end
+    }
+
     pub fn set_speed(&mut self, speed: f32) {
         self.speed = speed;
         self.check_speed();
+    }
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
     }
 
     pub fn set_value(&mut self, value: f32) {
@@ -246,6 +258,10 @@ impl GMInterpolateVec2D {
         self.check_speed();
     }
 
+    pub fn get_start(&self) -> GMVec2D {
+        self.start
+    }
+
     pub fn set_end(&mut self, end: GMVec2D) {
         self.end = end;
 
@@ -257,10 +273,18 @@ impl GMInterpolateVec2D {
         self.check_speed();
     }
 
+    pub fn get_end(&self) -> GMVec2D {
+        self.end
+    }
+
     pub fn set_speed(&mut self, speed: f32) {
         self.speed = speed;
 
         self.check_speed();
+    }
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
     }
 
     pub fn set_start_end_speed<T: Into<GMVec2D>>(&mut self, start: T, end: T, speed: f32) {

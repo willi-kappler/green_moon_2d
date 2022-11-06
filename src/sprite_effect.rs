@@ -79,8 +79,11 @@ impl GMEffectT<GMSpriteBase> for GMSEVelocity {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "velocity" => {
+                self.velocity.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSEVelocity::get_property(), unknown property: '{}'", name))
@@ -138,8 +141,11 @@ impl GMEffectT<GMSpriteBase> for GMSEMaxSpeed {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "max_speed" => {
+                self.max_speed.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSEMaxSpeed::get_property(), unknown property: '{}'", name))
@@ -225,8 +231,14 @@ impl GMEffectT<GMSpriteBase> for GMSEAcceleration {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "velocity" => {
+                self.velocity.into()
+            }
+            "acceleration" => {
+                self.acceleration.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSEAcceleration::get_property(), unknown property: '{}'", name))
@@ -293,11 +305,14 @@ impl GMEffectT<GMSpriteBase> for GMSERotation1 {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "speed" => {
+                self.speed.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
-                error_panic(&format!("GMSERotation::get_property(), unknown property: '{}'", name))
+                error_panic(&format!("GMSERotation1::get_property(), unknown property: '{}'", name))
             }
         }
     }
@@ -377,8 +392,24 @@ impl GMEffectT<GMSpriteBase> for GMSERotation2 {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "angle" => {
+                let angle = self.interpolate.get_value();
+                angle.into()
+            }
+            "min_angle" => {
+                let min_angle = self.interpolate.get_start();
+                min_angle.into()
+            }
+            "max_angle" => {
+                let max_angle = self.interpolate.get_end();
+                max_angle.into()
+            }
+            "speed" => {
+                let speed = self.interpolate.get_speed();
+                speed.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSERotation2::get_property(), unknown property: '{}'", name))
@@ -460,8 +491,20 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "start" => {
+                let start = self.interpolation.get_start();
+                start.into()
+            }
+            "end" => {
+                let end = self.interpolation.get_end();
+                end.into()
+            }
+            "speed" => {
+                let speed = self.interpolation.get_speed();
+                speed.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSELinearMovement::get_property(), unknown property: '{}'", name))
@@ -603,8 +646,11 @@ impl GMEffectT<GMSpriteBase> for GMSEPolygonMovement {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "active" => {
+                self.active.into()
+            }
+            "current_index" => {
+                self.current_index.into()
             }
             _ => {
                 error_panic(&format!("GMSEPolygonMovement::get_property(), unknown property: '{}'", name))
@@ -731,8 +777,17 @@ impl GMEffectT<GMSpriteBase> for GMSECircularMovement {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "radius" => {
+                self.radius.into()
+            }
+            "speed" => {
+                self.speed.into()
+            }
+            "repetition" => {
+                self.repetition.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSECircularMovement::get_property(), unknown property: '{}'", name))
@@ -801,8 +856,15 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "duration" => {
+                let duration = self.timer.get_duration();
+                duration.into()
+            }
+            "name" => {
+                self.name.clone().into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSETarget::get_property(), unknown property: '{}'", name))
@@ -864,6 +926,9 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
             }
             "set_target_name" => {
                 self.target_name = data.into();
+            }
+            "set_speed" => {
+                self.speed = data.into();
             }
             _ => {
                 error_panic(&format!("GMSEFollow::send_message(), unknown message: '{}'", message))

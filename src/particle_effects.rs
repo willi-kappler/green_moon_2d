@@ -92,6 +92,12 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
             "set_active" => {
                 self.active = data.into();
             }
+            "add_message" => {
+                todo!()
+            }
+            "remove_message" => {
+                todo!()
+            }
             _ => {
                 error_panic(&format!("GMPESimple::send_message(), unknown message: '{}'", message))
             }
@@ -108,7 +114,13 @@ impl GMEffectT<GMParticleManagerBase> for GMPESimple {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
+            "active" => {
+                self.active.into()
+            }
+            "message" => {
+                todo!()
+            }
+            "messages" => {
                 todo!()
             }
             _ => {
@@ -219,6 +231,18 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
             "set_active" => {
                 self.active = data.into();
             }
+            "set_angle" => {
+                self.angle = data.into();
+            }
+            "set_angle_speed" => {
+                self.angle_speed = data.into();
+            }
+            "set_particle_speed" => {
+                self.particle_speed = data.into();
+            }
+            "set_wait_time" => {
+                self.wait_time = data.into();
+            }
             _ => {
                 error_panic(&format!("GMPESpiral::send_message(), unknown message: '{}'", message))
             }
@@ -235,8 +259,17 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "angle" => {
+                self.angle.into()
+            }
+            "angle_speed" => {
+                self.angle_speed.into()
+            }
+            "particle_speed" => {
+                self.particle_speed.into()
+            }
+            "wait_time" => {
+                self.wait_time.into()
             }
             _ => {
                 error_panic(&format!("GMPESpiral::get_property(), unknown property: '{}'", name))
