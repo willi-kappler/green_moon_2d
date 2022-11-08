@@ -8,7 +8,15 @@ use crate::animation::GMAnimation;
 use crate::texture::GMTexture;
 use crate::util::{error_panic, GMRepetition};
 
-use crate::{create_from_type_for_gmdata, create_from_gmdata_for_type};
+use crate::{create_from_type_for_gmdata1,
+            create_from_type_for_gmdata2,
+            create_from_type_for_gmdata3,
+            create_from_type_for_gmdata_all,
+            create_from_gmdata_for_type1,
+            create_from_gmdata_for_type2,
+            create_from_gmdata_for_type3,
+            create_from_gmdata_for_type_all,
+        };
 
 pub trait GMAnyT: Debug {
     fn clone_box(&self) -> Box<dyn GMAnyT>;
@@ -79,61 +87,48 @@ pub enum GMData {
     Custom(Box<dyn GMAnyT>),
 }
 
-impl From<(Box<GMData>, Box<GMData>)> for GMData {
-    fn from(data: (Box<GMData>, Box<GMData>)) -> Self {
-        GMData::Tuple(data.0, data.1)
-    }
-}
-
-create_from_type_for_gmdata!(bool, Bool, Bool_2, Bool_3);
-create_from_type_for_gmdata!(u8, U8, U8_2, U8_3);
-create_from_type_for_gmdata!(i8, I8, I8_2, I8_3);
-create_from_type_for_gmdata!(u16, U16, U16_2, U16_3);
-create_from_type_for_gmdata!(i16, I16, I16_2, I16_3);
-create_from_type_for_gmdata!(u32, U32, U32_2, U32_3);
-create_from_type_for_gmdata!(i32, I32, I32_2, I32_3);
-create_from_type_for_gmdata!(u64, U64, U64_2, U64_3);
-create_from_type_for_gmdata!(i64, I64, I64_2, I64_3);
-create_from_type_for_gmdata!(usize, USize, USize_2, USize_3);
-create_from_type_for_gmdata!(f32, F32, F32_2, F32_3);
-create_from_type_for_gmdata!(f64, F64, F64_2, F64_3);
-create_from_type_for_gmdata!(char, Char, Char_2, Char_3);
-create_from_type_for_gmdata!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
-create_from_type_for_gmdata!(String, String);
-create_from_type_for_gmdata!(GMRepetition, Repetition);
-create_from_type_for_gmdata!(Rc<GMTexture>, Texture);
-create_from_type_for_gmdata!(GMAnimation, Animation);
-create_from_type_for_gmdata!(Vec<Box<GMData>>, Vec);
-create_from_type_for_gmdata!(Box<dyn GMAnyT>, Custom);
+create_from_type_for_gmdata_all!(bool, Bool, Bool_2, Bool_3);
+create_from_type_for_gmdata_all!(u8, U8, U8_2, U8_3);
+create_from_type_for_gmdata_all!(i8, I8, I8_2, I8_3);
+create_from_type_for_gmdata_all!(u16, U16, U16_2, U16_3);
+create_from_type_for_gmdata_all!(i16, I16, I16_2, I16_3);
+create_from_type_for_gmdata_all!(u32, U32, U32_2, U32_3);
+create_from_type_for_gmdata_all!(i32, I32, I32_2, I32_3);
+create_from_type_for_gmdata_all!(u64, U64, U64_2, U64_3);
+create_from_type_for_gmdata_all!(i64, I64, I64_2, I64_3);
+create_from_type_for_gmdata_all!(usize, USize, USize_2, USize_3);
+create_from_type_for_gmdata_all!(f32, F32, F32_2, F32_3);
+create_from_type_for_gmdata_all!(f64, F64, F64_2, F64_3);
+create_from_type_for_gmdata_all!(char, Char, Char_2, Char_3);
+create_from_type_for_gmdata_all!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
+create_from_type_for_gmdata1!(String, String);
+create_from_type_for_gmdata1!(GMRepetition, Repetition);
+create_from_type_for_gmdata1!(Rc<GMTexture>, Texture);
+create_from_type_for_gmdata1!(GMAnimation, Animation);
+create_from_type_for_gmdata1!(Vec<Box<GMData>>, Vec);
+create_from_type_for_gmdata1!(Box<dyn GMAnyT>, Custom);
+create_from_type_for_gmdata2!(Box<GMData>, Tuple);
 
 
-impl From<GMData> for (Box<GMData>, Box<GMData>) {
-    fn from(data: GMData) -> Self {
-        if let GMData::Tuple(data1, data2) = data {
-            (data1, data2)
-        } else {
-            error_panic(&format!("Expected Tuple, got {:?}", data))
-        }
-    }
-}        
 
-create_from_gmdata_for_type!(bool, Bool, Bool_2, Bool_3);
-create_from_gmdata_for_type!(u8, U8, U8_2, U8_3);
-create_from_gmdata_for_type!(i8, I8, I8_2, I8_3);
-create_from_gmdata_for_type!(u16, U16, U16_2, U16_3);
-create_from_gmdata_for_type!(i16, I16, I16_2, I16_3);
-create_from_gmdata_for_type!(u32, U32, U32_2, U32_3);
-create_from_gmdata_for_type!(i32, I32, I32_2, I32_3);
-create_from_gmdata_for_type!(u64, U64, U64_2, U64_3);
-create_from_gmdata_for_type!(i64, I64, I64_2, I64_3);
-create_from_gmdata_for_type!(usize, USize, USize_2, USize_3);
-create_from_gmdata_for_type!(f32, F32, F32_2, F32_3);
-create_from_gmdata_for_type!(f64, F64, F64_2, F64_3);
-create_from_gmdata_for_type!(char, Char, Char_2, Char_3);
-create_from_gmdata_for_type!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
-create_from_gmdata_for_type!(String, String);
-create_from_gmdata_for_type!(GMRepetition, Repetition);
-create_from_gmdata_for_type!(Rc<GMTexture>, Texture);
-create_from_gmdata_for_type!(GMAnimation, Animation);
-create_from_gmdata_for_type!(Vec<Box<GMData>>, Vec);
-create_from_gmdata_for_type!(Box<dyn GMAnyT>, Custom);
+create_from_gmdata_for_type_all!(bool, Bool, Bool_2, Bool_3);
+create_from_gmdata_for_type_all!(u8, U8, U8_2, U8_3);
+create_from_gmdata_for_type_all!(i8, I8, I8_2, I8_3);
+create_from_gmdata_for_type_all!(u16, U16, U16_2, U16_3);
+create_from_gmdata_for_type_all!(i16, I16, I16_2, I16_3);
+create_from_gmdata_for_type_all!(u32, U32, U32_2, U32_3);
+create_from_gmdata_for_type_all!(i32, I32, I32_2, I32_3);
+create_from_gmdata_for_type_all!(u64, U64, U64_2, U64_3);
+create_from_gmdata_for_type_all!(i64, I64, I64_2, I64_3);
+create_from_gmdata_for_type_all!(usize, USize, USize_2, USize_3);
+create_from_gmdata_for_type_all!(f32, F32, F32_2, F32_3);
+create_from_gmdata_for_type_all!(f64, F64, F64_2, F64_3);
+create_from_gmdata_for_type_all!(char, Char, Char_2, Char_3);
+create_from_gmdata_for_type_all!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
+create_from_gmdata_for_type1!(String, String);
+create_from_gmdata_for_type1!(GMRepetition, Repetition);
+create_from_gmdata_for_type1!(Rc<GMTexture>, Texture);
+create_from_gmdata_for_type1!(GMAnimation, Animation);
+create_from_gmdata_for_type1!(Vec<Box<GMData>>, Vec);
+create_from_gmdata_for_type1!(Box<dyn GMAnyT>, Custom);
+create_from_gmdata_for_type2!(Box<GMData>, Tuple);
