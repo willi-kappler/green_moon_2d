@@ -22,17 +22,20 @@ Try using SDL again!
 # GMLine
 # Refactor GMSprite: move velocity, acceleration, angular velocity, etc. to sprite effect
 # Refactor generic effects
+# macros for GMData and conversion
+# Add get_property(name: &str) -> GMData for effects
 
 
 Next TODO:
 
 - use base / offset for sprite effects (movement)
-- macros for GMData and conversion
 - Add sprite effect sub-sprite
 - Add text effect sprite
 - Add text effect circle
 - Add mouse events
-- Add get_property(name: &str) -> GMData for effects
+- Add macro for builder pattern
+- Add init() for effects ?
+- Add effects for GMLine
 
 
 - GMMenuItem
