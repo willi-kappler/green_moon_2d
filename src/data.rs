@@ -8,6 +8,8 @@ use crate::animation::GMAnimation;
 use crate::texture::GMTexture;
 use crate::util::{error_panic, GMRepetition};
 
+use crate::{create_from_type_for_gmdata, create_from_gmdata_for_type};
+
 pub trait GMAnyT: Debug {
     fn clone_box(&self) -> Box<dyn GMAnyT>;
 
@@ -22,348 +24,116 @@ impl Clone for Box<dyn GMAnyT> {
 
 // TODO: write a macro that creates the enum
 
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone)]
 pub enum GMData {
     None,
     Bool(bool),
+    Bool_2(bool, bool),
+    Bool_3(bool, bool, bool),
     U8(u8),
-    U8U8(u8, u8),
-    U8U8U8(u8, u8, u8),
+    U8_2(u8, u8),
+    U8_3(u8, u8, u8),
     I8(i8),
-    I8I8(i8, i8),
-    I8I8I8(i8, i8, i8),
+    I8_2(i8, i8),
+    I8_3(i8, i8, i8),
     U16(u16),
-    U16U16(u16, u16),
-    U16U16U16(u16, u16, u16),
+    U16_2(u16, u16),
+    U16_3(u16, u16, u16),
     I16(i16),
-    I16I16(i16, i16),
-    I16I16I16(i16, i16, i16),
+    I16_2(i16, i16),
+    I16_3(i16, i16, i16),
     U32(u32),
-    U32U32(u32, u32),
-    U32U32U32(u32, u32, u32),
+    U32_2(u32, u32),
+    U32_3(u32, u32, u32),
     I32(i32),
-    I32I32(i32, i32),
-    I32I32I32(i32, i32, i32),
+    I32_2(i32, i32),
+    I32_3(i32, i32, i32),
     U64(u64),
-    U64U64(u64, u64),
-    U64U64U64(u64, u64, u64),
+    U64_2(u64, u64),
+    U64_3(u64, u64, u64),
     I64(i64),
-    I64I64(i64, i64),
-    I64I64I64(i64, i64, i64),
+    I64_2(i64, i64),
+    I64_3(i64, i64, i64),
     USize(usize),
-    USizeUSize(usize, usize),
-    USizeUSizeUSize(usize, usize, usize),
+    USize_2(usize, usize),
+    USize_3(usize, usize, usize),
     F32(f32),
-    F32F32(f32, f32),
-    F32F32F32(f32, f32, f32),
+    F32_2(f32, f32),
+    F32_3(f32, f32, f32),
     F64(f64),
-    F64F64(f64, f64),
-    F64F64F64(f64, f64, f64),
+    F64_2(f64, f64),
+    F64_3(f64, f64, f64),
     Char(char),
-    CharChar(char, char),
-    CharCharChar(char, char, char),
+    Char_2(char, char),
+    Char_3(char, char, char),
     String(String),
     Vec2D(GMVec2D),
-    Vec2DVec2D(GMVec2D, GMVec2D),
-    Vec2DVec2DVec2D(GMVec2D, GMVec2D, GMVec2D),
+    Vec2D_2(GMVec2D, GMVec2D),
+    Vec2D_3(GMVec2D, GMVec2D, GMVec2D),
     Repetition(GMRepetition),
     Texture(Rc<GMTexture>),
     Animation(GMAnimation),
     Tuple(Box<GMData>, Box<GMData>),
-    Vec(Box<GMData>),
+    Vec(Vec<Box<GMData>>),
     Custom(Box<dyn GMAnyT>),
 }
 
-// TODO: write a macro that creates all the conversion functions
-
-impl From<bool> for GMData {
-    fn from(data: bool) -> Self {
-        GMData::Bool(data)
+impl From<(Box<GMData>, Box<GMData>)> for GMData {
+    fn from(data: (Box<GMData>, Box<GMData>)) -> Self {
+        GMData::Tuple(data.0, data.1)
     }
 }
 
-impl From<u8> for GMData {
-    fn from(data: u8) -> Self {
-        GMData::U8(data)
-    }
-}
-
-impl From<(u8, u8)> for GMData {
-    fn from(data: (u8, u8)) -> Self {
-        GMData::U8U8(data.0, data.1)
-    }
-}
-
-impl From<(u8, u8, u8)> for GMData {
-    fn from(data: (u8, u8, u8)) -> Self {
-        GMData::U8U8U8(data.0, data.1, data.2)
-    }
-}
-
-impl From<u32> for GMData {
-    fn from(data: u32) -> Self {
-        GMData::U32(data)
-    }
-}
-
-impl From<(u32, u32)> for GMData {
-    fn from(data: (u32, u32)) -> Self {
-        GMData::U32U32(data.0, data.1)
-    }
-}
-
-impl From<(u32, u32, u32)> for GMData {
-    fn from(data: (u32, u32, u32)) -> Self {
-        GMData::U32U32U32(data.0, data.1, data.2)
-    }
-}
-
-impl From<u64> for GMData {
-    fn from(data: u64) -> Self {
-        GMData::U64(data)
-    }
-}
-
-impl From<(u64, u64)> for GMData {
-    fn from(data: (u64, u64)) -> Self {
-        GMData::U64U64(data.0, data.1)
-    }
-}
-
-impl From<(u64, u64, u64)> for GMData {
-    fn from(data: (u64, u64, u64)) -> Self {
-        GMData::U64U64U64(data.0, data.1, data.2)
-    }
-}
-
-impl From<usize> for GMData {
-    fn from(data: usize) -> Self {
-        GMData::USize(data)
-    }
-}
-
-impl From<f32> for GMData {
-    fn from(data: f32) -> Self {
-        GMData::F32(data)
-    }
-}
-
-impl From<(f32, f32)> for GMData {
-    fn from(data: (f32, f32)) -> Self {
-        GMData::F32F32(data.0, data.1)
-    }
-}
-
-impl From<String> for GMData {
-    fn from(data: String) -> Self {
-        GMData::String(data)
-    }
-}
-
-impl From<GMVec2D> for GMData {
-    fn from(data: GMVec2D) -> Self {
-        GMData::Vec2D(data)
-    }
-}
-
-impl From<GMRepetition> for GMData {
-    fn from(data: GMRepetition) -> Self {
-        GMData::Repetition(data)
-    }
-}
-
-impl From<Rc<GMTexture>> for GMData {
-    fn from(data: Rc<GMTexture>) -> Self {
-        GMData::Texture(data)
-    }
-}
-
-impl From<GMAnimation> for GMData {
-    fn from(data: GMAnimation) -> Self {
-        GMData::Animation(data)
-    }
-}
+create_from_type_for_gmdata!(bool, Bool, Bool_2, Bool_3);
+create_from_type_for_gmdata!(u8, U8, U8_2, U8_3);
+create_from_type_for_gmdata!(i8, I8, I8_2, I8_3);
+create_from_type_for_gmdata!(u16, U16, U16_2, U16_3);
+create_from_type_for_gmdata!(i16, I16, I16_2, I16_3);
+create_from_type_for_gmdata!(u32, U32, U32_2, U32_3);
+create_from_type_for_gmdata!(i32, I32, I32_2, I32_3);
+create_from_type_for_gmdata!(u64, U64, U64_2, U64_3);
+create_from_type_for_gmdata!(i64, I64, I64_2, I64_3);
+create_from_type_for_gmdata!(usize, USize, USize_2, USize_3);
+create_from_type_for_gmdata!(f32, F32, F32_2, F32_3);
+create_from_type_for_gmdata!(f64, F64, F64_2, F64_3);
+create_from_type_for_gmdata!(char, Char, Char_2, Char_3);
+create_from_type_for_gmdata!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
+create_from_type_for_gmdata!(String, String);
+create_from_type_for_gmdata!(GMRepetition, Repetition);
+create_from_type_for_gmdata!(Rc<GMTexture>, Texture);
+create_from_type_for_gmdata!(GMAnimation, Animation);
+create_from_type_for_gmdata!(Vec<Box<GMData>>, Vec);
+create_from_type_for_gmdata!(Box<dyn GMAnyT>, Custom);
 
 
-
-
-
-impl From<GMData> for bool {
+impl From<GMData> for (Box<GMData>, Box<GMData>) {
     fn from(data: GMData) -> Self {
-        if let GMData::Bool(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected Bool, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for u8 {
-    fn from(data: GMData) -> Self {
-        if let GMData::U8(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected U8, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (u8, u8) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U8U8(data1, data2) = data {
+        if let GMData::Tuple(data1, data2) = data {
             (data1, data2)
         } else {
-            error_panic(&format!("Expected U8U8, got {:?}", data))
+            error_panic(&format!("Expected Tuple, got {:?}", data))
         }
     }
-}
+}        
 
-impl From<GMData> for (u8, u8, u8) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U8U8U8(data1, data2, data3) = data {
-            (data1, data2, data3)
-        } else {
-            error_panic(&format!("Expected U8U8U8, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for u32 {
-    fn from(data: GMData) -> Self {
-        if let GMData::U32(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected U32, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (u32, u32) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U32U32(data1, data2) = data {
-            (data1, data2)
-        } else {
-            error_panic(&format!("Expected U32U32, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (u32, u32, u32) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U32U32U32(data1, data2, data3) = data {
-            (data1, data2, data3)
-        } else {
-            error_panic(&format!("Expected U32U32U32, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for u64 {
-    fn from(data: GMData) -> Self {
-        if let GMData::U64(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected U64, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (u64, u64) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U64U64(data1, data2) = data {
-            (data1, data2)
-        } else {
-            error_panic(&format!("Expected U64U64, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (u64, u64, u64) {
-    fn from(data: GMData) -> Self {
-        if let GMData::U64U64U64(data1, data2, data3) = data {
-            (data1, data2, data3)
-        } else {
-            error_panic(&format!("Expected U64U64U64, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for usize {
-    fn from(data: GMData) -> Self {
-        if let GMData::USize(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected U8, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for f32 {
-    fn from(data: GMData) -> Self {
-        if let GMData::F32(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected F32, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for (f32, f32) {
-    fn from(data: GMData) -> Self {
-        if let GMData::F32F32(data1, data2) = data {
-            (data1, data2)
-        } else {
-            error_panic(&format!("Expected F32F32, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for String {
-    fn from(data: GMData) -> Self {
-        if let GMData::String(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected String, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for GMVec2D {
-    fn from(data: GMData) -> Self {
-        if let GMData::Vec2D(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected Vec2D, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for GMRepetition {
-    fn from(data: GMData) -> Self {
-        if let GMData::Repetition(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected Repetition, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for Rc<GMTexture> {
-    fn from(data: GMData) -> Self {
-        if let GMData::Texture(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected Texture, got {:?}", data))
-        }
-    }
-}
-
-impl From<GMData> for GMAnimation {
-    fn from(data: GMData) -> Self {
-        if let GMData::Animation(data) = data {
-            data
-        } else {
-            error_panic(&format!("Expected Animation, got {:?}", data))
-        }
-    }
-}
+create_from_gmdata_for_type!(bool, Bool, Bool_2, Bool_3);
+create_from_gmdata_for_type!(u8, U8, U8_2, U8_3);
+create_from_gmdata_for_type!(i8, I8, I8_2, I8_3);
+create_from_gmdata_for_type!(u16, U16, U16_2, U16_3);
+create_from_gmdata_for_type!(i16, I16, I16_2, I16_3);
+create_from_gmdata_for_type!(u32, U32, U32_2, U32_3);
+create_from_gmdata_for_type!(i32, I32, I32_2, I32_3);
+create_from_gmdata_for_type!(u64, U64, U64_2, U64_3);
+create_from_gmdata_for_type!(i64, I64, I64_2, I64_3);
+create_from_gmdata_for_type!(usize, USize, USize_2, USize_3);
+create_from_gmdata_for_type!(f32, F32, F32_2, F32_3);
+create_from_gmdata_for_type!(f64, F64, F64_2, F64_3);
+create_from_gmdata_for_type!(char, Char, Char_2, Char_3);
+create_from_gmdata_for_type!(GMVec2D, Vec2D, Vec2D_2, Vec2D_3);
+create_from_gmdata_for_type!(String, String);
+create_from_gmdata_for_type!(GMRepetition, Repetition);
+create_from_gmdata_for_type!(Rc<GMTexture>, Texture);
+create_from_gmdata_for_type!(GMAnimation, Animation);
+create_from_gmdata_for_type!(Vec<Box<GMData>>, Vec);
+create_from_gmdata_for_type!(Box<dyn GMAnyT>, Custom);
