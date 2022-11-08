@@ -393,20 +393,16 @@ impl GMEffectT<GMSpriteBase> for GMSERotation2 {
     fn get_property(&self, name: &str) -> GMData {
         match name {
             "angle" => {
-                let angle = self.interpolate.get_value();
-                angle.into()
+                self.interpolate.get_value().into()
             }
             "min_angle" => {
-                let min_angle = self.interpolate.get_start();
-                min_angle.into()
+                self.interpolate.get_start().into()
             }
             "max_angle" => {
-                let max_angle = self.interpolate.get_end();
-                max_angle.into()
+                self.interpolate.get_end().into()
             }
             "speed" => {
-                let speed = self.interpolate.get_speed();
-                speed.into()
+                self.interpolate.get_speed().into()
             }
             "active" => {
                 self.active.into()
@@ -492,16 +488,13 @@ impl GMEffectT<GMSpriteBase> for GMSELinearMovement {
     fn get_property(&self, name: &str) -> GMData {
         match name {
             "start" => {
-                let start = self.interpolation.get_start();
-                start.into()
+                self.interpolation.get_start().into()
             }
             "end" => {
-                let end = self.interpolation.get_end();
-                end.into()
+                self.interpolation.get_end().into()
             }
             "speed" => {
-                let speed = self.interpolation.get_speed();
-                speed.into()
+                self.interpolation.get_speed().into()
             }
             "active" => {
                 self.active.into()
@@ -857,8 +850,7 @@ impl GMEffectT<GMSpriteBase> for GMSETarget {
     fn get_property(&self, name: &str) -> GMData {
         match name {
             "duration" => {
-                let duration = self.timer.get_duration();
-                duration.into()
+                self.timer.get_duration().into()
             }
             "name" => {
                 self.name.clone().into()
@@ -946,8 +938,17 @@ impl GMEffectT<GMSpriteBase> for GMSEFollow {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "duration" => {
+                self.timer.get_duration().into()
+            }
+            "target_name" => {
+                self.target_name.clone().into()
+            }
+            "speed" => {
+                self.speed.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSEFollow::get_property(), unknown property: '{}'", name))
@@ -1029,8 +1030,14 @@ impl GMEffectT<GMSpriteBase> for GMSETimed {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "duration" => {
+                self.timer.get_duration().into()
+            }
+            "repeat" => {
+                self.repeat.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSETimed::get_property(), unknown property: '{}'", name))
@@ -1113,8 +1120,23 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
 
     fn get_property(&self, name: &str) -> GMData {
         match name {
-            "" => {
-                todo!()
+            "size" => {
+                self.interpolate.get_value().into()
+            }
+            "min_size" => {
+                self.interpolate.get_start().into()
+            }
+            "max_size" => {
+                self.interpolate.get_end().into()
+            }
+            "speed" => {
+                self.interpolate.get_speed().into()
+            }
+            "repetition" => {
+                self.interpolate.repetition.into()
+            }
+            "active" => {
+                self.active.into()
             }
             _ => {
                 error_panic(&format!("GMSEScaling::get_property(), unknown property: '{}'", name))
