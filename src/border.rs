@@ -1,16 +1,28 @@
 
+use std::collections::HashSet;
 
-use crate::object_manager::GMObjectBaseT;
+use log::debug;
+
+use crate::effect::{GMEffectManager, GMEffectT};
+use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 use crate::context::GMContext;
 use crate::data::GMData;
 use crate::util::error_panic;
 
-pub struct GMBorderBase {
+use crate::return_name_and_groups;
 
+pub struct GMBorderBase {
+    pub name: String,
+    pub groups: HashSet<String>,
 }
 
 impl GMBorderBase {
-
+    pub fn new() -> Self {
+        Self {
+            name: "".to_string(),
+            groups: HashSet::new(),
+        }
+    }
 }
 
 impl GMObjectBaseT for GMBorderBase {
@@ -25,29 +37,26 @@ impl GMObjectBaseT for GMBorderBase {
         }
     }
 
-    fn name(&self) -> &str {
-        todo!()
-    }
-
-    fn groups(&self) -> &std::collections::HashSet<String> {
-        todo!()
-    }
-
     fn update(&mut self, _context: &mut GMContext) {
     }
 
     fn draw(&self, _context: &mut GMContext) {
     }
 
-    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
+    return_name_and_groups!();
+}
+
+pub type GMBorder = GMObjectManager<GMBorderBase>;
+
+impl GMBorder {
+    pub fn new() -> Self {
+        Self {
+            base: GMBorderBase::new(),
+            effects: GMEffectManager::new(),
+        }
     }
 }
 
-pub struct GMBorder {
-
-}
-
 pub struct GMBorderBuilder {
-
+    border: GMBorder,
 }

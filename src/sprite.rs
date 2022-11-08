@@ -13,6 +13,8 @@ use crate::effect::{GMEffectManager, GMEffectT};
 use crate::util::error_panic;
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
+use crate::return_name_and_groups;
+
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
     pub position: GMVec2D,
@@ -128,13 +130,7 @@ impl GMObjectBaseT for GMSpriteBase {
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn groups(&self) -> &HashSet<String> {
-        &self.groups
-    }
+    return_name_and_groups!();
 }
 
 pub type GMSprite = GMObjectManager<GMSpriteBase>;

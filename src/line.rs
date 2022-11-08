@@ -11,6 +11,8 @@ use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 use crate::util::error_panic;
 use crate::data::GMData;
 
+use crate::return_name_and_groups;
+
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
     Number(u32),
@@ -196,13 +198,7 @@ impl GMObjectBaseT for GMLineBase {
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn groups(&self) -> &std::collections::HashSet<String> {
-        &self.groups
-    }
+    return_name_and_groups!();
 }
 
 pub type GMLine = GMObjectManager<GMLineBase>;

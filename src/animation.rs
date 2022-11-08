@@ -11,6 +11,8 @@ use crate::data::GMData;
 use crate::effect::GMEffectManager;
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
+use crate::return_name_and_groups;
+
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
     pub active: bool,
@@ -205,13 +207,7 @@ impl GMObjectBaseT for GMAnimationBase {
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn groups(&self) -> &HashSet<String> {
-        &self.groups
-    }
+    return_name_and_groups!();
 }
 
 

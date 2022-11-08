@@ -14,6 +14,8 @@ use crate::math::{GMVec2D, GMSize};
 use crate::effect::{GMEffectManager, GMEffectT};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
+use crate::return_name_and_groups;
+
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
     texture: Rc<GMTexture>,
@@ -362,14 +364,7 @@ impl GMObjectBaseT for GMBitmapTextBase {
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn groups(&self) -> &HashSet<String> {
-        &self.groups
-    }
-
+    return_name_and_groups!();
 }
 
 pub type GMBitmapText = GMObjectManager<GMBitmapTextBase>;

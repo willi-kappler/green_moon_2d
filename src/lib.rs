@@ -38,3 +38,7 @@ pub use scene::GMSceneT;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
+
+// Export macros
+#[macro_use]
+pub mod macros;

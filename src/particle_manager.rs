@@ -13,6 +13,7 @@ use crate::data::GMData;
 use crate::util::{error_panic, random_range_f32};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
+use crate::return_name_and_groups;
 
 #[derive(Debug, Clone)]
 pub enum GMParticleState {
@@ -119,13 +120,7 @@ impl GMObjectBaseT for GMParticleManagerBase {
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
-    }
-
-    fn groups(&self) -> &HashSet<String> {
-        &self.groups
-    }
+    return_name_and_groups!();
 }
 
 pub type GMParticleManager = GMObjectManager<GMParticleManagerBase>;
