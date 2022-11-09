@@ -14,7 +14,7 @@ use crate::math::{GMVec2D, GMSize};
 use crate::effect::{GMEffectManager, GMEffectT};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
-use crate::return_name_and_groups;
+use crate::{return_name_and_groups, create_builder_methods};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -427,64 +427,7 @@ impl GMBitmapTextBuilder {
         self
     }
 
-    pub fn with_visible(mut self, visible: bool) -> Self {
-        debug!("GMBitmapTextBuilder::with_visible(), visible: '{}'", visible);
-
-        self.bitmap_text.base.visible = visible;
-        self
-    }
-
-
-    pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMBitmapTextBuilder::with_active(), active: '{}'", active);
-
-        self.bitmap_text.base.active = active;
-        self
-    }
-
-    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
-        let name = name.into();
-        debug!("GMBitmapTextBuilder::with_name(), name: '{}'", name);
-
-        self.bitmap_text.base.name = name;
-        self
-    }
-
-    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
-        let group = group.into();
-        debug!("GMBitmapTextBuilder::with_group(), group: '{}'", group);
-
-        self.bitmap_text.base.groups.insert(group);
-        self
-    }
-
-    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
-        debug!("GMBitmapTextBuilder::with_groups(), groups: '{:?}'", groups);
-
-        self.bitmap_text.base.groups = groups;
-        self
-    }
-
-    pub fn with_effect<T: 'static + GMEffectT<GMBitmapTextBase>>(mut self, effect: T) -> Self {
-        debug!("GMBitmapTextBuilder::with_effect()");
-
-        self.bitmap_text.effects.add_effect(effect);
-        self
-    }
-
-    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMBitmapTextBase>>) -> Self {
-        debug!("GMBitmapTextBuilder::with_effect2()");
-
-        self.bitmap_text.effects.add_effect2(effect);
-        self
-    }
-
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMBitmapTextBase>>>) -> Self {
-        debug!("GMBitmapTextBuilder::with_effects()");
-
-        self.bitmap_text.effects.set_effects(effects);
-        self
-    }
+    create_builder_methods!(GMBitmapTextBuilder, GMBitmapTextBase, bitmap_text);
 
     pub fn build(mut self) -> GMBitmapText {
         self.bitmap_text.base.reset_chars();

@@ -13,7 +13,7 @@ use crate::effect::{GMEffectManager, GMEffectT};
 use crate::util::error_panic;
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
-use crate::return_name_and_groups;
+use crate::{return_name_and_groups, create_builder_methods};
 
 #[derive(Debug, Clone)]
 pub struct GMSpriteBase {
@@ -191,44 +191,6 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_visible(mut self, visible: bool) -> Self {
-        debug!("GMSpriteBuilder::with_visible(), visible: '{}'", visible);
-
-        self.sprite.base.visible = visible;
-        self
-    }
-
-
-    pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMSpriteBuilder::with_active(), active: '{}'", active);
-
-        self.sprite.base.active = active;
-        self
-    }
-
-    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
-        let name = name.into();
-        debug!("GMSpriteBuilder::with_name(), name: '{}'", name);
-
-        self.sprite.base.name = name;
-        self
-    }
-
-    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
-        let group = group.into();
-        debug!("GMSpriteBuilder::with_group(), group: '{}'", group);
-
-        self.sprite.base.groups.insert(group);
-        self
-    }
-
-    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
-        debug!("GMSpriteBuilder::with_groups(), groups: '{:?}'", groups);
-
-        self.sprite.base.groups = groups;
-        self
-    }
-
     pub fn with_custom_data(mut self, custom_data: GMData) -> Self {
         debug!("GMSpriteBuilder::with_custom_data(), custom_data: '{:?}'", custom_data);
 
@@ -236,26 +198,7 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn with_effect<T: 'static + GMEffectT<GMSpriteBase>>(mut self, effect: T) -> Self {
-        debug!("GMSpriteBuilder::with_effect()");
-
-        self.sprite.effects.add_effect(effect);
-        self
-    }
-
-    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMSpriteBase>>) -> Self {
-        debug!("GMSpriteBuilder::with_effect2()");
-
-        self.sprite.effects.add_effect2(effect);
-        self
-    }
-
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMSpriteBase>>>) -> Self {
-        debug!("GMSpriteBuilder::with_effects()");
-
-        self.sprite.effects.set_effects(effects);
-        self
-    }
+    create_builder_methods!(GMSpriteBuilder, GMSpriteBase, sprite);
 
     pub fn build(self) -> GMSprite {
         self.sprite

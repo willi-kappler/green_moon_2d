@@ -13,7 +13,7 @@ use crate::data::GMData;
 use crate::util::{error_panic, random_range_f32};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
-use crate::return_name_and_groups;
+use crate::{return_name_and_groups, create_builder_methods};
 
 #[derive(Debug, Clone)]
 pub enum GMParticleState {
@@ -146,7 +146,7 @@ impl GMParticleManagerBuilder {
     }
 
     pub fn with_wait_time(mut self, min: f32, max: f32) -> Self {
-        debug!("GMParticleManager::with_wait_time(), min: '{}', max: '{}'", min, max);
+        debug!("GMParticleManagerBuilder::with_wait_time(), min: '{}', max: '{}'", min, max);
 
         self.particle_manager.base.wait_time = (min, max);
 
@@ -154,7 +154,7 @@ impl GMParticleManagerBuilder {
     }
 
     pub fn with_run_time(mut self, min: f32, max: f32) -> Self {
-        debug!("GMParticleManager::with_run_time(), min: '{}', max: '{}'", min, max);
+        debug!("GMParticleManagerBuilder::with_run_time(), min: '{}', max: '{}'", min, max);
 
         self.particle_manager.base.run_time = (min, max);
 
@@ -162,7 +162,7 @@ impl GMParticleManagerBuilder {
     }
 
     pub fn with_max_num_of_particles(mut self, max_num_of_particles: usize) -> Self {
-        debug!("GMParticleManager::with_max_num_of_particles(), max_num_of_particles: {}", max_num_of_particles);
+        debug!("GMParticleManagerBuilder::with_max_num_of_particles(), max_num_of_particles: {}", max_num_of_particles);
 
         self.particle_manager.base.set_max_num_of_particles(max_num_of_particles);
 
@@ -179,66 +179,7 @@ impl GMParticleManagerBuilder {
         self
     }
 
-    pub fn with_visible(mut self, visible: bool) -> Self {
-        debug!("GMParticleManagerBuilder::with_visible(), visible: '{}'", visible);
-
-        self.particle_manager.base.visible = visible;
-        self
-    }
-
-
-    pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMParticleManagerBuilder::with_active(), active: '{}'", active);
-
-        self.particle_manager.base.active = active;
-        self
-    }
-
-    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
-        let name = name.into();
-
-        debug!("GMParticleManagerBuilder::with_name(), name: '{}'", name);
-
-        self.particle_manager.base.name = name;
-        self
-    }
-
-    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
-        let group = group.into();
-
-        debug!("GMParticleManagerBuilder::with_group(), group: '{}'", group);
-
-        self.particle_manager.base.groups.insert(group);
-        self
-    }
-
-    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
-        debug!("GMParticleManagerBuilder::with_groups(), groups: '{:?}'", groups);
-
-        self.particle_manager.base.groups = groups;
-        self
-    }
-
-    pub fn with_effect<T: 'static + GMEffectT<GMParticleManagerBase>>(mut self, effect: T) -> Self {
-        debug!("GMParticleManagerBuilder::with_effect()");
-
-        self.particle_manager.effects.add_effect(effect);
-        self
-    }
-
-    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMParticleManagerBase>>) -> Self {
-        debug!("GMParticleManagerBuilder::with_effect2()");
-
-        self.particle_manager.effects.add_effect2(effect);
-        self
-    }
-
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMParticleManagerBase>>>) -> Self {
-        debug!("GMParticleManagerBuilder::with_effects()");
-
-        self.particle_manager.effects.set_effects(effects);
-        self
-    }
+    create_builder_methods!(GMParticleManagerBuilder, GMParticleManagerBase, particle_manager);
 
     pub fn build(self) -> GMParticleManager {
         self.particle_manager

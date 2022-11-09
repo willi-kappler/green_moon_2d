@@ -11,7 +11,7 @@ use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 use crate::util::error_panic;
 use crate::data::GMData;
 
-use crate::return_name_and_groups;
+use crate::{return_name_and_groups, create_builder_methods};
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -255,64 +255,7 @@ impl GMLineBuilder {
         self
     }
 
-    pub fn with_visible(mut self, visible: bool) -> Self {
-        debug!("GMLineBuilder::with_visible(), visible: '{}'", visible);
-
-        self.line.base.visible = visible;
-        self
-    }
-
-
-    pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMLineBuilder::with_active(), active: '{}'", active);
-
-        self.line.base.active = active;
-        self
-    }
-
-    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
-        let name = name.into();
-        debug!("GMLineBuilder::with_name(), name: '{}'", name);
-
-        self.line.base.name = name;
-        self
-    }
-
-    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
-        let group = group.into();
-        debug!("GMLineBuilder::with_group(), group: '{}'", group);
-
-        self.line.base.groups.insert(group);
-        self
-    }
-
-    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
-        debug!("GMLineBuilder::with_groups(), groups: '{:?}'", groups);
-
-        self.line.base.groups = groups;
-        self
-    }
-
-    pub fn with_effect<T: 'static + GMEffectT<GMLineBase>>(mut self, effect: T) -> Self {
-        debug!("GMLineBuilder::with_effect()");
-
-        self.line.effects.add_effect(effect);
-        self
-    }
-
-    pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<GMLineBase>>) -> Self {
-        debug!("GMLineBuilder::with_effect2()");
-
-        self.line.effects.add_effect2(effect);
-        self
-    }
-
-    pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<GMLineBase>>>) -> Self {
-        debug!("GMLineBuilder::with_effects()");
-
-        self.line.effects.set_effects(effects);
-        self
-    }
+    create_builder_methods!(GMLineBuilder, GMLineBase, line);
 
     pub fn build(self) -> GMLine {
         self.line

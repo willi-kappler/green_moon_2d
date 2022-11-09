@@ -118,3 +118,59 @@ macro_rules! create_from_gmdata_for_type_all {
         create_from_gmdata_for_type3!($type, $name3);
     };
 }
+
+#[macro_export]
+macro_rules! create_builder_methods {
+    ($builder:ident, $base:ty, $member:ident) => {
+        pub fn with_active(mut self, active: bool) -> Self {
+            debug!("{}::with_active(), active: '{}'", "$builder", active);
+    
+            self.$member.base.active = active;
+            self
+        }
+    
+        pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
+            let name = name.into();
+            debug!("{}::with_name(), name: '{}'", "$builder", name);
+    
+            self.$member.base.name = name;
+            self
+        }
+    
+        pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
+            let group = group.into();
+            debug!("{}::with_group(), group: '{}'", "$builder", group);
+    
+            self.$member.base.groups.insert(group);
+            self
+        }
+    
+        pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
+            debug!("{}::with_groups(), groups: '{:?}'", "$builder", groups);
+    
+            self.$member.base.groups = groups;
+            self
+        }
+    
+        pub fn with_effect<T: 'static + GMEffectT<$base>>(mut self, effect: T) -> Self {
+            debug!("{}::with_effect()", "$builder");
+    
+            self.$member.effects.add_effect(effect);
+            self
+        }
+    
+        pub fn with_effect2(mut self, effect: Box<dyn GMEffectT<$base>>) -> Self {
+            debug!("{}::with_effect2()", "$builder");
+    
+            self.$member.effects.add_effect2(effect);
+            self
+        }
+    
+        pub fn with_effects(mut self, effects: Vec<Box<dyn GMEffectT<$base>>>) -> Self {
+            debug!("{}::with_effects()", "$builder");
+    
+            self.$member.effects.set_effects(effects);
+            self
+        }
+    };
+}

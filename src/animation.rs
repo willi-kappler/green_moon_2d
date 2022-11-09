@@ -8,10 +8,10 @@ use crate::timer::GMTimer;
 use crate::util::{GMRepetition, error_panic};
 use crate::context::GMContext;
 use crate::data::GMData;
-use crate::effect::GMEffectManager;
+use crate::effect::{GMEffectManager, GMEffectT};
 use crate::object_manager::{GMObjectBaseT, GMObjectManager};
 
-use crate::return_name_and_groups;
+use crate::{return_name_and_groups, create_builder_methods};
 
 #[derive(Clone, Debug)]
 pub struct GMAnimationBase {
@@ -233,36 +233,6 @@ impl GMAnimationBuilder {
         }
     }
 
-    pub fn with_active(mut self, active: bool) -> Self {
-        debug!("GMAnimationBuilder::with_active(), active: '{}'", active);
-
-        self.animation.base.active = active;
-        self
-    }
-
-    pub fn with_name<S: Into<String>>(mut self, name: S) -> Self {
-        let name = name.into();
-        debug!("GMAnimationBuilder::with_name(), name: '{}'", name);
-
-        self.animation.base.name = name;
-        self
-    }
-
-    pub fn with_group<S: Into<String>>(mut self, group: S) -> Self {
-        let group = group.into();
-        debug!("GMAnimationBuilder::with_group(), group: '{}'", group);
-
-        self.animation.base.groups.insert(group);
-        self
-    }
-
-    pub fn with_groups(mut self, groups: HashSet<String>) -> Self {
-        debug!("GMAnimationBuilder::with_groups(), groups: '{:?}'", groups);
-
-        self.animation.base.groups = groups;
-        self
-    }
-
     pub fn with_current_frame(mut self, current_frame: usize) -> Self {
         debug!("GMAnimationBuilder::with_current_frame(), current_frame: '{}'", current_frame);
 
@@ -277,7 +247,9 @@ impl GMAnimationBuilder {
         self
     }
 
+    create_builder_methods!(GMAnimationBuilder, GMAnimationBase, animation);
+
     pub fn build(self) -> GMAnimation {
         self.animation
-    }
+    }    
 }
