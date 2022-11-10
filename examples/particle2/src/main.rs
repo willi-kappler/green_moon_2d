@@ -50,8 +50,8 @@ impl ParticleScene2 {
 
         let messages1 = vec![
             // Index 0 for velocity sprite effect:
-            (0, "set_random_direction", GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
-            (0, "set_random_speed", GMData::F32F32(3.0, 4.0)) // sprite effect index, message, data
+            (0, "set_random_direction", GMData::F32_2(180.0, 360.0)), // sprite effect index, message, data
+            (0, "set_random_speed", GMData::F32_2(3.0, 4.0)) // sprite effect index, message, data
         ];
 
         let particle_effect1 = GMPESimple::new(messages1);
@@ -83,12 +83,12 @@ impl ParticleScene2 {
 
         let messages2 = vec![
             // Index 0 for velocity sprite effect:
-            (0, "set_random_direction", GMData::F32F32(180.0, 360.0)), // sprite effect index, message, data
-            (0, "set_random_speed", GMData::F32F32(3.0, 4.0)), // sprite effect index, message, data
+            (0, "set_random_direction", GMData::F32_2(180.0, 360.0)), // sprite effect index, message, data
+            (0, "set_random_speed", GMData::F32_2(3.0, 4.0)), // sprite effect index, message, data
             // Now index 1 for for the rotation sprite effect:
-            (1, "set_random_speed", GMData::F32F32(-10.0, 10.0)), // sprite effect index, message, data
+            (1, "set_random_speed", GMData::F32_2(-10.0, 10.0)), // sprite effect index, message, data
             // Now index 2 for for the gravity sprite effect:
-            (2, "set_velocity", GMData::F32F32(0.0, 0.0)) // sprite effect index, message, data
+            (2, "set_velocity", GMData::F32_2(0.0, 0.0)) // sprite effect index, message, data
         ];
 
         let particle_effect2 = GMPESimple::new(messages2);
