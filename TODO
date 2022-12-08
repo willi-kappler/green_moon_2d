@@ -24,6 +24,8 @@ Try using SDL again!
 # Refactor generic effects
 # macros for GMData and conversion
 # Add get_property(name: &str) -> GMData for effects
+# Add macro for builder pattern
+# Add init() for effects ?
 
 
 Next TODO:
@@ -33,8 +35,6 @@ Next TODO:
 - Add text effect sprite
 - Add text effect circle
 - Add mouse events
-- Add macro for builder pattern
-- Add init() for effects ?
 - Add effects for GMLine
 
 
