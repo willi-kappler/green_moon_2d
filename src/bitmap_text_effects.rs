@@ -5,6 +5,8 @@ use std::f32::consts::TAU;
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
+/*
+
 use crate::context::GMContext;
 use crate::bitmap_text::{GMBitmapTextBase};
 use crate::data::GMData;
@@ -473,3 +475,4 @@ impl GMEffectT<GMBitmapTextBase> for GMTEScale {
 pub struct GMTECircle {
     // TODO: chars move around circle, optionally rotated to radial direction
 }
+*/

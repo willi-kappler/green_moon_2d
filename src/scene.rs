@@ -5,7 +5,6 @@ use log::debug;
 
 use crate::context::{GMContext};
 use crate::util::error_panic;
-use crate::data::GMData;
 
 #[derive(Debug)]
 pub enum GMSceneState {
@@ -22,7 +21,6 @@ pub(crate) enum GMSceneManagerMessage {
     PushAndChangeScene(String),
     RemoveScene(String),
     ReplaceScene(String, Box<dyn GMSceneT>),
-    SendMessage(String, String, GMData),
 }
 
 pub trait GMSceneT: Debug {
@@ -32,13 +30,6 @@ pub trait GMSceneT: Debug {
     fn update(&mut self, context: &mut GMContext);
 
     fn draw(&self, context: &mut GMContext);
-
-    fn send_message(&mut self, _message: &str, _data: GMData, _context: &mut GMContext) {
-    }
-
-    fn send_message2(&mut self, message: &str, context: &mut GMContext) {
-        self.send_message(message, GMData::None, context);
-    }
 }
 
 pub struct GMSceneManager {
@@ -162,19 +153,6 @@ impl GMSceneManager {
         }
     }
 
-    fn send_message(&mut self, scene: &str, message: &str, data: GMData, context: &mut GMContext) {
-        debug!("GMSceneManager::send_message(), name: '{}', message: '{}'", scene, message);
-
-        match self.scene_index(scene) {
-            Some(index) => {
-                self.scenes[index].1.send_message(message, data, context);
-            }
-            None => {
-                self.scene_does_not_exist("GMSceneManager::send_message()", scene);
-            }
-        }
-    }
-
     pub(crate) fn update(&mut self, context: &mut GMContext) {
         use GMSceneManagerMessage::*;
 
@@ -197,9 +175,6 @@ impl GMSceneManager {
                 }
                 ReplaceScene(name, scene) => {
                     self.replace_scene(&name, scene);
-                }
-                SendMessage(scene, message, data) => {
-                    self.send_message(&scene, &message, data, context);
                 }
             }
         }

@@ -3,6 +3,8 @@ use std::collections::HashSet;
 
 use log::debug;
 
+/*
+
 use crate::math::GMVec2D;
 use crate::sprite::GMSprite;
 use crate::context::GMContext;
@@ -261,3 +263,4 @@ impl GMLineBuilder {
         self.line
     }
 }
+*/

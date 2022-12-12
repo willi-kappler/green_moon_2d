@@ -12,7 +12,7 @@ use nanoserde::DeJson;
 
 use log::debug;
 
-use crate::animation::{GMAnimation, GMAnimationBuilder};
+use crate::animation::GMAnimation;
 use crate::texture::GMTexture;
 use crate::bitmap_text::{GMBitmapFont};
 use crate::util::{error_panic, GMRepetition};
@@ -230,8 +230,7 @@ impl GMResources {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
         let repetition = GMRepetition::from(animation_type);
-        GMAnimationBuilder::new(name, frames)
-            .with_repetition(repetition).build()
+        GMAnimation::new(name, frames, repetition)
     }
 
     pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {

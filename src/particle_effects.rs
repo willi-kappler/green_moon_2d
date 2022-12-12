@@ -4,6 +4,8 @@ use std::f32::consts::{PI};
 
 // use log::debug;
 
+/*
+
 use crate::context::GMContext;
 use crate::particle_manager::{GMParticleManagerBase, GMParticleState};
 use crate::effect::GMEffectT;
@@ -277,3 +279,4 @@ impl GMEffectT<GMParticleManagerBase> for GMPESpiral {
         }
     }
 }
+*/

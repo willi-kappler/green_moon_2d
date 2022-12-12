@@ -15,6 +15,7 @@ edition = "2021"
 nanoserde = "0.1"
 nanorand = "0.7.0"
 log = "0.4"
+hecs = "0.9.1"
 
 [dependencies.sdl2]
 version = "0.35"

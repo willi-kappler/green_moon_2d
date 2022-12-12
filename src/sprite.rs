@@ -4,6 +4,7 @@ use std::collections::HashSet;
 
 use log::debug;
 
+/*
 use crate::data::GMData;
 use crate::texture::GMTexture;
 use crate::animation::{GMAnimation};
@@ -204,3 +205,4 @@ impl GMSpriteBuilder {
         self.sprite
     }
 }
+*/

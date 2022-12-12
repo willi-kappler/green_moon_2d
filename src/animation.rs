@@ -1,9 +1,35 @@
 
 use std::fmt::Debug;
-use std::collections::HashSet;
 
 use log::debug;
 
+use crate::timer::GMTimer;
+use crate::util::GMRepetition;
+
+#[derive(Clone, Debug)]
+pub struct GMAnimation {
+    pub active: bool,
+    pub name: String,
+    pub current_frame: usize,
+    pub frames: Vec<(u32, f32)>, // index, duration in seconds
+    pub timer: GMTimer,
+    pub repetition: GMRepetition,
+}
+
+impl GMAnimation {
+    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)], repetition: GMRepetition) -> Self {
+        Self {
+            active: true,
+            name: name.into(),
+            current_frame: 0,
+            frames: frames.to_vec(),
+            timer: GMTimer::new(frames[0].1),
+            repetition,
+        }
+    }
+}
+
+/*
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition, error_panic};
 use crate::context::GMContext;
@@ -251,5 +277,6 @@ impl GMAnimationBuilder {
 
     pub fn build(self) -> GMAnimation {
         self.animation
-    }    
+    }
 }
+*/

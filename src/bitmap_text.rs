@@ -1,20 +1,17 @@
 
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::rc::Rc;
 use std::fmt::Debug;
 
 use log::debug;
 
-use crate::data::GMData;
+
+
 use crate::texture::GMTexture;
 use crate::context::GMContext;
-use crate::util::{error_panic, GMAlign};
-use crate::math::{GMVec2D, GMSize};
-use crate::effect::{GMEffectManager, GMEffectT};
-use crate::object_manager::{GMObjectBaseT, GMObjectManager};
-
-use crate::{return_name_and_groups, create_builder_methods};
+use crate::util::{error_panic};
+use crate::math::{GMVec2D};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -81,6 +78,7 @@ impl GMBitmapChar {
     }
 }
 
+/*
 #[derive(Debug, Clone)]
 pub struct GMBitmapTextBase {
     pub font: Rc<GMBitmapFont>,
@@ -438,3 +436,4 @@ impl GMBitmapTextBuilder {
 // TODO: Add GMTextBlock
 
 // TODO: Add GMTextList
+*/

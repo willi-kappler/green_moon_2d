@@ -1,5 +1,5 @@
 
-pub struct GMBulletManagerBase {
+pub struct GMBulletManager {
 
 }
 

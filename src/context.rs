@@ -1,5 +1,5 @@
 
-use std::collections::{VecDeque, HashMap, HashSet};
+use std::collections::{VecDeque};
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -7,33 +7,23 @@ use sdl2::pixels;
 use sdl2::rect::Rect;
 
 use log::debug;
+use hecs::World;
 
 use crate::resources::GMResources;
 use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
-use crate::data::GMData;
-
-#[derive(Clone, Debug)]
-pub enum GMObjectMessage {
-    Base(String, GMData),
-    Effect(usize, String, GMData),
-}
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
     scene_messages: VecDeque<GMSceneManagerMessage>,
-    object_messages: [HashMap<String, VecDeque<GMObjectMessage>>; 2],
-    group_messages: [HashMap<String, VecDeque<GMObjectMessage>>; 2],
-    message_store_index: usize,
-    message_get_index: usize,
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
-    tags: HashMap<String, GMData>,
     window_width: f32,
     window_height: f32,
+    world: World,
 }
 
 impl GMContext {
@@ -45,16 +35,12 @@ impl GMContext {
         Self {
             engine_messages: VecDeque::new(),
             scene_messages: VecDeque::new(),
-            object_messages: [HashMap::new(), HashMap::new()],
-            group_messages: [HashMap::new(), HashMap::new()],
-            message_store_index: 0,
-            message_get_index: 1,
             canvas,
             input,
             resources,
-            tags: HashMap::new(),
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
+            world: World::new(),
         }
     }
 
@@ -67,17 +53,13 @@ impl GMContext {
         &mut self.resources
     }
 
-    // Tags:
-    pub fn get_tag(&self, name: &str) -> Option<&GMData> {
-        self.tags.get(name)
+    // ECS world
+    pub fn get_world(&self) -> &World {
+        &self.world
     }
 
-    pub fn set_tag<T: Into<String>>(&mut self, name: T, value: GMData) {
-        self.tags.insert(name.into(), value);
-    }
-
-    pub fn remove_tag(&mut self, name: &str) {
-        self.tags.remove(name);
+    pub fn get_world_mut(&mut self) -> &mut World {
+        &mut self.world
     }
 
     // Engine messages:
@@ -139,129 +121,9 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
-    pub fn send_scene_message<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T, data: GMData) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into(), data));
-    }
-
-    pub fn send_scene_message2<S: Into<String>, T: Into<String>>(&mut self, scene: S, message: T) {
-        self.scene_messages.push_back(GMSceneManagerMessage::SendMessage(scene.into(), message.into(), GMData::None));
-    }
-
-    // Object messages
-    pub fn get_object_messages(&mut self, name: &str) -> VecDeque<GMObjectMessage> {
-        let get_messages = &mut self.object_messages[self.message_get_index];
-
-        match get_messages.remove(name) {
-            Some(messages) => {
-                messages
-            }
-            None => {
-                VecDeque::new()
-            }
-        }
-    }
-
-    pub fn get_group_messages(&mut self, groups: &HashSet<String>) -> VecDeque<GMObjectMessage> {
-        if groups.len() == 0 {
-            VecDeque::new()
-        } else {
-            // TODO: filter messaages by group
-            let get_messages = &mut self.group_messages[self.message_get_index];
-            let mut result = VecDeque::new();
-
-            for name in groups.iter() {
-                match get_messages.get(name) {
-                    Some(messages) => {
-                        for message in messages.iter() {
-                            result.push_back(message.clone())
-                        }
-                    }
-                    None => {
-                        // Nothing to do...
-                    }
-                }    
-            }
-
-            result
-        }
-    }
-
-    pub fn send_object_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
-        let receiver = receiver.into();
-        let store_messages = &mut self.object_messages[self.message_store_index];
-
-        match store_messages.get_mut(&receiver) {
-            Some(messages) => {
-                messages.push_back(message)
-            }
-            None => {
-                let mut messages = VecDeque::new();
-                messages.push_back(message);
-                store_messages.insert(receiver, messages);
-            }
-        }
-    }
-
-    pub fn send_group_message<S: Into<String>>(&mut self, receiver: S, message: GMObjectMessage) {
-        let receiver = receiver.into();
-        let store_messages = &mut self.group_messages[self.message_store_index];
-
-        match store_messages.get_mut(&receiver) {
-            Some(messages) => {
-                messages.push_back(message)
-            }
-            None => {
-                let mut messages = VecDeque::new();
-                messages.push_back(message);
-                store_messages.insert(receiver, messages);
-            }
-        }
-    }
-
-    pub fn send_om_base<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
-        self.send_object_message(receiver, GMObjectMessage::Base(message.into(), data));
-    }
-
-    pub fn send_om_base2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
-        self.send_object_message(receiver, GMObjectMessage::Base(message.into(), GMData::None));
-    }
-
-    pub fn send_om_group<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T, data: GMData) {
-        self.send_group_message(receiver, GMObjectMessage::Base(message.into(), data));
-    }
-
-    pub fn send_om_group2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, message: T) {
-        self.send_group_message(receiver, GMObjectMessage::Base(message.into(), GMData::None));
-    }
-
-    pub fn send_om_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
-        self.send_object_message(receiver, GMObjectMessage::Effect(index, message.into(), data));
-    }
-
-    pub fn send_om_effect2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
-        self.send_object_message(receiver, GMObjectMessage::Effect(index, message.into(), GMData::None));
-    }
-
-    pub fn send_om_group_effect<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T, data: GMData) {
-        self.send_group_message(receiver, GMObjectMessage::Effect(index, message.into(), data));
-    }
-
-    pub fn send_om_group_effect2<S: Into<String>, T: Into<String>>(&mut self, receiver: S, index: usize, message: T) {
-        self.send_group_message(receiver, GMObjectMessage::Effect(index, message.into(), GMData::None));
-    }
-
     // Update context, called by engine once per frame
     pub(crate) fn update(&mut self) {
         self.input.update();
-
-        // Swap store and get index for messages:
-        self.message_store_index = 1 - self.message_store_index;
-        // Get index must be different than store index.
-        self.message_get_index = 1 - self.message_store_index;
-
-        // Remove all old messages from store:
-        self.object_messages[self.message_store_index].clear();
-        self.group_messages[self.message_store_index].clear();
     }
 
     // Events, called by user code

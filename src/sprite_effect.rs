@@ -3,6 +3,8 @@ use std::f32::consts::{TAU, PI};
 
 use log::debug;
 
+/*
+
 use crate::context::GMContext;
 use crate::sprite::GMSpriteBase;
 use crate::math::GMVec2D;
@@ -1144,3 +1146,4 @@ impl GMEffectT<GMSpriteBase> for GMSEScaling {
         }
     }
 }
+*/

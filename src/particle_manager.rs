@@ -4,6 +4,8 @@ use std::collections::HashSet;
 
 use log::debug;
 
+/*
+
 use crate::sprite::GMSprite;
 use crate::timer::GMTimer;
 use crate::math::GMVec2D;
@@ -185,3 +187,4 @@ impl GMParticleManagerBuilder {
         self.particle_manager
     }
 }
+*/

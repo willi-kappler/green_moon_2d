@@ -1,14 +1,11 @@
 
 pub mod animation;
-pub mod animation_effect;
 pub mod bitmap_text;
 pub mod bitmap_text_effects;
 pub mod border;
 pub mod collision;
 pub mod configuration;
 pub mod context;
-pub mod data;
-pub mod effect;
 pub mod engine;
 pub mod input;
 pub mod interpolation;
@@ -16,7 +13,6 @@ pub mod line;
 pub mod math;
 pub mod menu;
 pub mod menu_item;
-pub mod object_manager;
 pub mod particle_effects;
 pub mod particle_manager;
 pub mod resources;
@@ -38,7 +34,3 @@ pub use scene::GMSceneT;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
-
-// Export macros
-#[macro_use]
-pub mod macros;
