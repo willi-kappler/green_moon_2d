@@ -72,3 +72,5 @@ impl GMTexture {
         self.unit_height
     }
 }
+
+pub struct GMTextureIndex(pub u32);
