@@ -230,7 +230,7 @@ impl GMResources {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
         let repetition = GMRepetition::from(animation_type);
-        GMAnimation::new(name, frames, repetition)
+        GMAnimation::new(frames, repetition)
     }
 
     pub fn add_animation(&mut self, name: &str, animation: GMAnimation) {
