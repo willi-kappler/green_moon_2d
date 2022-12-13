@@ -9,9 +9,9 @@ use log::debug;
 
 
 use crate::texture::GMTexture;
-use crate::context::GMContext;
-use crate::util::{error_panic};
-use crate::math::{GMVec2D};
+// use crate::context::GMContext;
+use crate::util::{error_panic, GMAlign};
+use crate::math::{GMVec2D, GMSize};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -49,33 +49,19 @@ impl GMBitmapFont {
             }
         }
     }
-
-    pub fn draw(&self, index: u32, x: f32, y: f32, context: &mut GMContext) {
-        self.draw_opt(index, x, y, 0.0, 1.0, false, false, context);
-    }
-
-    pub fn draw_opt(&self, index: u32, x: f32, y: f32, angle: f32, scale: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
-        self.texture.draw_opt(x, y, index, angle, scale, flip_x, flip_y, context);
-    }
 }
 
 #[derive(Debug, Clone)]
-pub struct GMBitmapChar {
-    pub index: u32,
-    pub position: GMVec2D,
-    pub angle: f32,
-    pub scale: f32,
-}
-
-impl GMBitmapChar {
-    pub fn new(index: u32, position: GMVec2D) -> Self {
-        Self {
-            index,
-            position,
-            angle: 0.0,
-            scale: 1.0,
-        }
-    }
+pub struct GMBitmapText {
+    pub font: Rc<GMBitmapFont>,
+    pub text: String,
+    pub spacing: GMVec2D,
+    pub horizontal: bool,
+    pub size: GMSize,
+    pub align: GMAlign,
+    pub active: bool,
+    pub visible: bool,
+    pub chars: Vec<u32>,
 }
 
 /*
