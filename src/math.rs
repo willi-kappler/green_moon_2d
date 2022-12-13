@@ -80,8 +80,20 @@ impl GMVec2D {
         self.y *= factor;
     }
 
-    pub fn angle() -> f32 {
+    pub fn angle(&self, other: &GMVec2D) -> f32 {
         todo!("Return angle between two vectors");
+    }
+
+    pub fn angle2(&self, x: f32, y: f32) -> f32 {
+        todo!("Return angle between vector and position");
+    }
+
+    pub fn dist_to(&self, other: &GMVec2D) -> f32 {
+        todo!("Return distance to other vector");
+    }
+
+    pub fn dist_to2(&self, x: f32, y: f32) -> f32 {
+        todo!("Return distance to other point");
     }
 }
 
@@ -168,6 +180,7 @@ impl Display for GMSize {
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMRectangle {
+    // TODO: use Vec2D
     pub x1: f32,
     pub x2: f32,
     pub y1: f32,
@@ -218,7 +231,7 @@ impl GMRectangle {
         self.point_inside(other.x2, other.y2)
     }
 
-    // TODO: intersect return points
+    // TODO: return intersect points
 }
 
 impl From<(f32, f32, f32, f32)> for GMRectangle {
@@ -235,6 +248,7 @@ impl Display for GMRectangle {
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMCircle {
+    // TODO: use Vec2D
     pub x: f32,
     pub y: f32,
     pub radius: f32,
@@ -289,3 +303,13 @@ impl Display for GMCircle {
         write!(f, "(x: {}, y: {}, r: {})", self.x, self.y, self.radius)
     }
 }
+
+pub struct GMPosition(pub GMVec2D);
+
+pub struct GMVelocity(pub GMVec2D);
+
+pub struct GMAcceleration(pub GMVec2D);
+
+pub struct GMScale(pub f32);
+
+pub struct GMRotation(pub f32);
