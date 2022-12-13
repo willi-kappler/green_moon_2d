@@ -1,10 +1,12 @@
 
 use std::fmt::Debug;
 
-use log::debug;
+// use log::debug;
+use hecs::World;
 
 use crate::timer::GMTimer;
 use crate::util::GMRepetition;
+use crate::texture::GMTextureIndex;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -27,47 +29,7 @@ impl GMAnimation {
             repetition,
         }
     }
-}
 
-/*
-use crate::timer::GMTimer;
-use crate::util::{GMRepetition, error_panic};
-use crate::context::GMContext;
-use crate::data::GMData;
-use crate::effect::{GMEffectManager, GMEffectT};
-use crate::object_manager::{GMObjectBaseT, GMObjectManager};
-
-use crate::{return_name_and_groups, create_builder_methods};
-
-#[derive(Clone, Debug)]
-pub struct GMAnimationBase {
-    pub active: bool,
-    pub name: String,
-    pub groups: HashSet<String>,
-    pub current_frame: usize,
-    pub frames: Vec<(u32, f32)>, // index, duration in seconds
-    pub timer: GMTimer,
-    pub repetition: GMRepetition,
-}
-
-impl GMAnimationBase {
-    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
-        let name = name.into();
-
-        debug!("GMAnimationBase::new(), name: '{}', frames: '{:?}'", name, frames);
-
-        Self {
-            active: true,
-            name,
-            groups: HashSet::new(),
-            current_frame: 0,
-            frames: frames.to_vec(),
-            timer: GMTimer::new(frames[0].1),
-            repetition: GMRepetition::OnceForward,
-        }
-    }
-
-    // Other methods
     pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
     }
@@ -139,144 +101,67 @@ impl GMAnimationBase {
     }
 }
 
-impl GMObjectBaseT for GMAnimationBase {
-    fn update(&mut self, _context: &mut GMContext) {
-        if self.active && self.timer.finished() {
-            match self.repetition {
+pub fn process_animations(world: &mut World) {
+    for (_, (animation, texture_index)) in world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex)>() {
+        if animation.active && animation.timer.finished() {
+            match animation.repetition {
                 GMRepetition::OnceForward => {
-                    if self.frame_at_end() {
-                        self.active = false;
+                    if animation.frame_at_end() {
+                        animation.active = false;
                     } else {
-                        self.current_frame += 1;
-                        self.set_new_timer_duration();
+                        animation.current_frame += 1;
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
                     }
                 }
                 GMRepetition::OnceBackward => {
-                    if self.frame_at_start() {
-                        self.active = false;
+                    if animation.frame_at_start() {
+                        animation.active = false;
                     } else {
-                        self.current_frame -= 1;
-                        self.set_new_timer_duration();
+                        animation.current_frame -= 1;
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
                     }
                 }
                 GMRepetition::LoopForward => {
-                    if self.frame_at_end() {
+                    if animation.frame_at_end() {
                         // Restart animation
-                        self.current_frame = 0;
+                        animation.current_frame = 0;
                     } else {
-                        self.current_frame += 1;
+                        animation.current_frame += 1;
                     }
-                    self.set_new_timer_duration();
+                    animation.set_new_timer_duration();
+                    texture_index.0 = animation.texture_index();
                 }
                 GMRepetition::LoopBackward => {
-                    if self.frame_at_start() {
+                    if animation.frame_at_start() {
                         // Restart animation
-                        self.current_frame = self.frames.len() - 1;
+                        animation.current_frame = animation.frames.len() - 1;
                     } else {
-                        self.current_frame -= 1;
+                        animation.current_frame -= 1;
                     }
-                    self.set_new_timer_duration();
+                    animation.set_new_timer_duration();
+                    texture_index.0 = animation.texture_index();
                 }
                 GMRepetition::PingPongForward => {
-                    if self.frame_at_end() {
-                        self.repetition =  GMRepetition::PingPongBackward;
+                    if animation.frame_at_end() {
+                        animation.repetition =  GMRepetition::PingPongBackward;
                     } else {
-                        self.current_frame += 1;
+                        animation.current_frame += 1;
                     }
-                    self.set_new_timer_duration();
+                    animation.set_new_timer_duration();
+                    texture_index.0 = animation.texture_index();
                 }
                 GMRepetition::PingPongBackward => {
-                    if self.frame_at_start() {
-                        self.repetition =  GMRepetition::PingPongForward;
+                    if animation.frame_at_start() {
+                        animation.repetition =  GMRepetition::PingPongForward;
                     } else {
-                        self.current_frame -= 1;
+                        animation.current_frame -= 1;
                     }
-                    self.set_new_timer_duration();
+                    animation.set_new_timer_duration();
+                    texture_index.0 = animation.texture_index();
                 }
             }
         }
     }
-
-    fn send_message(&mut self, message: &str, data: GMData, _context: &mut GMContext) {
-        match message {
-            "set_new_timer_duration" => {
-                self.set_new_timer_duration();
-            }
-            "reverse" => {
-                self.reverse();
-            }
-            "inc_frame" => {
-                self.inc_frame(data.into());
-            }
-            "dec_frame" => {
-                self.dec_frame(data.into());
-            }
-            "set_active" => {
-                self.active = data.into();
-            }
-            "set_name" => {
-                self.name = data.into();
-            }
-            "add_group" => {
-                self.groups.insert(data.into());
-            }
-            "remove_group" => {
-                let group: String = data.into();
-                self.groups.remove(&group);
-            }
-            "clear_group" => {
-                self.groups.clear();
-            }
-            _ => {
-                error_panic(&format!("GMAnimationBase::send_message(), unknown message: '{}'", message))
-            }
-        }
-    }
-
-    return_name_and_groups!();
 }
-
-
-pub type GMAnimation = GMObjectManager<GMAnimationBase>;
-
-impl GMAnimation {
-    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
-        Self {
-            base: GMAnimationBase::new(name, frames),
-            effects: GMEffectManager::new(),
-        }
-    }
-}
-
-pub struct GMAnimationBuilder {
-    animation: GMAnimation,
-}
-
-impl GMAnimationBuilder {
-    pub fn new<S: Into<String>>(name: S, frames: &[(u32, f32)]) -> Self {
-        Self {
-            animation: GMAnimation::new(name, frames),
-        }
-    }
-
-    pub fn with_current_frame(mut self, current_frame: usize) -> Self {
-        debug!("GMAnimationBuilder::with_current_frame(), current_frame: '{}'", current_frame);
-
-        self.animation.base.current_frame = current_frame;
-        self
-    }
-
-    pub fn with_repetition(mut self, repetition: GMRepetition) -> Self {
-        debug!("GMAnimationBuilder::with_repetition(), repetition: '{:?}'", repetition);
-
-        self.animation.base.repetition = repetition;
-        self
-    }
-
-    create_builder_methods!(GMAnimationBuilder, GMAnimationBase, animation);
-
-    pub fn build(self) -> GMAnimation {
-        self.animation
-    }
-}
-*/
