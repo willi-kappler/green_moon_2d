@@ -304,12 +304,17 @@ impl Display for GMCircle {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMPosition(pub GMVec2D);
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMVelocity(pub GMVec2D);
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMAcceleration(pub GMVec2D);
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMScale(pub f32);
 
+#[derive(Copy, Clone, Debug)]
 pub struct GMRotation(pub f32);
