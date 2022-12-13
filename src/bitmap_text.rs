@@ -5,6 +5,7 @@ use std::rc::Rc;
 use std::fmt::Debug;
 
 use log::debug;
+use hecs::Entity;
 
 
 
@@ -61,7 +62,7 @@ pub struct GMBitmapText {
     pub align: GMAlign,
     pub active: bool,
     pub visible: bool,
-    pub chars: Vec<u32>,
+    pub chars: Vec<Entity>,
 }
 
 /*
