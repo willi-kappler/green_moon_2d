@@ -137,6 +137,11 @@ impl GMContext {
             .expect("GMContext::draw_texture_opt(), error when drawing texture!");
     }
 
+    pub fn draw_texture(&mut self, texture: &str, x: f32, y: f32, index: u32) {
+        // TODO: implement drawing of textures
+        todo!();
+    }
+
     // Called by engine
     pub(crate) fn present(&mut self) {
         self.canvas.present();

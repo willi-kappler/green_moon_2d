@@ -1,13 +1,26 @@
 
-use std::rc::Rc;
 
-use crate::texture::GMTexture;
+use hecs::World;
+
+use crate::math::GMPosition;
+use crate::context::GMContext;
+
+#[derive(Clone, Debug)]
+pub struct GMTextureIndex(pub u32);
 
 #[derive(Debug, Clone)]
 pub struct GMSprite {
-    pub texture: Rc<GMTexture>,
+    pub texture: String,
 }
 
+pub fn draw_sprites(world: &mut World, context: &mut GMContext) {
+    for (e, (sprite, position, index)) in world.query::<(&GMSprite, &GMPosition, &GMTextureIndex)>().iter() {
+        let v = position.0;
+        let x = v.x;
+        let y = v.y;
+        context.draw_texture(&sprite.texture, x, y, index.0);
+    }
+}
 
 /*
 use crate::data::GMData;

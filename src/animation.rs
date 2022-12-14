@@ -6,7 +6,7 @@ use hecs::World;
 
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition, GMActive};
-use crate::texture::GMTextureIndex;
+use crate::sprite::GMTextureIndex;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -98,7 +98,10 @@ impl GMAnimation {
 }
 
 pub fn process_animations(world: &mut World) {
-    for (_, (animation, texture_index, active)) in world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex, &mut GMActive)>() {
+    for (_, (animation,
+             texture_index,
+             active)) in
+        world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex, &mut GMActive)>() {
         if active.0 && animation.timer.finished() {
             match animation.repetition {
                 GMRepetition::OnceForward => {
