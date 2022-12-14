@@ -318,3 +318,6 @@ pub struct GMScale(pub f32);
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMRotation(pub f32);
+
+#[derive(Copy, Clone, Debug)]
+pub struct GMFlipXY(pub bool, pub bool);

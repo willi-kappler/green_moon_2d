@@ -60,8 +60,6 @@ pub struct GMBitmapText {
     pub horizontal: bool,
     pub align: GMAlign,
     pub size: GMSize,
-    pub active: bool,
-    pub visible: bool,
     pub chars: Vec<Entity>,
 }
 
@@ -74,8 +72,6 @@ impl GMBitmapText {
             horizontal,
             align,
             size: GMSize::new(0.0, 0.0),
-            active: true,
-            visible: true,
             chars: Vec::new(),
         }
     }

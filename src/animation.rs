@@ -5,12 +5,11 @@ use std::fmt::Debug;
 use hecs::World;
 
 use crate::timer::GMTimer;
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, GMActive};
 use crate::texture::GMTextureIndex;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
-    pub active: bool,
     pub current_frame: usize,
     pub frames: Vec<(u32, f32)>, // index, duration in seconds
     pub timer: GMTimer,
@@ -20,7 +19,6 @@ pub struct GMAnimation {
 impl GMAnimation {
     pub fn new(frames: &[(u32, f32)], repetition: GMRepetition) -> Self {
         Self {
-            active: true,
             current_frame: 0,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
@@ -100,12 +98,12 @@ impl GMAnimation {
 }
 
 pub fn process_animations(world: &mut World) {
-    for (_, (animation, texture_index)) in world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex)>() {
-        if animation.active && animation.timer.finished() {
+    for (_, (animation, texture_index, active)) in world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex, &mut GMActive)>() {
+        if active.0 && animation.timer.finished() {
             match animation.repetition {
                 GMRepetition::OnceForward => {
                     if animation.frame_at_end() {
-                        animation.active = false;
+                        active.0 = false;
                     } else {
                         animation.current_frame += 1;
                         animation.set_new_timer_duration();
@@ -114,7 +112,7 @@ pub fn process_animations(world: &mut World) {
                 }
                 GMRepetition::OnceBackward => {
                     if animation.frame_at_start() {
-                        animation.active = false;
+                        active.0 = false;
                     } else {
                         animation.current_frame -= 1;
                         animation.set_new_timer_duration();

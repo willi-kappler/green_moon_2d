@@ -1,7 +1,5 @@
 
-use std::collections::HashSet;
 
-use log::debug;
 use hecs::Entity;
 
 use crate::math::GMVec2D;
@@ -19,8 +17,6 @@ pub struct GMLine {
     pub init_sprite: GMSprite,
     pub sprites: Vec<Entity>,
     pub line_mode: GMLineMode,
-    pub active: bool,
-    pub visible: bool,
 }
 
 /*

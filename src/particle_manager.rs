@@ -1,8 +1,24 @@
 
 
-use std::collections::HashSet;
+use hecs::Entity;
 
-use log::debug;
+use crate::sprite::GMSprite;
+use crate::timer::GMTimer;
+
+#[derive(Debug, Clone)]
+pub enum GMParticleState {
+    Waiting,
+    Running,
+}
+
+#[derive(Debug, Clone)]
+pub struct GMParticleManager {
+    pub max_num_of_particles: usize,
+    pub particle_sprite: GMSprite,
+    pub wait_time: (f32, f32),
+    pub run_time: (f32, f32),
+    pub particles: Vec<(GMParticleState, GMTimer, Entity)>,
+}
 
 /*
 
