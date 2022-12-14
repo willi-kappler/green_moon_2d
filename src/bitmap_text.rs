@@ -58,11 +58,27 @@ pub struct GMBitmapText {
     pub text: String,
     pub spacing: GMVec2D,
     pub horizontal: bool,
-    pub size: GMSize,
     pub align: GMAlign,
+    pub size: GMSize,
     pub active: bool,
     pub visible: bool,
     pub chars: Vec<Entity>,
+}
+
+impl GMBitmapText {
+    pub fn new<S: Into<String>, T: Into<GMVec2D>>(font: &Rc<GMBitmapFont>, text: S, spacing: T, horizontal: bool, align: GMAlign) -> Self {
+        Self {
+            font: font.clone(),
+            text: text.into(),
+            spacing: spacing.into(),
+            horizontal,
+            align,
+            size: GMSize::new(0.0, 0.0),
+            active: true,
+            visible: true,
+            chars: Vec::new(),
+        }
+    }
 }
 
 /*

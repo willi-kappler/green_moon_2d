@@ -4,6 +4,16 @@ use std::collections::HashSet;
 
 use log::debug;
 
+use crate::texture::GMTexture;
+
+#[derive(Debug, Clone)]
+pub struct GMSprite {
+    pub texture: Rc<GMTexture>,
+    pub visible: bool,
+    pub active: bool,
+}
+
+
 /*
 use crate::data::GMData;
 use crate::texture::GMTexture;

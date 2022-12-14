@@ -2,6 +2,26 @@
 use std::collections::HashSet;
 
 use log::debug;
+use hecs::Entity;
+
+use crate::math::GMVec2D;
+use crate::sprite::GMSprite;
+
+#[derive(Debug, Clone)]
+pub enum GMLineMode {
+    Number(u32),
+    Spacing(f32),
+}
+#[derive(Debug, Clone)]
+pub struct GMLine {
+    pub start: GMVec2D,
+    pub end: GMVec2D,
+    pub init_sprite: GMSprite,
+    pub sprites: Vec<Entity>,
+    pub line_mode: GMLineMode,
+    pub active: bool,
+    pub visible: bool,
+}
 
 /*
 
