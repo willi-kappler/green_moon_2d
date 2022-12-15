@@ -1,5 +1,5 @@
 
-use std::rc::Rc;
+use std::sync::Arc;
 use std::fs;
 use std::path::Path;
 use std::collections::HashMap;
@@ -20,8 +20,8 @@ use crate::util::{error_panic, GMRepetition};
 
 pub struct GMResources {
     texture_creator: TextureCreator<WindowContext>,
-    textures: HashMap<String, Rc<GMTexture>>,
-    fonts: HashMap<String, Rc<GMBitmapFont>>,
+    textures: HashMap<String, Arc<GMTexture>>,
+    fonts: HashMap<String, Arc<GMBitmapFont>>,
     animations: HashMap<String, GMAnimation>,
 }
 
@@ -118,7 +118,7 @@ impl GMResources {
         if self.textures.contains_key(name) {
             error_panic(&format!("A texture with that name already exists: '{}'", name));
         } else {
-            self.textures.insert(name.to_string(), Rc::new(texture));
+            self.textures.insert(name.to_string(), Arc::new(texture));
         }
     }
 
@@ -134,13 +134,13 @@ impl GMResources {
         debug!("GMResources::replace_texture(), name: '{}'", name);
 
         if self.textures.contains_key(name) {
-            self.textures.insert(name.to_string(), Rc::new(texture));
+            self.textures.insert(name.to_string(), Arc::new(texture));
         } else {
             self.no_texture_found(name);
         }
     }
 
-    pub fn get_texture(&self, name: &str) -> &Rc<GMTexture> {
+    pub fn get_texture(&self, name: &str) -> &Arc<GMTexture> {
         debug!("GMResources::get_texture(), name: '{}'", name);
 
         match self.textures.get(name) {
@@ -164,16 +164,16 @@ impl GMResources {
         self.fonts.clear();
     }
 
-    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Rc<GMBitmapFont> {
+    pub fn create_bitmap_font(&self, texture: &str, char_mapping: &str) -> Arc<GMBitmapFont> {
         debug!("GMResources::create_bitmap_font(), texture: '{}'", texture);
 
         let texture = self.get_texture(texture);
         let font = GMBitmapFont::new(texture, char_mapping);
 
-        Rc::new(font)
+        Arc::new(font)
     }
 
-    pub fn add_font(&mut self, name: &str, font: Rc<GMBitmapFont>) {
+    pub fn add_font(&mut self, name: &str, font: Arc<GMBitmapFont>) {
         debug!("GMResources::add_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
@@ -191,7 +191,7 @@ impl GMResources {
         }
     }
 
-    pub fn replace_font(&mut self, name: &str, font: Rc<GMBitmapFont>) {
+    pub fn replace_font(&mut self, name: &str, font: Arc<GMBitmapFont>) {
         debug!("GMResources::replace_font(), name: '{}'", name);
 
         if self.fonts.contains_key(name) {
@@ -201,7 +201,7 @@ impl GMResources {
         }
     }
 
-    pub fn get_font(&self, name: &str) -> &Rc<GMBitmapFont> {
+    pub fn get_font(&self, name: &str) -> &Arc<GMBitmapFont> {
         debug!("GMResources::get_font(), name: '{}'", name);
 
         match self.fonts.get(name) {

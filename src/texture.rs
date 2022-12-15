@@ -14,6 +14,9 @@ pub struct GMTexture {
     texture: Texture,
 }
 
+unsafe impl Sync for GMTexture {}
+unsafe impl Send for GMTexture {}
+
 impl Debug for GMTexture {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "GMTexture, cols: '{}', unit_width: '{}', uni_height: '{}'", self.cols, self.unit_width, self.unit_height)
@@ -72,3 +75,6 @@ impl GMTexture {
         self.unit_height
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMTextureIndex(pub u32);

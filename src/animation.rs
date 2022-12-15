@@ -6,7 +6,7 @@ use hecs::World;
 
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition, GMActive};
-use crate::sprite::GMTextureIndex;
+use crate::texture::GMTextureIndex;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {

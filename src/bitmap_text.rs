@@ -1,7 +1,7 @@
 
 
 use std::collections::{HashMap};
-use std::rc::Rc;
+use std::sync::Arc;
 use std::fmt::Debug;
 
 use log::debug;
@@ -16,12 +16,12 @@ use crate::math::{GMVec2D, GMSize};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
-    texture: Rc<GMTexture>,
+    texture: Arc<GMTexture>,
     mapping: HashMap<char, u32>,
 }
 
 impl GMBitmapFont {
-    pub fn new(texture: &Rc<GMTexture>, char_mapping: &str) -> Self {
+    pub fn new(texture: &Arc<GMTexture>, char_mapping: &str) -> Self {
         debug!("GMBitmapFont::new(), char_mapping: '{}'", char_mapping);
 
         let mut mapping = HashMap::new();
@@ -54,7 +54,7 @@ impl GMBitmapFont {
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapText {
-    pub font: Rc<GMBitmapFont>,
+    pub font: Arc<GMBitmapFont>,
     pub text: String,
     pub spacing: GMVec2D,
     pub horizontal: bool,
@@ -64,7 +64,7 @@ pub struct GMBitmapText {
 }
 
 impl GMBitmapText {
-    pub fn new<S: Into<String>, T: Into<GMVec2D>>(font: &Rc<GMBitmapFont>, text: S, spacing: T, horizontal: bool, align: GMAlign) -> Self {
+    pub fn new<S: Into<String>, T: Into<GMVec2D>>(font: &Arc<GMBitmapFont>, text: S, spacing: T, horizontal: bool, align: GMAlign) -> Self {
         Self {
             font: font.clone(),
             text: text.into(),

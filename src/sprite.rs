@@ -1,16 +1,17 @@
 
 
+use std::sync::Arc;
+
 use hecs::World;
 
 use crate::math::GMPosition;
 use crate::context::GMContext;
+use crate::texture::{GMTexture, GMTextureIndex};
 
-#[derive(Clone, Debug)]
-pub struct GMTextureIndex(pub u32);
 
 #[derive(Debug, Clone)]
 pub struct GMSprite {
-    pub texture: String,
+    pub texture: Arc<GMTexture>,
 }
 
 pub fn draw_sprites(world: &mut World, context: &mut GMContext) {
@@ -18,7 +19,7 @@ pub fn draw_sprites(world: &mut World, context: &mut GMContext) {
         let v = position.0;
         let x = v.x;
         let y = v.y;
-        context.draw_texture(&sprite.texture, x, y, index.0);
+        sprite.texture.draw(x, y, index.0, context);
     }
 }
 
