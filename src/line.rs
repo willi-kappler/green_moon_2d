@@ -3,7 +3,8 @@
 use hecs::Entity;
 
 use crate::math::GMVec2D;
-use crate::sprite::GMSprite;
+use crate::texture::GMSharedTexture;
+use crate::animation::GMAnimation;
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -14,8 +15,9 @@ pub enum GMLineMode {
 pub struct GMLine {
     pub start: GMVec2D,
     pub end: GMVec2D,
-    pub init_sprite: GMSprite,
-    pub sprites: Vec<Entity>,
+    pub texture: GMSharedTexture,
+    pub animation: GMAnimation,
+    pub elements: Vec<Entity>,
     pub line_mode: GMLineMode,
 }
 

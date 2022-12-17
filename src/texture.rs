@@ -1,11 +1,15 @@
 
 use std::fmt::{self, Debug, Formatter};
+use std::sync::Arc;
 
 use sdl2::render::Texture;
 use sdl2::rect::Rect;
 use log::debug;
+use hecs::World;
 
 use crate::context::GMContext;
+use crate::math::GMPosition;
+use crate::util::GMVisible;
 
 pub struct GMTexture {
     cols: u32,
@@ -76,5 +80,29 @@ impl GMTexture {
     }
 }
 
+// ECS
 #[derive(Clone, Debug)]
 pub struct GMTextureIndex(pub u32);
+
+#[derive(Clone, Debug)]
+pub struct GMSharedTexture(pub Arc<GMTexture>);
+
+pub fn gm_draw_textures(world: &mut World, context: &mut GMContext) {
+    for (_e, (texture,
+        position,
+        index,
+        visible
+        )) in
+        world.query::<(&GMSharedTexture,
+            &GMPosition,
+            &GMTextureIndex,
+            &GMVisible
+            )>().iter() {
+        if visible.0 {
+            let v = position.0;
+            let x = v.x;
+            let y = v.y;
+            texture.0.draw(x, y, index.0, context);
+        }
+    }
+}

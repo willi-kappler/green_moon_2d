@@ -2,8 +2,9 @@
 
 use hecs::Entity;
 
-use crate::sprite::GMSprite;
+use crate::texture::GMSharedTexture;
 use crate::timer::GMTimer;
+use crate::animation::GMAnimation;
 
 #[derive(Debug, Clone)]
 pub enum GMParticleState {
@@ -14,7 +15,8 @@ pub enum GMParticleState {
 #[derive(Debug, Clone)]
 pub struct GMParticleManager {
     pub max_num_of_particles: usize,
-    pub particle_sprite: GMSprite,
+    pub texture: GMSharedTexture,
+    pub animation: GMAnimation,
     pub wait_time: (f32, f32),
     pub run_time: (f32, f32),
     pub particles: Vec<(GMParticleState, GMTimer, Entity)>,

@@ -1,6 +1,9 @@
 use std::ops::{Add, Sub, Mul};
 use std::fmt::Display;
 
+use hecs::World;
+
+use crate::util::GMActive;
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
@@ -304,6 +307,8 @@ impl Display for GMCircle {
     }
 }
 
+
+// ECS
 #[derive(Copy, Clone, Debug)]
 pub struct GMPosition(pub GMVec2D);
 
@@ -317,7 +322,38 @@ pub struct GMAcceleration(pub GMVec2D);
 pub struct GMScale(pub f32);
 
 #[derive(Copy, Clone, Debug)]
-pub struct GMRotation(pub f32);
+pub struct GMAngle(pub f32);
+
+#[derive(Copy, Clone, Debug)]
+pub struct GMAngleVelocity(pub f32);
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMFlipXY(pub bool, pub bool);
+
+pub fn gm_move(world: &mut World) {
+    for (_e, (position,
+        velocity,
+        active)) in
+        world.query_mut::<(
+            &mut GMPosition,
+            &GMVelocity,
+            &GMActive)>() {
+        if active.0 {
+            position.0.add2(&velocity.0);
+        }
+    }
+}
+
+pub fn gm_accelerate(world: &mut World) {
+    for (_e, (velocity,
+        acceleration,
+        active)) in
+        world.query_mut::<(
+            &mut GMVelocity,
+            &GMAcceleration,
+            &GMActive)>() {
+        if active.0 {
+            velocity.0.add2(&acceleration.0);
+        }
+    }
+}

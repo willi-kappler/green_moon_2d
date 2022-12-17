@@ -97,7 +97,17 @@ impl GMAnimation {
     }
 }
 
-pub fn process_animations(world: &mut World) {
+pub fn gm_static_animation() -> GMAnimation {
+    GMAnimation {
+        current_frame: 0,
+        frames: vec![(0, 0.0)],
+        timer: GMTimer::new(0.0),
+        repetition: GMRepetition::OnceForward,
+    }
+}
+
+// ECS
+pub fn gm_process_animations(world: &mut World) {
     for (_, (animation,
              texture_index,
              active)) in
