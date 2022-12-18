@@ -1,6 +1,10 @@
 
+use hecs::World;
+
 use crate::util::GMRepetition;
-use crate::math::GMVec2D;
+use crate::math::{GMVec2D, GMAngle, GMPosition};
+use crate::util::GMActive;
+
 
 #[derive(Debug, Clone)]
 pub struct GMInterpolateF32 {
@@ -142,7 +146,7 @@ impl GMInterpolateF32 {
 pub struct GMInterpolateVec2D {
     start: GMVec2D,
     end: GMVec2D,
-    position: GMVec2D,
+    vector: GMVec2D,
     speed: f32,
     direction: GMVec2D,
     length: f32,
@@ -160,7 +164,7 @@ impl GMInterpolateVec2D {
         let result = Self {
             start,
             end,
-            position: start.clone(),
+            vector: start.clone(),
             speed,
             direction: direction.norm2(),
             length,
@@ -181,7 +185,7 @@ impl GMInterpolateVec2D {
                     self.value = self.length;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
             GMRepetition::OnceBackward => {
                 self.value -= self.speed;
@@ -189,7 +193,7 @@ impl GMInterpolateVec2D {
                     self.value = 0.0;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
             GMRepetition::LoopForward => {
                 self.value += self.speed;
@@ -197,7 +201,7 @@ impl GMInterpolateVec2D {
                     self.value = 0.0;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
             GMRepetition::LoopBackward => {
                 self.value -= self.speed;
@@ -205,7 +209,7 @@ impl GMInterpolateVec2D {
                     self.value = self.length;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
             GMRepetition::PingPongForward => {
                 self.value += self.speed;
@@ -214,7 +218,7 @@ impl GMInterpolateVec2D {
                     self.repetition = GMRepetition::PingPongBackward;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
             GMRepetition::PingPongBackward => {
                 self.value -= self.speed;
@@ -223,7 +227,7 @@ impl GMInterpolateVec2D {
                     self.repetition = GMRepetition::PingPongForward;
                 }
 
-                self.position = self.start + (self.direction * self.value);
+                self.vector = self.start + (self.direction * self.value);
             },
         }
     }
@@ -312,8 +316,8 @@ impl GMInterpolateVec2D {
         self.value = self.length * value;
     }
 
-    pub fn get_position(&self) -> GMVec2D {
-        self.position.clone()
+    pub fn get_vector(&self) -> GMVec2D {
+        self.vector.clone()
     }
 
     pub fn is_finished(&self) -> bool {
@@ -327,6 +331,50 @@ impl GMInterpolateVec2D {
             _ => {
                 false
             }
+        }
+    }
+}
+
+// ECS
+
+#[derive(Clone, Debug)]
+pub struct GMInterpolateRotation(pub GMInterpolateF32);
+
+#[derive(Clone, Debug)]
+pub struct GMInterpolatePosition(pub GMInterpolateVec2D);
+
+pub fn gm_interpolate_rotation(world: &mut World) {
+    for (_e, (angle,
+        interpolate,
+        active
+        )) in
+        world.query_mut::<(
+            &mut GMAngle,
+            &mut GMInterpolateRotation,
+            &GMActive
+        )>() {
+        if active.0 {
+            let interpolate = &mut interpolate.0;
+            interpolate.update();
+            angle.0 = interpolate.get_value();
+        }
+    }
+}
+
+pub fn gm_interpolate_position(world: &mut World) {
+    for (_e, (position,
+        interpolate,
+        active
+        )) in
+        world.query_mut::<(
+            &mut GMPosition,
+            &mut GMInterpolatePosition,
+            &GMActive
+        )>() {
+        if active.0 {
+            let interpolate = &mut interpolate.0;
+            interpolate.update();
+            position.0 = interpolate.get_vector();
         }
     }
 }
