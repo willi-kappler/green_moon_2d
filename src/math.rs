@@ -1,10 +1,6 @@
 use std::ops::{Add, Sub, Mul};
 use std::fmt::Display;
 
-use hecs::World;
-
-use crate::util::GMActive;
-
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
@@ -329,58 +325,3 @@ pub struct GMAngleVelocity(pub f32);
 
 #[derive(Clone, Debug)]
 pub struct GMFlipXY(pub bool, pub bool);
-
-pub fn gm_move(world: &mut World) {
-    for (_e, (position,
-        velocity,
-        active
-        )) in
-        world.query_mut::<(
-            &mut GMPosition,
-            &GMVelocity,
-            &GMActive
-        )>() {
-        if active.0 {
-            position.0.add2(&velocity.0);
-        }
-    }
-}
-
-pub fn gm_accelerate(world: &mut World) {
-    for (_e, (velocity,
-        acceleration,
-        active
-        )) in
-        world.query_mut::<(
-            &mut GMVelocity,
-            &GMAcceleration,
-            &GMActive
-        )>() {
-        if active.0 {
-            velocity.0.add2(&acceleration.0);
-        }
-    }
-}
-
-pub fn gm_rotate(world: &mut World) {
-    for (_e, (angle,
-        angle_velocity,
-        active
-        )) in
-        world.query_mut::<(
-            &mut GMAngle,
-            &GMAngleVelocity,
-            &GMActive
-        )>() {
-        if active.0 {
-            angle.0 += &angle_velocity.0;
-        }
-    }
-}
-
-pub fn gm_move_and_rotate(world: &mut World) {
-    gm_move(world);
-    gm_accelerate(world);
-    gm_rotate(world);
-}
-

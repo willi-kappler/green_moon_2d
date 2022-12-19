@@ -2,9 +2,8 @@
 use std::collections::{VecDeque};
 
 use sdl2::video::{self, Window, WindowContext};
-use sdl2::render::{Texture, TextureCreator, Canvas};
+use sdl2::render::{TextureCreator, Canvas};
 use sdl2::pixels;
-use sdl2::rect::Rect;
 
 use log::debug;
 use hecs::World;
@@ -14,6 +13,12 @@ use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
+use crate::math::{GMPosition, GMVelocity, GMAcceleration, GMAngle, GMAngleVelocity, GMScale, GMFlipXY};
+use crate::util::{GMActive, GMRepetition, GMVisible};
+use crate::animation::GMAnimation;
+use crate::texture::{GMTextureIndex, GMSharedTexture};
+use crate::interpolation::{GMInterpolatePosition, GMInterpolateRotation};
+
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,
@@ -124,6 +129,15 @@ impl GMContext {
     // Update context, called by engine once per frame
     pub(crate) fn update(&mut self) {
         self.input.update();
+
+        self.move_positions();
+        self.accelerate_velocities();
+        self.rotate_angles();
+
+        self.interpolate_position();
+        self.interpolate_rotation();
+
+        self.process_animations();
     }
 
     // Events, called by user code
@@ -131,14 +145,10 @@ impl GMContext {
         self.input.event(event_code)
     }
 
-    // Draw methods:
-    pub fn draw_texture_opt(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
-        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
-            .expect("GMContext::draw_texture_opt(), error when drawing texture!");
-    }
-
-    // Called by engine
+    // Called by engine every frame
     pub(crate) fn present(&mut self) {
+        self.draw_textures();
+
         self.canvas.present();
     }
 
@@ -170,4 +180,191 @@ impl GMContext {
     pub fn window_height(&self) -> f32 {
         self.window_height
     }
+
+    // ECS methods
+    fn draw_textures(&mut self) {
+        let world = &self.world;
+        let canvas = &mut self.canvas;
+
+        for (_e, (texture,
+            index,
+            position,
+            scale,
+            angle,
+            flip_xy,
+            visible
+            )) in
+            world.query::<(&GMSharedTexture,
+                &GMTextureIndex,
+                &GMPosition,
+                &GMScale,
+                &GMAngle,
+                &GMFlipXY,
+                &GMVisible
+                )>().iter() {
+            if visible.0 {
+                let v = position.0;
+                let x = v.x;
+                let y = v.y;
+                let (sdl_texture, src_rect, dst_rect) = texture.0.get_draw_settings(x, y, index.0, scale.0);
+
+                canvas.copy_ex(sdl_texture, src_rect, dst_rect, angle.0 as f64, None, flip_xy.0, flip_xy.1)
+                .expect("GMContext::draw_texture_opt(), error when drawing texture!");
+            }
+        }
+    }
+
+    fn move_positions(&mut self) {
+        for (_e, (position,
+            velocity,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMPosition,
+                &GMVelocity,
+                &GMActive
+            )>() {
+            if active.0 {
+                position.0.add2(&velocity.0);
+            }
+        }
+    }
+
+    fn accelerate_velocities(&mut self) {
+        for (_e, (velocity,
+            acceleration,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMVelocity,
+                &GMAcceleration,
+                &GMActive
+            )>() {
+            if active.0 {
+                velocity.0.add2(&acceleration.0);
+            }
+        }
+    }
+
+    fn rotate_angles(&mut self) {
+        for (_e, (angle,
+            angle_velocity,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMAngle,
+                &GMAngleVelocity,
+                &GMActive
+            )>() {
+            if active.0 {
+                angle.0 += &angle_velocity.0;
+            }
+        }
+    }
+
+    fn process_animations(&mut self) {
+        for (_, (animation,
+                 texture_index,
+                 active)) in
+            self.world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex, &mut GMActive)>() {
+            if active.0 && animation.timer.finished() {
+                match animation.repetition {
+                    GMRepetition::OnceForward => {
+                        if animation.frame_at_end() {
+                            active.0 = false;
+                        } else {
+                            animation.current_frame += 1;
+                            animation.set_new_timer_duration();
+                            texture_index.0 = animation.texture_index();
+                        }
+                    }
+                    GMRepetition::OnceBackward => {
+                        if animation.frame_at_start() {
+                            active.0 = false;
+                        } else {
+                            animation.current_frame -= 1;
+                            animation.set_new_timer_duration();
+                            texture_index.0 = animation.texture_index();
+                        }
+                    }
+                    GMRepetition::LoopForward => {
+                        if animation.frame_at_end() {
+                            // Restart animation
+                            animation.current_frame = 0;
+                        } else {
+                            animation.current_frame += 1;
+                        }
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
+                    }
+                    GMRepetition::LoopBackward => {
+                        if animation.frame_at_start() {
+                            // Restart animation
+                            animation.current_frame = animation.frames.len() - 1;
+                        } else {
+                            animation.current_frame -= 1;
+                        }
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
+                    }
+                    GMRepetition::PingPongForward => {
+                        if animation.frame_at_end() {
+                            animation.repetition =  GMRepetition::PingPongBackward;
+                        } else {
+                            animation.current_frame += 1;
+                        }
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
+                    }
+                    GMRepetition::PingPongBackward => {
+                        if animation.frame_at_start() {
+                            animation.repetition =  GMRepetition::PingPongForward;
+                        } else {
+                            animation.current_frame -= 1;
+                        }
+                        animation.set_new_timer_duration();
+                        texture_index.0 = animation.texture_index();
+                    }
+                }
+            }
+        }
+    }
+
+    fn interpolate_rotation(&mut self) {
+        for (_e, (angle,
+            interpolate,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMAngle,
+                &mut GMInterpolateRotation,
+                &GMActive
+            )>() {
+            if active.0 {
+                let interpolate = &mut interpolate.0;
+                interpolate.update();
+                angle.0 = interpolate.get_value();
+            }
+        }
+    }
+
+    fn interpolate_position(&mut self) {
+        for (_e, (position,
+            interpolate,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMPosition,
+                &mut GMInterpolatePosition,
+                &GMActive
+            )>() {
+            if active.0 {
+                let interpolate = &mut interpolate.0;
+                interpolate.update();
+                position.0 = interpolate.get_vector();
+            }
+        }
+    }
+
+
 }

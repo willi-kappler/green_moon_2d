@@ -343,38 +343,3 @@ pub struct GMInterpolateRotation(pub GMInterpolateF32);
 #[derive(Clone, Debug)]
 pub struct GMInterpolatePosition(pub GMInterpolateVec2D);
 
-pub fn gm_interpolate_rotation(world: &mut World) {
-    for (_e, (angle,
-        interpolate,
-        active
-        )) in
-        world.query_mut::<(
-            &mut GMAngle,
-            &mut GMInterpolateRotation,
-            &GMActive
-        )>() {
-        if active.0 {
-            let interpolate = &mut interpolate.0;
-            interpolate.update();
-            angle.0 = interpolate.get_value();
-        }
-    }
-}
-
-pub fn gm_interpolate_position(world: &mut World) {
-    for (_e, (position,
-        interpolate,
-        active
-        )) in
-        world.query_mut::<(
-            &mut GMPosition,
-            &mut GMInterpolatePosition,
-            &GMActive
-        )>() {
-        if active.0 {
-            let interpolate = &mut interpolate.0;
-            interpolate.update();
-            position.0 = interpolate.get_vector();
-        }
-    }
-}
