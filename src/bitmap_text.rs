@@ -75,6 +75,18 @@ impl GMBitmapText {
             chars: Vec::new(),
         }
     }
+
+    pub fn new2<S: Into<String>, T: Into<GMVec2D>>(font: &Arc<GMBitmapFont>, text: S) -> Self {
+        Self {
+            font: font.clone(),
+            text: text.into(),
+            spacing: GMVec2D::new(0.0, 0.0),
+            horizontal: true,
+            align: GMAlign::TopLeft,
+            size: GMSize::new(0.0, 0.0),
+            chars: Vec::new(),
+        }
+    }
 }
 
 /*
