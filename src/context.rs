@@ -130,14 +130,6 @@ impl GMContext {
     pub(crate) fn update(&mut self) {
         self.input.update();
 
-        self.move_positions();
-        self.accelerate_velocities();
-        self.rotate_angles();
-
-        self.interpolate_position();
-        self.interpolate_rotation();
-
-        self.process_animations();
     }
 
     // Events, called by user code
@@ -147,8 +139,6 @@ impl GMContext {
 
     // Called by engine every frame
     pub(crate) fn present(&mut self) {
-        self.draw_textures();
-
         self.canvas.present();
     }
 
@@ -182,7 +172,7 @@ impl GMContext {
     }
 
     // ECS methods
-    fn draw_textures(&mut self) {
+    pub fn draw_textures(&mut self) {
         let world = &self.world;
         let canvas = &mut self.canvas;
 
@@ -214,7 +204,18 @@ impl GMContext {
         }
     }
 
-    fn move_positions(&mut self) {
+    pub fn update_movables(&mut self) {
+        self.process_animations();
+
+        self.move_positions();
+        self.accelerate_velocities();
+        self.rotate_angles();
+
+        self.interpolate_rotation();
+        self.interpolate_position();
+    }
+
+    pub fn move_positions(&mut self) {
         for (_e, (position,
             velocity,
             active
@@ -230,7 +231,7 @@ impl GMContext {
         }
     }
 
-    fn accelerate_velocities(&mut self) {
+    pub fn accelerate_velocities(&mut self) {
         for (_e, (velocity,
             acceleration,
             active
@@ -246,7 +247,7 @@ impl GMContext {
         }
     }
 
-    fn rotate_angles(&mut self) {
+    pub fn rotate_angles(&mut self) {
         for (_e, (angle,
             angle_velocity,
             active
@@ -262,7 +263,7 @@ impl GMContext {
         }
     }
 
-    fn process_animations(&mut self) {
+    pub fn process_animations(&mut self) {
         for (_, (animation,
                  texture_index,
                  active)) in
@@ -330,7 +331,7 @@ impl GMContext {
         }
     }
 
-    fn interpolate_rotation(&mut self) {
+    pub fn interpolate_rotation(&mut self) {
         for (_e, (angle,
             interpolate,
             active
@@ -348,7 +349,7 @@ impl GMContext {
         }
     }
 
-    fn interpolate_position(&mut self) {
+    pub fn interpolate_position(&mut self) {
         for (_e, (position,
             interpolate,
             active
