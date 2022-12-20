@@ -67,7 +67,7 @@ impl GMResources {
         }
 
         for animation in resources.animations {
-            let new_animation = self.create_animation(&animation.name, &animation.animation_type, &animation.frames);
+            let new_animation = self.create_animation( &animation.animation_type, &animation.frames);
             self.add_animation(&animation.name, new_animation);
         }
 
@@ -226,7 +226,7 @@ impl GMResources {
         self.animations.clear();
     }
 
-    pub fn create_animation<S: Into<String>>(&self, name: S, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimation {
+    pub fn create_animation(&self, animation_type: &str, frames: &[(u32, f32)]) -> GMAnimation {
         debug!("GMResources::create_animation(), animation_type: '{}'", animation_type);
 
         let repetition = GMRepetition::from(animation_type);

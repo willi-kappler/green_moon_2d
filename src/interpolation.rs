@@ -1,9 +1,7 @@
 
-use hecs::World;
 
 use crate::util::GMRepetition;
-use crate::math::{GMVec2D, GMAngle, GMPosition};
-use crate::util::GMActive;
+use crate::math::GMVec2D;
 
 
 #[derive(Debug, Clone)]

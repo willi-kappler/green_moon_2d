@@ -2,11 +2,9 @@
 use std::fmt::Debug;
 
 // use log::debug;
-use hecs::World;
 
 use crate::timer::GMTimer;
-use crate::util::{GMRepetition, GMActive};
-use crate::texture::GMTextureIndex;
+use crate::util::GMRepetition;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
