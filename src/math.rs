@@ -79,20 +79,32 @@ impl GMVec2D {
         self.y *= factor;
     }
 
+    pub fn dot(&self, other: &GMVec2D) -> f32 {
+        (self.x * other.x) + (self.y * other.y)
+    }
+
     pub fn angle(&self, other: &GMVec2D) -> f32 {
-        todo!("Return angle between two vectors");
+        let dot = self.dot(other);
+        let l1 = self.len();
+        let l2 = other.len();
+
+        (dot/(l1*l2)).acos()
     }
 
     pub fn angle2(&self, x: f32, y: f32) -> f32 {
-        todo!("Return angle between vector and position");
+        let other = GMVec2D::new(x, y);
+        self.angle(&other)
     }
 
     pub fn dist_to(&self, other: &GMVec2D) -> f32 {
-        todo!("Return distance to other vector");
+        self.dist_to2(other.x, other.y)
     }
 
     pub fn dist_to2(&self, x: f32, y: f32) -> f32 {
-        todo!("Return distance to other point");
+        let dx = self.x - x;
+        let dy= self.y - y;
+
+        dx.hypot(dy)
     }
 }
 
