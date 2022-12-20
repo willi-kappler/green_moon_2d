@@ -5,8 +5,7 @@ use std::sync::Arc;
 use std::fmt::Debug;
 
 use log::debug;
-use hecs::Entity;
-
+use hecs::{World, Entity, Component, EntityBuilder};
 
 
 use crate::texture::GMTexture;
@@ -63,29 +62,68 @@ pub struct GMBitmapText {
     pub chars: Vec<Entity>,
 }
 
-impl GMBitmapText {
-    pub fn new<S: Into<String>, T: Into<GMVec2D>>(font: &Arc<GMBitmapFont>, text: S, spacing: T, horizontal: bool, align: GMAlign) -> Self {
-        Self {
-            font: font.clone(),
-            text: text.into(),
-            spacing: spacing.into(),
-            horizontal,
-            align,
-            size: GMSize::new(0.0, 0.0),
-            chars: Vec::new(),
-        }
-    }
+pub struct GMBitmapTextBuilder {
+    font: Arc<GMBitmapFont>,
+    text: String,
+    spacing: GMVec2D,
+    horizontal: bool,
+    align: GMAlign,
+    entity_builder: EntityBuilder,
+}
 
-    pub fn new2<S: Into<String>, T: Into<GMVec2D>>(font: &Arc<GMBitmapFont>, text: S) -> Self {
+impl GMBitmapTextBuilder {
+    pub fn new<S: Into<String>, T: Into<GMVec2D>>(font: Arc<GMBitmapFont>, text: S, position: T) -> Self {
+        let mut entity_builder = EntityBuilder::new();
+        entity_builder.add(position.into());
+
         Self {
-            font: font.clone(),
+            font,
             text: text.into(),
             spacing: GMVec2D::new(0.0, 0.0),
             horizontal: true,
             align: GMAlign::TopLeft,
-            size: GMSize::new(0.0, 0.0),
-            chars: Vec::new(),
+            entity_builder,
         }
+    }
+
+    pub fn spacing<T: Into<GMVec2D>>(mut self, spacing: T) -> Self {
+        self.spacing = spacing.into();
+        self
+    }
+
+    pub fn horizontal(mut self, horizontal: bool) -> Self {
+        self.horizontal = horizontal;
+        self
+    }
+
+    pub fn align(mut self, align: GMAlign) -> Self {
+        self.align = align;
+        self
+    }
+
+    pub fn add_component<T: Component>(mut self, component: T) -> Self {
+        self.entity_builder.add(component);
+        self
+    }
+
+    pub fn build(mut self, world: &mut World) -> Entity {
+        let size = GMSize::new(0.0, 0.0);
+        let chars = Vec::new();
+
+
+        let bitmap_text = GMBitmapText {
+            font: self.font,
+            text: self.text,
+            spacing: self.spacing,
+            horizontal: self.horizontal,
+            align: self.align,
+            size,
+            chars,
+        };
+
+        self.entity_builder.add(bitmap_text);
+        let built_entity = self.entity_builder.build();
+        world.spawn(built_entity)
     }
 }
 
