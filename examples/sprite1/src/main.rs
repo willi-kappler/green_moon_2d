@@ -7,8 +7,10 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::sprite::GMSpriteBuilder;
-use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateVec2D, GMInterpolateF32};
+use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateCircle, GMInterpolateVec2D,
+    GMInterpolateF32};
 use green_moon_2d::util::GMRepetition;
+use green_moon_2d::math::GMVec2D;
 
 
 #[derive(Debug)]
@@ -37,6 +39,16 @@ impl GMSceneT for SpriteScene1 {
         ice_cream1_interpolate2.repetition = GMRepetition::PingPongForward;
         let ice_cream1_rotation = GMInterpolateRotation(ice_cream1_interpolate2);
 
+        let head1_texture = resources.get_texture("tex_head1");
+        let head1_animation = resources.get_animation("anim_head1");
+        let head1_position = (512.0, 400.0);
+        let mut head1_interpolate1 = GMInterpolateF32::new(90.0-60.0, 90.0+60.0, 2.0);
+        head1_interpolate1.repetition = GMRepetition::PingPongForward;
+        let head1_circle = GMInterpolateCircle {
+            interpolate: head1_interpolate1,
+            center: GMVec2D::new(512.0, 400.0),
+            radius: 70.0,
+        };
 
         let world = context.world_mut();
 
@@ -53,10 +65,16 @@ impl GMSceneT for SpriteScene1 {
             .add_component(ghost1_animation)
             .build(world);
 
-        // Ice cream1
+        // Ice cream
         let _sprite = GMSpriteBuilder::new(ice_cream1_texture, ice_cream1_position)
             .add_component(ice_cream1_movement)
             .add_component(ice_cream1_rotation)
+            .build(world);
+
+        // Head
+        let _sprite = GMSpriteBuilder::new(head1_texture, head1_position)
+            .add_component(head1_animation)
+            .add_component(head1_circle)
             .build(world);
     }
 
@@ -71,6 +89,7 @@ impl GMSceneT for SpriteScene1 {
         context.process_animations();
         context.interpolate_position();
         context.interpolate_rotation();
+        context.interpolate_circle();
     }
 
     fn draw(&self, context: &mut GMContext) {
