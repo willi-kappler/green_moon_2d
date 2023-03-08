@@ -7,6 +7,8 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::sprite::GMSpriteBuilder;
+use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateVec2D, GMInterpolateF32};
+use green_moon_2d::util::GMRepetition;
 
 
 #[derive(Debug)]
@@ -18,17 +20,44 @@ impl GMSceneT for SpriteScene1 {
         let resources = context.resources_mut();
 
         // Set some sprite properties:
-        let texture = resources.get_texture("tex_bat1");
-        let animation = resources.get_animation("anim_bat1");
-        let position = (512.0, 200.0);
+        let bat1_texture = resources.get_texture("tex_bat1");
+        let bat1_animation = resources.get_animation("anim_bat1");
+        let bat1_position = (512.0, 200.0);
 
-        let _sprite = GMSpriteBuilder::new(texture.clone(), position)
+        let ghost1_texture = resources.get_texture("tex_ghost1");
+        let ghost1_animation = resources.get_animation("anim_ghost1");
+        let ghost1_position = (512.0, 250.0);
+
+        let ice_cream1_texture = resources.get_texture("tex_ice_cream1");
+        let ice_cream1_position = (100.0, 300.0);
+        let mut ice_cream1_interpolate1 = GMInterpolateVec2D::new((100.0, 300.0), (900.0, 300.0), 4.0);
+        ice_cream1_interpolate1.repetition = GMRepetition::PingPongForward;
+        let ice_cream1_movement = GMInterpolatePosition(ice_cream1_interpolate1);
+        let mut ice_cream1_interpolate2 = GMInterpolateF32::new(-30.0, 30.0, 2.0);
+        ice_cream1_interpolate2.repetition = GMRepetition::PingPongForward;
+        let ice_cream1_rotation = GMInterpolateRotation(ice_cream1_interpolate2);
+
+
+        let world = context.world_mut();
+
+        // Bat sprite:
+        let _sprite = GMSpriteBuilder::new(bat1_texture, bat1_position)
             // Animation is added as a component to the sprite entity:
-            .add_component(animation)
+            .add_component(bat1_animation)
             // Creates a new entity and adds it to the world:
-            .build(context.get_world_mut());
+            .build(world);
 
+        // Ghost sprite:
+        let _sprite = GMSpriteBuilder::new(ghost1_texture, ghost1_position)
+            .flip_x(true)
+            .add_component(ghost1_animation)
+            .build(world);
 
+        // Ice cream1
+        let _sprite = GMSpriteBuilder::new(ice_cream1_texture, ice_cream1_position)
+            .add_component(ice_cream1_movement)
+            .add_component(ice_cream1_rotation)
+            .build(world);
     }
 
     fn update(&mut self, context: &mut GMContext) {
@@ -40,6 +69,8 @@ impl GMSceneT for SpriteScene1 {
 
         // Queries all the entities who have an animation
         context.process_animations();
+        context.interpolate_position();
+        context.interpolate_rotation();
     }
 
     fn draw(&self, context: &mut GMContext) {
