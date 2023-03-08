@@ -140,12 +140,12 @@ impl GMResources {
         }
     }
 
-    pub fn get_texture(&self, name: &str) -> &Arc<GMTexture> {
+    pub fn get_texture(&self, name: &str) -> Arc<GMTexture> {
         debug!("GMResources::get_texture(), name: '{}'", name);
 
         match self.textures.get(name) {
             Some(texture) => {
-                texture
+                texture.clone()
             }
             None => {
                 self.no_texture_found(name);

@@ -20,7 +20,7 @@ pub struct GMBitmapFont {
 }
 
 impl GMBitmapFont {
-    pub fn new(texture: &Arc<GMTexture>, char_mapping: &str) -> Self {
+    pub fn new(texture: Arc<GMTexture>, char_mapping: &str) -> Self {
         debug!("GMBitmapFont::new(), char_mapping: '{}'", char_mapping);
 
         let mut mapping = HashMap::new();
@@ -30,7 +30,7 @@ impl GMBitmapFont {
         }
 
         Self {
-            texture: texture.clone(),
+            texture: texture,
             mapping,
         }
     }

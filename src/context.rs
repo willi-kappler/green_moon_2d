@@ -59,11 +59,11 @@ impl GMContext {
     }
 
     // ECS world
-    pub fn get_world(&self) -> &World {
+    pub fn world(&self) -> &World {
         &self.world
     }
 
-    pub fn get_world_mut(&mut self) -> &mut World {
+    pub fn world_mut(&mut self) -> &mut World {
         &mut self.world
     }
 
