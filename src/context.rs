@@ -1,5 +1,6 @@
 
 use std::collections::{VecDeque};
+use std::f32::consts::TAU;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{TextureCreator, Canvas};
@@ -13,11 +14,11 @@ use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
-use crate::math::{GMPosition, GMVelocity, GMAcceleration, GMAngle, GMAngleVelocity, GMScale, GMFlipXY};
+use crate::math::{GMPosition, GMVelocity, GMAcceleration, GMAngle, GMAngleVelocity, GMScale, GMFlipXY, GMVec2D};
 use crate::util::{GMActive, GMRepetition, GMVisible};
 use crate::animation::GMAnimation;
 use crate::texture::{GMTextureIndex, GMSharedTexture};
-use crate::interpolation::{GMInterpolatePosition, GMInterpolateRotation};
+use crate::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateCircle};
 
 
 pub struct GMContext {
@@ -367,5 +368,26 @@ impl GMContext {
         }
     }
 
-
+    pub fn interpolate_circle(&mut self) {
+        for (_e, (position,
+            interpolate,
+            active
+            )) in
+            self.world.query_mut::<(
+                &mut GMPosition,
+                &mut GMInterpolateCircle,
+                &GMActive
+            )>() {
+            if active.0 {
+                let radius = interpolate.radius;
+                let center = interpolate.center;
+                let interpolate = &mut interpolate.interpolate;
+                interpolate.update();
+                let t = interpolate.get_value() * TAU / 360.0;
+                let x = center.x + (t.cos() * radius);
+                let y = center.y + (t.sin() * radius);
+                position.0 = GMVec2D::new(x, y);
+            }
+        }
+    }
 }

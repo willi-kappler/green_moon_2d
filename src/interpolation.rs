@@ -341,3 +341,9 @@ pub struct GMInterpolateRotation(pub GMInterpolateF32);
 #[derive(Clone, Debug)]
 pub struct GMInterpolatePosition(pub GMInterpolateVec2D);
 
+#[derive(Clone, Debug)]
+pub struct GMInterpolateCircle {
+    pub interpolate: GMInterpolateF32,
+    pub center: GMVec2D,
+    pub radius: f32,
+}
