@@ -24,7 +24,13 @@ pub(crate) enum GMSceneManagerMessage {
 }
 
 pub trait GMSceneT: Debug {
+    fn init(&mut self, _context: &mut GMContext) {
+    }
+
     fn enter(&mut self, _context: &mut GMContext) {
+    }
+
+    fn exit(&mut self, _context: &mut GMContext) {
     }
 
     fn update(&mut self, context: &mut GMContext);
@@ -103,6 +109,7 @@ impl GMSceneManager {
 
         match self.scene_index(name) {
             Some(index) => {
+                self.scenes[self.current_scene_index].1.exit(context);
                 self.current_scene_index = index;
                 self.scenes[index].1.enter(context);
             }
@@ -151,6 +158,29 @@ impl GMSceneManager {
                 error_panic("The scene stack is empty!");
             }
         }
+    }
+
+    pub(crate) fn init_scene(&mut self, index: usize, context: &mut GMContext) {
+        self.scenes[index].1.init(context);
+    }
+
+    pub fn init_scene_name(&mut self, name: &str, context: &mut GMContext) {
+        match self.scene_index(name) {
+            Some(index) => {
+                self.init_scene(index, context);
+            }
+            None => {
+                error_panic(&format!("A scene with name '{}' does not exists!", name));
+            }
+        }
+    }
+
+    pub fn init_current_scene(&mut self, context: &mut GMContext) {
+        self.scenes[self.current_scene_index].1.init(context);
+    }
+
+    pub(crate) fn enter_scene(&mut self, index: usize, context: &mut GMContext) {
+        self.scenes[index].1.enter(context);
     }
 
     pub(crate) fn update(&mut self, context: &mut GMContext) {

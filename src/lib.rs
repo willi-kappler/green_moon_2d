@@ -34,3 +34,6 @@ pub use scene::GMSceneT;
 
 // Export from SDL2
 pub use sdl2::pixels::Color;
+
+// Export from Hecs
+pub use hecs::{World, Entity};

@@ -52,6 +52,11 @@ impl GMBitmapFont {
 }
 
 #[derive(Debug, Clone)]
+pub struct GMChar {
+    pub index: u32,
+}
+
+#[derive(Debug, Clone)]
 pub struct GMBitmapText {
     pub font: Arc<GMBitmapFont>,
     pub text: String,
@@ -110,6 +115,7 @@ impl GMBitmapTextBuilder {
         let size = GMSize::new(0.0, 0.0);
         let chars = Vec::new();
 
+        // TODO: spawn chars as entities and add the id to chars vector.
 
         let bitmap_text = GMBitmapText {
             font: self.font,

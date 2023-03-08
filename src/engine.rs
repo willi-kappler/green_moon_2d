@@ -156,6 +156,9 @@ impl GMEngine {
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(self.configuration.fps).expect("GMEngine::run(), could not set frame rate");
 
+        self.scene_manager.init_scene(0, context);
+        self.scene_manager.enter_scene(0, context);
+
         use GMEngineMessage::*;
 
         'quit: loop {
