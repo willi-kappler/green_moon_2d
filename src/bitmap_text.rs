@@ -8,6 +8,7 @@ use log::debug;
 use hecs::{World, Entity, Component, EntityBuilder};
 
 
+use crate::sprite::GMSpriteBuilder;
 use crate::texture::GMTexture;
 // use crate::context::GMContext;
 use crate::util::{error_panic, GMAlign};
@@ -52,11 +53,6 @@ impl GMBitmapFont {
 }
 
 #[derive(Debug, Clone)]
-pub struct GMChar {
-    pub index: u32,
-}
-
-#[derive(Debug, Clone)]
 pub struct GMBitmapText {
     pub font: Arc<GMBitmapFont>,
     pub text: String,
@@ -65,6 +61,29 @@ pub struct GMBitmapText {
     pub align: GMAlign,
     pub size: GMSize,
     pub chars: Vec<Entity>,
+}
+
+impl GMBitmapText {
+    pub fn reset_chars(&mut self, world: &mut World) {
+        // Remove all the characters and recreate them
+        for e in self.chars.iter() {
+            world.despawn(*e).unwrap();
+        }
+
+        self.chars.clear();
+
+        for c in self.text.chars() {
+            let index = self.font.get_index(c);
+            let sprite = GMSpriteBuilder::new(self.font.texture.clone(), (0.0, 0.0))
+                .texture_index(index)
+                .build(world);
+            self.chars.push(sprite);
+        }
+    }
+
+    pub fn reset_chars_pos(&mut self, world: &mut World) {
+
+    }
 }
 
 pub struct GMBitmapTextBuilder {
@@ -115,9 +134,9 @@ impl GMBitmapTextBuilder {
         let size = GMSize::new(0.0, 0.0);
         let chars = Vec::new();
 
-        // TODO: spawn chars as entities and add the id to chars vector.
 
-        let bitmap_text = GMBitmapText {
+
+        let mut bitmap_text = GMBitmapText {
             font: self.font,
             text: self.text,
             spacing: self.spacing,
@@ -126,6 +145,9 @@ impl GMBitmapTextBuilder {
             size,
             chars,
         };
+
+        bitmap_text.reset_chars(world);
+        bitmap_text.reset_chars_pos(world);
 
         self.entity_builder.add(bitmap_text);
         let built_entity = self.entity_builder.build();
