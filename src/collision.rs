@@ -1,6 +1,6 @@
 
 
-use crate::math::{GMSize, GMVec2D, GMRectangle, GMCircle};
+use crate::math::{GMSize, GMVec2D, GMRectangle};
 
 #[derive(Clone, Debug)]
 pub enum GMCollisionShape {
@@ -32,10 +32,10 @@ pub fn intersects(pos1: &GMVec2D, shape1: &GMCollisionShape, pos2: &GMVec2D, sha
             todo!("intersects: {:?}, {:?}", radius1, size2);
         }
         (Circle(radius1), Circle(radius2)) => {
-            let circle1 = GMCircle::new2(pos1, *radius1);
-            let circle2 = GMCircle::new2(pos2, *radius2);
+            let dist1 = radius1 + radius2;
+            let dist2 = (*pos1 - *pos2).len();
 
-            todo!("intersects: {:?}, {:?}", circle1, circle2);
+            dist2 < dist1
         }
     }
 }

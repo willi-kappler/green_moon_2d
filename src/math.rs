@@ -1,6 +1,12 @@
 use std::ops::{Add, Sub, Mul};
 use std::fmt::Display;
 
+use std::f32::consts::TAU;
+
+use hecs::World;
+
+use crate::util::GMActive;
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
@@ -39,37 +45,20 @@ impl GMVec2D {
         }
     }
 
-    pub fn set1(&mut self, x: f32, y: f32) {
-        self.x = x;
-        self.y = y;
-    }
-
-    pub fn set2(&mut self, other: &GMVec2D) {
+    pub fn set<T: Into<GMVec2D>>(&mut self, vec2d: T) {
+        let other = vec2d.into();
         self.x = other.x;
         self.y = other.y;
     }
 
-    pub fn set3(&mut self, other: GMVec2D) {
-        self.x = other.x;
-        self.y = other.y;
-    }
-
-    pub fn add1(&mut self, x: f32, y: f32) {
-        self.x += x;
-        self.y += y;
-    }
-
-    pub fn add2(&mut self, other: &GMVec2D) {
+    pub fn add2<T: Into<GMVec2D>>(&mut self, vec2d: T) {
+        let other = vec2d.into();
         self.x += other.x;
         self.y += other.y;
     }
 
-    pub fn sub1(&mut self, x: f32, y: f32) {
-        self.x -= x;
-        self.y -= y;
-    }
-
-    pub fn sub2(&mut self, other: &GMVec2D) {
+    pub fn sub2<T: Into<GMVec2D>>(&mut self, vec2d: T) {
+        let other = vec2d.into();
         self.x -= other.x;
         self.y -= other.y;
     }
@@ -83,26 +72,19 @@ impl GMVec2D {
         (self.x * other.x) + (self.y * other.y)
     }
 
-    pub fn angle(&self, other: &GMVec2D) -> f32 {
-        let dot = self.dot(other);
+    pub fn angle<T: Into<GMVec2D>>(&self, vec2d: T) -> f32 {
+        let other = vec2d.into();
+        let dot = self.dot(&other);
         let l1 = self.len();
         let l2 = other.len();
 
         (dot/(l1*l2)).acos()
     }
 
-    pub fn angle2(&self, x: f32, y: f32) -> f32 {
-        let other = GMVec2D::new(x, y);
-        self.angle(&other)
-    }
-
-    pub fn dist_to(&self, other: &GMVec2D) -> f32 {
-        self.dist_to2(other.x, other.y)
-    }
-
-    pub fn dist_to2(&self, x: f32, y: f32) -> f32 {
-        let dx = self.x - x;
-        let dy= self.y - y;
+    pub fn dist_to<T: Into<GMVec2D>>(&self, vec2d: T) -> f32 {
+        let other = vec2d.into();
+        let dx = self.x - other.x;
+        let dy= self.y - other.y;
 
         dx.hypot(dy)
     }
@@ -259,64 +241,53 @@ impl Display for GMRectangle {
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMCircle {
-    // TODO: use Vec2D
-    pub x: f32,
-    pub y: f32,
+    pub center: GMVec2D,
     pub radius: f32,
 }
 
 impl GMCircle {
-    pub fn new(x: f32, y: f32, radius: f32) -> Self {
+    pub fn new<T: Into<GMVec2D>>(position: T, radius: f32) -> Self {
         Self {
-            x, y, radius,
-        }
-    }
-
-    pub fn new2(point: &GMVec2D, radius: f32) -> Self {
-        Self {
-            x: point.x,
-            y: point.y,
+            center: position.into(),
             radius,
         }
     }
 
-    pub fn point_inside(&self, x: f32, y: f32) -> bool {
-        let dist = (self.x - x).hypot(self.y - y);
+    pub fn point_inside<T: Into<GMVec2D>>(&self, position: T) -> bool {
+        let point = position.into();
+        let dist = (self.center - point).len();
 
         dist <= self.radius
     }
 
-    pub fn point_inside2(&self, point: &GMVec2D) -> bool {
-        self.point_inside(point.x, point.y)
-    }
-
     pub fn circ_intersect(&self, other: &GMCircle) -> bool {
-        let dist = (self.x - other.x).hypot(self.y - other.y);
+        let dist = (self.center - other.center).len();
 
         dist <= (self.radius + other.radius)
     }
 
-    pub fn circ_point(&self, x: f32, y: f32) -> GMVec2D {
-        let mut vec = GMVec2D::new(x - self.x, y - self.y);
+    // Point on circle border
+    pub fn circ_point<T: Into<GMVec2D>>(&self, position: T) -> GMVec2D {
+        let mut vec = position.into();
         vec.norm();
         vec.mul2(self.radius);
-        vec.add1(self.x, self.y);
+        vec.add2(self.center);
         vec
     }
 
-    pub fn circ_point2(&self, point: &GMVec2D) -> GMVec2D {
-        self.circ_point(point.x, point.y)
+    pub fn position_from_deg(&self, deg: f32) -> GMVec2D {
+        self.position_from_rad(deg * TAU / 360.0)
+    }
+
+    pub fn position_from_rad(&self, rad: f32) -> GMVec2D {
+        let x = self.center.x + (rad.cos() * self.radius);
+        let y = self.center.y + (rad.sin() * self.radius);
+        GMVec2D::new(x, y)
     }
 }
 
-impl Display for GMCircle {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(x: {}, y: {}, r: {})", self.x, self.y, self.radius)
-    }
-}
+// ECS components:
 
-
-// ECS
 #[derive(Clone, Debug)]
 pub struct GMPosition(pub GMVec2D);
 
@@ -337,3 +308,38 @@ pub struct GMAngleVelocity(pub f32);
 
 #[derive(Clone, Debug)]
 pub struct GMFlipXY(pub bool, pub bool);
+
+// ECS systems:
+
+pub fn move_positions(world: &mut World) {
+    for (_e, (position, velocity,
+        active
+        )) in
+        world.query_mut::<(&mut GMPosition, &GMVelocity, &GMActive)>() {
+        if active.0 {
+            position.0.add2(velocity.0);
+        }
+    }
+}
+
+pub fn accelerate_velocities(world: &mut World) {
+    for (_e, (velocity, acceleration,
+        active
+        )) in
+        world.query_mut::<(&mut GMVelocity, &GMAcceleration, &GMActive)>() {
+        if active.0 {
+            velocity.0.add2(acceleration.0);
+        }
+    }
+}
+
+pub fn rotate_angles(world: &mut World) {
+    for (_e, (angle, angle_velocity,
+        active
+        )) in
+        world.query_mut::<(&mut GMAngle, &GMAngleVelocity, &GMActive)>() {
+        if active.0 {
+            angle.0 += &angle_velocity.0;
+        }
+    }
+}

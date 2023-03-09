@@ -8,10 +8,11 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::sprite::GMSpriteBuilder;
 use green_moon_2d::bitmap_text::GMBitmapTextBuilder;
-use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateCircle, GMInterpolateVec2D,
-    GMInterpolateF32};
+use green_moon_2d::animation::process_animations;
+use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateCircle,
+    GMInterpolateVec2D, GMInterpolateF32, interpolate_position, interpolate_rotation, interpolate_circle};
 use green_moon_2d::util::{GMRepetition, GMAlign};
-use green_moon_2d::math::GMVec2D;
+use green_moon_2d::math::{GMCircle};
 
 
 #[derive(Debug)]
@@ -24,7 +25,7 @@ impl GMSceneT for SpriteScene1 {
 
         // Set up text:
         let font = resources.get_font("font_cuddly");
-        let text = "SPRITE 1";
+        let text = "SPRITES 1";
         let position = (512.0, 100.0);
 
         // Set some sprite properties:
@@ -52,8 +53,7 @@ impl GMSceneT for SpriteScene1 {
         head1_interpolate1.repetition = GMRepetition::PingPongForward;
         let head1_circle = GMInterpolateCircle {
             interpolate: head1_interpolate1,
-            center: GMVec2D::new(512.0, 400.0),
-            radius: 70.0,
+            circle: GMCircle::new((512.0, 400.0), 70.0),
         };
 
         let world = context.world_mut();
@@ -76,13 +76,13 @@ impl GMSceneT for SpriteScene1 {
             .add_component(ghost1_animation)
             .build(world);
 
-        // Ice cream
+        // Ice cream:
         let _sprite = GMSpriteBuilder::new(ice_cream1_texture, ice_cream1_position)
             .add_component(ice_cream1_movement)
             .add_component(ice_cream1_rotation)
             .build(world);
 
-        // Head
+        // Head:
         let _sprite = GMSpriteBuilder::new(head1_texture, head1_position)
             .add_component(head1_animation)
             .add_component(head1_circle)
@@ -96,17 +96,19 @@ impl GMSceneT for SpriteScene1 {
             context.quit();
         }
 
-        // Queries all the entities who have an animation
-        context.process_animations();
-        context.interpolate_position();
-        context.interpolate_rotation();
-        context.interpolate_circle();
+        // Queries all the entities who have an animation and interpolation:
+        let world = context.world_mut();
+
+        process_animations(world);
+        interpolate_position(world);
+        interpolate_rotation(world);
+        interpolate_circle(world);
     }
 
     fn draw(&self, context: &mut GMContext) {
         context.clear_black();
 
-        // Queries all the entities who have a texture and draws that texture to the screen
+        // Queries all the entities who have a texture and draws that texture to the screen:
         context.draw_textures();
     }
 }

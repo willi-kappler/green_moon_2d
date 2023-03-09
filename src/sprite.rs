@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use hecs::{World, Entity, Component, EntityBuilder};
 
-use crate::texture::{GMTexture, GMTextureIndex, GMSharedTexture};
+use crate::texture::{GMTexture, GMTextureIndex, GMSharedTexture, GMZIndex};
 use crate::math::{GMVec2D, GMPosition, GMScale, GMAngle, GMFlipXY};
 use crate::util::{GMActive, GMVisible};
 
@@ -21,6 +21,7 @@ impl GMSpriteBuilder {
             .add(GMScale(1.0))
             .add(GMAngle(0.0))
             .add(GMFlipXY(false, false))
+            .add(GMZIndex(0))
             .add(GMActive(true))
             .add(GMVisible(true));
 
@@ -46,6 +47,11 @@ impl GMSpriteBuilder {
 
     pub fn flip_xy(mut self, flip_x: bool, flip_y: bool) -> Self {
         self.entity_builder.add(GMFlipXY(flip_x, flip_y));
+        self
+    }
+
+    pub fn zindex(mut self, zindex: i32) -> Self {
+        self.entity_builder.add(GMZIndex(zindex));
         self
     }
 

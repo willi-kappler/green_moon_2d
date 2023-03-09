@@ -71,10 +71,14 @@ impl GMTexture {
     }
 }
 
-// ECS
+// ECS components:
+
 #[derive(Clone, Debug)]
 pub struct GMTextureIndex(pub u32);
 
 #[derive(Clone, Debug)]
 pub struct GMSharedTexture(pub Arc<GMTexture>);
+
+#[derive(Clone, Debug)]
+pub struct GMZIndex(pub i32);
 

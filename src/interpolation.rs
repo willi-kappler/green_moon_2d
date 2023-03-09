@@ -1,7 +1,9 @@
 
 
-use crate::util::GMRepetition;
-use crate::math::GMVec2D;
+use hecs::World;
+
+use crate::util::{GMRepetition, GMActive};
+use crate::math::{GMVec2D, GMAngle, GMPosition, GMCircle};
 
 
 #[derive(Debug, Clone)]
@@ -333,7 +335,7 @@ impl GMInterpolateVec2D {
     }
 }
 
-// ECS
+// ECS components:
 
 #[derive(Clone, Debug)]
 pub struct GMInterpolateRotation(pub GMInterpolateF32);
@@ -344,6 +346,43 @@ pub struct GMInterpolatePosition(pub GMInterpolateVec2D);
 #[derive(Clone, Debug)]
 pub struct GMInterpolateCircle {
     pub interpolate: GMInterpolateF32,
-    pub center: GMVec2D,
-    pub radius: f32,
+    pub circle: GMCircle,
+}
+
+// ECS systems:
+
+pub fn interpolate_rotation(world: &mut World) {
+    for (_e, (angle, interpolate, active)) in
+        world.query_mut::<(&mut GMAngle, &mut GMInterpolateRotation, &GMActive)>() {
+        if active.0 {
+            let interpolate = &mut interpolate.0;
+            interpolate.update();
+            angle.0 = interpolate.get_value();
+        }
+    }
+}
+
+pub fn interpolate_position(world: &mut World) {
+    for (_e, (position, interpolate, active)) in
+        world.query_mut::<(&mut GMPosition, &mut GMInterpolatePosition, &GMActive)>() {
+        if active.0 {
+            let interpolate = &mut interpolate.0;
+            interpolate.update();
+            position.0 = interpolate.get_vector();
+        }
+    }
+}
+
+pub fn interpolate_circle(world: &mut World) {
+    for (_e, (position, interpolate, active)) in
+        world.query_mut::<(&mut GMPosition, &mut GMInterpolateCircle, &GMActive)>() {
+        if active.0 {
+            let circle = interpolate.circle;
+
+            let interpolate = &mut interpolate.interpolate;
+            interpolate.update();
+
+            position.0 = circle.position_from_deg(interpolate.get_value());
+        }
+    }
 }
