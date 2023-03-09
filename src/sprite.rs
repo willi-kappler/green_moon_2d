@@ -9,7 +9,6 @@ use crate::util::{GMActive, GMVisible};
 
 
 pub struct GMSpriteBuilder {
-    flip_xy: GMFlipXY,
     entity_builder: EntityBuilder,
 }
 
@@ -21,11 +20,11 @@ impl GMSpriteBuilder {
             .add(GMTextureIndex(0))
             .add(GMScale(1.0))
             .add(GMAngle(0.0))
+            .add(GMFlipXY(false, false))
             .add(GMActive(true))
             .add(GMVisible(true));
 
         Self {
-            flip_xy: GMFlipXY(false, false),
             entity_builder,
         }
     }
@@ -45,19 +44,8 @@ impl GMSpriteBuilder {
         self
     }
 
-    pub fn flip_x(mut self, flip_x: bool) -> Self {
-        self.flip_xy.0 = flip_x;
-        self
-    }
-
-    pub fn flip_y(mut self, flip_y: bool) -> Self {
-        self.flip_xy.1 = flip_y;
-        self
-    }
-
     pub fn flip_xy(mut self, flip_x: bool, flip_y: bool) -> Self {
-        self.flip_xy.0 = flip_x;
-        self.flip_xy.1 = flip_y;
+        self.entity_builder.add(GMFlipXY(flip_x, flip_y));
         self
     }
 
@@ -77,7 +65,6 @@ impl GMSpriteBuilder {
     }
 
     pub fn build(mut self, world: &mut World) -> Entity {
-        self.entity_builder.add(self.flip_xy);
         let built_entity = self.entity_builder.build();
         world.spawn(built_entity)
     }
