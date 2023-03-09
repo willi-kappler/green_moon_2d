@@ -6,6 +6,11 @@ use crate::util::{GMRepetition, GMActive};
 use crate::math::{GMVec2D, GMAngle, GMPosition, GMCircle};
 
 
+pub enum GMIncrementType {
+    Linear,
+    Sinus,
+}
+
 #[derive(Debug, Clone)]
 pub struct GMInterpolateF32 {
     start: f32,
