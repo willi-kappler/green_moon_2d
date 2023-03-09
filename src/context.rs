@@ -177,22 +177,10 @@ impl GMContext {
         let world = &self.world;
         let canvas = &mut self.canvas;
 
-        for (_e, (texture,
-            index,
-            position,
-            scale,
-            angle,
-            flip_xy,
-            visible
-            )) in
-            world.query::<(&GMSharedTexture,
-                &GMTextureIndex,
-                &GMPosition,
-                &GMScale,
-                &GMAngle,
-                &GMFlipXY,
-                &GMVisible
-                )>().iter() {
+        for (_e, (texture, index, position,
+            scale, angle, flip_xy, visible)) in
+            world.query::<(&GMSharedTexture, &GMTextureIndex, &GMPosition,
+                &GMScale, &GMAngle, &GMFlipXY, &GMVisible)>().iter() {
             if visible.0 {
                 let v = position.0;
                 let x = v.x;
@@ -217,15 +205,10 @@ impl GMContext {
     }
 
     pub fn move_positions(&mut self) {
-        for (_e, (position,
-            velocity,
+        for (_e, (position, velocity,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMPosition,
-                &GMVelocity,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMPosition, &GMVelocity, &GMActive)>() {
             if active.0 {
                 position.0.add2(&velocity.0);
             }
@@ -233,15 +216,10 @@ impl GMContext {
     }
 
     pub fn accelerate_velocities(&mut self) {
-        for (_e, (velocity,
-            acceleration,
+        for (_e, (velocity, acceleration,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMVelocity,
-                &GMAcceleration,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMVelocity, &GMAcceleration, &GMActive)>() {
             if active.0 {
                 velocity.0.add2(&acceleration.0);
             }
@@ -249,15 +227,10 @@ impl GMContext {
     }
 
     pub fn rotate_angles(&mut self) {
-        for (_e, (angle,
-            angle_velocity,
+        for (_e, (angle, angle_velocity,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMAngle,
-                &GMAngleVelocity,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMAngle, &GMAngleVelocity, &GMActive)>() {
             if active.0 {
                 angle.0 += &angle_velocity.0;
             }
@@ -265,8 +238,7 @@ impl GMContext {
     }
 
     pub fn process_animations(&mut self) {
-        for (_, (animation,
-                 texture_index,
+        for (_, (animation, texture_index,
                  active)) in
             self.world.query_mut::<(&mut GMAnimation, &mut GMTextureIndex, &mut GMActive)>() {
             if active.0 && animation.timer.finished() {
@@ -333,15 +305,10 @@ impl GMContext {
     }
 
     pub fn interpolate_rotation(&mut self) {
-        for (_e, (angle,
-            interpolate,
+        for (_e, (angle, interpolate,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMAngle,
-                &mut GMInterpolateRotation,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMAngle, &mut GMInterpolateRotation, &GMActive)>() {
             if active.0 {
                 let interpolate = &mut interpolate.0;
                 interpolate.update();
@@ -351,15 +318,11 @@ impl GMContext {
     }
 
     pub fn interpolate_position(&mut self) {
-        for (_e, (position,
-            interpolate,
+        for (_e, (position, interpolate,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMPosition,
-                &mut GMInterpolatePosition,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMPosition, &mut GMInterpolatePosition,
+                &GMActive)>() {
             if active.0 {
                 let interpolate = &mut interpolate.0;
                 interpolate.update();
@@ -369,15 +332,11 @@ impl GMContext {
     }
 
     pub fn interpolate_circle(&mut self) {
-        for (_e, (position,
-            interpolate,
+        for (_e, (position, interpolate,
             active
             )) in
-            self.world.query_mut::<(
-                &mut GMPosition,
-                &mut GMInterpolateCircle,
-                &GMActive
-            )>() {
+            self.world.query_mut::<(&mut GMPosition, &mut GMInterpolateCircle,
+                &GMActive)>() {
             if active.0 {
                 let radius = interpolate.radius;
                 let center = interpolate.center;
