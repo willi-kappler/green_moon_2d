@@ -7,9 +7,10 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::sprite::GMSpriteBuilder;
+use green_moon_2d::bitmap_text::GMBitmapTextBuilder;
 use green_moon_2d::interpolation::{GMInterpolatePosition, GMInterpolateRotation, GMInterpolateCircle, GMInterpolateVec2D,
     GMInterpolateF32};
-use green_moon_2d::util::GMRepetition;
+use green_moon_2d::util::{GMRepetition, GMAlign};
 use green_moon_2d::math::GMVec2D;
 
 
@@ -20,6 +21,11 @@ struct SpriteScene1 {
 impl GMSceneT for SpriteScene1 {
     fn init(&mut self, context: &mut GMContext) {
         let resources = context.resources_mut();
+
+        // Set up text:
+        let font = resources.get_font("font_cuddly");
+        let text = "SPRITE 1";
+        let position = (512.0, 100.0);
 
         // Set some sprite properties:
         let bat1_texture = resources.get_texture("tex_bat1");
@@ -52,6 +58,11 @@ impl GMSceneT for SpriteScene1 {
 
         let world = context.world_mut();
 
+        // Create text:
+        let _text1 = GMBitmapTextBuilder::new(font, text, position)
+            .align(GMAlign::TopCenter)
+            .build(world);
+
         // Bat sprite:
         let _sprite = GMSpriteBuilder::new(bat1_texture, bat1_position)
             // Animation is added as a component to the sprite entity:
@@ -61,7 +72,7 @@ impl GMSceneT for SpriteScene1 {
 
         // Ghost sprite:
         let _sprite = GMSpriteBuilder::new(ghost1_texture, ghost1_position)
-            .flip_x(true)
+            .flip_xy(true, false)
             .add_component(ghost1_animation)
             .build(world);
 
