@@ -1,6 +1,5 @@
 
 use std::fmt::{self, Debug, Formatter};
-use std::sync::Arc;
 
 use sdl2::render::Texture;
 use sdl2::rect::Rect;
@@ -12,9 +11,6 @@ pub struct GMTexture {
     unit_height: u32,
     texture: Texture,
 }
-
-unsafe impl Sync for GMTexture {}
-unsafe impl Send for GMTexture {}
 
 impl Debug for GMTexture {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -70,15 +66,3 @@ impl GMTexture {
         self.unit_height
     }
 }
-
-// ECS components:
-
-#[derive(Clone, Debug)]
-pub struct GMTextureIndex(pub u32);
-
-#[derive(Clone, Debug)]
-pub struct GMSharedTexture(pub Arc<GMTexture>);
-
-#[derive(Clone, Debug)]
-pub struct GMZIndex(pub i32);
-

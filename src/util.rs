@@ -56,12 +56,3 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
     let result = min + (rng.generate::<f32>() * length);
     result
 }
-
-#[derive(Debug, Clone)]
-pub struct GMVisible(pub bool);
-
-#[derive(Debug, Clone)]
-pub struct GMActive(pub bool);
-
-#[derive(Debug, Clone)]
-pub struct GMZOrder(pub i32);

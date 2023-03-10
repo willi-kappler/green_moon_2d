@@ -6,16 +6,12 @@ use sdl2::render::{TextureCreator, Canvas};
 use sdl2::pixels;
 
 use log::debug;
-use hecs::World;
 
 use crate::resources::GMResources;
 use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
-use crate::math::{GMPosition, GMAngle, GMScale, GMFlipXY};
-use crate::util::{GMVisible};
-use crate::texture::{GMTextureIndex, GMSharedTexture, GMZIndex};
 
 
 pub struct GMContext {
@@ -26,7 +22,6 @@ pub struct GMContext {
     resources: GMResources,
     window_width: f32,
     window_height: f32,
-    world: World,
 }
 
 impl GMContext {
@@ -43,7 +38,6 @@ impl GMContext {
             resources,
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
-            world: World::new(),
         }
     }
 
@@ -54,15 +48,6 @@ impl GMContext {
 
     pub fn resources_mut(&mut self) -> &mut GMResources {
         &mut self.resources
-    }
-
-    // ECS world
-    pub fn world(&self) -> &World {
-        &self.world
-    }
-
-    pub fn world_mut(&mut self) -> &mut World {
-        &mut self.world
     }
 
     // Engine messages:
@@ -173,25 +158,6 @@ impl GMContext {
         self.window_height
     }
 
-    // ECS methods:
-    pub fn draw_textures(&mut self) {
-        let world = &self.world;
-        let canvas = &mut self.canvas;
 
-        // TODO: sort by zindex
-        for (_e, (texture, index, position,
-            scale, angle, flip_xy, _zindex, visible)) in
-            world.query::<(&GMSharedTexture, &GMTextureIndex, &GMPosition,
-                &GMScale, &GMAngle, &GMFlipXY, &GMZIndex, &GMVisible)>().iter() {
-            if visible.0 {
-                let v = position.0;
-                let x = v.x;
-                let y = v.y;
-                let (sdl_texture, src_rect, dst_rect) = texture.0.get_draw_settings(x, y, index.0, scale.0);
 
-                canvas.copy_ex(sdl_texture, src_rect, dst_rect, angle.0 as f64, None, flip_xy.0, flip_xy.1)
-                .expect("GMContext::draw_texture_opt(), error when drawing texture!");
-            }
-        }
-    }
 }

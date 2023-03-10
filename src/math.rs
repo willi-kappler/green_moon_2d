@@ -3,9 +3,6 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use hecs::World;
-
-use crate::util::GMActive;
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
@@ -286,63 +283,3 @@ impl GMCircle {
     }
 }
 
-// ECS components:
-
-#[derive(Clone, Debug)]
-pub struct GMPosition(pub GMVec2D);
-
-#[derive(Clone, Debug)]
-pub struct GMRelPosition(pub GMVec2D);
-
-#[derive(Clone, Debug)]
-pub struct GMVelocity(pub GMVec2D);
-
-#[derive(Clone, Debug)]
-pub struct GMAcceleration(pub GMVec2D);
-
-#[derive(Clone, Debug)]
-pub struct GMScale(pub f32);
-
-#[derive(Clone, Debug)]
-pub struct GMAngle(pub f32);
-
-#[derive(Clone, Debug)]
-pub struct GMAngleVelocity(pub f32);
-
-#[derive(Clone, Debug)]
-pub struct GMFlipXY(pub bool, pub bool);
-
-// ECS systems:
-
-pub fn move_positions(world: &mut World) {
-    for (_e, (position, velocity,
-        active
-        )) in
-        world.query_mut::<(&mut GMPosition, &GMVelocity, &GMActive)>() {
-        if active.0 {
-            position.0.add2(velocity.0);
-        }
-    }
-}
-
-pub fn accelerate_velocities(world: &mut World) {
-    for (_e, (velocity, acceleration,
-        active
-        )) in
-        world.query_mut::<(&mut GMVelocity, &GMAcceleration, &GMActive)>() {
-        if active.0 {
-            velocity.0.add2(acceleration.0);
-        }
-    }
-}
-
-pub fn rotate_angles(world: &mut World) {
-    for (_e, (angle, angle_velocity,
-        active
-        )) in
-        world.query_mut::<(&mut GMAngle, &GMAngleVelocity, &GMActive)>() {
-        if active.0 {
-            angle.0 += &angle_velocity.0;
-        }
-    }
-}
