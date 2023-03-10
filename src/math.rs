@@ -292,6 +292,9 @@ impl GMCircle {
 pub struct GMPosition(pub GMVec2D);
 
 #[derive(Clone, Debug)]
+pub struct GMRelPosition(pub GMVec2D);
+
+#[derive(Clone, Debug)]
 pub struct GMVelocity(pub GMVec2D);
 
 #[derive(Clone, Debug)]

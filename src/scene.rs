@@ -21,6 +21,7 @@ pub(crate) enum GMSceneManagerMessage {
     PushAndChangeScene(String),
     RemoveScene(String),
     ReplaceScene(String, Box<dyn GMSceneT>),
+    InitScene(String),
 }
 
 pub trait GMSceneT: Debug {
@@ -205,6 +206,9 @@ impl GMSceneManager {
                 }
                 ReplaceScene(name, scene) => {
                     self.replace_scene(&name, scene);
+                }
+                InitScene(name) => {
+                    self.init_scene_name(&name, context);
                 }
             }
         }

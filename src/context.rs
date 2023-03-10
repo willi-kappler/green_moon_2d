@@ -124,6 +124,10 @@ impl GMContext {
         self.scene_messages.push_back(GMSceneManagerMessage::PopAndChangeScene);
     }
 
+    pub fn init_scene<S: Into<String>>(&mut self, name: S) {
+        self.scene_messages.push_back(GMSceneManagerMessage::InitScene(name.into()));
+    }
+
     // Update context, called by engine once per frame
     pub(crate) fn update(&mut self) {
         self.input.update();

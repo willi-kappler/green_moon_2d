@@ -11,7 +11,7 @@ use hecs::{World, Entity, Component, EntityBuilder};
 use crate::sprite::GMSpriteBuilder;
 use crate::texture::GMTexture;
 use crate::util::{error_panic, GMAlign};
-use crate::math::{GMVec2D, GMSize, GMPosition};
+use crate::math::{GMVec2D, GMSize, GMPosition, GMRelPosition};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -75,6 +75,7 @@ impl GMBitmapText {
             let index = self.font.get_index(c);
             let sprite = GMSpriteBuilder::new(self.font.texture.clone(), (0.0, 0.0))
                 .texture_index(index)
+                .add_component(GMRelPosition(GMVec2D::new(0.0, 0.0)))
                 .build(world);
             self.chars.push(sprite);
         }
@@ -82,7 +83,7 @@ impl GMBitmapText {
         self.reset_chars_pos(world, position);
     }
 
-    pub fn reset_chars_pos(&mut self, world: &mut World, position: &GMPosition) {
+    pub fn reset_chars_pos(&mut self, world: &mut World, text_position: &GMPosition) {
         let (dx, dy) = self.font.get_char_dimensions();
         let num_of_chars = self.chars.len() as f32;
         let mut x: f32;
@@ -100,53 +101,55 @@ impl GMBitmapText {
             dx2 = 0.0;
         }
 
-        let position = position.0;
+        let text_position = text_position.0;
 
         match self.align {
             GMAlign::TopLeft => {
-                x = position.x;
-                y = position.y;
+                x = text_position.x;
+                y = text_position.y;
             }
             GMAlign::TopCenter => {
-                x = position.x - (self.size.width / 2.0);
-                y = position.y;
+                x = text_position.x - (self.size.width / 2.0);
+                y = text_position.y;
             }
             GMAlign::TopRight => {
-                x = position.x - self.size.width;
-                y = position.y;
+                x = text_position.x - self.size.width;
+                y = text_position.y;
             }
             GMAlign::MiddleLeft => {
-                x = position.x;
-                y = position.y - (self.size.height / 2.0);
+                x = text_position.x;
+                y = text_position.y - (self.size.height / 2.0);
             }
             GMAlign::MiddleCenter => {
-                x = position.x - (self.size.width / 2.0);
-                y = position.y - (self.size.height / 2.0);
+                x = text_position.x - (self.size.width / 2.0);
+                y = text_position.y - (self.size.height / 2.0);
             }
             GMAlign::MiddleRight => {
-                x = position.x - self.size.width;
-                y = position.y - (self.size.height / 2.0);
+                x = text_position.x - self.size.width;
+                y = text_position.y - (self.size.height / 2.0);
             }
             GMAlign::BottomLeft => {
-                x = position.x;
-                y = position.y - self.size.height;
+                x = text_position.x;
+                y = text_position.y - self.size.height;
             }
             GMAlign::BottomCenter => {
-                x = position.x - (self.size.width / 2.0);
-                y = position.y - self.size.height;
+                x = text_position.x - (self.size.width / 2.0);
+                y = text_position.y - self.size.height;
             }
             GMAlign::BottomRight => {
-                x = position.x - self.size.width;
-                y = position.y - self.size.height;
+                x = text_position.x - self.size.width;
+                y = text_position.y - self.size.height;
             }
         }
 
         for e in self.chars.iter() {
-            let position = world.query_one_mut::<&mut GMPosition>(*e).unwrap();
-            let vector2d = &mut position.0;
+            let (char_position, char_rel_position) = world.query_one_mut::<(&mut GMPosition, &mut GMRelPosition)>(*e).unwrap();
 
-            vector2d.x = x;
-            vector2d.y = y;
+            char_position.0.x = x;
+            char_position.0.y = y;
+
+            char_rel_position.0.x = x - text_position.x;
+            char_rel_position.0.y = x - text_position.y;
 
             x += dx2;
             y += dy2;
@@ -222,3 +225,16 @@ impl GMBitmapTextBuilder {
     }
 }
 
+// ECS systems:
+
+pub fn update_character_positions(world: &mut World) {
+    for (_, (bitmap_text, text_position)) in
+        world.query::<(&GMBitmapText, &GMPosition)>().iter() {
+        for char in bitmap_text.chars.iter() {
+            let mut query = world.query_one::<(&mut GMPosition, &GMRelPosition)>(*char).unwrap();
+            let (char_position, char_rel_position) = query.get().unwrap();
+            
+            char_position.0 = text_position.0 + char_rel_position.0;
+        }
+    }
+}
