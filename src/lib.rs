@@ -11,6 +11,7 @@ pub mod input;
 // pub mod interpolation;
 // pub mod line;
 pub mod math;
+pub mod movement;
 // pub mod menu;
 // pub mod menu_item;
 // pub mod particle_effects;
