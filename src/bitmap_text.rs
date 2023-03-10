@@ -56,6 +56,8 @@ pub struct GMChar {
     relative_position: GMVec2D,
     rotation: f32,
     scale: f32,
+    flip_x: bool,
+    flip_y: bool,
 }
 
 impl GMChar {
@@ -173,7 +175,11 @@ impl GMBitmapTextBase {
     }
 
     pub fn draw(&self, context: &mut GMContext) {
-        
+        for c in self.chars.iter() {
+            let dx = self.position.x + c.relative_position.x;
+            let dy = self.position.y + c.relative_position.y;
+            self.font.texture.draw_opt(dx, dy, c.index, c.rotation, c.scale, c.flip_x, c.flip_y, context);
+        }        
     }
 }
 

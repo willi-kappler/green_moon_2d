@@ -2,8 +2,10 @@
 use std::collections::{VecDeque};
 
 use sdl2::video::{self, Window, WindowContext};
-use sdl2::render::{TextureCreator, Canvas};
+use sdl2::render::{Texture, TextureCreator, Canvas};
 use sdl2::pixels;
+use sdl2::rect::Rect;
+
 
 use log::debug;
 
@@ -129,6 +131,12 @@ impl GMContext {
         self.canvas.present();
     }
 
+    // Draw methods:
+    pub fn draw_texture_opt(&mut self, texture: &Texture, src_rect: Rect, dst_rect: Rect, angle: f64, flip_x: bool, flip_y: bool) {
+        self.canvas.copy_ex(texture, src_rect, dst_rect, angle, None, flip_x, flip_y)
+        .expect("GMContext::draw_texture_opt(), error when drawing texture!");
+}
+
     pub fn clear_black(&mut self) {
         self.clear(pixels::Color::BLACK);
     }
@@ -157,7 +165,4 @@ impl GMContext {
     pub fn window_height(&self) -> f32 {
         self.window_height
     }
-
-
-
 }

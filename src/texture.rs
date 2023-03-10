@@ -5,6 +5,8 @@ use sdl2::render::Texture;
 use sdl2::rect::Rect;
 use log::debug;
 
+use crate::context::GMContext;
+
 pub struct GMTexture {
     cols: u32,
     unit_width: u32,
@@ -33,7 +35,11 @@ impl GMTexture {
         }
     }
 
-    pub fn get_draw_settings(&self, dx: f32, dy: f32, index: u32, scale: f32) -> (&Texture, Rect, Rect) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
+        self.draw_opt(dx, dy, index, 0.0, 1.0, false, false, context);
+    }
+
+    pub fn draw_opt(&self, dx: f32, dy: f32, index: u32, angle: f32, scale: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 
@@ -47,7 +53,7 @@ impl GMTexture {
         let dy = (dy as i32) - ((new_height / 2) as i32);
         let dst_rect = Rect::new(dx, dy, new_width, new_height);
 
-        (&self.texture, src_rect, dst_rect)
+        context.draw_texture_opt(&self.texture, src_rect, dst_rect, angle as f64, flip_x, flip_y);
     }
 
     pub fn get_unit_dimension(&self) -> (f32, f32) {
