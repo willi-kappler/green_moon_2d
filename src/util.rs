@@ -69,12 +69,72 @@ pub trait GMUpdateT {
     }
 }
 
+pub trait GMFlipXYT {
+    fn set_flip_x(&mut self, flip_x: bool);
+    fn get_flip_x(&self) -> bool;
+    fn set_flip_y(&mut self, flip_y: bool);
+    fn get_flip_y(&self) -> bool;
+}
+
+#[macro_export]
+macro_rules! gen_impl_flipxy {
+    ($type:ty) => {
+        impl GMFlipXYT for $type {
+            fn set_flip_x(&mut self, flip_x: bool) {
+                self.flip_x = flip_x;
+            }
+
+            fn get_flip_x(&self) -> bool {
+                self.flip_x
+            }
+
+            fn set_flip_y(&mut self, flip_y: bool) {
+                self.flip_y = flip_y;
+            }
+
+            fn get_flip_y(&self) -> bool {
+                self.flip_y
+            }
+        }
+    };
+}
+
 pub trait GMActiveT {
     fn set_active(&mut self, active: bool);
     fn get_active(&self) -> bool;
 }
 
+#[macro_export]
+macro_rules! gen_impl_active {
+    ($type:ty) => {
+        impl GMActiveT  for $type {
+            fn set_active(&mut self, active: bool) {
+                self.active = active;
+            }
+
+            fn get_active(&self) -> bool {
+                self.active
+            }
+        }
+    };
+}
+
 pub trait GMVisibleT {
     fn set_visible(&mut self, visible: bool);
     fn get_visible(&self) -> bool;
+}
+
+#[macro_export]
+macro_rules! gen_impl_visible {
+    ($type:ty) => {
+        impl GMVisibleT  for $type {
+            fn set_visible(&mut self, visible: bool) {
+                self.visible = visible;
+            }
+
+            fn get_visible(&self) -> bool {
+                self.visible
+            }
+        }
+    };
 }

@@ -5,13 +5,21 @@ pub mod bitmap_text;
 // pub mod border;
 pub mod collision;
 pub mod configuration;
+
+#[macro_use] // Export macros
+pub mod effect;
+
 pub mod context;
 pub mod engine;
 pub mod input;
 // pub mod interpolation;
 // pub mod line;
 pub mod math;
+
+
+#[macro_use] // Export macros
 pub mod movement;
+
 // pub mod menu;
 // pub mod menu_item;
 // pub mod particle_effects;
@@ -36,7 +44,5 @@ pub use scene::GMSceneT;
 // Export from SDL2
 pub use sdl2::pixels::Color;
 
-// Export macros
-#[macro_use]
-pub mod effect;
+
 

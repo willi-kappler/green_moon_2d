@@ -7,12 +7,13 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::texture::GMTexture;
-use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMActiveT};
+use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMActiveT, GMFlipXYT};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
-use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_type_effect_methods};
+use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_type_effect_methods,
+    gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -72,7 +73,7 @@ impl GMBitmapFont {
 #[derive(Debug, Clone)]
 pub struct GMBitmapChar {
     index: u32,
-    relative_position: GMVec2D,
+    position: GMVec2D,
     rotation: f32,
     scale: f32,
     flip_x: bool,
@@ -85,7 +86,7 @@ impl GMBitmapChar {
     pub fn new(index: u32, position: GMVec2D) -> Self {
         Self {
             index,
-            relative_position: position,
+            position,
             rotation: 0.0,
             scale: 1.0,
             flip_x: false,
@@ -101,24 +102,11 @@ impl GMBitmapChar {
     pub fn get_index(&self) -> u32 {
         self.index
     }
-
-    pub fn set_flip_x(&mut self, flip_x: bool) {
-        self.flip_x = flip_x;
-    }
-
-    pub fn get_flip_x(&mut self) -> bool {
-        self.flip_x
-    }
-
-    pub fn set_flip_y(&mut self, flip_y: bool) {
-        self.flip_y = flip_y;
-    }
-
-    pub fn get_flip_y(&mut self) -> bool {
-        self.flip_y
-    }
 }
 
+gen_impl_position!(GMBitmapChar);
+
+/*
 impl GMPositionT for GMBitmapChar {
     fn get_position(&self) -> GMVec2D {
         self.relative_position
@@ -128,7 +116,11 @@ impl GMPositionT for GMBitmapChar {
         &mut self.relative_position
     }
 }
+*/
 
+gen_impl_rotation!(GMBitmapChar);
+
+/*
 impl GMRotationT for GMBitmapChar {
     fn get_rotation(&self) -> f32 {
         self.rotation
@@ -138,7 +130,11 @@ impl GMRotationT for GMBitmapChar {
         &mut self.rotation
     }
 }
+*/
 
+gen_impl_scale!(GMBitmapChar);
+
+/*
 impl GMScaleT for GMBitmapChar {
     fn get_scale(&self) -> f32 {
         self.scale
@@ -148,7 +144,33 @@ impl GMScaleT for GMBitmapChar {
         &mut self.scale
     }
 }
+*/
 
+gen_impl_flipxy!(GMBitmapChar);
+
+/*
+impl GMFlipXYT for GMBitmapChar {
+    fn set_flip_x(&mut self, flip_x: bool) {
+        self.flip_x = flip_x;
+    }
+
+    fn get_flip_x(&self) -> bool {
+        self.flip_x
+    }
+
+    fn set_flip_y(&mut self, flip_y: bool) {
+        self.flip_y = flip_y;
+    }
+
+    fn get_flip_y(&self) -> bool {
+        self.flip_y
+    }
+}
+*/
+
+gen_impl_visible!(GMBitmapChar);
+
+/*
 impl GMVisibleT for GMBitmapChar {
     fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
@@ -158,6 +180,7 @@ impl GMVisibleT for GMBitmapChar {
         self.visible
     }
 }
+*/
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapTextBase {
@@ -320,8 +343,8 @@ impl GMBitmapTextBase {
         }
 
         for c in self.chars.iter_mut() {
-            c.relative_position.x = x;
-            c.relative_position.y = y;
+            c.position.x = x;
+            c.position.y = y;
             c.rotation = 0.0;
 
             x += dx2;
@@ -335,8 +358,8 @@ impl GMDrawT for GMBitmapTextBase {
         if self.visible {
             for c in self.chars.iter() {
                 if c.visible {
-                    let dx = self.position.x + c.relative_position.x;
-                    let dy = self.position.y + c.relative_position.y;
+                    let dx = self.position.x + c.position.x;
+                    let dy = self.position.y + c.position.y;
                     self.font.texture.draw_opt(dx, dy, c.index, c.rotation, c.scale, c.flip_x, c.flip_y, context);
                 }
             }
@@ -344,6 +367,9 @@ impl GMDrawT for GMBitmapTextBase {
     }
 }
 
+gen_impl_position!(GMBitmapTextBase);
+
+/*
 impl GMPositionT for GMBitmapTextBase {
     fn get_position(&self) -> GMVec2D {
         self.position
@@ -353,7 +379,11 @@ impl GMPositionT for GMBitmapTextBase {
         &mut self.position
     }
 }
+*/
 
+gen_impl_visible!(GMBitmapTextBase);
+
+/*
 impl GMVisibleT for GMBitmapTextBase {
     fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
@@ -363,6 +393,7 @@ impl GMVisibleT for GMBitmapTextBase {
         self.visible
     }
 }
+*/
 
 pub struct GMBitmapText {
     base: GMBitmapTextBase,

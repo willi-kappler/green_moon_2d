@@ -31,6 +31,21 @@ pub trait GMPositionT {
     fn get_position_mut(&mut self) -> &mut GMVec2D;
 }
 
+#[macro_export]
+macro_rules! gen_impl_position {
+    ($type:ty) => {
+        impl GMPositionT for $type {
+            fn get_position(&self) -> GMVec2D {
+                self.position
+            }
+
+            fn get_position_mut(&mut self) -> &mut GMVec2D {
+                &mut self.position
+            }
+        }
+    };
+}
+
 pub trait GMRotationT {
     fn set_rotation(&mut self, rotation: f32) {
         *self.get_rotation_mut() = rotation;
@@ -45,6 +60,21 @@ pub trait GMRotationT {
     fn get_rotation_mut(&mut self) -> &mut f32;
 }
 
+#[macro_export]
+macro_rules! gen_impl_rotation {
+    ($type:ty) => {
+        impl GMRotationT for $type {
+            fn get_rotation(&self) -> f32 {
+                self.rotation
+            }
+
+            fn get_rotation_mut(&mut self) -> &mut f32 {
+                &mut self.rotation
+            }
+        }
+    };
+}
+
 pub trait GMScaleT {
     fn set_scale(&mut self, scale: f32) {
         *self.get_scale_mut() = scale;
@@ -57,4 +87,19 @@ pub trait GMScaleT {
     fn get_scale(&self) -> f32;
 
     fn get_scale_mut(&mut self) -> &mut f32;
+}
+
+#[macro_export]
+macro_rules! gen_impl_scale {
+    ($type:ty) => {
+        impl GMScaleT for $type {
+            fn get_scale(&self) -> f32 {
+                self.scale
+            }
+
+            fn get_scale_mut(&mut self) -> &mut f32 {
+                &mut self.scale
+            }
+        }
+    };
 }
