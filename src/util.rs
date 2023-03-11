@@ -3,6 +3,8 @@
 use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
+use crate::context::{GMContext};
+
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMAlign {
     TopLeft,
@@ -55,4 +57,24 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
     let mut rng = WyRand::new();
     let result = min + (rng.generate::<f32>() * length);
     result
+}
+
+pub trait GMDrawT {
+    fn draw(&self, _context: &mut GMContext) {
+    }
+}
+
+pub trait GMUpdateT {
+    fn update(&mut self, _context: &mut GMContext) {
+    }
+}
+
+pub trait GMActiveT {
+    fn set_active(&mut self, active: bool);
+    fn get_active(&self) -> bool;
+}
+
+pub trait GMVisibleT {
+    fn set_visible(&mut self, visible: bool);
+    fn get_visible(&self) -> bool;
 }
