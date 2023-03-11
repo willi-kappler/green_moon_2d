@@ -106,81 +106,13 @@ impl GMBitmapChar {
 
 gen_impl_position!(GMBitmapChar);
 
-/*
-impl GMPositionT for GMBitmapChar {
-    fn get_position(&self) -> GMVec2D {
-        self.relative_position
-    }
-
-    fn get_position_mut(&mut self) -> &mut GMVec2D {
-        &mut self.relative_position
-    }
-}
-*/
-
 gen_impl_rotation!(GMBitmapChar);
-
-/*
-impl GMRotationT for GMBitmapChar {
-    fn get_rotation(&self) -> f32 {
-        self.rotation
-    }
-
-    fn get_rotation_mut(&mut self) -> &mut f32 {
-        &mut self.rotation
-    }
-}
-*/
 
 gen_impl_scale!(GMBitmapChar);
 
-/*
-impl GMScaleT for GMBitmapChar {
-    fn get_scale(&self) -> f32 {
-        self.scale
-    }
-
-    fn get_scale_mut(&mut self) -> &mut f32 {
-        &mut self.scale
-    }
-}
-*/
-
 gen_impl_flipxy!(GMBitmapChar);
 
-/*
-impl GMFlipXYT for GMBitmapChar {
-    fn set_flip_x(&mut self, flip_x: bool) {
-        self.flip_x = flip_x;
-    }
-
-    fn get_flip_x(&self) -> bool {
-        self.flip_x
-    }
-
-    fn set_flip_y(&mut self, flip_y: bool) {
-        self.flip_y = flip_y;
-    }
-
-    fn get_flip_y(&self) -> bool {
-        self.flip_y
-    }
-}
-*/
-
 gen_impl_visible!(GMBitmapChar);
-
-/*
-impl GMVisibleT for GMBitmapChar {
-    fn set_visible(&mut self, visible: bool) {
-        self.visible = visible;
-    }
-
-    fn get_visible(&self) -> bool {
-        self.visible
-    }
-}
-*/
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapTextBase {
@@ -369,31 +301,7 @@ impl GMDrawT for GMBitmapTextBase {
 
 gen_impl_position!(GMBitmapTextBase);
 
-/*
-impl GMPositionT for GMBitmapTextBase {
-    fn get_position(&self) -> GMVec2D {
-        self.position
-    }
-
-    fn get_position_mut(&mut self) -> &mut GMVec2D {
-        &mut self.position
-    }
-}
-*/
-
 gen_impl_visible!(GMBitmapTextBase);
-
-/*
-impl GMVisibleT for GMBitmapTextBase {
-    fn set_visible(&mut self, visible: bool) {
-        self.visible = visible;
-    }
-
-    fn get_visible(&self) -> bool {
-        self.visible
-    }
-}
-*/
 
 pub struct GMBitmapText {
     base: GMBitmapTextBase,
@@ -415,145 +323,8 @@ impl GMBitmapText {
     }
 
     gen_type_effect_methods!(GMBitmapTextBase, GMBitmapTextEffectT);
-
-    /*
-    pub fn get_base(&self) -> &GMBitmapTextBase {
-        &self.base
-    }
-
-    pub fn get_base_mut(&mut self) -> &mut GMBitmapTextBase {
-        &mut self.base
-    }
-
-    pub fn add_effect<T: 'static + GMBitmapTextEffectT>(&mut self, effect: T) {
-        debug!("::add_effect()");
-        self.effects.push(Box::new(effect));
-    }
-
-    pub fn add_effect2(&mut self, effect: Box<dyn GMBitmapTextEffectT>) {
-        debug!("::add_effect2()");
-        self.effects.push(effect);
-    }
-
-    pub fn remove_effect(&mut self, index: usize) {
-        debug!("::remove_effect(), index: {}", index);
-        self.effects.remove(index);
-    }
-
-    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMBitmapTextEffectT>>) {
-        debug!("::set_effects()");
-        self.effects = effects;
-    }
-
-    pub fn replace_effect(&mut self, index: usize, effect: Box<dyn GMBitmapTextEffectT>) {
-        debug!(":replace_effect(), index: {}", index);
-        self.effects[index] = effect;
-    }
-
-    pub fn clear_effects(&mut self) {
-        debug!("GMEffectManager::clear_effects()");
-        self.effects.clear();
-    }
-
-    pub fn swap_effects(&mut self, index1: usize, index2: usize) {
-        debug!("GMEffectManager::swap_effect(), index1: {}, index2: {}", index1, index2);
-        self.effects.swap(index1, index2);
-    }
-
-    pub fn send_effect_message(&mut self, index: usize, message: &str) {
-        self.effects[index].send_message(message);
-    }
-
-    pub fn send_effect_message_all(&mut self, message: &str) {
-        for effect in self.effects.iter_mut() {
-            effect.send_message(message);
-        }
-    }
-
-    pub fn get_effects(&self) -> &Vec<Box<dyn GMBitmapTextEffectT>> {
-        &self.effects
-    }
-
-    pub fn get_effect(&self, index: usize) -> &Box<dyn GMBitmapTextEffectT> {
-        &self.effects[index]
-    }
-
-    pub fn get_effects_mut(&mut self) -> &mut Vec<Box<dyn GMBitmapTextEffectT>> {
-        &mut self.effects
-    }
-
-    pub fn get_effect_mut(&mut self, index: usize) -> &mut Box<dyn GMBitmapTextEffectT> {
-        &mut self.effects[index]
-    }
-    */
 }
 
 gen_effect_impl_for_type!(GMBitmapText);
 
-/*
-impl GMUpdateT for GMBitmapText {
-    fn update(&mut self, context: &mut GMContext) {
-        if self.active {
-            for effect in self.effects.iter_mut() {
-                effect.update(&mut self.base, context);
-            }
-        }
-    }
-}
-
-impl GMDrawT for GMBitmapText {
-    fn draw(&self, context: &mut GMContext) {
-        if self.visible {
-            if self.base.draw_text_first {
-                self.base.draw(context);
-
-                for effect in self.effects.iter() {
-                    effect.draw(&self.base, context);
-                }
-            } else {
-                for effect in self.effects.iter() {
-                    effect.draw(&self.base, context);
-                }
-
-                self.base.draw(context);
-            }
-        }
-    }
-}
-
-impl GMActiveT  for GMBitmapText {
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    fn get_active(&self) -> bool {
-        self.active
-    }
-}
-
-impl GMVisibleT for GMBitmapText {
-    fn set_visible(&mut self, visible: bool) {
-        self.visible = visible;
-    }
-
-    fn get_visible(&self) -> bool {
-        self.visible
-    }
-}
-*/
-
 gen_effect_trait!(GMBitmapTextEffectT, GMBitmapTextBase);
-
-/*
-pub trait GMBitmapTextEffectT {
-    fn update(&mut self, _text_base: &mut GMBitmapTextBase, _context: &mut GMContext) {
-    }
-
-    fn draw(&self, _text_base: &GMBitmapTextBase, _context: &mut GMContext) {
-    }
-
-    fn send_message(&mut self, _message: &str) {
-    }
-}
-*/
-
