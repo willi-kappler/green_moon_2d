@@ -12,6 +12,8 @@ use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
+use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_type_effect_methods};
+
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
     texture: Arc<GMTexture>,
@@ -381,6 +383,9 @@ impl GMBitmapText {
         }
     }
 
+    gen_type_effect_methods!(GMBitmapTextBase, GMBitmapTextEffectT);
+
+    /*
     pub fn get_base(&self) -> &GMBitmapTextBase {
         &self.base
     }
@@ -390,15 +395,38 @@ impl GMBitmapText {
     }
 
     pub fn add_effect<T: 'static + GMBitmapTextEffectT>(&mut self, effect: T) {
+        debug!("::add_effect()");
         self.effects.push(Box::new(effect));
     }
 
     pub fn add_effect2(&mut self, effect: Box<dyn GMBitmapTextEffectT>) {
+        debug!("::add_effect2()");
         self.effects.push(effect);
     }
 
     pub fn remove_effect(&mut self, index: usize) {
+        debug!("::remove_effect(), index: {}", index);
         self.effects.remove(index);
+    }
+
+    pub fn set_effects(&mut self, effects: Vec<Box<dyn GMBitmapTextEffectT>>) {
+        debug!("::set_effects()");
+        self.effects = effects;
+    }
+
+    pub fn replace_effect(&mut self, index: usize, effect: Box<dyn GMBitmapTextEffectT>) {
+        debug!(":replace_effect(), index: {}", index);
+        self.effects[index] = effect;
+    }
+
+    pub fn clear_effects(&mut self) {
+        debug!("GMEffectManager::clear_effects()");
+        self.effects.clear();
+    }
+
+    pub fn swap_effects(&mut self, index1: usize, index2: usize) {
+        debug!("GMEffectManager::swap_effect(), index1: {}, index2: {}", index1, index2);
+        self.effects.swap(index1, index2);
     }
 
     pub fn send_effect_message(&mut self, index: usize, message: &str) {
@@ -426,8 +454,12 @@ impl GMBitmapText {
     pub fn get_effect_mut(&mut self, index: usize) -> &mut Box<dyn GMBitmapTextEffectT> {
         &mut self.effects[index]
     }
+    */
 }
 
+gen_effect_impl_for_type!(GMBitmapText);
+
+/*
 impl GMUpdateT for GMBitmapText {
     fn update(&mut self, context: &mut GMContext) {
         if self.active {
@@ -477,7 +509,11 @@ impl GMVisibleT for GMBitmapText {
         self.visible
     }
 }
+*/
 
+gen_effect_trait!(GMBitmapTextEffectT, GMBitmapTextBase);
+
+/*
 pub trait GMBitmapTextEffectT {
     fn update(&mut self, _text_base: &mut GMBitmapTextBase, _context: &mut GMContext) {
     }
@@ -488,3 +524,5 @@ pub trait GMBitmapTextEffectT {
     fn send_message(&mut self, _message: &str) {
     }
 }
+*/
+
