@@ -12,9 +12,10 @@ use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
-use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_type_effect_methods,
-    gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
-    gen_impl_active, gen_impl_texture};
+use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_impl_position,
+    gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
+    gen_impl_active, gen_impl_texture, gen_container_type, gen_draw_first_methods,
+    gen_update_first_methods, gen_type_effect_methods};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -119,7 +120,8 @@ pub struct GMBitmapTextBase {
     align: GMAlign,
     size: GMSize,
     chars: Vec<GMBitmapChar>,
-    draw_text_first: bool,
+    draw_first: bool,
+    update_first: bool,
     visible: bool,
 }
 
@@ -134,7 +136,8 @@ impl GMBitmapTextBase {
             align: GMAlign::BottomLeft,
             size: GMSize::new(0.0, 0.0),
             chars: Vec::new(),
-            draw_text_first: true,
+            draw_first: true,
+            update_first: true,
             visible: true,
         };
 
@@ -195,13 +198,9 @@ impl GMBitmapTextBase {
         &mut self.chars
     }
 
-    pub fn set_draw_text_first(&mut self, draw_text_first: bool) {
-        self.draw_text_first = draw_text_first;
-    }
+    gen_draw_first_methods!();
 
-    pub fn get_draw_text_first(&self) -> bool {
-        self.draw_text_first
-    }
+    gen_update_first_methods!();
 
     pub fn reset_chars(&mut self) {
         // Remove all the characters and recreate them
@@ -294,16 +293,23 @@ impl GMDrawT for GMBitmapTextBase {
     }
 }
 
+impl GMUpdateT for GMBitmapTextBase {}
+
 gen_impl_position!(GMBitmapTextBase);
 
 gen_impl_visible!(GMBitmapTextBase);
 
+gen_container_type!(GMBitmapText, GMBitmapTextBase, GMBitmapTextEffectT);
+
+/*
+#[derive(Debug, Clone)]
 pub struct GMBitmapText {
     base: GMBitmapTextBase,
     effects: Vec<Box<dyn GMBitmapTextEffectT>>,
     active: bool,
     visible: bool,
 }
+*/
 
 impl GMBitmapText {
     pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {

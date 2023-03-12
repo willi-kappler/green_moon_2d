@@ -1,8 +1,23 @@
 
+
+#[macro_export]
+macro_rules! gen_container_type {
+    ($type:ident, $base:ty, $trait:ident) => {
+        #[derive(Debug, Clone)]
+        pub struct $type {
+            base: $base,
+            effects: Vec<Box<dyn $trait>>,
+            active: bool,
+            visible: bool,
+        }
+    };
+}
+
+
 #[macro_export]
 macro_rules! gen_effect_trait {
     ($trait:ident, $base:ty) => {
-        pub trait $trait {
+        pub trait $trait: Debug {
             fn update(&mut self, _text_base: &mut $base, _context: &mut GMContext) {
             }
 
@@ -10,6 +25,14 @@ macro_rules! gen_effect_trait {
             }
 
             fn send_message(&mut self, _message: &str) {
+            }
+
+            fn clone_box(&self) -> Box<dyn $trait>;
+        }
+
+        impl Clone for Box<dyn $trait> {
+            fn clone(&self) -> Box<dyn $trait> {
+                self.clone_box()
             }
         }
     };
@@ -21,8 +44,18 @@ macro_rules! gen_effect_impl_for_type {
         impl GMUpdateT for $type {
             fn update(&mut self, context: &mut GMContext) {
                 if self.active {
-                    for effect in self.effects.iter_mut() {
-                        effect.update(&mut self.base, context);
+                    if self.base.update_first {
+                        self.base.update(context);
+
+                        for effect in self.effects.iter_mut() {
+                            effect.update(&mut self.base, context);
+                        }
+                        } else {
+                            for effect in self.effects.iter_mut() {
+                                effect.update(&mut self.base, context);
+                            }
+
+                            self.base.update(context);
                     }
                 }
             }
@@ -31,7 +64,7 @@ macro_rules! gen_effect_impl_for_type {
         impl GMDrawT for $type {
             fn draw(&self, context: &mut GMContext) {
                 if self.visible {
-                    if self.base.draw_text_first {
+                    if self.base.draw_first {
                         self.base.draw(context);
 
                         for effect in self.effects.iter() {
@@ -125,6 +158,32 @@ macro_rules! gen_type_effect_methods {
 
         pub fn get_effect_mut(&mut self, index: usize) -> &mut Box<dyn $trait> {
             &mut self.effects[index]
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! gen_draw_first_methods {
+    () => {
+        pub fn set_draw_first(&mut self, draw_first: bool) {
+            self.draw_first = draw_first;
+        }
+
+        pub fn get_draw_first(&self) -> bool {
+            self.draw_first
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! gen_update_first_methods {
+    () => {
+        pub fn set_update_first(&mut self, update_first: bool) {
+            self.update_first = update_first;
+        }
+
+        pub fn get_update_first(&self) -> bool {
+            self.update_first
         }
     }
 }
