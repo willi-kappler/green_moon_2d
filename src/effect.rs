@@ -1,5 +1,4 @@
 
-
 #[macro_export]
 macro_rules! gen_effect_trait {
     ($trait:ident, $base:ty) => {
@@ -49,25 +48,10 @@ macro_rules! gen_effect_impl_for_type {
             }
         }
 
-        impl GMActiveT for $type {
-            fn set_active(&mut self, active: bool) {
-                self.active = active;
-            }
+        gen_impl_active!($type);
 
-            fn get_active(&self) -> bool {
-                self.active
-            }
-        }
+        gen_impl_visible!($type);
 
-        impl GMVisibleT for $type {
-            fn set_visible(&mut self, visible: bool) {
-                self.visible = visible;
-            }
-
-            fn get_visible(&self) -> bool {
-                self.visible
-            }
-        }
     };
 }
 

@@ -36,6 +36,8 @@ pub mod texture;
 // pub mod tilemap;
 // pub mod tileset;
 pub mod timer;
+
+#[macro_use] // Export macros
 pub mod util;
 
 pub use context::GMContext;

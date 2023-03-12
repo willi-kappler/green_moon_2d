@@ -13,7 +13,8 @@ use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
 use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_type_effect_methods,
-    gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible, gen_impl_texture};
+    gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
+    gen_impl_active, gen_impl_texture};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
