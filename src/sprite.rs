@@ -2,6 +2,7 @@
 use std::sync::Arc;
 use std::fmt::Debug;
 
+use log::debug;
 
 use crate::texture::{GMTexture, GMTextureT};
 use crate::math::{GMVec2D};
@@ -30,6 +31,10 @@ pub struct GMSprite {
 
 impl GMSprite {
     pub fn new<T: Into<GMVec2D>>(texture: Arc<GMTexture>, position: T, animation: GMAnimation) -> Self {
+        let position = position.into();
+
+        debug!("GMSprite::new(), position: '{}'", position);
+
         Self {
             texture,
             position: position.into(),

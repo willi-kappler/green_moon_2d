@@ -124,10 +124,15 @@ pub struct GMBitmapText {
 
 impl GMBitmapText {
     pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {
+        let position = position.into();
+        let text = text.into();
+
+        debug!("GMBitmapText::new(), position: '{}', text: '{}'", position, text);
+
         let mut text = Self {
             font,
-            position: position.into(),
-            text: text.into(),
+            position,
+            text,
             spacing: GMVec2D::new(0.0, 0.0),
             horizontal: true,
             align: GMAlign::BottomLeft,
