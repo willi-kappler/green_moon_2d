@@ -1,6 +1,6 @@
 
 use std::ops::{Add, Sub, Mul};
-
+use std::f32::consts::PI;
 
 use crate::util::GMRepetition;
 use crate::math::GMVec2D;
@@ -15,6 +15,18 @@ pub fn gm_curve_x2_up(x: f32) -> f32 {
 
 pub fn gm_curve_x2_down(x: f32) -> f32 {
     1.0 - (x*x)
+}
+
+pub fn gm_slope_in_out(x: f32) -> f32 {
+    if x < 0.5 {
+        (x.powf(4.0)) * 8.0
+    } else {
+        ((-(x - 1.0).powf(4.0)) * 8.0) + 1.0
+    }
+}
+
+pub fn gm_sin_slope1(x: f32) -> f32 {
+    (((x*PI) - PI/2.0).sin() + 1.0) / 2.0
 }
 
 pub struct GMInterpolate<T> {
@@ -41,7 +53,7 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> G
             current_step,
             current_value,
             repetition: GMRepetition::OnceForward,
-            curve: |x| x,
+            curve: gm_curve_linear,
         }
     }
 
