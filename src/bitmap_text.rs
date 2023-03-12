@@ -70,7 +70,7 @@ gen_impl_texture!(GMBitmapFont);
 pub struct GMBitmapChar {
     index: u32,
     position: GMVec2D,
-    rotation: f32,
+    angle: f32,
     scale: f32,
     flip_x: bool,
     flip_y: bool,
@@ -83,7 +83,7 @@ impl GMBitmapChar {
         Self {
             index,
             position,
-            rotation: 0.0,
+            angle: 0.0,
             scale: 1.0,
             flip_x: false,
             flip_y: false,
@@ -271,7 +271,7 @@ impl GMBitmapTextBase {
         for c in self.chars.iter_mut() {
             c.position.x = x;
             c.position.y = y;
-            c.rotation = 0.0;
+            c.angle = 0.0;
 
             x += dx2;
             y += dy2;
@@ -286,7 +286,7 @@ impl GMDrawT for GMBitmapTextBase {
                 if c.visible {
                     let dx = self.position.x + c.position.x;
                     let dy = self.position.y + c.position.y;
-                    self.font.texture.draw_opt(dx, dy, c.index, c.rotation, c.scale, c.flip_x, c.flip_y, context);
+                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, c.flip_x, c.flip_y, context);
                 }
             }
         }
@@ -300,16 +300,6 @@ gen_impl_position!(GMBitmapTextBase);
 gen_impl_visible!(GMBitmapTextBase);
 
 gen_container_type!(GMBitmapText, GMBitmapTextBase, GMBitmapTextEffectT);
-
-/*
-#[derive(Debug, Clone)]
-pub struct GMBitmapText {
-    base: GMBitmapTextBase,
-    effects: Vec<Box<dyn GMBitmapTextEffectT>>,
-    active: bool,
-    visible: bool,
-}
-*/
 
 impl GMBitmapText {
     pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {
