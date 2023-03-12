@@ -2,7 +2,8 @@
 use std::fmt::Debug;
 
 use crate::timer::GMTimer;
-use crate::util::{GMRepetition};
+use crate::util::{GMRepetition, GMActiveT};
+use crate::gen_impl_active;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -22,14 +23,6 @@ impl GMAnimation {
             timer: GMTimer::new(frames[0].1),
             repetition,
         }
-    }
-
-    pub fn set_active(&mut self, active: bool) {
-        self.active = active;
-    }
-
-    pub fn get_active(&self) -> bool {
-        self.active
     }
 
     pub fn texture_index(&self) -> u32 {
@@ -80,26 +73,7 @@ impl GMAnimation {
     }
 
     pub fn reverse(&mut self) {
-        match self.repetition {
-            GMRepetition::OnceForward => {
-                self.repetition = GMRepetition::OnceBackward;
-            }
-            GMRepetition::OnceBackward => {
-                self.repetition = GMRepetition::OnceForward;
-            }
-            GMRepetition::LoopForward => {
-                self.repetition = GMRepetition::LoopBackward;
-            }
-            GMRepetition::LoopBackward => {
-                self.repetition = GMRepetition::LoopForward;
-            }
-            GMRepetition::PingPongForward => {
-                self.repetition = GMRepetition::PingPongBackward;
-            }
-            GMRepetition::PingPongBackward => {
-                self.repetition = GMRepetition::PingPongForward;
-            }
-        }
+        self.repetition.reverse();
     }
 
     pub fn update(&mut self) {
@@ -141,7 +115,7 @@ impl GMAnimation {
                 }
                 GMRepetition::PingPongForward => {
                     if self.frame_at_end() {
-                        self.repetition =  GMRepetition::PingPongBackward;
+                        self.repetition.reverse();
                     } else {
                         self.current_frame += 1;
                     }
@@ -149,7 +123,7 @@ impl GMAnimation {
                 }
                 GMRepetition::PingPongBackward => {
                     if self.frame_at_start() {
-                        self.repetition =  GMRepetition::PingPongForward;
+                        self.repetition.reverse();
                     } else {
                         self.current_frame -= 1;
                     }
@@ -159,3 +133,5 @@ impl GMAnimation {
         }
     }
 }
+
+gen_impl_active!(GMAnimation);

@@ -29,6 +29,7 @@ pub struct GMSpriteBase {
     update_first: bool,
     visible: bool,
     active: bool,
+    // TODO: Add sprite children
 }
 
 impl GMSpriteBase {

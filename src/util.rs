@@ -28,6 +28,31 @@ pub enum GMRepetition {
     PingPongBackward,
 }
 
+impl GMRepetition {
+    pub fn reverse(&mut self) {
+        match self {
+            GMRepetition::OnceForward => {
+                *self = GMRepetition::OnceBackward;
+            }
+            GMRepetition::OnceBackward => {
+                *self = GMRepetition::OnceForward;
+            }
+            GMRepetition::LoopForward => {
+                *self = GMRepetition::LoopBackward;
+            }
+            GMRepetition::LoopBackward => {
+                *self = GMRepetition::LoopForward;
+            }
+            GMRepetition::PingPongForward => {
+                *self = GMRepetition::PingPongBackward;
+            }
+            GMRepetition::PingPongBackward => {
+                *self = GMRepetition::PingPongForward;
+            }
+        }
+    }
+}
+
 impl From<&str> for GMRepetition {
     fn from(value: &str) -> Self {
         match value {
@@ -107,7 +132,7 @@ pub trait GMActiveT {
 #[macro_export]
 macro_rules! gen_impl_active {
     ($type:ty) => {
-        impl GMActiveT  for $type {
+        impl GMActiveT for $type {
             fn set_active(&mut self, active: bool) {
                 self.active = active;
             }
@@ -127,7 +152,7 @@ pub trait GMVisibleT {
 #[macro_export]
 macro_rules! gen_impl_visible {
     ($type:ty) => {
-        impl GMVisibleT  for $type {
+        impl GMVisibleT for $type {
             fn set_visible(&mut self, visible: bool) {
                 self.visible = visible;
             }
