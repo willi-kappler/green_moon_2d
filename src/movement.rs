@@ -15,7 +15,7 @@ pub trait GMPositionT {
         self.get_position_mut().y = y;
     }
 
-    fn add_position(&mut self, position: GMVec2D) {
+    fn add_position<T: Into<GMVec2D>>(&mut self, position: T) {
         self.get_position_mut().add2(position);
     }
 
