@@ -1,5 +1,6 @@
 
-use crate::math::GMVec2D;
+use crate::math::{GMVec2D, GMCircle};
+use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32};
 
 pub trait GMPositionT {
     fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
@@ -47,29 +48,29 @@ macro_rules! gen_impl_position {
 }
 
 pub trait GMRotationT {
-    fn set_rotation(&mut self, rotation: f32) {
-        *self.get_rotation_mut() = rotation;
+    fn set_angle(&mut self, rotation: f32) {
+        *self.get_angle_mut() = rotation;
     }
 
-    fn add_rotation(&mut self, rotation: f32) {
-        *self.get_rotation_mut() += rotation;
+    fn add_angle(&mut self, rotation: f32) {
+        *self.get_angle_mut() += rotation;
     }
 
-    fn get_rotation(&self) -> f32;
+    fn get_angle(&self) -> f32;
 
-    fn get_rotation_mut(&mut self) -> &mut f32;
+    fn get_angle_mut(&mut self) -> &mut f32;
 }
 
 #[macro_export]
 macro_rules! gen_impl_rotation {
     ($type:ty) => {
         impl GMRotationT for $type {
-            fn get_rotation(&self) -> f32 {
-                self.rotation
+            fn get_angle(&self) -> f32 {
+                self.angle
             }
 
-            fn get_rotation_mut(&mut self) -> &mut f32 {
-                &mut self.rotation
+            fn get_angle_mut(&mut self) -> &mut f32 {
+                &mut self.angle
             }
         }
     };
@@ -102,4 +103,80 @@ macro_rules! gen_impl_scale {
             }
         }
     };
+}
+
+#[macro_export]
+macro_rules! gen_get_interpolation_methods {
+    ($type:ty) => {
+        pub fn get_interpolation(&self) -> &$type {
+            &self.interpolation
+        }
+
+        pub fn get_interpolation_mut(&mut self) -> &mut $type {
+            &mut self.interpolation
+        }
+    };
+}
+
+pub struct GMMove2Points {
+    interpolation: GMInterpolateVec2D,
+}
+
+impl GMMove2Points {
+    pub fn new<S: Into<GMVec2D>, E: Into<GMVec2D>>(start: S, end: E, speed: f32) -> Self {
+        Self {
+            interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
+        }
+    }
+
+    pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
+        let new_pos = self.interpolation.get_current_value();
+        movable.set_position(new_pos);
+        self.interpolation.update();
+    }
+
+    gen_get_interpolation_methods!(GMInterpolateVec2D);
+}
+
+pub struct GMMoveRotate {
+    interpolation: GMInterpolateF32,
+}
+
+impl GMMoveRotate {
+    pub fn new(start: f32, end: f32, speed: f32) -> Self {
+        Self {
+            interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
+        }
+    }
+
+    pub fn update<T: GMRotationT>(&mut self, rotatable: &mut T) {
+        let new_angle = self.interpolation.get_current_value();
+        rotatable.set_angle(new_angle);
+        self.interpolation.update();
+    }
+
+    gen_get_interpolation_methods!(GMInterpolateF32);
+}
+
+pub struct GMMoveCircle {
+    interpolation: GMInterpolateF32,
+    circle: GMCircle,
+}
+
+impl GMMoveCircle {
+    pub fn new<T: Into<GMVec2D>>(start: f32, end: f32, speed: f32, center: T, radius: f32) -> Self {
+        Self {
+            interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
+            circle: GMCircle::new(center, radius),
+        }
+    }
+
+    pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
+        let new_angle = self.interpolation.get_current_value();
+        let new_position = self.circle.position_from_deg(new_angle);
+        movable.set_position(new_position);
+        self.interpolation.update();
+    }
+
+    gen_get_interpolation_methods!(GMInterpolateF32);
 }
