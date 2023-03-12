@@ -21,7 +21,7 @@ pub struct GMSpriteBase {
     texture: Arc<GMTexture>,
     position: GMVec2D,
     animation: GMAnimation,
-    rotation: f32,
+    angle: f32,
     scale: f32,
     flip_x: bool,
     flip_y: bool,
@@ -38,7 +38,7 @@ impl GMSpriteBase {
             texture,
             position: position.into(),
             animation,
-            rotation: 0.0,
+            angle: 0.0,
             scale: 1.0,
             flip_x: false,
             flip_y: false,
@@ -61,7 +61,7 @@ impl GMDrawT for GMSpriteBase {
             let dx = self.position.x;
             let dy = self.position.y;
 
-            self.texture.draw_opt(dx, dy, index, self.rotation, self.scale, self.flip_x, self.flip_y, context);
+            self.texture.draw_opt(dx, dy, index, self.angle, self.scale, self.flip_x, self.flip_y, context);
         }
     }
 }
