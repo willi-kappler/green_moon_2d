@@ -29,7 +29,10 @@ pub mod scene;
 // pub mod score;
 pub mod sprite;
 // pub mod sprite_effect;
+
+#[macro_use] // Export macros
 pub mod texture;
+
 // pub mod tilemap;
 // pub mod tileset;
 pub mod timer;
