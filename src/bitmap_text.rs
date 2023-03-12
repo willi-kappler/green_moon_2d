@@ -7,15 +7,14 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::texture::{GMTexture, GMTextureT};
-use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMActiveT, GMFlipXYT};
+use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMFlipXYT};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
-use crate::{gen_effect_trait, gen_effect_impl_for_type, gen_impl_position,
+use crate::{gen_impl_position,
     gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
-    gen_impl_active, gen_impl_texture, gen_container_type, gen_draw_first_methods,
-    gen_update_first_methods, gen_type_effect_methods};
+    gen_impl_texture};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -111,7 +110,7 @@ gen_impl_flipxy!(GMBitmapChar);
 gen_impl_visible!(GMBitmapChar);
 
 #[derive(Debug, Clone)]
-pub struct GMBitmapTextBase {
+pub struct GMBitmapText {
     font: Arc<GMBitmapFont>,
     position: GMVec2D,
     text: String,
@@ -120,12 +119,10 @@ pub struct GMBitmapTextBase {
     align: GMAlign,
     size: GMSize,
     chars: Vec<GMBitmapChar>,
-    draw_first: bool,
-    update_first: bool,
     visible: bool,
 }
 
-impl GMBitmapTextBase {
+impl GMBitmapText {
     pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {
         let mut text = Self {
             font,
@@ -136,8 +133,6 @@ impl GMBitmapTextBase {
             align: GMAlign::BottomLeft,
             size: GMSize::new(0.0, 0.0),
             chars: Vec::new(),
-            draw_first: true,
-            update_first: true,
             visible: true,
         };
 
@@ -197,10 +192,6 @@ impl GMBitmapTextBase {
     pub fn get_chars_mut(&mut self) -> &mut Vec<GMBitmapChar> {
         &mut self.chars
     }
-
-    gen_draw_first_methods!();
-
-    gen_update_first_methods!();
 
     pub fn reset_chars(&mut self) {
         // Remove all the characters and recreate them
@@ -279,7 +270,7 @@ impl GMBitmapTextBase {
     }
 }
 
-impl GMDrawT for GMBitmapTextBase {
+impl GMDrawT for GMBitmapText {
     fn draw(&self, context: &mut GMContext) {
         if self.visible {
             for c in self.chars.iter() {
@@ -293,29 +284,8 @@ impl GMDrawT for GMBitmapTextBase {
     }
 }
 
-impl GMUpdateT for GMBitmapTextBase {}
+impl GMUpdateT for GMBitmapText {}
 
-gen_impl_position!(GMBitmapTextBase);
+gen_impl_position!(GMBitmapText);
 
-gen_impl_visible!(GMBitmapTextBase);
-
-gen_container_type!(GMBitmapText, GMBitmapTextBase, GMBitmapTextEffectT);
-
-impl GMBitmapText {
-    pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {
-        let base = GMBitmapTextBase::new(font, position, text);
-
-        Self {
-            base,
-            effects: Vec::new(),
-            active: true,
-            visible: true,
-        }
-    }
-
-    gen_type_effect_methods!(GMBitmapTextBase, GMBitmapTextEffectT);
-}
-
-gen_effect_impl_for_type!(GMBitmapText);
-
-gen_effect_trait!(GMBitmapTextEffectT, GMBitmapTextBase);
+gen_impl_visible!(GMBitmapText);

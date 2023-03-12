@@ -6,9 +6,6 @@ pub mod bitmap_text;
 pub mod collision;
 pub mod configuration;
 
-#[macro_use] // Export macros
-pub mod effect;
-
 pub mod context;
 pub mod engine;
 pub mod input;

@@ -1,7 +1,6 @@
 
 use std::sync::Arc;
 use std::fmt::Debug;
-use log::debug;
 
 
 use crate::texture::{GMTexture, GMTextureT};
@@ -11,13 +10,12 @@ use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 use crate::animation::GMAnimation;
 
-use crate::{gen_effect_trait, gen_effect_impl_for_type,
-    gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy,
+use crate::{gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy,
     gen_impl_visible, gen_impl_active, gen_impl_texture};
 
 
 #[derive(Debug, Clone)]
-pub struct GMSpriteBase {
+pub struct GMSprite {
     texture: Arc<GMTexture>,
     position: GMVec2D,
     animation: GMAnimation,
@@ -25,14 +23,12 @@ pub struct GMSpriteBase {
     scale: f32,
     flip_x: bool,
     flip_y: bool,
-    draw_first: bool,
-    update_first: bool,
     visible: bool,
     active: bool,
     // TODO: Add sprite children
 }
 
-impl GMSpriteBase {
+impl GMSprite {
     pub fn new<T: Into<GMVec2D>>(texture: Arc<GMTexture>, position: T, animation: GMAnimation) -> Self {
         Self {
             texture,
@@ -42,19 +38,13 @@ impl GMSpriteBase {
             scale: 1.0,
             flip_x: false,
             flip_y: false,
-            draw_first: true,
-            update_first: true,
             visible: true,
             active: true,
         }
     }
-
-    gen_draw_first_methods!();
-
-    gen_update_first_methods!();
 }
 
-impl GMDrawT for GMSpriteBase {
+impl GMDrawT for GMSprite {
     fn draw(&self, context: &mut GMContext) {
         if self.visible {
             let index = self.animation.texture_index();
@@ -66,7 +56,7 @@ impl GMDrawT for GMSpriteBase {
     }
 }
 
-impl GMUpdateT for GMSpriteBase {
+impl GMUpdateT for GMSprite {
     fn update(&mut self, _context: &mut GMContext) {
         if self.active {
             self.animation.update();
@@ -74,37 +64,16 @@ impl GMUpdateT for GMSpriteBase {
     }
 }
 
-gen_impl_position!(GMSpriteBase);
+gen_impl_position!(GMSprite);
 
-gen_impl_rotation!(GMSpriteBase);
+gen_impl_rotation!(GMSprite);
 
-gen_impl_scale!(GMSpriteBase);
+gen_impl_scale!(GMSprite);
 
-gen_impl_flipxy!(GMSpriteBase);
+gen_impl_flipxy!(GMSprite);
 
-gen_impl_visible!(GMSpriteBase);
+gen_impl_visible!(GMSprite);
 
-gen_impl_active!(GMSpriteBase);
+gen_impl_active!(GMSprite);
 
-gen_impl_texture!(GMSpriteBase);
-
-gen_container_type!(GMSprite, GMSpriteBase, GMSpriteEffectT);
-
-impl GMSprite {
-    pub fn new<T: Into<GMVec2D>>(texture: Arc<GMTexture>, position: T, animation: GMAnimation) -> Self {
-        let base = GMSpriteBase::new(texture, position, animation);
-
-        Self {
-            base,
-            effects: Vec::new(),
-            active: true,
-            visible: true,
-        }
-    }
-
-    gen_type_effect_methods!(GMSpriteBase, GMSpriteEffectT);
-}
-
-gen_effect_impl_for_type!(GMSprite);
-
-gen_effect_trait!(GMSpriteEffectT, GMSpriteBase);
+gen_impl_texture!(GMSprite);
