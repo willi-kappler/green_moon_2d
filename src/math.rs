@@ -97,7 +97,7 @@ impl Default for GMVec2D {
 }
 
 impl Add for GMVec2D {
-    type Output = GMVec2D;
+    type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         GMVec2D::new(self.x + rhs.x, self.y + rhs.y)
@@ -105,7 +105,7 @@ impl Add for GMVec2D {
 }
 
 impl Sub for GMVec2D {
-    type Output = GMVec2D;
+    type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
         GMVec2D::new(self.x - rhs.x, self.y - rhs.y)
@@ -113,7 +113,7 @@ impl Sub for GMVec2D {
 }
 
 impl Mul<f32> for GMVec2D {
-    type Output = GMVec2D;
+    type Output = Self;
 
     fn mul(self, rhs: f32) -> Self::Output {
         GMVec2D::new(self.x * rhs, self.y * rhs)
