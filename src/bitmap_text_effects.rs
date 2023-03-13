@@ -11,6 +11,71 @@ use crate::context::GMContext;
 
 use crate::gen_impl_active;
 
+#[macro_export]
+macro_rules! gen_get_set_amplitude {
+    () => {
+        pub fn set_amplitude(&mut self, amplitude: f32) {
+            self.amplitude = amplitude
+        }
+
+        pub fn get_amplitude(&self) -> f32 {
+            self.amplitude
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! gen_get_set_speed {
+    () => {
+        pub fn set_speed(&mut self, speed: f32) {
+            self.speed = speed
+        }
+
+        pub fn get_speed(&self) -> f32 {
+            self.speed
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! gen_get_set_offset {
+    () => {
+        pub fn set_offset(&mut self, offset: f32) {
+            self.offset = offset
+        }
+
+        pub fn get_offset(&self) -> f32 {
+            self.offset
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! gen_get_set_radius {
+    () => {
+        pub fn set_radius(&mut self, radius: f32) {
+            self.radius = radius
+        }
+
+        pub fn get_radius(&self) -> f32 {
+            self.radius
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! gen_get_set_base {
+    () => {
+        pub fn set_base(&mut self, base: f32) {
+            self.base = base
+        }
+
+        pub fn get_base(&self) -> f32 {
+            self.base
+        }
+    };
+}
+
 #[derive(Debug, Clone)]
 pub struct GMTEWave {
     amplitude: f32,
@@ -56,6 +121,12 @@ impl GMTEWave {
             }
         }
     }
+
+    gen_get_set_amplitude!();
+
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
 }
 
 gen_impl_active!(GMTEWave);
@@ -105,6 +176,10 @@ impl GMTEShake {
             }
         }
     }
+
+    gen_get_set_radius!();
+
+    gen_get_set_speed!();
 }
 
 gen_impl_active!(GMTEShake);
@@ -142,6 +217,9 @@ impl GMTERotateChars {
         }
     }
 
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
 }
 
 gen_impl_active!(GMTERotateChars);
@@ -183,6 +261,13 @@ impl GMTEScale {
         }
     }
 
+    gen_get_set_amplitude!();
+
+    gen_get_set_base!();
+
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
 }
 
 gen_impl_active!(GMTEScale);
