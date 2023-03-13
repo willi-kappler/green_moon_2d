@@ -118,11 +118,12 @@ macro_rules! gen_get_interpolation_methods {
     };
 }
 
-pub struct GMMove2Points {
+#[derive(Debug, Clone)]
+pub struct GMMV2Points {
     interpolation: GMInterpolateVec2D,
 }
 
-impl GMMove2Points {
+impl GMMV2Points {
     pub fn new<S: Into<GMVec2D>, E: Into<GMVec2D>>(start: S, end: E, speed: f32) -> Self {
         Self {
             interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
@@ -138,11 +139,12 @@ impl GMMove2Points {
     gen_get_interpolation_methods!(GMInterpolateVec2D);
 }
 
-pub struct GMMoveRotate {
+#[derive(Debug, Clone)]
+pub struct GMMVRotate {
     interpolation: GMInterpolateF32,
 }
 
-impl GMMoveRotate {
+impl GMMVRotate {
     pub fn new(start: f32, end: f32, speed: f32) -> Self {
         Self {
             interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
@@ -158,12 +160,13 @@ impl GMMoveRotate {
     gen_get_interpolation_methods!(GMInterpolateF32);
 }
 
-pub struct GMMoveCircle {
+#[derive(Debug, Clone)]
+pub struct GMMVCircle {
     interpolation: GMInterpolateF32,
     circle: GMCircle,
 }
 
-impl GMMoveCircle {
+impl GMMVCircle {
     pub fn new<T: Into<GMVec2D>>(start: f32, end: f32, speed: f32, center: T, radius: f32) -> Self {
         Self {
             interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
