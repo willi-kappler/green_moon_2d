@@ -8,7 +8,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle};
+use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMScaleT};
 
 // use green_moon_2d::animation::{GMAnimation};
 
@@ -23,6 +23,8 @@ struct SpriteScene1 {
     ice1_rotation: GMMVRotate,
     head_sprite: GMSprite,
     head_circle: GMMVCircle,
+    ice_troll1_sprite: GMSprite,
+    ice_troll1_movement: GMMV2Points,
 }
 
 impl SpriteScene1 {
@@ -61,6 +63,13 @@ impl SpriteScene1 {
         let mut head_circle = GMMVCircle::new(90.0-60.0, 90.0+60.0, 0.02, (512.0, 400.0), 70.0);
         head_circle.get_interpolation_mut().set_repetition(GMRepetition::PingPongForward);
 
+        // Ice troll1 sprite
+        let texture = resources.get_texture("tex_ice_troll1");
+        let animation = resources.get_animation("anim_ice_troll1");
+        let mut ice_troll1_sprite = GMSprite::new(texture, (512.0, 600.0), animation);
+        ice_troll1_sprite.set_scale(4.0);
+        let mut ice_troll1_movement = GMMV2Points::new((100.0, 600.0), (900.0, 600.0), 0.002);
+        ice_troll1_movement.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
 
         Self {
             title,
@@ -71,6 +80,8 @@ impl SpriteScene1 {
             ice1_rotation,
             head_sprite,
             head_circle,
+            ice_troll1_sprite,
+            ice_troll1_movement,
         }
     }
 }
@@ -91,6 +102,9 @@ impl GMSceneT for SpriteScene1 {
 
         self.head_sprite.update(context);
         self.head_circle.update(&mut self.head_sprite);
+
+        self.ice_troll1_sprite.update(context);
+        self.ice_troll1_movement.update(&mut self.ice_troll1_sprite);
     }
 
     fn draw(&self, context: &mut GMContext) {
@@ -100,6 +114,7 @@ impl GMSceneT for SpriteScene1 {
         self.ghost_sprite.draw(context);
         self.ice1_sprite.draw(context);
         self.head_sprite.draw(context);
+        self.ice_troll1_sprite.draw(context);
     }
 }
 
