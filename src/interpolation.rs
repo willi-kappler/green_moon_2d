@@ -29,6 +29,7 @@ pub fn gm_sin_slope1(x: f32) -> f32 {
     (((x*PI) - PI/2.0).sin() + 1.0) / 2.0
 }
 
+#[derive(Debug, Clone)]
 pub struct GMInterpolate<T> {
     start: T,
     end: T,
