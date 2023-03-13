@@ -85,7 +85,6 @@ impl GMResources {
     }
 
     // Textures:
-
     fn no_texture_found(&self, texture_name: &str) -> ! {
         error_panic(&format!("No texture with name '{}' found!", texture_name));
     }
@@ -214,7 +213,6 @@ impl GMResources {
         }
     }
 
-
     // Animations:
     fn no_animation_found(&self, animation_name: &str) -> ! {
         error_panic(&format!("No animation with name '{}' found!", animation_name));
@@ -274,6 +272,9 @@ impl GMResources {
         }
     }
 
+    pub fn get_empty_animation(&self) -> GMAnimation {
+        GMAnimation::new(&[(0, 0.0)], GMRepetition::OnceForward)
+    }
 
     // Sounds:
 
