@@ -183,3 +183,24 @@ impl GMMVCircle {
 
     gen_get_interpolation_methods!(GMInterpolateF32);
 }
+
+#[derive(Debug, Clone)]
+pub struct GMMVPolygon {
+    positions: Vec<GMVec2D>,
+    speeds: Vec<f32>,
+    curves: Vec<fn(f32) -> f32>,
+}
+
+impl GMMVPolygon {
+    pub fn new<T: Into<GMVec2D>>(positions: Vec<GMVec2D>) -> Self {
+        let speeds = Vec::new();
+        let curves = Vec::new();
+
+
+        Self {
+            positions,
+            speeds,
+            curves,
+        }
+    }
+}
