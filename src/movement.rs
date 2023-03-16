@@ -1,6 +1,8 @@
 
+
 use crate::math::{GMVec2D, GMCircle};
-use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32};
+use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32, GMCuLinear, GMCurveT};
+use crate::util::GMRepetition;
 
 pub trait GMPositionT {
     fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
@@ -130,6 +132,8 @@ impl GMMV2Points {
         }
     }
 
+    // TODO: refactor, get_position, set_position
+
     pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
         let new_pos = self.interpolation.get_current_value();
         movable.set_position(new_pos);
@@ -150,6 +154,8 @@ impl GMMVRotate {
             interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
         }
     }
+
+    // TODO: refactor, get_position, set_position
 
     pub fn update<T: GMRotationT>(&mut self, rotatable: &mut T) {
         let new_angle = self.interpolation.get_current_value();
@@ -174,10 +180,18 @@ impl GMMVCircle {
         }
     }
 
-    pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
+    pub fn get_position(&self) -> GMVec2D {
         let new_angle = self.interpolation.get_current_value();
-        let new_position = self.circle.position_from_deg(new_angle);
+        self.circle.position_from_deg(new_angle)
+
+    }
+
+    pub fn set_position<T: GMPositionT>(&self, movable: &mut T) {
+        let new_position = self.get_position();
         movable.set_position(new_position);
+    }
+
+    pub fn update(&mut self) {
         self.interpolation.update();
     }
 
@@ -185,22 +199,155 @@ impl GMMVCircle {
 }
 
 #[derive(Debug, Clone)]
+pub struct GMMVCircleMultiple {
+    interpolation: GMInterpolateF32,
+    angle_step: f32,
+    circle: GMCircle,
+}
+
+impl GMMVCircleMultiple {
+    pub fn new<T: Into<GMVec2D>>(start: f32, end: f32, angle_step: f32, speed: f32, center: T, radius: f32) -> Self {
+        Self {
+            interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
+            angle_step,
+            circle: GMCircle::new(center, radius),
+        }
+    }
+
+    pub fn get_position(&self, index: u32) -> GMVec2D {
+        let f_index = index as f32;
+        let new_angle = self.interpolation.get_current_value();
+        self.circle.position_from_deg(new_angle + (f_index * self.angle_step))
+    }
+
+    pub fn set_position<T: GMPositionT>(&self, movable: &mut T, index: u32) {
+        let new_position = self.get_position(index);
+        movable.set_position(new_position);
+    }
+
+    pub fn update(&mut self) {
+        self.interpolation.update();
+    }
+
+    gen_get_interpolation_methods!(GMInterpolateF32);
+}
+
+
+
+#[derive(Debug, Clone)]
 pub struct GMMVPolygon {
     positions: Vec<GMVec2D>,
     speeds: Vec<f32>,
-    curves: Vec<fn(f32) -> f32>,
+    curves: Vec<Box<dyn GMCurveT>>,
+    current_index: usize,
+    current_interpolation: GMInterpolateVec2D,
+    repetition: GMRepetition,
 }
 
 impl GMMVPolygon {
-    pub fn new<T: Into<GMVec2D>>(positions: Vec<GMVec2D>) -> Self {
-        let speeds = Vec::new();
-        let curves = Vec::new();
+    pub fn new(positions: &[GMVec2D]) -> Self {
+        let positions = positions.to_vec();
+        let num_of_elems = positions.len();
+        assert!(num_of_elems > 2, "GMMVPolygon: must have at least three points (coordinates)");
 
+        let speeds = vec![0.1; num_of_elems];
+        let curves: Vec<Box<dyn GMCurveT>> = vec![Box::new(GMCuLinear{}); num_of_elems];
+        let start = positions[0];
+        let end = positions[1];
+        let speed = 0.1;
+        let current_interpolation = GMInterpolateVec2D::new(start, end, speed, 0.0);
 
         Self {
             positions,
             speeds,
             curves,
+            current_index: 0,
+            current_interpolation,
+            repetition: GMRepetition::OnceForward,
+        }
+    }
+
+    pub fn set_speed_for_all(&mut self, speed: f32) {
+        for s in self.speeds.iter_mut() {
+            *s = speed;
+        }
+    }
+
+    pub fn set_curve_for_all<T: GMCurveT>(&mut self, curve: T) {
+        for c in self.curves.iter_mut() {
+            *c = curve.clone_box();
+        }
+    }
+
+    pub fn set_curve_for_all2(&mut self, curve: Box<dyn GMCurveT>) {
+        for c in self.curves.iter_mut() {
+            *c = curve.clone();
+        }
+    }
+
+    pub fn set_speeds(&mut self, speeds: Vec<f32>) {
+        self.speeds = speeds;
+    }
+
+    pub fn set_curves<T: GMCurveT>(&mut self, curves: &[T]) {
+        self.curves.clear();
+
+        for c in curves.iter() {
+            self.curves.push(c.clone_box());
+        }
+    }
+
+    pub fn set_curves2(&mut self, curves: &[Box<dyn GMCurveT>]) {
+        self.curves = curves.to_vec();
+    }
+
+    pub fn set_positions(&mut self, positions: &[GMVec2D]) {
+        self.positions = positions.to_vec();
+    }
+
+    pub fn set_speed_at(&mut self, speed: f32, index: usize) {
+        self.speeds[index] = speed;
+    }
+
+    pub fn set_curve_at<T: GMCurveT>(&mut self, curve: T, index: usize) {
+        self.curves[index] = curve.clone_box();
+    }
+
+    pub fn set_curve_at2(&mut self, curve: Box<dyn GMCurveT>, index: usize) {
+        self.curves[index] = curve.clone();
+    }
+
+    pub fn set_position_at<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
+        self.positions[index] = position.into();
+    }
+
+    pub fn set_index(&mut self, index: usize) {
+        self.current_index = index;
+    }
+
+    pub fn set_repetition(&mut self, repetition: GMRepetition) {
+        self.repetition = repetition;
+    }
+
+    pub fn reset(&mut self) {
+        self.current_index = 0;
+        let start = self.positions[0];
+        let end = self.positions[1];
+        self.current_interpolation.set_start(start);
+        self.current_interpolation.set_end(end);
+        self.current_interpolation.set_current_step(0.0);
+        self.current_interpolation.set_speed(self.speeds[0]);
+        self.current_interpolation.set_curve2(self.curves[0].clone());
+    }
+
+    pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
+        let new_position = self.current_interpolation.get_current_value();
+        movable.set_position(new_position);
+        self.current_interpolation.update();
+
+        if self.current_interpolation.is_finished() {
+            self.current_index += 1;
+            // TODO: add more code
         }
     }
 }
