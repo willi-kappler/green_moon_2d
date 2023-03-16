@@ -97,18 +97,14 @@ impl GMSceneT for SpriteScene1 {
         self.bat_sprite.update(context);
         self.ghost_sprite.update(context);
 
-        self.ice1_movement.set_position(&mut self.ice1_sprite);
-        self.ice1_movement.update();
-        self.ice1_rotation.set_angle(&mut self.ice1_sprite);
-        self.ice1_rotation.update();
+        self.ice1_movement.set_and_update(&mut self.ice1_sprite);
+        self.ice1_rotation.set_and_update(&mut self.ice1_sprite);
 
         self.head_sprite.update(context);
-        self.head_circle.set_position(&mut self.head_sprite);
-        self.head_circle.update();
+        self.head_circle.set_and_update(&mut self.head_sprite);
 
         self.ice_troll1_sprite.update(context);
-        self.ice_troll1_movement.set_position(&mut self.ice_troll1_sprite);
-        self.ice_troll1_movement.update();
+        self.ice_troll1_movement.set_and_update(&mut self.ice_troll1_sprite);
     }
 
     fn draw(&self, context: &mut GMContext) {
