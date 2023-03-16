@@ -126,6 +126,8 @@ impl From<(f32, f32)> for GMVec2D {
     }
 }
 
+// TODO: impl from Vec<(f32, f32)> to Vec<GMVec2D>
+
 impl Display for GMVec2D {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "(x: {}, y: {})", self.x, self.y)

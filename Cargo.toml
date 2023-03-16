@@ -13,7 +13,7 @@ edition = "2021"
 
 [dependencies]
 nanoserde = "0.1"
-nanorand = "0.7.0"
+nanorand = "0.7"
 log = "0.4"
 
 [dependencies.sdl2]
