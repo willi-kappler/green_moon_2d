@@ -57,7 +57,7 @@ impl GMCurveT for GMCuSlopeInOut {
             (x.powf(4.0)) * 8.0
         } else {
             ((-(x - 1.0).powf(4.0)) * 8.0) + 1.0
-        }            
+        }
     }
     fn clone_box(&self) -> Box<dyn GMCurveT> {
         Box::new(self.clone())
@@ -81,33 +81,6 @@ impl Clone for Box<dyn GMCurveT> {
         self.clone_box()
     }
 }
-
-/*
-pub fn gm_curve_linear(x: f32) -> f32 {
-    x
-}
-
-pub fn gm_curve_x2_up(x: f32) -> f32 {
-    x*x
-}
-
-pub fn gm_curve_x2_down(x: f32) -> f32 {
-    1.0 - (x*x)
-}
-
-pub fn gm_slope_in_out(x: f32) -> f32 {
-    if x < 0.5 {
-        (x.powf(4.0)) * 8.0
-    } else {
-        ((-(x - 1.0).powf(4.0)) * 8.0) + 1.0
-    }
-}
-
-pub fn gm_sin_slope1(x: f32) -> f32 {
-    (((x*PI) - PI/2.0).sin() + 1.0) / 2.0
-}
-*/
-
 
 #[derive(Debug, Clone)]
 pub struct GMInterpolate<T> {

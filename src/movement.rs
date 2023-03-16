@@ -132,11 +132,16 @@ impl GMMV2Points {
         }
     }
 
-    // TODO: refactor, get_position, set_position
+    pub fn get_position(&self) -> GMVec2D {
+        self.interpolation.get_current_value()
+    }
 
-    pub fn update<T: GMPositionT>(&mut self, movable: &mut T) {
-        let new_pos = self.interpolation.get_current_value();
+    pub fn set_position<T: GMPositionT>(&self, movable: &mut T) {
+        let new_pos = self.get_position();
         movable.set_position(new_pos);
+    }
+
+    pub fn update(&mut self) {
         self.interpolation.update();
     }
 
@@ -155,11 +160,16 @@ impl GMMVRotate {
         }
     }
 
-    // TODO: refactor, get_position, set_position
+    pub fn get_angle(&self) -> f32 {
+        self.interpolation.get_current_value()
+    }
 
-    pub fn update<T: GMRotationT>(&mut self, rotatable: &mut T) {
-        let new_angle = self.interpolation.get_current_value();
+    pub fn set_angle<T: GMRotationT>(&self, rotatable: &mut T) {
+        let new_angle = self.get_angle();
         rotatable.set_angle(new_angle);
+    }
+
+    pub fn update(&mut self) {
         self.interpolation.update();
     }
 
