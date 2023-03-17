@@ -6,9 +6,9 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
-use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT};
+use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMVCircle};
+use green_moon_2d::movement::{GMMVCircle, GMMVCircleMultiple};
 
 
 #[derive(Debug)]
@@ -18,6 +18,9 @@ struct SpriteScene2 {
     ghost_sprite: GMSprite,
     ghost_circle: GMMVCircle,
     text_circle: GMMVCircle,
+
+    multiple_ghosts: Vec<GMSprite>,
+    multi_circle: GMMVCircleMultiple,
 }
 
 impl SpriteScene2 {
@@ -30,7 +33,6 @@ impl SpriteScene2 {
         title.set_align(GMAlign::BottomCenter);
         title.reset_positions();
 
-
         // Set up circle text
         let mut ghost_text = GMBitmapText::new(font, (0.0, 0.0), "BOOO!");
         ghost_text.set_align(GMAlign::MiddleCenter);
@@ -39,7 +41,7 @@ impl SpriteScene2 {
         // Set up ghost sprite
         let texture = resources.get_texture("tex_ghost1");
         let animation = resources.get_animation("anim_ghost1");
-        let ghost_sprite = GMSprite::new(texture, (0.0, 0.0), animation);
+        let ghost_sprite = GMSprite::new(texture.clone(), (0.0, 0.0), animation.clone());
 
         // Set up circle movement for ghost
         let mut ghost_circle = GMMVCircle::new(0.0, 360.0, 0.001, (250.0, 250.0), 100.0);
@@ -49,12 +51,31 @@ impl SpriteScene2 {
         let mut text_circle = GMMVCircle::new(0.0, 360.0, 0.01, (0.0, 0.0 / 2.0), 50.0);
         text_circle.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
 
+
+
+        // Multiple sprites on a circle:
+        let mut multiple_ghosts = Vec::new();
+
+
+        for _ in 0..4 {
+            let sprite = GMSprite::new(texture.clone(), (0.0, 0.0), animation.clone());
+            multiple_ghosts.push(sprite);
+        }
+
+        multiple_ghosts[0].set_flip_x(true);
+        multiple_ghosts[2].set_flip_x(true);
+
+        let mut multi_circle = GMMVCircleMultiple::new(0.0, 360.0, 90.0, 0.005, (600.0, 250.0), 100.0);
+        multi_circle.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
+
         Self {
             title,
             ghost_text,
             ghost_sprite,
             ghost_circle,
             text_circle,
+            multiple_ghosts,
+            multi_circle,
         }
     }
 }
@@ -67,6 +88,7 @@ impl GMSceneT for SpriteScene2 {
             context.quit();
         }
 
+        // Update animation
         self.ghost_sprite.update(context);
 
         self.ghost_circle.set_position_of(&mut self.ghost_sprite);
@@ -74,6 +96,14 @@ impl GMSceneT for SpriteScene2 {
         self.ghost_circle.update();
 
         self.text_circle.set_and_update(&mut self.ghost_text);
+
+        for i in 0..4 {
+            let sprite = &mut self.multiple_ghosts[i];
+            sprite.update(context);
+            self.multi_circle.set_position_of(sprite, i as u32);
+        }
+
+        self.multi_circle.update();
     }
 
     fn draw(&self, context: &mut GMContext) {
@@ -81,6 +111,10 @@ impl GMSceneT for SpriteScene2 {
         self.title.draw(context);
         self.ghost_text.draw(context);
         self.ghost_sprite.draw(context);
+
+        for i in 0..4 {
+            self.multiple_ghosts[i].draw(context);
+        }
     }
 }
 
