@@ -32,7 +32,7 @@ impl SpriteScene1 {
         // Set up title text:
         let resources = engine.get_resources();
         let font = resources.get_font("font_cuddly");
-        let mut title = GMBitmapText::new(font, (512.0, 100.0), "SPRITE1");
+        let mut title = GMBitmapText::new(font, (512.0, 100.0), "SPRITE 1");
         title.set_align(GMAlign::BottomCenter);
         title.reset_positions();
 
@@ -57,6 +57,7 @@ impl SpriteScene1 {
         let mut ice1_rotation = GMMVRotate::new(-30.0, 30.0, 0.05);
         ice1_rotation.get_interpolation_mut().set_repetition(GMRepetition::PingPongForward);
 
+        // Head sprite
         let texture = resources.get_texture("tex_head1");
         let animation = resources.get_animation("anim_head1");
         let head_sprite = GMSprite::new(texture, (512.0, 400.0), animation);
