@@ -398,23 +398,78 @@ impl GMMVPolygon {
         self.current_interpolation.get_current_value()
     }
 
-    pub fn reset(&mut self) {
-        self.current_index = 0;
-        let start = self.positions[0];
-        let end = self.positions[1];
+    pub fn reset_with_end_index(&mut self, end_index: usize) {
+        let start = self.positions[self.current_index];
+        let end = self.positions[end_index];
         self.current_interpolation.set_start(start);
         self.current_interpolation.set_end(end);
+        self.current_interpolation.calculate_diff();
         self.current_interpolation.set_current_step(0.0);
-        self.current_interpolation.set_speed(self.speeds[0]);
-        self.current_interpolation.set_curve2(self.curves[0].clone());
+        self.current_interpolation.set_speed(self.speeds[self.current_index]);
+        self.current_interpolation.set_curve2(self.curves[self.current_index].clone());
+    }
+
+    pub fn reset(&mut self) {
+        self.current_index = 0;
+        self.reset_with_end_index(1);
     }
 
     pub fn update(&mut self) {
         self.current_interpolation.update();
 
         if self.current_interpolation.is_finished() {
-            self.current_index += 1;
-            // TODO: add more code
+            let num_of_elements = self.positions.len();
+
+            match self.repetition {
+                GMRepetition::OnceForward => {
+                    if self.current_index < num_of_elements - 2 {
+                        self.current_index += 1;
+                        self.reset_with_end_index(self.current_index + 1);
+                    }
+                }
+                GMRepetition::OnceBackward => {
+                    if self.current_index > 1 {
+                        self.current_index -= 1;
+                        self.reset_with_end_index(self.current_index - 1);
+                    }
+                }
+                GMRepetition::LoopForward => {
+                    if self.current_index < num_of_elements - 2 {
+                        self.current_index += 1;
+                        self.reset_with_end_index(self.current_index + 1);
+                    } else {
+                        self.current_index = 0;
+                        self.reset_with_end_index(1);
+                    }
+                }
+                GMRepetition::LoopBackward => {
+                    if self.current_index > 1 {
+                        self.current_index -= 1;
+                        self.reset_with_end_index(self.current_index - 1);
+                    } else {
+                        self.current_index = num_of_elements - 1;
+                        self.reset_with_end_index(self.current_index - 2);
+                    }
+                }
+                GMRepetition::PingPongForward => {
+                    if self.current_index < num_of_elements - 2 {
+                        self.current_index += 1;
+                        self.reset_with_end_index(self.current_index + 1);
+                    } else {
+                        self.reset_with_end_index(self.current_index - 1);
+                        self.repetition = GMRepetition::PingPongBackward;
+                    }
+                }
+                GMRepetition::PingPongBackward => {
+                    if self.current_index > 1 {
+                        self.current_index -= 1;
+                        self.reset_with_end_index(self.current_index - 1);
+                    } else {
+                        self.reset_with_end_index(1);
+                        self.repetition = GMRepetition::PingPongForward;
+                    }
+                }
+            };
         }
     }
 
