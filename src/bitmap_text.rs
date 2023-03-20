@@ -7,14 +7,14 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::texture::{GMTexture, GMTextureT};
-use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMFlipXYT};
-use crate::math::{GMVec2D, GMSize};
+use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMFlipXYT, GMSizeT};
+use crate::math::{GMVec2D, GMSize, GMFlipXY};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
 use crate::{gen_impl_position,
     gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
-    gen_impl_texture};
+    gen_impl_texture, gen_impl_size};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -71,8 +71,7 @@ pub struct GMBitmapChar {
     position: GMVec2D,
     angle: f32,
     scale: f32,
-    flip_x: bool,
-    flip_y: bool,
+    flip_xy: GMFlipXY,
     visible: bool,
     // TODO: alpha value
 }
@@ -84,8 +83,7 @@ impl GMBitmapChar {
             position,
             angle: 0.0,
             scale: 1.0,
-            flip_x: false,
-            flip_y: false,
+            flip_xy: GMFlipXY::new(false, false),
             visible: true,
         }
     }
@@ -282,7 +280,10 @@ impl GMDrawT for GMBitmapText {
                 if c.visible {
                     let dx = self.position.x + c.position.x;
                     let dy = self.position.y + c.position.y;
-                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, c.flip_x, c.flip_y, context);
+                    let flip_x = c.flip_xy.flip_x;
+                    let flip_y = c.flip_xy.flip_y;
+
+                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, flip_x, flip_y, context);
                 }
             }
         }
@@ -294,3 +295,5 @@ impl GMUpdateT for GMBitmapText {}
 gen_impl_position!(GMBitmapText);
 
 gen_impl_visible!(GMBitmapText);
+
+gen_impl_size!(GMBitmapText);
