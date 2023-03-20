@@ -8,7 +8,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMVCircle, GMMVCircleMultiple, GMMVScale};
+use green_moon_2d::movement::{GMPositionT, GMMVCircle, GMMVCircleMultiple, GMMVScale, GMMVPolygon, GMMVFollow};
 
 
 #[derive(Debug)]
@@ -22,6 +22,12 @@ struct SpriteScene2 {
     multiple_ghosts: Vec<GMSprite>,
     multi_circle: GMMVCircleMultiple,
     multi_circle_scale: GMMVScale,
+
+    ice_sprite: GMSprite,
+    head_sprite: GMSprite,
+
+    ice_polygon: GMMVPolygon,
+    ice_follow: GMMVFollow,
 }
 
 impl SpriteScene2 {
@@ -70,6 +76,24 @@ impl SpriteScene2 {
         let mut multi_circle_scale = GMMVScale::new(50.0, 100.0, 0.02);
         multi_circle_scale.get_interpolation_mut().set_repetition(GMRepetition::PingPongForward);
 
+        // Head following ice:
+        // Ice:
+        let texture = resources.get_texture("tex_ice2");
+        let animation = resources.get_empty_animation();
+        let ice_sprite = GMSprite::new(texture, (0.0, 0.0), animation);
+
+        // Head:
+        let texture = resources.get_texture("tex_head1");
+        let animation = resources.get_animation("anim_head1");
+        let head_sprite = GMSprite::new(texture, (0.0, 0.0), animation);
+
+        // Polygon movement:
+        let mut ice_polygon = GMMVPolygon::new2(&[(50.0, 600.0), (900.0, 400.0), (800.0, 700.0), (100.0, 700.0), (50.0, 600.0)]);
+        ice_polygon.set_repetition(GMRepetition::LoopForward);
+
+        // Follow the ice
+        let ice_follow = GMMVFollow::new(3.0, 1.0, (512.0, 600.0));
+
         Self {
             title,
             ghost_text,
@@ -79,6 +103,10 @@ impl SpriteScene2 {
             multiple_ghosts,
             multi_circle,
             multi_circle_scale,
+            ice_sprite,
+            head_sprite,
+            ice_polygon,
+            ice_follow,
         }
     }
 }
@@ -108,6 +136,13 @@ impl GMSceneT for SpriteScene2 {
 
         self.multi_circle.update();
         self.multi_circle_scale.set_and_update(&mut self.multi_circle);
+
+        self.head_sprite.update();
+
+        self.ice_polygon.set_and_update(&mut self.ice_sprite);
+        self.ice_follow.set_position_of(&mut self.head_sprite);
+        self.ice_follow.set_target(&self.ice_sprite.get_position());
+        self.ice_follow.update();
     }
 
     fn draw(&self, context: &mut GMContext) {
@@ -119,6 +154,9 @@ impl GMSceneT for SpriteScene2 {
         for i in 0..4 {
             self.multiple_ghosts[i].draw(context);
         }
+
+        self.ice_sprite.draw(context);
+        self.head_sprite.draw(context);
     }
 }
 
