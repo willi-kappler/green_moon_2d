@@ -8,7 +8,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMScaleT};
+use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMScaleT, GMMVScale};
 
 // use green_moon_2d::animation::{GMAnimation};
 
@@ -25,6 +25,7 @@ struct SpriteScene1 {
     head_circle: GMMVCircle,
     ice_troll1_sprite: GMSprite,
     ice_troll1_movement: GMMV2Points,
+    ice_troll1_scale: GMMVScale,
 }
 
 impl SpriteScene1 {
@@ -67,10 +68,11 @@ impl SpriteScene1 {
         // Ice troll1 sprite
         let texture = resources.get_texture("tex_ice_troll1");
         let animation = resources.get_animation("anim_ice_troll1");
-        let mut ice_troll1_sprite = GMSprite::new(texture, (512.0, 600.0), animation);
-        ice_troll1_sprite.set_scale(4.0);
+        let ice_troll1_sprite = GMSprite::new(texture, (512.0, 600.0), animation);
         let mut ice_troll1_movement = GMMV2Points::new((100.0, 600.0), (900.0, 600.0), 0.002);
         ice_troll1_movement.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
+        let mut ice_troll1_scale = GMMVScale::new(0.5, 4.0, 0.01);
+        ice_troll1_scale.get_interpolation_mut().set_repetition(GMRepetition::PingPongForward);
 
         Self {
             title,
@@ -83,6 +85,7 @@ impl SpriteScene1 {
             head_circle,
             ice_troll1_sprite,
             ice_troll1_movement,
+            ice_troll1_scale,
         }
     }
 }
@@ -95,17 +98,18 @@ impl GMSceneT for SpriteScene1 {
             context.quit();
         }
 
-        self.bat_sprite.update(context);
-        self.ghost_sprite.update(context);
+        self.bat_sprite.update();
+        self.ghost_sprite.update();
 
         self.ice1_movement.set_and_update(&mut self.ice1_sprite);
         self.ice1_rotation.set_and_update(&mut self.ice1_sprite);
 
-        self.head_sprite.update(context);
+        self.head_sprite.update();
         self.head_circle.set_and_update(&mut self.head_sprite);
 
-        self.ice_troll1_sprite.update(context);
+        self.ice_troll1_sprite.update();
         self.ice_troll1_movement.set_and_update(&mut self.ice_troll1_sprite);
+        self.ice_troll1_scale.set_and_update(&mut self.ice_troll1_sprite);
     }
 
     fn draw(&self, context: &mut GMContext) {
