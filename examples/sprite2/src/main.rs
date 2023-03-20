@@ -8,7 +8,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMVCircle, GMMVCircleMultiple};
+use green_moon_2d::movement::{GMMVCircle, GMMVCircleMultiple, GMMVScale};
 
 
 #[derive(Debug)]
@@ -21,6 +21,7 @@ struct SpriteScene2 {
 
     multiple_ghosts: Vec<GMSprite>,
     multi_circle: GMMVCircleMultiple,
+    multi_circle_scale: GMMVScale,
 }
 
 impl SpriteScene2 {
@@ -51,8 +52,6 @@ impl SpriteScene2 {
         let mut text_circle = GMMVCircle::new(0.0, 360.0, 0.01, (0.0, 0.0 / 2.0), 50.0);
         text_circle.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
 
-
-
         // Multiple sprites on a circle:
         let mut multiple_ghosts = Vec::new();
 
@@ -68,6 +67,9 @@ impl SpriteScene2 {
         let mut multi_circle = GMMVCircleMultiple::new(0.0, 360.0, 90.0, 0.005, (600.0, 250.0), 100.0);
         multi_circle.get_interpolation_mut().set_repetition(GMRepetition::LoopForward);
 
+        let mut multi_circle_scale = GMMVScale::new(50.0, 100.0, 0.02);
+        multi_circle_scale.get_interpolation_mut().set_repetition(GMRepetition::PingPongForward);
+
         Self {
             title,
             ghost_text,
@@ -76,6 +78,7 @@ impl SpriteScene2 {
             text_circle,
             multiple_ghosts,
             multi_circle,
+            multi_circle_scale,
         }
     }
 }
@@ -89,7 +92,7 @@ impl GMSceneT for SpriteScene2 {
         }
 
         // Update animation
-        self.ghost_sprite.update(context);
+        self.ghost_sprite.update();
 
         self.ghost_circle.set_position_of(&mut self.ghost_sprite);
         self.ghost_circle.set_position_of(&mut self.text_circle);
@@ -99,11 +102,12 @@ impl GMSceneT for SpriteScene2 {
 
         for i in 0..4 {
             let sprite = &mut self.multiple_ghosts[i];
-            sprite.update(context);
+            sprite.update();
             self.multi_circle.set_position_of(sprite, i as u32);
         }
 
         self.multi_circle.update();
+        self.multi_circle_scale.set_and_update(&mut self.multi_circle);
     }
 
     fn draw(&self, context: &mut GMContext) {
