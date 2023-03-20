@@ -2,7 +2,7 @@
 
 use crate::math::{GMVec2D, GMCircle};
 use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32, GMCuLinear, GMCurveT};
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, GMUpdateT};
 
 pub trait GMPositionT {
     fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
@@ -133,16 +133,12 @@ impl GMMV2Points {
     }
 
     pub fn set_position_of<T: GMPositionT>(&self, movable: &mut T) {
-        let new_pos = self.get_position();
+        let new_pos = self.calc_position();
         movable.set_position(new_pos);
     }
 
-    pub fn get_position(&self) -> GMVec2D {
+    pub fn calc_position(&self) -> GMVec2D {
         self.interpolation.get_current_value()
-    }
-
-    pub fn update(&mut self) {
-        self.interpolation.update();
     }
 
     pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
@@ -151,6 +147,12 @@ impl GMMV2Points {
     }
 
     gen_get_interpolation_methods!(GMInterpolateVec2D);
+}
+
+impl GMUpdateT for GMMV2Points {
+    fn update(&mut self) {
+        self.interpolation.update();
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -166,16 +168,12 @@ impl GMMVRotate {
     }
 
     pub fn set_angle_of<T: GMRotationT>(&self, rotatable: &mut T) {
-        let new_angle = self.get_angle();
+        let new_angle = self.calc_angle();
         rotatable.set_angle(new_angle);
     }
 
-    pub fn get_angle(&self) -> f32 {
+    pub fn calc_angle(&self) -> f32 {
         self.interpolation.get_current_value()
-    }
-
-    pub fn update(&mut self) {
-        self.interpolation.update();
     }
 
     pub fn set_and_update<T: GMRotationT>(&mut self, rotatable: &mut T) {
@@ -184,6 +182,47 @@ impl GMMVRotate {
     }
 
     gen_get_interpolation_methods!(GMInterpolateF32);
+}
+
+impl GMUpdateT for GMMVRotate {
+    fn update(&mut self) {
+        self.interpolation.update();
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GMMVScale {
+    interpolation: GMInterpolateF32,
+}
+
+impl GMMVScale {
+    pub fn new(start: f32, end: f32, speed: f32) -> Self {
+        Self {
+            interpolation: GMInterpolateF32::new(start, end, speed, 0.0),
+        }
+    }
+
+    pub fn set_scale_of<T: GMScaleT>(&self, scalable: &mut T) {
+        let new_scale = self.calc_scale();
+        scalable.set_scale(new_scale);
+    }
+
+    pub fn calc_scale(&self) -> f32 {
+        self.interpolation.get_current_value()
+    }
+
+    pub fn set_and_update<T: GMScaleT>(&mut self, scalable: &mut T) {
+        self.set_scale_of(scalable);
+        self.update();
+    }
+
+    gen_get_interpolation_methods!(GMInterpolateF32);
+}
+
+impl GMUpdateT for GMMVScale {
+    fn update(&mut self) {
+        self.interpolation.update();
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -209,18 +248,14 @@ impl GMMVCircle {
     }
 
     pub fn set_position_of<T: GMPositionT>(&self, movable: &mut T) {
-        let new_position = self.get_position();
+        let new_position = self.calc_position();
         movable.set_position(new_position);
     }
 
-    pub fn get_position(&self) -> GMVec2D {
+    pub fn calc_position(&self) -> GMVec2D {
         let new_angle = self.interpolation.get_current_value();
         self.circle.position_from_deg(new_angle)
 
-    }
-
-    pub fn update(&mut self) {
-        self.interpolation.update();
     }
 
     pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
@@ -231,6 +266,12 @@ impl GMMVCircle {
     gen_get_interpolation_methods!(GMInterpolateF32);
 }
 
+impl GMUpdateT for GMMVCircle {
+    fn update(&mut self) {
+        self.interpolation.update();
+    }
+}
+
 impl GMPositionT for GMMVCircle {
     fn get_position(&self) -> GMVec2D {
         self.circle.center
@@ -238,6 +279,16 @@ impl GMPositionT for GMMVCircle {
 
     fn get_position_mut(&mut self) -> &mut GMVec2D {
         &mut self.circle.center
+    }
+}
+
+impl GMScaleT for GMMVCircle {
+    fn get_scale(&self) -> f32 {
+        self.circle.radius
+    }
+
+    fn get_scale_mut(&mut self) -> &mut f32 {
+        &mut self.circle.radius
     }
 }
 
@@ -266,21 +317,23 @@ impl GMMVCircleMultiple {
     }
 
     pub fn set_position_of<T: GMPositionT>(&self, movable: &mut T, index: u32) {
-        let new_position = self.get_position(index);
+        let new_position = self.calc_position(index);
         movable.set_position(new_position);
     }
 
-    pub fn get_position(&self, index: u32) -> GMVec2D {
+    pub fn calc_position(&self, index: u32) -> GMVec2D {
         let f_index = index as f32;
         let new_angle = self.interpolation.get_current_value();
         self.circle.position_from_deg(new_angle + (f_index * self.angle_step))
     }
 
-    pub fn update(&mut self) {
+    gen_get_interpolation_methods!(GMInterpolateF32);
+}
+
+impl GMUpdateT for GMMVCircleMultiple {
+    fn update(&mut self) {
         self.interpolation.update();
     }
-
-    gen_get_interpolation_methods!(GMInterpolateF32);
 }
 
 impl GMPositionT for GMMVCircleMultiple {
@@ -293,6 +346,15 @@ impl GMPositionT for GMMVCircleMultiple {
     }
 }
 
+impl GMScaleT for GMMVCircleMultiple {
+    fn get_scale(&self) -> f32 {
+        self.circle.radius
+    }
+
+    fn get_scale_mut(&mut self) -> &mut f32 {
+        &mut self.circle.radius
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct GMMVPolygon {
@@ -390,11 +452,11 @@ impl GMMVPolygon {
     }
 
     pub fn set_position_of<T: GMPositionT>(&self, movable: &mut T) {
-        let new_position = self.get_position();
+        let new_position = self.calc_position();
         movable.set_position(new_position);
     }
 
-    pub fn get_position(&self) -> GMVec2D {
+    pub fn calc_position(&self) -> GMVec2D {
         self.current_interpolation.get_current_value()
     }
 
@@ -414,7 +476,15 @@ impl GMMVPolygon {
         self.reset_with_end_index(1);
     }
 
-    pub fn update(&mut self) {
+    pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
+        self.set_position_of(movable);
+        self.update();
+    }
+
+}
+
+impl GMUpdateT for GMMVPolygon {
+    fn update(&mut self) {
         self.current_interpolation.update();
 
         if self.current_interpolation.is_finished() {
@@ -472,10 +542,10 @@ impl GMMVPolygon {
             };
         }
     }
-
-    pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
-        self.set_position_of(movable);
-        self.update();
-    }
-
 }
+
+
+// TODO: Border: Wrap around, GMSizeT, bounce off, stop, ...
+// TODO: Follow
+
+
