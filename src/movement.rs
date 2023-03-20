@@ -3,6 +3,7 @@
 use crate::math::{GMVec2D, GMCircle};
 use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32, GMCuLinear, GMCurveT};
 use crate::util::{GMRepetition, GMUpdateT};
+use crate::timer::GMTimer;
 
 pub trait GMPositionT {
     fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
@@ -118,6 +119,48 @@ macro_rules! gen_get_interpolation_methods {
             &mut self.interpolation
         }
     };
+}
+
+#[derive(Debug, Clone)]
+pub struct GMMVVelocity {
+    velocity: GMVec2D,
+}
+
+impl GMMVVelocity {
+    pub fn new<T: Into<GMVec2D>>(velocity: T) -> Self {
+        Self {
+            velocity: velocity.into(),
+        }
+    }
+
+    pub fn set_velocity<T: Into<GMVec2D>>(&mut self, velocity: T) {
+        self.velocity = velocity.into();
+    }
+
+    pub fn get_velocity(&self) -> GMVec2D {
+        self.velocity
+    }
+
+    pub fn get_velocity_mut(&mut self) -> &mut GMVec2D {
+        &mut self.velocity
+    }
+
+    pub fn set_position_of<T: GMPositionT>(&self, position: &mut T) {
+        position.add_position(self.velocity);
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GMMVAcceleration {
+    acceleration: GMVec2D,
+}
+
+impl GMMVAcceleration {
+    pub fn new<T: Into<GMVec2D>>(acceleration: T) -> Self {
+        Self {
+            acceleration: acceleration.into(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -372,12 +415,11 @@ impl GMMVPolygon {
         let num_of_elems = positions.len();
         assert!(num_of_elems > 2, "GMMVPolygon: must have at least three points (coordinates)");
 
-        let speeds = vec![0.1; num_of_elems];
+        let speeds = vec![0.01; num_of_elems];
         let curves: Vec<Box<dyn GMCurveT>> = vec![Box::new(GMCuLinear{}); num_of_elems];
         let start = positions[0];
         let end = positions[1];
-        let speed = 0.1;
-        let current_interpolation = GMInterpolateVec2D::new(start, end, speed, 0.0);
+        let current_interpolation = GMInterpolateVec2D::new(start, end, speeds[0], 0.0);
 
         Self {
             positions,
@@ -387,6 +429,11 @@ impl GMMVPolygon {
             current_interpolation,
             repetition: GMRepetition::OnceForward,
         }
+    }
+
+    pub fn new2(positions: &[(f32, f32)]) -> Self {
+        let positions: Vec<GMVec2D> = positions.iter().map(|(x, y)| GMVec2D::new(*x, *y)).collect();
+        GMMVPolygon::new(&positions)
     }
 
     pub fn set_speed_for_all(&mut self, speed: f32) {
@@ -544,8 +591,67 @@ impl GMUpdateT for GMMVPolygon {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct GMMVFollow {
+    speed: f32,
+    timer: GMTimer,
+    current_position: GMVec2D,
+    current_direction: GMVec2D,
+}
 
-// TODO: Border: Wrap around, GMSizeT, bounce off, stop, ...
-// TODO: Follow
+impl GMMVFollow {
+    pub fn new<T: Into<GMVec2D>>(speed: f32, delay: f32, position: T) -> Self {
+        Self {
+            speed,
+            timer: GMTimer::new(delay),
+            current_position: position.into(),
+            current_direction: GMVec2D::new(0.0, 0.0),
+        }
+    }
 
+    pub fn set_speed(&mut self, speed: f32) {
+        self.speed = speed;
+    }
 
+    pub fn get_speed(&self) -> f32 {
+        self.speed
+    }
+
+    pub fn set_delay(&mut self, delay: f32) {
+        self.timer.set_duration(delay);
+    }
+
+    pub fn get_delay(&self) -> f32 {
+        self.timer.get_duration()
+    }
+
+    pub fn set_position_of<T: GMPositionT>(&self, movable: &mut T) {
+        movable.set_position(self.current_position.clone());
+    }
+
+    pub fn calc_position(&self) -> GMVec2D {
+        self.current_position.clone()
+    }
+
+    pub fn set_target(&mut self, target: &GMVec2D) {
+        if self.timer.finished() {
+            self.current_direction = (*target) - self.current_position;
+            self.current_direction.norm();
+            self.timer.start();
+        }
+    }
+
+    pub fn set_target2<T: Into<GMVec2D>>(&mut self, target: T) {
+        let target = target.into();
+        self.set_target(&target);
+    }
+}
+
+impl GMUpdateT for GMMVFollow {
+    fn update(&mut self) {
+        self.current_position = self.current_position + (self.current_direction * self.speed);
+    }
+}
+
+// TODO: Border: Wrap around, bounce off, stop, ...
+// TODO: Force, ...
