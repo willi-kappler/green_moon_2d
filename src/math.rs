@@ -170,6 +170,43 @@ impl Display for GMSize {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct GMFlipXY {
+    pub flip_x: bool,
+    pub flip_y: bool,
+}
+
+impl GMFlipXY {
+    pub fn new(flip_x: bool, flip_y: bool) -> Self {
+        Self {
+            flip_x,
+            flip_y,
+        }
+    }
+}
+
+impl Default for GMFlipXY {
+    fn default() -> Self {
+        Self {
+            flip_x: false,
+            flip_y: false,
+        }
+    }
+}
+
+impl From<(bool, bool)> for GMFlipXY {
+    fn from((flip_x, flip_y): (bool, bool)) -> Self {
+        GMFlipXY { flip_x, flip_y }
+    }
+}
+
+impl Display for GMFlipXY {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(flip x: {}, flip y: {})", self.flip_x, self.flip_y)
+    }
+}
+
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMRectangle {
     // TODO: use Vec2D
