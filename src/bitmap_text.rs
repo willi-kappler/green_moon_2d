@@ -121,14 +121,14 @@ pub struct GMBitmapText {
 }
 
 impl GMBitmapText {
-    pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: Arc<GMBitmapFont>, position: T, text: S) -> Self {
+    pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: &Arc<GMBitmapFont>, position: T, text: S) -> Self {
         let position = position.into();
         let text = text.into();
 
         debug!("GMBitmapText::new(), position: '{}', text: '{}'", position, text);
 
         let mut text = Self {
-            font,
+            font: font.clone(),
             position,
             text,
             spacing: GMVec2D::new(0.0, 0.0),
@@ -144,16 +144,26 @@ impl GMBitmapText {
         text
     }
 
-    pub fn set_font(&mut self, font: Arc<GMBitmapFont>) {
-        self.font = font;
+    pub fn set_font(&mut self, font: &Arc<GMBitmapFont>) {
+        self.font = font.clone();
     }
 
-    pub fn get_font(&self) -> Arc<GMBitmapFont> {
-        self.font.clone()
+    pub fn set_font2(&mut self, font: &Arc<GMBitmapFont>) {
+        self.set_font(font);
+        self.reset_chars();
+    }
+
+    pub fn get_font(&self) -> &Arc<GMBitmapFont> {
+        &self.font
     }
 
     pub fn set_text<T: Into<String>>(&mut self, text: T) {
         self.text = text.into();
+    }
+
+    pub fn set_text2<T: Into<String>>(&mut self, text: T) {
+        self.set_text(text);
+        self.reset_chars();
     }
 
     pub fn get_text(&self) -> &str {
@@ -164,6 +174,11 @@ impl GMBitmapText {
         self.spacing = spacing.into();
     }
 
+    pub fn set_spacing2<T: Into<GMVec2D>>(&mut self, spacing: T) {
+        self.set_spacing(spacing);
+        self.reset_positions();
+    }
+
     pub fn get_spacing(&self) -> GMVec2D{
         self.spacing
     }
@@ -172,12 +187,22 @@ impl GMBitmapText {
         self.horizontal = horizontal;
     }
 
+    pub fn set_horizontal2(&mut self, horizontal: bool) {
+        self.set_horizontal(horizontal);
+        self.reset_positions();
+    }
+
     pub fn get_horizontal(&self) -> bool {
         self.horizontal
     }
 
     pub fn set_align(&mut self, align: GMAlign) {
         self.align = align;
+    }
+
+    pub fn set_align2(&mut self, align: GMAlign) {
+        self.set_align(align);
+        self.reset_positions();
     }
 
     pub fn get_align(&self) -> GMAlign {
