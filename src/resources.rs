@@ -139,12 +139,12 @@ impl GMResources {
         }
     }
 
-    pub fn get_texture(&self, name: &str) -> Arc<GMTexture> {
+    pub fn get_texture(&self, name: &str) -> &Arc<GMTexture> {
         debug!("GMResources::get_texture(), name: '{}'", name);
 
         match self.textures.get(name) {
             Some(texture) => {
-                texture.clone()
+                texture
             }
             None => {
                 self.no_texture_found(name);
@@ -167,7 +167,7 @@ impl GMResources {
         debug!("GMResources::create_bitmap_font(), texture: '{}'", texture);
 
         let texture = self.get_texture(texture);
-        let font = GMBitmapFont::new(texture, char_mapping);
+        let font = GMBitmapFont::new(texture.clone(), char_mapping);
 
         Arc::new(font)
     }

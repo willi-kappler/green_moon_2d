@@ -30,7 +30,7 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new<T: Into<GMVec2D>>(texture: Arc<GMTexture>, position: T, animation: GMAnimation) -> Self {
+    pub fn new<T: Into<GMVec2D>>(texture: &Arc<GMTexture>, position: T, animation: GMAnimation) -> Self {
         let position = position.into();
 
         debug!("GMSprite::new(), position: '{}'", position);
@@ -38,7 +38,7 @@ impl GMSprite {
         let (width, height) = texture.get_unit_dimension();
 
         Self {
-            texture,
+            texture: texture.clone(),
             position: position.into(),
             animation,
             angle: 0.0,
