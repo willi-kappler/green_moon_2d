@@ -47,7 +47,7 @@ impl SpriteScene2 {
         // Set up ghost sprite
         let texture = resources.get_texture("tex_ghost1");
         let animation = resources.get_animation("anim_ghost1");
-        let ghost_sprite = GMSprite::new(texture.clone(), (0.0, 0.0), animation.clone());
+        let ghost_sprite = GMSprite::new(texture, (0.0, 0.0), animation.clone());
 
         // Set up circle movement for ghost
         let mut ghost_circle = GMMVCircle::new(0.0, 360.0, 0.001, (250.0, 250.0), 100.0);
@@ -62,7 +62,7 @@ impl SpriteScene2 {
 
 
         for _ in 0..4 {
-            let sprite = GMSprite::new(texture.clone(), (0.0, 0.0), animation.clone());
+            let sprite = GMSprite::new(texture, (0.0, 0.0), animation.clone());
             multiple_ghosts.push(sprite);
         }
 
