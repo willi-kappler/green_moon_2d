@@ -2,15 +2,11 @@
 use std::fs::File;
 use std::sync::Arc;
 
-// use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapFont};
 use green_moon_2d::util::{GMDrawT, GMAlign};
-
-// use green_moon_2d::animation::{GMAnimation};
-
 
 #[derive(Debug)]
 struct SpriteScene1 {
