@@ -145,6 +145,17 @@ impl GMMVVelocity {
         &mut self.velocity
     }
 
+    pub fn add_velocity<T: Into<GMVec2D>>(&mut self, velocity: T) {
+        let velocity = velocity.into();
+        self.velocity.add2(velocity)
+    }
+
+    pub fn add_velocity2<T: Into<GMVec2D>>(&self, velocity: T) -> GMMVVelocity {
+        let velocity = velocity.into();
+        let result = self.velocity + velocity;
+        GMMVVelocity::new(result)
+    }
+
     pub fn set_position_of<T: GMPositionT>(&self, position: &mut T) {
         position.add_position(self.velocity);
     }
@@ -160,6 +171,31 @@ impl GMMVAcceleration {
         Self {
             acceleration: acceleration.into(),
         }
+    }
+
+    pub fn set_acceleration<T: Into<GMVec2D>>(&mut self, acceleration: T) {
+        self.acceleration = acceleration.into();
+    }
+
+    pub fn get_acceleration(&self) -> GMVec2D {
+        self.acceleration
+    }
+
+    pub fn get_acceleration_mut(&mut self) -> &mut GMVec2D {
+        &mut self.acceleration
+    }
+
+    pub fn set_velocity_of(&self, velocity: &mut GMMVVelocity) {
+        velocity.add_velocity(self.acceleration);
+    }
+
+    pub fn calc_velocity(&self, velocity: &GMMVVelocity) -> GMMVVelocity {
+        velocity.add_velocity2(self.acceleration)
+    }
+
+    pub fn set_position_and_velocity_of<T: GMPositionT>(&self, position: &mut T, velocity: &mut GMMVVelocity) {
+        velocity.add_velocity(self.acceleration);
+        velocity.set_position_of(position);
     }
 }
 
