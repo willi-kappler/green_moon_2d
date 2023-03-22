@@ -1,7 +1,6 @@
 
 use std::fs::File;
 
-// use log::{debug};
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
@@ -9,9 +8,6 @@ use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
 use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMMVScale};
-
-// use green_moon_2d::animation::{GMAnimation};
-
 
 #[derive(Debug)]
 struct SpriteScene1 {
