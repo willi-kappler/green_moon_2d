@@ -200,12 +200,12 @@ impl GMResources {
         }
     }
 
-    pub fn get_font(&self, name: &str) -> Arc<GMBitmapFont> {
+    pub fn get_font(&self, name: &str) -> &Arc<GMBitmapFont> {
         debug!("GMResources::get_font(), name: '{}'", name);
 
         match self.fonts.get(name) {
             Some(font) => {
-                font.clone()
+                font
             }
             None => {
                 self.no_font_found(name);
