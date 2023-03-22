@@ -196,6 +196,15 @@ impl GMBitmapText {
         self.horizontal
     }
 
+    pub fn toggle_horizontal(&mut self) {
+        self.horizontal = !self.horizontal;
+    }
+
+    pub fn toggle_horizontal2(&mut self) {
+        self.toggle_horizontal();
+        self.reset_positions();
+    }
+
     pub fn set_align(&mut self, align: GMAlign) {
         self.align = align;
     }
