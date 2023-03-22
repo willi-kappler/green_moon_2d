@@ -9,7 +9,7 @@ use green_moon_2d::bitmap_text::{GMBitmapText, GMBitmapFont};
 use green_moon_2d::util::{GMDrawT, GMAlign};
 
 #[derive(Debug)]
-struct SpriteScene1 {
+struct TextScene1 {
     font1: Arc<GMBitmapFont>,
     font2: Arc<GMBitmapFont>,
     font3: Arc<GMBitmapFont>,
@@ -18,7 +18,7 @@ struct SpriteScene1 {
     descriptions: Vec<GMBitmapText>,
 }
 
-impl SpriteScene1 {
+impl TextScene1 {
     fn new(engine: &GMEngine) -> Self {
         let resources = engine.get_resources();
 
@@ -59,7 +59,7 @@ impl SpriteScene1 {
     }
 }
 
-impl GMSceneT for SpriteScene1 {
+impl GMSceneT for TextScene1 {
     fn update(&mut self, context: &mut GMContext) {
         if context.event(GMEventCode::KeyESCUp) ||
            context.event(GMEventCode::Quit) ||
@@ -113,7 +113,7 @@ fn main() {
     let mut engine = GMEngine::new();
     engine.load_configuration_and_init("config.json");
 
-    let text1_scene = SpriteScene1::new(&engine);
+    let text1_scene = TextScene1::new(&engine);
 
     engine.add_scene("text1_scene", text1_scene);
     engine.run();

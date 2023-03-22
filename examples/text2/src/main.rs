@@ -8,13 +8,13 @@ use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign};
 
 #[derive(Debug)]
-struct SpriteScene1 {
+struct TextScene2 {
     title: GMBitmapText,
 
     descriptions: Vec<GMBitmapText>,
 }
 
-impl SpriteScene1 {
+impl TextScene2 {
     fn new(engine: &GMEngine) -> Self {
         let resources = engine.get_resources();
 
@@ -50,7 +50,7 @@ impl SpriteScene1 {
     }
 }
 
-impl GMSceneT for SpriteScene1 {
+impl GMSceneT for TextScene2 {
     fn update(&mut self, context: &mut GMContext) {
         if context.event(GMEventCode::KeyESCUp) ||
            context.event(GMEventCode::Quit) ||
@@ -143,7 +143,7 @@ fn main() {
     let mut engine = GMEngine::new();
     engine.load_configuration_and_init("config.json");
 
-    let text2_scene = SpriteScene1::new(&engine);
+    let text2_scene = TextScene2::new(&engine);
 
     engine.add_scene("text2_scene", text2_scene);
     engine.run();
