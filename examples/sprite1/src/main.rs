@@ -8,7 +8,7 @@ use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMDrawT, GMAlign, GMRepetition, GMUpdateT, GMFlipXYT};
 use green_moon_2d::sprite::{GMSprite};
-use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMScaleT, GMMVScale};
+use green_moon_2d::movement::{GMMV2Points, GMMVRotate, GMMVCircle, GMMVScale};
 
 // use green_moon_2d::animation::{GMAnimation};
 
@@ -33,9 +33,8 @@ impl SpriteScene1 {
         // Set up title text:
         let resources = engine.get_resources();
         let font = resources.get_font("font_cuddly");
-        let mut title = GMBitmapText::new(font, (512.0, 100.0), "SPRITE 1");
-        title.set_align(GMAlign::BottomCenter);
-        title.reset_positions();
+        let mut title = GMBitmapText::new(&font, (512.0, 100.0), "SPRITE 1");
+        title.set_align2(GMAlign::BottomCenter);
 
         // Bat sprite
         let texture = resources.get_texture("tex_bat1");
@@ -114,6 +113,7 @@ impl GMSceneT for SpriteScene1 {
 
     fn draw(&self, context: &mut GMContext) {
         context.clear_black();
+
         self.title.draw(context);
         self.bat_sprite.draw(context);
         self.ghost_sprite.draw(context);

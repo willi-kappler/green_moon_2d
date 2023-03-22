@@ -36,9 +36,8 @@ impl SpriteScene2 {
 
         // Set up title text:
         let font = resources.get_font("font_cuddly");
-        let mut title = GMBitmapText::new(font.clone(), (512.0, 100.0), "SPRITE 2");
-        title.set_align(GMAlign::BottomCenter);
-        title.reset_positions();
+        let mut title = GMBitmapText::new(&font, (512.0, 100.0), "SPRITE 2");
+        title.set_align2(GMAlign::BottomCenter);
 
         // Set up circle text
         let mut ghost_text = GMBitmapText::new(font, (0.0, 0.0), "BOOO!");
@@ -147,6 +146,7 @@ impl GMSceneT for SpriteScene2 {
 
     fn draw(&self, context: &mut GMContext) {
         context.clear_black();
+
         self.title.draw(context);
         self.ghost_text.draw(context);
         self.ghost_sprite.draw(context);
