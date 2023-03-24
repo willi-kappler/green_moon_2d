@@ -5,13 +5,17 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
-use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake};
+use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
 use green_moon_2d::util::{GMDrawT, GMAlign};
 
 #[derive(Debug)]
 enum CurrentEffect {
     SineWave,
     Shake,
+    Rotate,
+    Scale,
+    SineWaveRotate,
+    ShakeScale,
 }
 
 #[derive(Debug)]
@@ -22,6 +26,8 @@ struct TextScene3 {
     current_effect: CurrentEffect,
     sine_effect: GMTEWave,
     shake_effect: GMTEShake,
+    rotate_effect: GMTERotateChars,
+    scale_effect: GMTEScale,
 }
 
 impl TextScene3 {
@@ -67,6 +73,18 @@ impl TextScene3 {
             0.2 // speed
         );
 
+        let rotate_effect = GMTERotateChars::new(
+            1.0, // speed
+            10.0 // offset
+        );
+
+        let scale_effect = GMTEScale::new(
+            0.2, // amplitude
+            1.0, // base
+            0.1, // speed
+            0.2, // offset
+        );
+
         let current_effect = CurrentEffect::SineWave;
 
         Self {
@@ -76,6 +94,8 @@ impl TextScene3 {
             sine_effect,
             shake_effect,
             current_effect,
+            rotate_effect,
+            scale_effect,
         }
     }
 }
@@ -99,6 +119,23 @@ impl GMSceneT for TextScene3 {
         }
 
         if context.event(GMEventCode::Key3Up) {
+            self.effect_name.set_text(">>>>> ROTATE <<<<<");
+            self.current_effect = CurrentEffect::Rotate;
+        }
+
+        if context.event(GMEventCode::Key4Up) {
+            self.effect_name.set_text("--<>() SCALE ()<>--");
+            self.current_effect = CurrentEffect::Scale;
+        }
+
+        if context.event(GMEventCode::Key5Up) {
+            self.effect_name.set_text("--- SINE WAVE ROTATE ---");
+            self.current_effect = CurrentEffect::SineWaveRotate;
+        }
+
+        if context.event(GMEventCode::Key6Up) {
+            self.effect_name.set_text("--- SHAKE AND SCALE ---");
+            self.current_effect = CurrentEffect::ShakeScale;
         }
 
         self.effect_name.reset_chars();
@@ -110,9 +147,21 @@ impl GMSceneT for TextScene3 {
             CurrentEffect::Shake => {
                 self.shake_effect.update(&mut self.effect_name, context);
             }
+            CurrentEffect::Rotate => {
+                self.rotate_effect.update(&mut self.effect_name, context);
+            }
+            CurrentEffect::Scale => {
+                self.scale_effect.update(&mut self.effect_name, context);
+            }
+            CurrentEffect::SineWaveRotate => {
+                self.sine_effect.update(&mut self.effect_name, context);
+                self.rotate_effect.update(&mut self.effect_name, context);
+            }
+            CurrentEffect::ShakeScale => {
+                self.shake_effect.update(&mut self.effect_name, context);
+                self.scale_effect.update(&mut self.effect_name, context);
+            }
         }
-
-
     }
 
     fn draw(&self, context: &mut GMContext) {
