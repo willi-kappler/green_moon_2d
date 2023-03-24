@@ -98,6 +98,50 @@ impl TextScene3 {
             scale_effect,
         }
     }
+
+    fn inc_value1(&mut self) {
+        match self.current_effect {
+            CurrentEffect::SineWave => {
+            }
+            CurrentEffect::Shake => {
+            }
+            CurrentEffect::Rotate => {
+            }
+            CurrentEffect::Scale => {
+            }
+            CurrentEffect::SineWaveRotate => {
+            }
+            CurrentEffect::ShakeScale => {
+            }
+        }
+    }
+
+    fn dec_value1(&mut self) {
+        match self.current_effect {
+            CurrentEffect::SineWave => {
+            }
+            CurrentEffect::Shake => {
+            }
+            CurrentEffect::Rotate => {
+            }
+            CurrentEffect::Scale => {
+            }
+            CurrentEffect::SineWaveRotate => {
+            }
+            CurrentEffect::ShakeScale => {
+            }
+        }
+    }
+
+    fn inc_value2(&mut self) {
+        
+    }
+
+    fn dec_value2(&mut self) {
+        
+    }
+
+
 }
 
 impl GMSceneT for TextScene3 {
@@ -136,6 +180,22 @@ impl GMSceneT for TextScene3 {
         if context.event(GMEventCode::Key6Up) {
             self.effect_name.set_text("--- SHAKE AND SCALE ---");
             self.current_effect = CurrentEffect::ShakeScale;
+        }
+
+        if context.event(GMEventCode::KeyUpUp) {
+            self.inc_value1();
+        }
+
+        if context.event(GMEventCode::KeyDownUp) {
+            self.dec_value1();
+        }
+
+        if context.event(GMEventCode::KeyLeftUp) {
+            self.inc_value2();
+        }
+
+        if context.event(GMEventCode::KeyRightUp) {
+            self.dec_value2();
         }
 
         self.effect_name.reset_chars();
