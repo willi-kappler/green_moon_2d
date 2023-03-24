@@ -18,8 +18,16 @@ macro_rules! gen_get_set_amplitude {
             self.amplitude = amplitude
         }
 
+        pub fn inc_amplitude(&mut self, inc: f32) {
+            self.amplitude += inc;
+        }
+
         pub fn get_amplitude(&self) -> f32 {
             self.amplitude
+        }
+
+        pub fn dec_amplitude(&mut self, dec: f32) {
+            self.amplitude -= dec;
         }
     };
 }
@@ -31,8 +39,16 @@ macro_rules! gen_get_set_speed {
             self.speed = speed
         }
 
+        pub fn inc_speed(&mut self, inc: f32) {
+            self.speed += inc;
+        }
+
         pub fn get_speed(&self) -> f32 {
             self.speed
+        }
+
+        pub fn dec_speed(&mut self, dec: f32) {
+            self.speed -= dec;
         }
     };
 }
@@ -44,8 +60,16 @@ macro_rules! gen_get_set_offset {
             self.offset = offset
         }
 
+        pub fn inc_offset(&mut self, inc: f32) {
+            self.offset += inc;
+        }
+
         pub fn get_offset(&self) -> f32 {
             self.offset
+        }
+
+        pub fn dec_offset(&mut self, dec: f32) {
+            self.offset -= dec;
         }
     };
 }
@@ -57,8 +81,16 @@ macro_rules! gen_get_set_radius {
             self.radius = radius
         }
 
+        pub fn inc_radius(&mut self, inc: f32) {
+            self.radius += inc;
+        }
+
         pub fn get_radius(&self) -> f32 {
             self.radius
+        }
+
+        pub fn dec_radius(&mut self, dec: f32) {
+            self.radius -= dec;
         }
     };
 }
@@ -70,10 +102,22 @@ macro_rules! gen_get_set_base {
             self.base = base
         }
 
+        pub fn inc_base(&mut self, inc: f32) {
+            self.base += inc;
+        }
+
         pub fn get_base(&self) -> f32 {
             self.base
         }
+
+        pub fn dec_base(&mut self, dec: f32) {
+            self.base -= dec;
+        }
     };
+}
+
+pub trait GMTextEffectT {
+    fn update(&mut self, text: &mut GMBitmapText, context: &mut GMContext);
 }
 
 #[derive(Debug, Clone)]
