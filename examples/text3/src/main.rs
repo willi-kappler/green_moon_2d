@@ -102,16 +102,22 @@ impl TextScene3 {
     fn inc_value1(&mut self) {
         match self.current_effect {
             CurrentEffect::SineWave => {
+                self.sine_effect.inc_amplitude(0.1);
             }
             CurrentEffect::Shake => {
+                self.shake_effect.inc_radius(0.1);
             }
             CurrentEffect::Rotate => {
+                self.rotate_effect.inc_speed(0.1);
             }
             CurrentEffect::Scale => {
+                self.scale_effect.inc_amplitude(0.01);
             }
             CurrentEffect::SineWaveRotate => {
+                self.sine_effect.inc_amplitude(0.1);
             }
             CurrentEffect::ShakeScale => {
+                self.shake_effect.inc_radius(0.1);
             }
         }
     }
@@ -119,26 +125,70 @@ impl TextScene3 {
     fn dec_value1(&mut self) {
         match self.current_effect {
             CurrentEffect::SineWave => {
+                self.sine_effect.dec_amplitude(0.1);
             }
             CurrentEffect::Shake => {
+                self.shake_effect.dec_radius(0.1);
             }
             CurrentEffect::Rotate => {
+                self.rotate_effect.dec_speed(0.1);
             }
             CurrentEffect::Scale => {
+                self.scale_effect.dec_amplitude(0.01);
             }
             CurrentEffect::SineWaveRotate => {
+                self.sine_effect.dec_amplitude(0.1);
             }
             CurrentEffect::ShakeScale => {
+                self.shake_effect.dec_radius(0.1);
             }
         }
     }
 
     fn inc_value2(&mut self) {
-        
+        match self.current_effect {
+            CurrentEffect::SineWave => {
+                self.sine_effect.inc_offset(0.01);
+            }
+            CurrentEffect::Shake => {
+                self.shake_effect.inc_speed(0.01);
+            }
+            CurrentEffect::Rotate => {
+                self.rotate_effect.inc_offset(0.1);
+            }
+            CurrentEffect::Scale => {
+                self.scale_effect.inc_speed(0.01);
+            }
+            CurrentEffect::SineWaveRotate => {
+                self.rotate_effect.inc_speed(0.1);
+            }
+            CurrentEffect::ShakeScale => {
+                self.scale_effect.inc_speed(0.01);
+            }
+        }        
     }
 
     fn dec_value2(&mut self) {
-        
+        match self.current_effect {
+            CurrentEffect::SineWave => {
+                self.sine_effect.dec_offset(0.01);
+            }
+            CurrentEffect::Shake => {
+                self.shake_effect.dec_speed(0.01);
+            }
+            CurrentEffect::Rotate => {
+                self.rotate_effect.dec_offset(0.1);
+            }
+            CurrentEffect::Scale => {
+                self.scale_effect.dec_speed(0.1);
+            }
+            CurrentEffect::SineWaveRotate => {
+                self.rotate_effect.dec_speed(0.1);
+            }
+            CurrentEffect::ShakeScale => {
+                self.scale_effect.dec_speed(0.01);
+            }
+        }
     }
 
 
