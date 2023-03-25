@@ -151,12 +151,12 @@ impl GMTEWave {
 
             if text.get_horizontal() {
                 for bitmap_char in text.get_chars_mut() {
-                    bitmap_char.add_position_y(self.amplitude * (self.time + offset).sin());
+                    bitmap_char.add_position_y((self.time + offset).sin() * self.amplitude);
                     offset += self.offset;
                 }
             } else {
                 for bitmap_char in text.get_chars_mut() {
-                    bitmap_char.add_position_x(self.amplitude * (self.time + offset).sin());
+                    bitmap_char.add_position_x((self.time + offset).sin() * self.amplitude);
                     offset += self.offset;
                 }
             }
