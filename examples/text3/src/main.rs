@@ -1,6 +1,8 @@
 
 use std::fs::File;
 
+use log::debug;
+
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
@@ -10,21 +12,20 @@ use green_moon_2d::util::{GMDrawT, GMAlign};
 
 #[derive(Debug)]
 enum CurrentEffect {
-    SineWave,
+    Wave,
     Shake,
     Rotate,
     Scale,
-    SineWaveRotate,
+    WaveRotate,
     ShakeScale,
 }
-
 #[derive(Debug)]
 struct TextScene3 {
     title: GMBitmapText,
     descriptions: Vec<GMBitmapText>,
     effect_name: GMBitmapText,
     current_effect: CurrentEffect,
-    sine_effect: GMTEWave,
+    wave_effect: GMTEWave,
     shake_effect: GMTEShake,
     rotate_effect: GMTERotateChars,
     scale_effect: GMTEScale,
@@ -62,7 +63,7 @@ impl TextScene3 {
         let mut effect_name = GMBitmapText::new(font1, (512.0, 500.0), "---<<< SINE WAVE >>>---");
         effect_name.set_align2(GMAlign::BottomCenter);
 
-        let sine_effect = GMTEWave::new(
+        let wave_effect = GMTEWave::new(
             32.0, // amplitude
             0.1, // speed
             0.2 // offset
@@ -85,13 +86,13 @@ impl TextScene3 {
             0.2, // offset
         );
 
-        let current_effect = CurrentEffect::SineWave;
+        let current_effect = CurrentEffect::Wave;
 
         Self {
             title,
             descriptions,
             effect_name,
-            sine_effect,
+            wave_effect,
             shake_effect,
             current_effect,
             rotate_effect,
@@ -99,99 +100,55 @@ impl TextScene3 {
         }
     }
 
-    fn inc_value1(&mut self) {
+    fn change_property1(&mut self, amount: f32) {
+        debug!("Change property1: {}", amount);
+
         match self.current_effect {
-            CurrentEffect::SineWave => {
-                self.sine_effect.inc_amplitude(0.1);
+            CurrentEffect::Wave => {
+                self.wave_effect.inc_offset(0.05 * amount);
             }
             CurrentEffect::Shake => {
-                self.shake_effect.inc_radius(0.1);
+                self.shake_effect.inc_radius(0.1 * amount);
             }
             CurrentEffect::Rotate => {
-                self.rotate_effect.inc_speed(0.1);
+                self.rotate_effect.inc_speed(0.1 * amount);
             }
             CurrentEffect::Scale => {
-                self.scale_effect.inc_amplitude(0.01);
+                self.scale_effect.inc_amplitude(0.01 * amount);
             }
-            CurrentEffect::SineWaveRotate => {
-                self.sine_effect.inc_amplitude(0.1);
+            CurrentEffect::WaveRotate => {
+                self.wave_effect.inc_amplitude(0.1 * amount);
             }
             CurrentEffect::ShakeScale => {
-                self.shake_effect.inc_radius(0.1);
+                self.shake_effect.inc_radius(0.1 * amount);
             }
         }
     }
 
-    fn dec_value1(&mut self) {
+    fn change_property2(&mut self, amount: f32) {
+        debug!("Change property2: {}", amount);
+
         match self.current_effect {
-            CurrentEffect::SineWave => {
-                self.sine_effect.dec_amplitude(0.1);
+            CurrentEffect::Wave => {
+                self.wave_effect.inc_speed(0.01 * amount);
             }
             CurrentEffect::Shake => {
-                self.shake_effect.dec_radius(0.1);
+                self.shake_effect.inc_speed(0.01 * amount);
             }
             CurrentEffect::Rotate => {
-                self.rotate_effect.dec_speed(0.1);
+                self.rotate_effect.inc_offset(0.1 * amount);
             }
             CurrentEffect::Scale => {
-                self.scale_effect.dec_amplitude(0.01);
+                self.scale_effect.inc_speed(0.01 * amount);
             }
-            CurrentEffect::SineWaveRotate => {
-                self.sine_effect.dec_amplitude(0.1);
+            CurrentEffect::WaveRotate => {
+                self.rotate_effect.inc_speed(0.1 * amount);
             }
             CurrentEffect::ShakeScale => {
-                self.shake_effect.dec_radius(0.1);
+                self.scale_effect.inc_speed(0.01 * amount);
             }
         }
     }
-
-    fn inc_value2(&mut self) {
-        match self.current_effect {
-            CurrentEffect::SineWave => {
-                self.sine_effect.inc_offset(0.01);
-            }
-            CurrentEffect::Shake => {
-                self.shake_effect.inc_speed(0.01);
-            }
-            CurrentEffect::Rotate => {
-                self.rotate_effect.inc_offset(0.1);
-            }
-            CurrentEffect::Scale => {
-                self.scale_effect.inc_speed(0.01);
-            }
-            CurrentEffect::SineWaveRotate => {
-                self.rotate_effect.inc_speed(0.1);
-            }
-            CurrentEffect::ShakeScale => {
-                self.scale_effect.inc_speed(0.01);
-            }
-        }        
-    }
-
-    fn dec_value2(&mut self) {
-        match self.current_effect {
-            CurrentEffect::SineWave => {
-                self.sine_effect.dec_offset(0.01);
-            }
-            CurrentEffect::Shake => {
-                self.shake_effect.dec_speed(0.01);
-            }
-            CurrentEffect::Rotate => {
-                self.rotate_effect.dec_offset(0.1);
-            }
-            CurrentEffect::Scale => {
-                self.scale_effect.dec_speed(0.1);
-            }
-            CurrentEffect::SineWaveRotate => {
-                self.rotate_effect.dec_speed(0.1);
-            }
-            CurrentEffect::ShakeScale => {
-                self.scale_effect.dec_speed(0.01);
-            }
-        }
-    }
-
-
 }
 
 impl GMSceneT for TextScene3 {
@@ -204,7 +161,7 @@ impl GMSceneT for TextScene3 {
 
         if context.event(GMEventCode::Key1Up) {
             self.effect_name.set_text("---<<< SINE WAVE >>>---");
-            self.current_effect = CurrentEffect::SineWave;
+            self.current_effect = CurrentEffect::Wave;
         }
 
         if context.event(GMEventCode::Key2Up) {
@@ -224,7 +181,7 @@ impl GMSceneT for TextScene3 {
 
         if context.event(GMEventCode::Key5Up) {
             self.effect_name.set_text("--- SINE WAVE ROTATE ---");
-            self.current_effect = CurrentEffect::SineWaveRotate;
+            self.current_effect = CurrentEffect::WaveRotate;
         }
 
         if context.event(GMEventCode::Key6Up) {
@@ -233,26 +190,26 @@ impl GMSceneT for TextScene3 {
         }
 
         if context.event(GMEventCode::KeyUpUp) {
-            self.inc_value1();
+            self.change_property1(1.0);
         }
 
         if context.event(GMEventCode::KeyDownUp) {
-            self.dec_value1();
-        }
-
-        if context.event(GMEventCode::KeyLeftUp) {
-            self.inc_value2();
+            self.change_property1(-1.0);
         }
 
         if context.event(GMEventCode::KeyRightUp) {
-            self.dec_value2();
+            self.change_property2(1.0);
+        }
+
+        if context.event(GMEventCode::KeyLeftUp) {
+            self.change_property2(-1.0);
         }
 
         self.effect_name.reset_chars();
 
         match self.current_effect {
-            CurrentEffect::SineWave => {
-                self.sine_effect.update(&mut self.effect_name, context);
+            CurrentEffect::Wave => {
+                self.wave_effect.update(&mut self.effect_name, context);
             }
             CurrentEffect::Shake => {
                 self.shake_effect.update(&mut self.effect_name, context);
@@ -263,8 +220,8 @@ impl GMSceneT for TextScene3 {
             CurrentEffect::Scale => {
                 self.scale_effect.update(&mut self.effect_name, context);
             }
-            CurrentEffect::SineWaveRotate => {
-                self.sine_effect.update(&mut self.effect_name, context);
+            CurrentEffect::WaveRotate => {
+                self.wave_effect.update(&mut self.effect_name, context);
                 self.rotate_effect.update(&mut self.effect_name, context);
             }
             CurrentEffect::ShakeScale => {
