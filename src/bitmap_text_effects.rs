@@ -5,7 +5,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-use crate::util::{GMActiveT};
+use crate::util::{GMActiveT, GMProperty};
 use crate::bitmap_text::GMBitmapText;
 use crate::context::GMContext;
 
@@ -118,6 +118,9 @@ macro_rules! gen_get_set_base {
 
 pub trait GMTextEffectT {
     fn update(&mut self, text: &mut GMBitmapText, context: &mut GMContext);
+    fn send_message(&mut self, message: &str, context: &mut GMContext);
+    fn set_property(&mut self, name: &str, value: GMProperty, context: &mut GMContext);
+    fn get_property(&self, name: &str, context: &mut GMContext) -> GMProperty;
 }
 
 #[derive(Debug, Clone)]
