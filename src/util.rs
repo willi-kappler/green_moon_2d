@@ -85,6 +85,7 @@ pub enum GMProperty {
     F32(f32),
     F64(f64),
     String(String),
+    Tuple2(Box<GMProperty>, Box<GMProperty>),
 }
 
 #[track_caller]
@@ -101,6 +102,42 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
     let result = min + (rng.generate::<f32>() * length);
     result
 }
+
+/*
+pub fn split_message(message: &str) -> (&str, &str) {
+    let pos = message.find(',').unwrap();
+    (&message[0..pos], &message[pos..])
+}
+*/
+
+pub fn split_message(message: &str) -> (&str, Vec<&str>) {
+    let mut parts = message.split(',');
+    let first = parts.nth(0).unwrap();
+    let rest: Vec<&str> = parts.collect();
+
+    (first, rest)
+}
+
+pub fn extract_f32(values: Vec<&str>, n: usize) -> f32 {
+    let value = values[n];
+    value.parse::<f32>().unwrap()
+}
+
+/*
+
+pub fn extract_f32(message: &str) -> (&str, f32) {
+    let parts: Vec<&str> = message.split(',').collect();
+    let number = parts[1].parse::<f32>().unwrap();
+    (parts[0], number)
+}
+
+pub fn extract2_f32(message: &str) -> (&str, f32, f32) {
+    let parts: Vec<&str> = message.split(',').collect();
+    let number1 = parts[1].parse::<f32>().unwrap();
+    let number2 = parts[2].parse::<f32>().unwrap();
+    (parts[0], number1, number2)
+}
+*/
 
 pub trait GMDrawT {
     fn draw(&self, _context: &mut GMContext) {
