@@ -5,9 +5,8 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-use crate::util::{GMActiveT, GMProperty};
+use crate::util::{GMActiveT, GMProperty, error_panic, split_message, extract_f32};
 use crate::bitmap_text::GMBitmapText;
-use crate::context::GMContext;
 
 use crate::gen_impl_active;
 
@@ -117,10 +116,17 @@ macro_rules! gen_get_set_base {
 }
 
 pub trait GMTextEffectT {
-    fn update(&mut self, text: &mut GMBitmapText, context: &mut GMContext);
-    fn send_message(&mut self, message: &str, context: &mut GMContext);
-    fn set_property(&mut self, name: &str, value: GMProperty, context: &mut GMContext);
-    fn get_property(&self, name: &str, context: &mut GMContext) -> GMProperty;
+    fn update(&mut self, text: &mut GMBitmapText);
+    fn send_message(&mut self, message: &str);
+    fn set_property(&mut self, name: &str, value: GMProperty);
+    fn get_property(&self, name: &str) -> GMProperty;
+    fn clone_box(&self) -> Box<dyn GMTextEffectT>;
+}
+
+impl Clone for Box<dyn GMTextEffectT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -145,7 +151,17 @@ impl GMTEWave {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+    gen_get_set_amplitude!();
+
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
+}
+
+gen_impl_active!(GMTEWave);
+
+impl GMTextEffectT for GMTEWave {
+    fn update(&mut self, text: &mut GMBitmapText) {
         if self.active {
             let mut offset = 0.0;
 
@@ -169,14 +185,78 @@ impl GMTEWave {
         }
     }
 
-    gen_get_set_amplitude!();
+    fn send_message(&mut self, message: &str) {
+        let (start, rest) = split_message(message);
 
-    gen_get_set_speed!();
+        match start {
+            "inc_amplitude" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_amplitude(inc);
+            }
+            "dec_amplitude" => {
+                let dec = extract_f32(rest, 0);
+                self.dec_amplitude(dec);
+            }
+            "inc_speed" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_speed(inc);
+            }
+            "dec_speed" => {
+                let dec = extract_f32(rest, 0);
+                self.dec_speed(dec);
+            }
+            "inc_offset" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_offset(inc);
+            }
+            "dec_offset" => {
+                let dec = extract_f32(rest, 0);
+                self.dec_offset(dec);
+            }
+            _ => {
+                error_panic(&format!("send_message(), unknown message '{}'", message));
+            }
+        }
+    }
 
-    gen_get_set_offset!();
+    fn set_property(&mut self, name: &str, value: GMProperty) {
+        match (name, value) {
+            ("amplitude", GMProperty::F32(amplitude)) => {
+                self.amplitude = amplitude;
+            }
+            ("speed", GMProperty::F32(speed)) => {
+                self.speed = speed;
+            }
+            ("offset", GMProperty::F32(offset)) => {
+                self.offset = offset;
+            }
+            _ => {
+                error_panic(&format!("set_property(), unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn get_property(&self, name: &str) -> GMProperty {
+        match name {
+            "amplitude" => {
+                GMProperty::F32(self.amplitude)
+            }
+            "speed" => {
+                GMProperty::F32(self.speed)
+            }
+            "offset" => {
+                GMProperty::F32(self.offset)
+            }
+            _ => {
+                error_panic(&format!("get_property(),  unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
-
-gen_impl_active!(GMTEWave);
 
 #[derive(Debug, Clone)]
 pub struct GMTEShake {
@@ -205,7 +285,7 @@ impl GMTEShake {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+    pub fn update(&mut self, text: &mut GMBitmapText) {
         if self.active {
             self.time += self.speed;
             self.rng.reseed(u64::to_ne_bytes(self.seed));
@@ -251,7 +331,7 @@ impl GMTERotateChars {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+    pub fn update(&mut self, text: &mut GMBitmapText) {
         if self.active {
             let mut delta = 0.0;
 
@@ -295,7 +375,7 @@ impl GMTEScale {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText, _context: &mut GMContext) {
+    pub fn update(&mut self, text: &mut GMBitmapText) {
         let mut offset = 0.0;
 
         if self.active {
