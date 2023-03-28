@@ -7,7 +7,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
-use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
+use green_moon_2d::bitmap_text_effects::{GMTextEffectT, GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
 use green_moon_2d::util::{GMDrawT, GMAlign};
 
 #[derive(Debug)]
@@ -209,24 +209,24 @@ impl GMSceneT for TextScene3 {
 
         match self.current_effect {
             CurrentEffect::Wave => {
-                self.wave_effect.update(&mut self.effect_name, context);
+                self.wave_effect.update(&mut self.effect_name);
             }
             CurrentEffect::Shake => {
-                self.shake_effect.update(&mut self.effect_name, context);
+                self.shake_effect.update(&mut self.effect_name);
             }
             CurrentEffect::Rotate => {
-                self.rotate_effect.update(&mut self.effect_name, context);
+                self.rotate_effect.update(&mut self.effect_name);
             }
             CurrentEffect::Scale => {
-                self.scale_effect.update(&mut self.effect_name, context);
+                self.scale_effect.update(&mut self.effect_name);
             }
             CurrentEffect::WaveRotate => {
-                self.wave_effect.update(&mut self.effect_name, context);
-                self.rotate_effect.update(&mut self.effect_name, context);
+                self.wave_effect.update(&mut self.effect_name);
+                self.rotate_effect.update(&mut self.effect_name);
             }
             CurrentEffect::ShakeScale => {
-                self.shake_effect.update(&mut self.effect_name, context);
-                self.scale_effect.update(&mut self.effect_name, context);
+                self.shake_effect.update(&mut self.effect_name);
+                self.scale_effect.update(&mut self.effect_name);
             }
         }
     }
