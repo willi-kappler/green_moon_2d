@@ -24,10 +24,6 @@ macro_rules! gen_get_set_amplitude {
         pub fn get_amplitude(&self) -> f32 {
             self.amplitude
         }
-
-        pub fn dec_amplitude(&mut self, dec: f32) {
-            self.amplitude -= dec;
-        }
     };
 }
 
@@ -44,10 +40,6 @@ macro_rules! gen_get_set_speed {
 
         pub fn get_speed(&self) -> f32 {
             self.speed
-        }
-
-        pub fn dec_speed(&mut self, dec: f32) {
-            self.speed -= dec;
         }
     };
 }
@@ -66,10 +58,6 @@ macro_rules! gen_get_set_offset {
         pub fn get_offset(&self) -> f32 {
             self.offset
         }
-
-        pub fn dec_offset(&mut self, dec: f32) {
-            self.offset -= dec;
-        }
     };
 }
 
@@ -86,10 +74,6 @@ macro_rules! gen_get_set_radius {
 
         pub fn get_radius(&self) -> f32 {
             self.radius
-        }
-
-        pub fn dec_radius(&mut self, dec: f32) {
-            self.radius -= dec;
         }
     };
 }
@@ -108,12 +92,10 @@ macro_rules! gen_get_set_base {
         pub fn get_base(&self) -> f32 {
             self.base
         }
-
-        pub fn dec_base(&mut self, dec: f32) {
-            self.base -= dec;
-        }
     };
 }
+
+// TODO: write a macro to generate get / set property functions
 
 pub trait GMTextEffectT {
     fn update(&mut self, text: &mut GMBitmapText);
@@ -193,25 +175,13 @@ impl GMTextEffectT for GMTEWave {
                 let inc = extract_f32(rest, 0);
                 self.inc_amplitude(inc);
             }
-            "dec_amplitude" => {
-                let dec = extract_f32(rest, 0);
-                self.dec_amplitude(dec);
-            }
             "inc_speed" => {
                 let inc = extract_f32(rest, 0);
                 self.inc_speed(inc);
             }
-            "dec_speed" => {
-                let dec = extract_f32(rest, 0);
-                self.dec_speed(dec);
-            }
             "inc_offset" => {
                 let inc = extract_f32(rest, 0);
                 self.inc_offset(inc);
-            }
-            "dec_offset" => {
-                let dec = extract_f32(rest, 0);
-                self.dec_offset(dec);
             }
             _ => {
                 error_panic(&format!("send_message(), unknown message '{}'", message));
@@ -285,7 +255,15 @@ impl GMTEShake {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText) {
+    gen_get_set_radius!();
+
+    gen_get_set_speed!();
+}
+
+gen_impl_active!(GMTEShake);
+
+impl GMTextEffectT for GMTEShake {
+    fn update(&mut self, text: &mut GMBitmapText) {
         if self.active {
             self.time += self.speed;
             self.rng.reseed(u64::to_ne_bytes(self.seed));
@@ -304,12 +282,57 @@ impl GMTEShake {
         }
     }
 
-    gen_get_set_radius!();
+    fn send_message(&mut self, message: &str) {
+        let (start, rest) = split_message(message);
 
-    gen_get_set_speed!();
+        match start {
+            "inc_radius" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_radius(inc);
+            }
+            "inc_speed" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_speed(inc);
+            }
+            _ => {
+                error_panic(&format!("send_message(), unknown message '{}'", message));
+            }
+        }
+    }
+
+    fn set_property(&mut self, name: &str, value: GMProperty) {
+        match (name, value) {
+            ("radius", GMProperty::F32(radius)) => {
+                self.radius = radius;
+            }
+            ("speed", GMProperty::F32(speed)) => {
+                self.speed = speed;
+            }
+            _ => {
+                error_panic(&format!("set_property(), unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn get_property(&self, name: &str) -> GMProperty {
+        match name {
+            "radius" => {
+                GMProperty::F32(self.radius)
+            }
+            "speed" => {
+                GMProperty::F32(self.speed)
+            }
+            _ => {
+                error_panic(&format!("get_property(),  unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-gen_impl_active!(GMTEShake);
 
 #[derive(Debug, Clone)]
 pub struct GMTERotateChars {
@@ -331,7 +354,15 @@ impl GMTERotateChars {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText) {
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
+}
+
+gen_impl_active!(GMTERotateChars);
+
+impl GMTextEffectT for GMTERotateChars {
+    fn update(&mut self, text: &mut GMBitmapText) {
         if self.active {
             let mut delta = 0.0;
 
@@ -344,12 +375,57 @@ impl GMTERotateChars {
         }
     }
 
-    gen_get_set_speed!();
+    fn send_message(&mut self, message: &str) {
+        let (start, rest) = split_message(message);
 
-    gen_get_set_offset!();
+        match start {
+            "inc_speed" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_speed(inc);
+            }
+            "inc_offset" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_offset(inc);
+            }
+            _ => {
+                error_panic(&format!("send_message(), unknown message '{}'", message));
+            }
+        }
+    }
+
+    fn set_property(&mut self, name: &str, value: GMProperty) {
+        match (name, value) {
+            ("speed", GMProperty::F32(speed)) => {
+                self.speed = speed;
+            }
+            ("offset", GMProperty::F32(offset)) => {
+                self.offset = offset;
+            }
+            _ => {
+                error_panic(&format!("set_property(), unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn get_property(&self, name: &str) -> GMProperty {
+        match name {
+            "speed" => {
+                GMProperty::F32(self.speed)
+            }
+            "offset" => {
+                GMProperty::F32(self.offset)
+            }
+            _ => {
+                error_panic(&format!("get_property(),  unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
 
-gen_impl_active!(GMTERotateChars);
 
 #[derive(Debug, Clone)]
 pub struct GMTEScale {
@@ -375,7 +451,19 @@ impl GMTEScale {
         }
     }
 
-    pub fn update(&mut self, text: &mut GMBitmapText) {
+    gen_get_set_amplitude!();
+
+    gen_get_set_base!();
+
+    gen_get_set_speed!();
+
+    gen_get_set_offset!();
+}
+
+gen_impl_active!(GMTEScale);
+
+impl GMTextEffectT for GMTEScale {
+    fn update(&mut self, text: &mut GMBitmapText) {
         let mut offset = 0.0;
 
         if self.active {
@@ -388,13 +476,73 @@ impl GMTEScale {
         }
     }
 
-    gen_get_set_amplitude!();
+    fn send_message(&mut self, message: &str) {
+        let (start, rest) = split_message(message);
 
-    gen_get_set_base!();
+        match start {
+            "inc_amplitude" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_amplitude(inc);
+            }
+            "inc_base" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_base(inc);
+            }
+            "inc_speed" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_speed(inc);
+            }
+            "inc_offset" => {
+                let inc = extract_f32(rest, 0);
+                self.inc_offset(inc);
+            }
+            _ => {
+                error_panic(&format!("send_message(), unknown message '{}'", message));
+            }
+        }
+    }
 
-    gen_get_set_speed!();
+    fn set_property(&mut self, name: &str, value: GMProperty) {
+        match (name, value) {
+            ("amplitude", GMProperty::F32(amplitude)) => {
+                self.amplitude = amplitude;
+            }
+            ("base", GMProperty::F32(base)) => {
+                self.base = base;
+            }
+            ("speed", GMProperty::F32(speed)) => {
+                self.speed = speed;
+            }
+            ("offset", GMProperty::F32(offset)) => {
+                self.offset = offset;
+            }
+            _ => {
+                error_panic(&format!("set_property(), unknown property '{}'", name));
+            }
+        }
+    }
 
-    gen_get_set_offset!();
+    fn get_property(&self, name: &str) -> GMProperty {
+        match name {
+            "amplitude" => {
+                GMProperty::F32(self.amplitude)
+            }
+            "base" => {
+                GMProperty::F32(self.base)
+            }
+            "speed" => {
+                GMProperty::F32(self.speed)
+            }
+            "offset" => {
+                GMProperty::F32(self.offset)
+            }
+            _ => {
+                error_panic(&format!("get_property(),  unknown property '{}'", name));
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMTextEffectT> {
+        Box::new(self.clone())
+    }
 }
-
-gen_impl_active!(GMTEScale);
