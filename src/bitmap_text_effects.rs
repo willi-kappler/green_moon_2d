@@ -5,7 +5,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-use crate::util::{GMActiveT, GMProperty, error_panic, split_message, extract_f32};
+use crate::util::{GMActiveT, GMProperty, error_panic, split_message, extract1_f32};
 use crate::bitmap_text::GMBitmapText;
 
 use crate::gen_impl_active;
@@ -172,15 +172,15 @@ impl GMTextEffectT for GMTEWave {
 
         match start {
             "inc_amplitude" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_amplitude(inc);
             }
             "inc_speed" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_speed(inc);
             }
             "inc_offset" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_offset(inc);
             }
             _ => {
@@ -218,7 +218,7 @@ impl GMTextEffectT for GMTEWave {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(),  unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{}'", name));
             }
         }
     }
@@ -287,11 +287,11 @@ impl GMTextEffectT for GMTEShake {
 
         match start {
             "inc_radius" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_radius(inc);
             }
             "inc_speed" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_speed(inc);
             }
             _ => {
@@ -323,7 +323,7 @@ impl GMTextEffectT for GMTEShake {
                 GMProperty::F32(self.speed)
             }
             _ => {
-                error_panic(&format!("get_property(),  unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{}'", name));
             }
         }
     }
@@ -380,11 +380,11 @@ impl GMTextEffectT for GMTERotateChars {
 
         match start {
             "inc_speed" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_speed(inc);
             }
             "inc_offset" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_offset(inc);
             }
             _ => {
@@ -416,7 +416,7 @@ impl GMTextEffectT for GMTERotateChars {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(),  unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{}'", name));
             }
         }
     }
@@ -481,19 +481,19 @@ impl GMTextEffectT for GMTEScale {
 
         match start {
             "inc_amplitude" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_amplitude(inc);
             }
             "inc_base" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_base(inc);
             }
             "inc_speed" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_speed(inc);
             }
             "inc_offset" => {
-                let inc = extract_f32(rest, 0);
+                let inc = extract1_f32(rest);
                 self.inc_offset(inc);
             }
             _ => {
@@ -537,7 +537,7 @@ impl GMTextEffectT for GMTEScale {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(),  unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{}'", name));
             }
         }
     }
