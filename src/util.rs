@@ -118,16 +118,13 @@ pub fn split_message(message: &str) -> (&str, Vec<&str>) {
 // Extracts the first f32 value from a list of strings
 // Example: ["1.5", "2.0", "100.0"] -> 1.5
 pub fn extract1_f32(values: Vec<&str>) -> f32 {
-    let value = values[0];
-    value.parse::<f32>().unwrap()
+    extract_f32_n(values, 0)
 }
 
 // Extract the first two f32 value from a list of strings
 // Example: ["1.5", "2.0", "100.0"] -> (1.5, 2.0)
 pub fn extract2_f32(values: Vec<&str>) -> (f32, f32) {
-    let value1 = values[0];
-    let value2 = values[1];
-    (value1.parse::<f32>().unwrap(), value2.parse::<f32>().unwrap())
+    extract_f32_n_m(values, 0, 1)
 }
 
 // Extracts one f32 value from a list of strings
