@@ -103,13 +103,10 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
     result
 }
 
-/*
-pub fn split_message(message: &str) -> (&str, &str) {
-    let pos = message.find(',').unwrap();
-    (&message[0..pos], &message[pos..])
-}
-*/
-
+// The first part of the message is a command, the rest is a list of arguments.
+// Example:
+// "rotate, 90.0" -> ("rotate", ["90.0"])
+// "scale, 0.5, 0.5" -> ("scale", ["0.5", "0.5"])
 pub fn split_message(message: &str) -> (&str, Vec<&str>) {
     let mut parts = message.split(',');
     let first = parts.nth(0).unwrap();
@@ -118,12 +115,42 @@ pub fn split_message(message: &str) -> (&str, Vec<&str>) {
     (first, rest)
 }
 
-pub fn extract_f32(values: Vec<&str>, n: usize) -> f32 {
+// Extracts the first f32 value from a list of strings
+// Example: ["1.5", "2.0", "100.0"] -> 1.5
+pub fn extract1_f32(values: Vec<&str>) -> f32 {
+    let value = values[0];
+    value.parse::<f32>().unwrap()
+}
+
+// Extract the first two f32 value from a list of strings
+// Example: ["1.5", "2.0", "100.0"] -> (1.5, 2.0)
+pub fn extract2_f32(values: Vec<&str>) -> (f32, f32) {
+    let value1 = values[0];
+    let value2 = values[1];
+    (value1.parse::<f32>().unwrap(), value2.parse::<f32>().unwrap())
+}
+
+// Extracts one f32 value from a list of strings
+// Example: ["1.5", "2.0", "100.0"], 1 -> 2.0
+pub fn extract_f32_n(values: Vec<&str>, n: usize) -> f32 {
     let value = values[n];
     value.parse::<f32>().unwrap()
 }
 
+// Extracts two f32 value from a list of strings
+// Example: ["1.5", "2.0", "100.0"], 0, 2 -> (1.5, 100.0)
+pub fn extract_f32_n_m(values: Vec<&str>, n: usize, m: usize) -> (f32, f32) {
+    let value1 = values[n];
+    let value2 = values[m];
+    (value1.parse::<f32>().unwrap(), value2.parse::<f32>().unwrap())
+}
+
+
 /*
+pub fn split_message(message: &str) -> (&str, &str) {
+    let pos = message.find(',').unwrap();
+    (&message[0..pos], &message[pos..])
+}
 
 pub fn extract_f32(message: &str) -> (&str, f32) {
     let parts: Vec<&str> = message.split(',').collect();
