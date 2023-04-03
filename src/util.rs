@@ -73,7 +73,7 @@ impl From<&str> for GMRepetition {
 }
 
 #[derive(Debug, Clone)]
-pub enum GMProperty {
+pub enum GMValue {
     Bool(bool),
     U8(u8),
     U16(u16),
@@ -86,7 +86,8 @@ pub enum GMProperty {
     F32(f32),
     F64(f64),
     String(String),
-    Tuple2(Box<GMProperty>, Box<GMProperty>),
+    Tuple2(Box<GMValue>, Box<GMValue>),
+    Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
 }
 
 #[derive(Debug, Clone)]
@@ -97,6 +98,9 @@ pub enum GMMessage {
     IncRadius(f32),
     IncSpeed(f32),
     Custom(String),
+    Custom1V(String, GMValue),
+    Custom2V(String, GMValue, GMValue),
+    Custom3V(String, GMValue, GMValue, GMValue),
 }
 
 #[derive(Debug, Clone)]
@@ -106,7 +110,9 @@ pub enum GMSetProperty {
     Offset(f32),
     Radius(f32),
     Speed(f32),
-    Custom(String, GMProperty),
+    Custom1V(String, GMValue),
+    Custom2V(String, GMValue, GMValue),
+    Custom3V(String, GMValue, GMValue, GMValue),
 }
 
 #[derive(Debug, Clone)]
@@ -354,4 +360,13 @@ macro_rules! gen_impl_size {
             }
         }
     };
+}
+
+pub trait GMMessageT {
+    fn send_message(&mut self, message: GMMessage);
+}
+
+pub trait GMPropertyT {
+    fn set_property(&mut self, property: GMSetProperty);
+    fn get_property(&self, property: GMGetProperty) -> GMValue;
 }
