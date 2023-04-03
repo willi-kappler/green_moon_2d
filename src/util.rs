@@ -28,6 +28,7 @@ pub enum GMRepetition {
     LoopBackward,
     PingPongForward,
     PingPongBackward,
+    // TODO: PinPongForwardCount, PinPongBackwardCount
 }
 
 impl GMRepetition {
@@ -86,6 +87,36 @@ pub enum GMProperty {
     F64(f64),
     String(String),
     Tuple2(Box<GMProperty>, Box<GMProperty>),
+}
+
+#[derive(Debug, Clone)]
+pub enum GMMessage {
+    IncAmplitude(f32),
+    IncBase(f32),
+    IncOffset(f32),
+    IncRadius(f32),
+    IncSpeed(f32),
+    Custom(String),
+}
+
+#[derive(Debug, Clone)]
+pub enum GMSetProperty {
+    Amplitude(f32),
+    Base(f32),
+    Offset(f32),
+    Radius(f32),
+    Speed(f32),
+    Custom(String, GMProperty),
+}
+
+#[derive(Debug, Clone)]
+pub enum GMGetProperty {
+    Amplitude,
+    Base,
+    Offset,
+    Radius,
+    Speed,
+    Custom(String),
 }
 
 #[track_caller]
