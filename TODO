@@ -2,42 +2,8 @@ Try using SDL again!
 - Start with examples and top down approach
 - More traits
 
-# More text effects
-# GMSprite
-# GMSpriteEffect
-# Refactor GMAnimation
-# Add GMAnimationT::send_message() and send_message_data()
-# Refactor GMBitmapText and GMBitmapTextEffect like GMSprite
-# Context tags: use Box<dyn Any> instead of String
-# Use base and offset for sprites
-# Use GMData instead of Any or String
-# Refactor to GMEffect ? (https://docs.rs/tower/latest/src/tower/util/boxed_clone.rs.html#111)
-# Messages for sprites in GMContext
-# effect message: set_active
-# Refactor GMObjectMessage, use array of size 2 and flip index: store_message, read_message
-# Use two Hashmaps: one for normal messages and one for group messages.
-# Use cols and rows instead of with and height for texture.
-# (Try to use builder macro)
-# GMParticleManager
-# GMLine
-# Refactor GMSprite: move velocity, acceleration, angular velocity, etc. to sprite effect
-# Refactor generic effects
-# macros for GMData and conversion
-# Add get_property(name: &str) -> GMData for effects
-# Add macro for builder pattern
-# Add init() for effects ?
-
-
-Next TODO:
-
-- use base / offset for sprite effects (movement)
-- Add sprite effect sub-sprite
-- Add text effect sprite
-- Add text effect circle
-- Add mouse events
-- Add effects for GMLine
-
-
+- GMLine
+- GMParticleManager
 - GMMenuItem
 - GMMenu
 - GMBulletManager
@@ -46,9 +12,8 @@ Next TODO:
 - GMHealthbar
 - GMTileMap
 
-
-
-
+- Add GMSpriteT trait ?
+- Add GMTextT trait ?
 
 
 Future TODO:
