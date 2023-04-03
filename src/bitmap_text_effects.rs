@@ -5,7 +5,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-use crate::util::{GMActiveT, GMProperty, error_panic, split_message, extract1_f32};
+use crate::util::{GMActiveT, GMProperty, GMMessage, GMSetProperty, GMGetProperty, error_panic};
 use crate::bitmap_text::GMBitmapText;
 
 use crate::gen_impl_active;
@@ -99,9 +99,9 @@ macro_rules! gen_get_set_base {
 
 pub trait GMTextEffectT {
     fn update(&mut self, text: &mut GMBitmapText);
-    fn send_message(&mut self, message: &str);
-    fn set_property(&mut self, name: &str, value: GMProperty);
-    fn get_property(&self, name: &str) -> GMProperty;
+    fn send_message(&mut self, message: GMMessage);
+    fn set_property(&mut self, property: GMSetProperty);
+    fn get_property(&self, property: GMGetProperty) -> GMProperty;
     fn clone_box(&self) -> Box<dyn GMTextEffectT>;
 }
 
@@ -167,58 +167,53 @@ impl GMTextEffectT for GMTEWave {
         }
     }
 
-    fn send_message(&mut self, message: &str) {
-        let (start, rest) = split_message(message);
-
-        match start {
-            "inc_amplitude" => {
-                let inc = extract1_f32(rest);
-                self.inc_amplitude(inc);
+    fn send_message(&mut self, message: GMMessage) {
+        match message {
+            GMMessage::IncAmplitude(value) => {
+                self.inc_amplitude(value);
             }
-            "inc_speed" => {
-                let inc = extract1_f32(rest);
-                self.inc_speed(inc);
+            GMMessage::IncSpeed(value) => {
+                self.inc_speed(value);
             }
-            "inc_offset" => {
-                let inc = extract1_f32(rest);
-                self.inc_offset(inc);
+            GMMessage::IncOffset(value) => {
+                self.inc_offset(value);
             }
             _ => {
-                error_panic(&format!("send_message(), unknown message '{}'", message));
+                error_panic(&format!("send_message(), unknown message '{:?}'", message));
             }
         }
     }
 
-    fn set_property(&mut self, name: &str, value: GMProperty) {
-        match (name, value) {
-            ("amplitude", GMProperty::F32(amplitude)) => {
-                self.amplitude = amplitude;
+    fn set_property(&mut self, property: GMSetProperty) {
+        match property {
+            GMSetProperty::Amplitude(value) => {
+                self.amplitude = value;
             }
-            ("speed", GMProperty::F32(speed)) => {
-                self.speed = speed;
+            GMSetProperty::Speed(value) => {
+                self.speed = value;
             }
-            ("offset", GMProperty::F32(offset)) => {
-                self.offset = offset;
+            GMSetProperty::Offset(value) => {
+                self.offset = value;
             }
             _ => {
-                error_panic(&format!("set_property(), unknown property '{}'", name));
+                error_panic(&format!("set_property(), unknown property '{:?}'", property));
             }
         }
     }
 
-    fn get_property(&self, name: &str) -> GMProperty {
-        match name {
-            "amplitude" => {
+    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+        match property {
+            GMGetProperty::Amplitude => {
                 GMProperty::F32(self.amplitude)
             }
-            "speed" => {
+            GMGetProperty::Speed => {
                 GMProperty::F32(self.speed)
             }
-            "offset" => {
+            GMGetProperty::Offset => {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(), unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{:?}'", property));
             }
         }
     }
@@ -282,48 +277,44 @@ impl GMTextEffectT for GMTEShake {
         }
     }
 
-    fn send_message(&mut self, message: &str) {
-        let (start, rest) = split_message(message);
-
-        match start {
-            "inc_radius" => {
-                let inc = extract1_f32(rest);
-                self.inc_radius(inc);
+    fn send_message(&mut self, message: GMMessage) {
+        match message {
+            GMMessage::IncRadius(value) => {
+                self.inc_radius(value);
             }
-            "inc_speed" => {
-                let inc = extract1_f32(rest);
-                self.inc_speed(inc);
+            GMMessage::IncSpeed(value) => {
+                self.inc_speed(value);
             }
             _ => {
-                error_panic(&format!("send_message(), unknown message '{}'", message));
+                error_panic(&format!("send_message(), unknown message '{:?}'", message));
             }
         }
     }
 
-    fn set_property(&mut self, name: &str, value: GMProperty) {
-        match (name, value) {
-            ("radius", GMProperty::F32(radius)) => {
-                self.radius = radius;
+    fn set_property(&mut self, property: GMSetProperty) {
+        match property {
+            GMSetProperty::Radius(value) => {
+                self.radius = value;
             }
-            ("speed", GMProperty::F32(speed)) => {
-                self.speed = speed;
+            GMSetProperty::Speed(value) => {
+                self.speed = value;
             }
             _ => {
-                error_panic(&format!("set_property(), unknown property '{}'", name));
+                error_panic(&format!("set_property(), unknown property '{:?}'", property));
             }
-        }
+       }
     }
 
-    fn get_property(&self, name: &str) -> GMProperty {
-        match name {
-            "radius" => {
+    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+        match property {
+            GMGetProperty::Radius => {
                 GMProperty::F32(self.radius)
             }
-            "speed" => {
+            GMGetProperty::Speed => {
                 GMProperty::F32(self.speed)
             }
             _ => {
-                error_panic(&format!("get_property(), unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{:?}'", property));
             }
         }
     }
@@ -375,48 +366,44 @@ impl GMTextEffectT for GMTERotateChars {
         }
     }
 
-    fn send_message(&mut self, message: &str) {
-        let (start, rest) = split_message(message);
-
-        match start {
-            "inc_speed" => {
-                let inc = extract1_f32(rest);
-                self.inc_speed(inc);
+    fn send_message(&mut self, message: GMMessage) {
+        match message {
+            GMMessage::IncSpeed(value) => {
+                self.inc_speed(value);
             }
-            "inc_offset" => {
-                let inc = extract1_f32(rest);
-                self.inc_offset(inc);
+            GMMessage::IncOffset(value) => {
+                self.inc_offset(value);
             }
             _ => {
-                error_panic(&format!("send_message(), unknown message '{}'", message));
+                error_panic(&format!("send_message(), unknown message '{:?}'", message));
             }
         }
     }
 
-    fn set_property(&mut self, name: &str, value: GMProperty) {
-        match (name, value) {
-            ("speed", GMProperty::F32(speed)) => {
-                self.speed = speed;
+    fn set_property(&mut self, property: GMSetProperty) {
+        match property {
+            GMSetProperty::Speed(value) => {
+                self.speed = value;
             }
-            ("offset", GMProperty::F32(offset)) => {
-                self.offset = offset;
+            GMSetProperty::Offset(value) => {
+                self.offset = value;
             }
             _ => {
-                error_panic(&format!("set_property(), unknown property '{}'", name));
+                error_panic(&format!("set_property(), unknown property '{:?}'", property));
             }
         }
     }
 
-    fn get_property(&self, name: &str) -> GMProperty {
-        match name {
-            "speed" => {
+    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+        match property {
+            GMGetProperty::Speed => {
                 GMProperty::F32(self.speed)
             }
-            "offset" => {
+            GMGetProperty::Offset => {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(), unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{:?}'", property));
             }
         }
     }
@@ -476,68 +463,62 @@ impl GMTextEffectT for GMTEScale {
         }
     }
 
-    fn send_message(&mut self, message: &str) {
-        let (start, rest) = split_message(message);
-
-        match start {
-            "inc_amplitude" => {
-                let inc = extract1_f32(rest);
-                self.inc_amplitude(inc);
+    fn send_message(&mut self, message: GMMessage) {
+        match message {
+            GMMessage::IncAmplitude(value) => {
+                self.inc_amplitude(value);
             }
-            "inc_base" => {
-                let inc = extract1_f32(rest);
-                self.inc_base(inc);
+            GMMessage::IncBase(value) => {
+                self.inc_base(value);
             }
-            "inc_speed" => {
-                let inc = extract1_f32(rest);
-                self.inc_speed(inc);
+            GMMessage::IncSpeed(value) => {
+                self.inc_speed(value);
             }
-            "inc_offset" => {
-                let inc = extract1_f32(rest);
-                self.inc_offset(inc);
+            GMMessage::IncOffset(value) => {
+                self.inc_offset(value);
             }
             _ => {
-                error_panic(&format!("send_message(), unknown message '{}'", message));
+                error_panic(&format!("send_message(), unknown message '{:?}'", message));
             }
         }
     }
 
-    fn set_property(&mut self, name: &str, value: GMProperty) {
-        match (name, value) {
-            ("amplitude", GMProperty::F32(amplitude)) => {
-                self.amplitude = amplitude;
+    fn set_property(&mut self, property: GMSetProperty) {
+        match property {
+            GMSetProperty::Amplitude(value) => {
+                self.amplitude = value;
             }
-            ("base", GMProperty::F32(base)) => {
-                self.base = base;
+            GMSetProperty::Base(value) => {
+                self.base = value;
             }
-            ("speed", GMProperty::F32(speed)) => {
-                self.speed = speed;
+            GMSetProperty::Speed(value) => {
+                self.speed = value;
             }
-            ("offset", GMProperty::F32(offset)) => {
-                self.offset = offset;
+            GMSetProperty::Offset(value) => {
+                self.offset = value;
             }
             _ => {
-                error_panic(&format!("set_property(), unknown property '{}'", name));
+                error_panic(&format!("set_property(), unknown property '{:?}'", property));
             }
         }
     }
 
-    fn get_property(&self, name: &str) -> GMProperty {
-        match name {
-            "amplitude" => {
+    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+        match property {
+            GMGetProperty::Amplitude => {
                 GMProperty::F32(self.amplitude)
             }
-            "base" => {
+            GMGetProperty::Base => {
                 GMProperty::F32(self.base)
             }
-            "speed" => {
+            GMGetProperty::Speed => {
                 GMProperty::F32(self.speed)
             }
-            "offset" => {
+            GMGetProperty::Offset => {
                 GMProperty::F32(self.offset)
             }
             _ => {
-                error_panic(&format!("get_property(), unknown property '{}'", name));
+                error_panic(&format!("get_property(), unknown property '{:?}'", property));
             }
         }
     }
