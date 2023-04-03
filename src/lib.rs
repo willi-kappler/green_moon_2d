@@ -10,7 +10,7 @@ pub mod context;
 pub mod engine;
 pub mod input;
 pub mod interpolation;
-// pub mod line;
+pub mod line;
 pub mod math;
 
 
