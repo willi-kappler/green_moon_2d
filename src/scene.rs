@@ -6,6 +6,9 @@ use log::debug;
 use crate::context::{GMContext};
 use crate::util::error_panic;
 
+
+// TODO: Allow lower scene to draw() and / or update() first
+
 #[derive(Debug)]
 pub enum GMSceneState {
     Enter,
