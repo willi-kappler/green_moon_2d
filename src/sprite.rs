@@ -26,7 +26,7 @@ pub struct GMSprite {
     size: GMSize,
     visible: bool,
     active: bool,
-    // TODO: Add sprite children
+    // TODO: Add sprite children ?
 }
 
 impl GMSprite {
