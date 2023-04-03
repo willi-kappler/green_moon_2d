@@ -251,12 +251,16 @@ impl GMMVAcceleration {
 #[derive(Debug, Clone)]
 pub struct GMMV2Points {
     interpolation: GMInterpolateVec2D,
+    start: GMVec2D,
+    end: GMVec2D,
 }
 
 impl GMMV2Points {
     pub fn new<S: Into<GMVec2D>, E: Into<GMVec2D>>(start: S, end: E, speed: f32) -> Self {
         Self {
             interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
+            start: GMVec2D::new(0.0, 0.0),
+            end: GMVec2D::new(0.0, 0.0),
         }
     }
 
@@ -284,12 +288,36 @@ impl GMMV2Points {
         self.update();
     }
 
+    pub fn update_start_end(&mut self) {
+        self.interpolation.set_start(self.start);
+        self.interpolation.set_end(self.end);
+        self.interpolation.calculate_diff();
+    }
+
     gen_get_interpolation_methods!(GMInterpolateVec2D);
 }
 
 impl GMUpdateT for GMMV2Points {
     fn update(&mut self) {
         self.interpolation.update();
+    }
+}
+
+impl GMPositionMultipleT for GMMV2Points {
+    fn get_position_n(&self, index: usize) -> GMVec2D {
+        if index == 0 {
+            self.interpolation.get_start()
+        } else {
+            self.interpolation.get_end()
+        }
+    }
+
+    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D {
+        if index == 0 {
+            &mut self.start
+        } else {
+            &mut self.end
+        }
     }
 }
 
@@ -704,6 +732,8 @@ impl GMUpdateT for GMMVPolygon {
         }
     }
 }
+
+// TODO: Impl GMPositionMultipleT for GMMVPolygon
 
 #[derive(Debug, Clone)]
 pub struct GMMVFollow {
