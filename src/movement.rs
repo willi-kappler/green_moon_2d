@@ -30,6 +30,40 @@ pub trait GMPositionT {
         self.get_position_mut().y += y;
     }
 
+    // If multiple positions are available:
+
+    fn set_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
+        *self.get_position_n_mut(index) = position.into();
+    }
+
+    fn set_position_n_x(&mut self, x: f32, index: usize) {
+        self.get_position_n_mut(index).x = x;
+    }
+
+    fn set_position_n_y(&mut self, y: f32, index: usize) {
+        self.get_position_n_mut(index).y = y;
+    }
+
+    fn add_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
+        self.get_position_n_mut(index).add2(position);
+    }
+
+    fn add_position_n_x(&mut self, x: f32, index: usize) {
+        self.get_position_n_mut(index).x += x;
+    }
+
+    fn add_position_n_y(&mut self, y: f32, index: usize) {
+        self.get_position_n_mut(index).y += y;
+    }
+
+    fn get_position_n(&self, _index: usize) -> GMVec2D {
+        self.get_position()
+    }
+
+    fn get_position_n_mut(&mut self, _index: usize) -> &mut GMVec2D {
+        self.get_position_mut()
+    }
+
     fn get_position(&self) -> GMVec2D;
 
     fn get_position_mut(&mut self) -> &mut GMVec2D;
@@ -59,6 +93,8 @@ pub trait GMRotationT {
         *self.get_angle_mut() += rotation;
     }
 
+    // TODO: Add case for multiple angles
+
     fn get_angle(&self) -> f32;
 
     fn get_angle_mut(&mut self) -> &mut f32;
@@ -87,6 +123,8 @@ pub trait GMScaleT {
     fn add_scale(&mut self, scale: f32) {
         *self.get_scale_mut() += scale;
     }
+
+    // TODO: Add case for multiple scales
 
     fn get_scale(&self) -> f32;
 
@@ -159,6 +197,10 @@ impl GMMVVelocity {
     pub fn set_position_of<T: GMPositionT>(&self, position: &mut T) {
         position.add_position(self.velocity);
     }
+
+    pub fn set_position_n_of<T: GMPositionT>(&self, position: &mut T, index: usize) {
+        position.add_position_n(self.velocity, index);
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -197,6 +239,11 @@ impl GMMVAcceleration {
         velocity.add_velocity(self.acceleration);
         velocity.set_position_of(position);
     }
+
+    pub fn set_position_and_velocity_n_of<T: GMPositionT>(&self, position: &mut T, velocity: &mut GMMVVelocity, index: usize) {
+        velocity.add_velocity(self.acceleration);
+        velocity.set_position_n_of(position, index);
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -216,12 +263,22 @@ impl GMMV2Points {
         movable.set_position(new_pos);
     }
 
+    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+        let new_pos = self.calc_position();
+        movable.set_position_n(new_pos, index);
+    }
+
     pub fn calc_position(&self) -> GMVec2D {
         self.interpolation.get_current_value()
     }
 
     pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
         self.set_position_of(movable);
+        self.update();
+    }
+
+    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+        self.set_position_n_of(movable, index);
         self.update();
     }
 
@@ -331,6 +388,11 @@ impl GMMVCircle {
         movable.set_position(new_position);
     }
 
+    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+        let new_position = self.calc_position();
+        movable.set_position_n(new_position, index);
+    }
+
     pub fn calc_position(&self) -> GMVec2D {
         let new_angle = self.interpolation.get_current_value();
         self.circle.position_from_deg(new_angle)
@@ -339,6 +401,11 @@ impl GMMVCircle {
 
     pub fn set_and_update<T: GMPositionT>(&mut self, movable: &mut T) {
         self.set_position_of(movable);
+        self.update();
+    }
+
+    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+        self.set_position_n_of(movable, index);
         self.update();
     }
 
@@ -539,6 +606,11 @@ impl GMMVPolygon {
         movable.set_position(new_position);
     }
 
+    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+        let new_position = self.calc_position();
+        movable.set_position_n(new_position, index);
+    }
+
     pub fn calc_position(&self) -> GMVec2D {
         self.current_interpolation.get_current_value()
     }
@@ -564,6 +636,10 @@ impl GMMVPolygon {
         self.update();
     }
 
+    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+        self.set_position_n_of(movable, index);
+        self.update();
+    }
 }
 
 impl GMUpdateT for GMMVPolygon {
