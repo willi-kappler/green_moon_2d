@@ -5,7 +5,7 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-use crate::util::{GMActiveT, GMProperty, GMMessage, GMSetProperty, GMGetProperty, error_panic};
+use crate::util::{GMActiveT, GMValue, GMMessage, GMSetProperty, GMGetProperty, error_panic};
 use crate::bitmap_text::GMBitmapText;
 
 use crate::gen_impl_active;
@@ -96,12 +96,13 @@ macro_rules! gen_get_set_base {
 }
 
 // TODO: write a macro to generate get / set property functions
+// TODO: refactor message and property into separate traits
 
 pub trait GMTextEffectT {
     fn update(&mut self, text: &mut GMBitmapText);
     fn send_message(&mut self, message: GMMessage);
     fn set_property(&mut self, property: GMSetProperty);
-    fn get_property(&self, property: GMGetProperty) -> GMProperty;
+    fn get_property(&self, property: GMGetProperty) -> GMValue;
     fn clone_box(&self) -> Box<dyn GMTextEffectT>;
 }
 
@@ -201,16 +202,16 @@ impl GMTextEffectT for GMTEWave {
         }
     }
 
-    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+    fn get_property(&self, property: GMGetProperty) -> GMValue {
         match property {
             GMGetProperty::Amplitude => {
-                GMProperty::F32(self.amplitude)
+                GMValue::F32(self.amplitude)
             }
             GMGetProperty::Speed => {
-                GMProperty::F32(self.speed)
+                GMValue::F32(self.speed)
             }
             GMGetProperty::Offset => {
-                GMProperty::F32(self.offset)
+                GMValue::F32(self.offset)
             }
             _ => {
                 error_panic(&format!("get_property(), unknown property '{:?}'", property));
@@ -305,13 +306,13 @@ impl GMTextEffectT for GMTEShake {
        }
     }
 
-    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+    fn get_property(&self, property: GMGetProperty) -> GMValue {
         match property {
             GMGetProperty::Radius => {
-                GMProperty::F32(self.radius)
+                GMValue::F32(self.radius)
             }
             GMGetProperty::Speed => {
-                GMProperty::F32(self.speed)
+                GMValue::F32(self.speed)
             }
             _ => {
                 error_panic(&format!("get_property(), unknown property '{:?}'", property));
@@ -394,13 +395,13 @@ impl GMTextEffectT for GMTERotateChars {
         }
     }
 
-    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+    fn get_property(&self, property: GMGetProperty) -> GMValue {
         match property {
             GMGetProperty::Speed => {
-                GMProperty::F32(self.speed)
+                GMValue::F32(self.speed)
             }
             GMGetProperty::Offset => {
-                GMProperty::F32(self.offset)
+                GMValue::F32(self.offset)
             }
             _ => {
                 error_panic(&format!("get_property(), unknown property '{:?}'", property));
@@ -503,19 +504,19 @@ impl GMTextEffectT for GMTEScale {
         }
     }
 
-    fn get_property(&self, property: GMGetProperty) -> GMProperty {
+    fn get_property(&self, property: GMGetProperty) -> GMValue {
         match property {
             GMGetProperty::Amplitude => {
-                GMProperty::F32(self.amplitude)
+                GMValue::F32(self.amplitude)
             }
             GMGetProperty::Base => {
-                GMProperty::F32(self.base)
+                GMValue::F32(self.base)
             }
             GMGetProperty::Speed => {
-                GMProperty::F32(self.speed)
+                GMValue::F32(self.speed)
             }
             GMGetProperty::Offset => {
-                GMProperty::F32(self.offset)
+                GMValue::F32(self.offset)
             }
             _ => {
                 error_panic(&format!("get_property(), unknown property '{:?}'", property));
