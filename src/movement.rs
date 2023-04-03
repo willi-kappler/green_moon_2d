@@ -30,8 +30,13 @@ pub trait GMPositionT {
         self.get_position_mut().y += y;
     }
 
-    // If multiple positions are available:
+    fn get_position(&self) -> GMVec2D;
 
+    fn get_position_mut(&mut self) -> &mut GMVec2D;
+}
+
+    // If multiple positions are available:
+pub trait GMPositionMultipleT {
     fn set_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
         *self.get_position_n_mut(index) = position.into();
     }
@@ -56,18 +61,13 @@ pub trait GMPositionT {
         self.get_position_n_mut(index).y += y;
     }
 
-    fn get_position_n(&self, _index: usize) -> GMVec2D {
-        self.get_position()
-    }
+    fn get_position_n(&self, index: usize) -> GMVec2D;
 
-    fn get_position_n_mut(&mut self, _index: usize) -> &mut GMVec2D {
-        self.get_position_mut()
-    }
-
-    fn get_position(&self) -> GMVec2D;
-
-    fn get_position_mut(&mut self) -> &mut GMVec2D;
+    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D;
 }
+
+// TODO: Impl GMPositionMultipleT for GMPositionT ?
+
 
 #[macro_export]
 macro_rules! gen_impl_position {
@@ -93,12 +93,13 @@ pub trait GMRotationT {
         *self.get_angle_mut() += rotation;
     }
 
-    // TODO: Add case for multiple angles
-
     fn get_angle(&self) -> f32;
 
     fn get_angle_mut(&mut self) -> &mut f32;
 }
+
+// TODO: Add trait for multiple angles
+
 
 #[macro_export]
 macro_rules! gen_impl_rotation {
@@ -124,12 +125,13 @@ pub trait GMScaleT {
         *self.get_scale_mut() += scale;
     }
 
-    // TODO: Add case for multiple scales
-
     fn get_scale(&self) -> f32;
 
     fn get_scale_mut(&mut self) -> &mut f32;
 }
+
+// TODO: Add trait for multiple scales
+
 
 #[macro_export]
 macro_rules! gen_impl_scale {
@@ -198,7 +200,7 @@ impl GMMVVelocity {
         position.add_position(self.velocity);
     }
 
-    pub fn set_position_n_of<T: GMPositionT>(&self, position: &mut T, index: usize) {
+    pub fn set_position_n_of<T: GMPositionMultipleT>(&self, position: &mut T, index: usize) {
         position.add_position_n(self.velocity, index);
     }
 }
@@ -240,7 +242,7 @@ impl GMMVAcceleration {
         velocity.set_position_of(position);
     }
 
-    pub fn set_position_and_velocity_n_of<T: GMPositionT>(&self, position: &mut T, velocity: &mut GMMVVelocity, index: usize) {
+    pub fn set_position_and_velocity_n_of<T: GMPositionMultipleT>(&self, position: &mut T, velocity: &mut GMMVVelocity, index: usize) {
         velocity.add_velocity(self.acceleration);
         velocity.set_position_n_of(position, index);
     }
@@ -263,7 +265,7 @@ impl GMMV2Points {
         movable.set_position(new_pos);
     }
 
-    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+    pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_pos = self.calc_position();
         movable.set_position_n(new_pos, index);
     }
@@ -277,7 +279,7 @@ impl GMMV2Points {
         self.update();
     }
 
-    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+    pub fn set_and_update_n<T: GMPositionMultipleT>(&mut self, movable: &mut T, index: usize) {
         self.set_position_n_of(movable, index);
         self.update();
     }
@@ -388,7 +390,7 @@ impl GMMVCircle {
         movable.set_position(new_position);
     }
 
-    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+    pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_position = self.calc_position();
         movable.set_position_n(new_position, index);
     }
@@ -404,7 +406,7 @@ impl GMMVCircle {
         self.update();
     }
 
-    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+    pub fn set_and_update_n<T: GMPositionMultipleT>(&mut self, movable: &mut T, index: usize) {
         self.set_position_n_of(movable, index);
         self.update();
     }
@@ -606,7 +608,7 @@ impl GMMVPolygon {
         movable.set_position(new_position);
     }
 
-    pub fn set_position_n_of<T: GMPositionT>(&self, movable: &mut T, index: usize) {
+    pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_position = self.calc_position();
         movable.set_position_n(new_position, index);
     }
@@ -636,7 +638,7 @@ impl GMMVPolygon {
         self.update();
     }
 
-    pub fn set_and_update_n<T: GMPositionT>(&mut self, movable: &mut T, index: usize) {
+    pub fn set_and_update_n<T: GMPositionMultipleT>(&mut self, movable: &mut T, index: usize) {
         self.set_position_n_of(movable, index);
         self.update();
     }
