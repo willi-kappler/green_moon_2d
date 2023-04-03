@@ -4,7 +4,7 @@ use crate::math::GMVec2D;
 use crate::sprite::GMSprite;
 use crate::util::{GMActiveT, GMVisibleT, GMDrawT, GMUpdateT};
 use crate::context::GMContext;
-use crate::movement::GMPositionT;
+use crate::movement::{GMPositionT, GMPositionMultipleT};
 
 use crate::{gen_impl_active, gen_impl_visible};
 
@@ -145,6 +145,24 @@ impl GMDrawT for GMLine {
             for sprite in &self.sprites {
                 sprite.draw(context);
             }
+        }
+    }
+}
+
+impl GMPositionMultipleT for GMLine {
+    fn get_position_n(&self, index: usize) -> GMVec2D {
+        if index == 0 {
+            self.start
+        } else {
+            self.end
+        }
+    }
+
+    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D {
+        if index == 0 {
+            &mut self.start
+        } else {
+            &mut self.end
         }
     }
 }
