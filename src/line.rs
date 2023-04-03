@@ -6,6 +6,8 @@ use crate::util::{GMActiveT, GMVisibleT, GMDrawT, GMUpdateT};
 use crate::context::GMContext;
 use crate::movement::GMPositionT;
 
+use crate::{gen_impl_active, gen_impl_visible};
+
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
     Number(u32),
@@ -42,14 +44,10 @@ impl GMLine {
 
     pub fn set_start<V: Into<GMVec2D>>(&mut self, start: V) {
         self.start = start.into();
-
-        self.end_point_changed();
     }
 
     pub fn set_end<V: Into<GMVec2D>>(&mut self, end: V) {
         self.end = end.into();
-
-        self.end_point_changed();
     }
 
     pub fn end_point_changed(&mut self) {
@@ -113,27 +111,19 @@ impl GMLine {
             }
         }
     }
-}
 
-impl GMActiveT for GMLine {
-    fn set_active(&mut self, active: bool) {
-        self.active = active;
+    pub fn get_sprites(&self) -> &Vec<GMSprite> {
+        &self.sprites
     }
 
-    fn get_active(&self) -> bool {
-        self.active
+    pub fn get_sprites_mut(&mut self) -> &mut Vec<GMSprite> {
+        &mut self.sprites
     }
 }
 
-impl GMVisibleT for GMLine {
-    fn set_visible(&mut self, visible: bool) {
-        self.visible = visible;
-    }
+gen_impl_active!(GMLine);
 
-    fn get_visible(&self) -> bool {
-        self.visible
-    }
-}
+gen_impl_visible!(GMLine);
 
 impl GMUpdateT for GMLine {
     fn update(&mut self) {
