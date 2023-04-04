@@ -196,21 +196,19 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> G
                 }
             }
             GMRepetition::LoopForward => {
-                if self.current_step < 1.0 {
-                    self.current_step += self.speed;
-                    if self.current_step > 1.0 {
-                        self.current_step = 0.0;
-                    }
+                self.current_step += self.speed;
+
+                if self.current_step > 1.0 {
+                    self.current_step = 0.0;
                 }
-            }
+        }
             GMRepetition::LoopBackward => {
-                if self.current_step > 0.0 {
-                    self.current_step -= self.speed;
-                    if self.current_step < 0.0 {
-                        self.current_step = 1.0;
-                    }
+                self.current_step -= self.speed;
+
+                if self.current_step < 0.0 {
+                    self.current_step = 1.0;
                 }
-            }
+        }
             GMRepetition::PingPongForward => {
                 if self.current_step < 1.0 {
                     self.current_step += self.speed;
