@@ -26,10 +26,10 @@ pub struct GMLine {
 }
 
 impl GMLine {
-    pub fn new(start: GMVec2D, end: GMVec2D, init_sprite: GMSprite, line_mode: GMLineMode) -> Self {
+    pub fn new<T: Into<GMVec2D>, U: Into<GMVec2D>>(start: T, end: U, init_sprite: GMSprite, line_mode: GMLineMode) -> Self {
         let mut line = Self {
-            start,
-            end,
+            start: start.into(),
+            end: end.into(),
             init_sprite,
             sprites: Vec::new(),
             line_mode,
