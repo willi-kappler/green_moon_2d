@@ -5,6 +5,8 @@ use crate::interpolation::{GMInterpolateVec2D, GMInterpolateF32, GMCuLinear, GMC
 use crate::util::{GMRepetition, GMUpdateT};
 use crate::timer::GMTimer;
 
+
+// Refactor, don't use generics and mut reference
 pub trait GMPositionT {
     fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
         *self.get_position_mut() = position.into();
@@ -35,6 +37,7 @@ pub trait GMPositionT {
     fn get_position_mut(&mut self) -> &mut GMVec2D;
 }
 
+// Refactor, don't use generics and mut reference
 // If multiple positions are available:
 pub trait GMPositionMultipleT {
     fn set_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
