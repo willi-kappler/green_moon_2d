@@ -14,6 +14,9 @@ pub enum GMLineMode {
     Spacing(f32),
 }
 
+// TODO: Try to use trait object instead of GMSprite
+// Maybe use a GMLineT ? Or GMPositionT + Clone + GMActive + ...
+
 #[derive(Debug, Clone)]
 pub struct GMLine {
     pub start: GMVec2D,
@@ -46,8 +49,18 @@ impl GMLine {
         self.start = start.into();
     }
 
+    pub fn set_start2<V: Into<GMVec2D>>(&mut self, start: V) {
+        self.start = start.into();
+        self.end_point_changed();
+    }
+
     pub fn set_end<V: Into<GMVec2D>>(&mut self, end: V) {
         self.end = end.into();
+    }
+
+    pub fn set_end2<V: Into<GMVec2D>>(&mut self, end: V) {
+        self.end = end.into();
+        self.end_point_changed();
     }
 
     pub fn end_point_changed(&mut self) {
