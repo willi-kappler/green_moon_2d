@@ -35,7 +35,7 @@ pub trait GMPositionT {
     fn get_position_mut(&mut self) -> &mut GMVec2D;
 }
 
-    // If multiple positions are available:
+// If multiple positions are available:
 pub trait GMPositionMultipleT {
     fn set_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
         *self.get_position_n_mut(index) = position.into();
