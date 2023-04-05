@@ -15,14 +15,14 @@ pub enum GMLineMode {
 }
 
 // TODO: Try to use trait object instead of GMSprite
-// Maybe use a GMLineT ? Or GMPositionT + Clone + GMActive + ...
+// Maybe use a GMLineT as trait object ?
 
 #[derive(Debug, Clone)]
 pub struct GMLine {
     pub start: GMVec2D,
     pub end: GMVec2D,
-    pub init_sprite: GMSprite,
-    pub sprites: Vec<GMSprite>,
+    pub init_element: GMSprite,
+    pub elements: Vec<GMSprite>,
     pub line_mode: GMLineMode,
     pub active: bool,
     pub visible: bool,
@@ -33,8 +33,8 @@ impl GMLine {
         let mut line = Self {
             start: start.into(),
             end: end.into(),
-            init_sprite,
-            sprites: Vec::new(),
+            init_element: init_sprite,
+            elements: Vec::new(),
             line_mode,
             active: true,
             visible: true,
@@ -103,15 +103,15 @@ impl GMLine {
         direction.norm();
 
         // If more sprites are needed just add them
-        let diff = ((number as i32) - (self.sprites.len() as i32)) as i32;
+        let diff = ((number as i32) - (self.elements.len() as i32)) as i32;
 
         for _ in 0..diff {
-            self.sprites.push(self.init_sprite.clone());
+            self.elements.push(self.init_element.clone());
         }
 
         // Now re-calculate the positions of all sprites, and disable the ones that are not needed.
-        for i in 0..self.sprites.len() {
-            let sprite = &mut self.sprites[i];
+        for i in 0..self.elements.len() {
+            let sprite = &mut self.elements[i];
 
             if i <= (number as usize) {
                 let new_position = self.start + (direction * (spacing * (i as f32)));
@@ -126,11 +126,11 @@ impl GMLine {
     }
 
     pub fn get_sprites(&self) -> &Vec<GMSprite> {
-        &self.sprites
+        &self.elements
     }
 
     pub fn get_sprites_mut(&mut self) -> &mut Vec<GMSprite> {
-        &mut self.sprites
+        &mut self.elements
     }
 }
 
@@ -141,7 +141,7 @@ gen_impl_visible!(GMLine);
 impl GMUpdateT for GMLine {
     fn update(&mut self) {
         if self.active {
-            for sprite in &mut self.sprites {
+            for sprite in &mut self.elements {
                 sprite.update();
             }
         }
@@ -155,7 +155,7 @@ impl GMUpdateT for GMLine {
 impl GMDrawT for GMLine {
     fn draw(&self, context: &mut GMContext) {
         if self.visible {
-            for sprite in &self.sprites {
+            for sprite in &self.elements {
                 sprite.draw(context);
             }
         }
