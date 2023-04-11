@@ -2,19 +2,20 @@ Try using SDL again!
 - Start with examples and top down approach
 - More traits
 
-- GMLine
 - GMParticleManager
-- GMMenuItem
-- GMMenu
 - GMBulletManager
 - GMBorder
 - GMScore
-- GMHealthbar
 - GMTileMap
+- GMMenuItem
+- GMMenu
+- GMHealthbar
 
 - Add GMSpriteT trait ?
 - Add GMTextT trait ?
 - Add GMMovementT trait
+- Refactor all traits using <T: Into<GMVec2D>>, can't be used as a trait object
+- Refactor GMPositionT, use set_x(), set_y(), get_x(), get_y(), ...
 
 
 Future TODO:
