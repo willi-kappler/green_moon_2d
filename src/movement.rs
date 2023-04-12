@@ -92,68 +92,92 @@ pub trait GMPositionT {
     }
 }
 
-
-
-pub trait GMPositionTOld {
-    fn set_position<T: Into<GMVec2D>>(&mut self, position: T) {
-        *self.get_position_mut() = position.into();
-    }
-
-    fn set_position_x(&mut self, x: f32) {
-        self.get_position_mut().x = x;
-    }
-
-    fn set_position_y(&mut self, y: f32) {
-        self.get_position_mut().y = y;
-    }
-
-    fn add_position<T: Into<GMVec2D>>(&mut self, position: T) {
-        self.get_position_mut().add2(position);
-    }
-
-    fn add_position_x(&mut self, x: f32) {
-        self.get_position_mut().x += x;
-    }
-
-    fn add_position_y(&mut self, y: f32) {
-        self.get_position_mut().y += y;
-    }
-
-    fn get_position(&self) -> GMVec2D;
-
-    fn get_position_mut(&mut self) -> &mut GMVec2D;
-}
-
-// Refactor, don't use generics and mut reference
 // If multiple positions are available:
+
 pub trait GMPositionMultipleT {
-    fn set_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
-        *self.get_position_n_mut(index) = position.into();
+    fn set_position_x_n(&mut self, x: f32, index: usize);
+
+    fn set_position_y_n(&mut self, y: f32, index: usize);
+
+    fn get_position_x_n(&self, index: usize) -> f32;
+
+    fn get_position_y_n(&self, index: usize) -> f32;
+
+    fn set_position_xy_n(&mut self, x: f32, y: f32, index: usize) {
+        self.set_position_x_n(x, index);
+        self.set_position_y_n(y, index);
     }
 
-    fn set_position_n_x(&mut self, x: f32, index: usize) {
-        self.get_position_n_mut(index).x = x;
+    fn set_position_vec2d_n(&mut self, position: GMVec2D, index: usize) {
+        self.set_position_x_n(position.x, index);
+        self.set_position_y_n(position.y, index);
     }
 
-    fn set_position_n_y(&mut self, y: f32, index: usize) {
-        self.get_position_n_mut(index).y = y;
+    fn set_position_vec2d_b_n(&mut self, position: &GMVec2D, index: usize) {
+        self.set_position_x_n(position.x, index);
+        self.set_position_y_n(position.y, index);
     }
 
-    fn add_position_n<T: Into<GMVec2D>>(&mut self, position: T, index: usize) {
-        self.get_position_n_mut(index).add2(position);
+    fn set_position_tuple_n(&mut self, position: (f32, f32), index: usize) {
+        self.set_position_x_n(position.0, index);
+        self.set_position_y_n(position.1, index);
     }
 
-    fn add_position_n_x(&mut self, x: f32, index: usize) {
-        self.get_position_n_mut(index).x += x;
+    fn set_position_slice_n(&mut self, position: &[f32], index: usize) {
+        self.set_position_x_n(position[0], index);
+        self.set_position_y_n(position[1], index);
     }
 
-    fn add_position_n_y(&mut self, y: f32, index: usize) {
-        self.get_position_n_mut(index).y += y;
+    fn set_position_array_n(&mut self, position: [f32; 2], index: usize) {
+        self.set_position_x_n(position[0], index);
+        self.set_position_y_n(position[1], index);
     }
 
-    fn get_position_n(&self, index: usize) -> GMVec2D;
+    fn get_position_vec2d_n(&self, index: usize) -> GMVec2D {
+        GMVec2D::new(self.get_position_x_n(index), self.get_position_y_n(index))
+    }
 
-    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D;
+    fn get_position_tuple_n(&self, index: usize) -> (f32, f32) {
+        (self.get_position_x_n(index), self.get_position_y_n(index))
+    }
+
+    fn add_position_x_n(&mut self, x: f32, index: usize) {
+        self.set_position_x_n(self.get_position_x_n(index) + x, index);
+    }
+
+    fn add_position_y_n(&mut self, y: f32, index: usize) {
+        self.set_position_y_n(self.get_position_y_n(index) + y, index);
+    }
+
+    fn add_position_xy_n(&mut self, x: f32, y: f32, index: usize) {
+        self.add_position_x_n(x, index);
+        self.add_position_y_n(y, index);
+    }
+
+    fn add_position_vec2d_n(&mut self, position: GMVec2D, index: usize) {
+        self.add_position_x_n(position.x, index);
+        self.add_position_y_n(position.y, index);
+    }
+
+    fn add_position_vec2d_b_n(&mut self, position: &GMVec2D, index: usize) {
+        self.add_position_x_n(position.x, index);
+        self.add_position_y_n(position.y, index);
+    }
+
+    fn add_position_tuple_n(&mut self, position: (f32, f32), index: usize) {
+        self.add_position_x_n(position.0, index);
+        self.add_position_y_n(position.1, index);
+    }
+
+    fn add_position_slice_n(&mut self, position: &[f32], index: usize) {
+        self.add_position_x_n(position[0], index);
+        self.add_position_y_n(position[1], index);
+    }
+
+    fn add_position_array_n(&mut self, position: [f32; 2], index: usize) {
+        self.add_position_x_n(position[0], index);
+        self.add_position_y_n(position[1], index);
+    }
 }
 
 // TODO: Impl GMPositionMultipleT for GMPositionT ?
@@ -299,7 +323,7 @@ impl GMMVVelocity {
     }
 
     pub fn set_position_n_of<T: GMPositionMultipleT>(&self, position: &mut T, index: usize) {
-        position.add_position_n(self.velocity, index);
+        position.add_position_vec2d_n(self.velocity, index);
     }
 }
 
@@ -349,16 +373,12 @@ impl GMMVAcceleration {
 #[derive(Debug, Clone)]
 pub struct GMMV2Points {
     interpolation: GMInterpolateVec2D,
-    start: GMVec2D,
-    end: GMVec2D,
 }
 
 impl GMMV2Points {
     pub fn new<S: Into<GMVec2D>, E: Into<GMVec2D>>(start: S, end: E, speed: f32) -> Self {
         Self {
             interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
-            start: GMVec2D::new(0.0, 0.0),
-            end: GMVec2D::new(0.0, 0.0),
         }
     }
 
@@ -369,7 +389,7 @@ impl GMMV2Points {
 
     pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_pos = self.calc_position();
-        movable.set_position_n(new_pos, index);
+        movable.set_position_vec2d_n(new_pos, index);
     }
 
     pub fn calc_position(&self) -> GMVec2D {
@@ -387,8 +407,6 @@ impl GMMV2Points {
     }
 
     pub fn update_start_end(&mut self) {
-        self.interpolation.set_start(self.start);
-        self.interpolation.set_end(self.end);
         self.interpolation.calculate_diff();
     }
 
@@ -402,19 +420,35 @@ impl GMUpdateT for GMMV2Points {
 }
 
 impl GMPositionMultipleT for GMMV2Points {
-    fn get_position_n(&self, index: usize) -> GMVec2D {
+    fn set_position_x_n(&mut self, x: f32, index: usize) {
         if index == 0 {
-            self.interpolation.get_start()
+            self.interpolation.get_start_mut().x = x;
         } else {
-            self.interpolation.get_end()
+            self.interpolation.get_end_mut().x = x;
         }
     }
 
-    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D {
+    fn set_position_y_n(&mut self, y: f32, index: usize) {
         if index == 0 {
-            &mut self.start
+            self.interpolation.get_start_mut().y = y;
         } else {
-            &mut self.end
+            self.interpolation.get_end_mut().y = y;
+        }
+    }
+
+    fn get_position_x_n(&self, index: usize) -> f32 {
+        if index == 0 {
+            self.interpolation.get_start().x
+        } else {
+            self.interpolation.get_end().x
+        }
+    }
+
+    fn get_position_y_n(&self, index: usize) -> f32 {
+        if index == 0 {
+            self.interpolation.get_start().y
+        } else {
+            self.interpolation.get_end().y
         }
     }
 }
@@ -518,7 +552,7 @@ impl GMMVCircle {
 
     pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_position = self.calc_position();
-        movable.set_position_n(new_position, index);
+        movable.set_position_vec2d_n(new_position, index);
     }
 
     pub fn calc_position(&self) -> GMVec2D {
@@ -752,7 +786,7 @@ impl GMMVPolygon {
 
     pub fn set_position_n_of<T: GMPositionMultipleT>(&self, movable: &mut T, index: usize) {
         let new_position = self.calc_position();
-        movable.set_position_n(new_position, index);
+        movable.set_position_vec2d_n(new_position, index);
     }
 
     pub fn calc_position(&self) -> GMVec2D {
