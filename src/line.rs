@@ -115,7 +115,7 @@ impl GMLine {
 
             if i <= (number as usize) {
                 let new_position = self.start + (direction * (spacing * (i as f32)));
-                sprite.set_position(new_position);
+                sprite.set_position_vec2d(new_position);
                 sprite.set_active(true);
                 sprite.set_visible(true);
             } else {

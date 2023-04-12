@@ -268,7 +268,7 @@ impl GMTextEffectT for GMTEShake {
                 let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
                 let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
 
-                bitmap_char.add_position((dx, dy));
+                bitmap_char.add_position_xy(dx, dy);
             }
 
             if self.time > 1.0 {
