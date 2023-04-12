@@ -138,7 +138,7 @@ impl GMSceneT for SpriteScene2 {
 
         self.ice_polygon.set_and_update(&mut self.ice_sprite);
         self.ice_follow.set_position_of(&mut self.head_sprite);
-        self.ice_follow.set_target(&self.ice_sprite.get_position());
+        self.ice_follow.set_target(&self.ice_sprite.get_position_vec2d());
         self.ice_follow.update();
     }
 
