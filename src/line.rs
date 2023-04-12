@@ -164,39 +164,35 @@ impl GMDrawT for GMLine {
 
 impl GMPositionMultipleT for GMLine {
     fn set_position_x_n(&mut self, x: f32, index: usize) {
-        todo!()
+        if index == 0 {
+            self.start.x = x;
+        } else {
+            self.end.x = x;
+        }
     }
 
     fn set_position_y_n(&mut self, y: f32, index: usize) {
-        todo!()
+        if index == 0 {
+            self.start.y = y;
+        } else {
+            self.end.y = y;
+
+        }
     }
 
     fn get_position_x_n(&self, index: usize) -> f32 {
-        todo!()
+        if index == 0 {
+            self.start.x
+        } else {
+            self.end.x
+        }
     }
 
     fn get_position_y_n(&self, index: usize) -> f32 {
-        todo!()
-    }
-
-
-
-
-/*
-    fn get_position_n(&self, index: usize) -> GMVec2D {
         if index == 0 {
-            self.start
+            self.start.y
         } else {
-            self.end
+            self.end.y
         }
     }
-
-    fn get_position_n_mut(&mut self, index: usize) -> &mut GMVec2D {
-        if index == 0 {
-            &mut self.start
-        } else {
-            &mut self.end
-        }
-    }
-*/
 }
