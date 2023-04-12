@@ -119,12 +119,20 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> G
         self.start
     }
 
+    pub fn get_start_mut(&mut self) -> &mut T {
+        &mut self.start
+    }
+
     pub fn set_end(&mut self, end: T) {
         self.end = end;
     }
 
     pub fn get_end(&self) -> T {
         self.end
+    }
+
+    pub fn get_end_mut(&mut self) -> &mut T {
+        &mut self.end
     }
 
     pub fn calculate_diff(&mut self) {
