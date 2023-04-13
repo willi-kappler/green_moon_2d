@@ -92,6 +92,30 @@ pub trait GMPositionT {
     }
 }
 
+#[macro_export]
+macro_rules! delegate_position {
+    ($type:ty, $element:ident) => {
+        impl GMPositionT for $type {
+            fn set_position_x(&mut self, x: f32) {
+                self.$element.set_position_x(x);
+            }
+
+            fn set_position_y(&mut self, y: f32) {
+                self.$element.set_position_y(y);
+            }
+        
+            fn get_position_x(&self) -> f32 {
+                self.$element.get_position_x()
+            }
+        
+            fn get_position_y(&self) -> f32 {
+                self.$element.get_position_y()
+            }
+        }
+    }
+}
+
+
 // If multiple positions are available:
 
 pub trait GMPositionMultipleT {
