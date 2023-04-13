@@ -184,6 +184,17 @@ pub trait GMDrawT {
     }
 }
 
+#[macro_export]
+macro_rules! delegate_draw {
+    ($type:ty, $element:expr) => {
+        impl GMDrawT for $type {
+            fn draw(&self, context: &mut GMContext) {
+                self.$element.draw(context);
+            }
+        }
+    }
+}
+
 pub trait GMUpdateT {
     fn update(&mut self) {
     }
@@ -192,6 +203,22 @@ pub trait GMUpdateT {
         self.update()
     }
 }
+
+#[macro_export]
+macro_rules! delegate_update {
+    ($type:ty, $element:expr) => {
+        impl GMUpdateT for $type {
+            fn update(&mut self) {
+                self.$element.update();
+            }
+        
+            fn update2(&mut self, context: &mut GMContext) {
+                self.$element.update2(context);
+            }
+        }
+    }
+}
+
 
 pub trait GMFlipXYT {
     fn set_flip_x(&mut self, flip_x: bool);
@@ -250,6 +277,30 @@ macro_rules! gen_impl_flipxy {
     };
 }
 
+#[macro_export]
+macro_rules! delegate_flipxy {
+    ($type:ty, $element:expr) => {
+        impl GMFlipXYT for $type {
+            fn set_flip_x(&mut self, flip_x: bool) {
+                self.$element.set_flip_x(flip_x);
+            }
+
+            fn get_flip_x(&self) -> bool {
+                self.$element.get_flip_x()
+            }
+
+            fn set_flip_y(&mut self, flip_y: bool) {
+                self.$element.set_flip_y(flip_y);
+            }
+
+            fn get_flip_y(&self) -> bool {
+                self.$element.get_flip_y()
+            }
+        }
+    }
+}
+
+
 pub trait GMActiveT {
     fn set_active(&mut self, active: bool);
 
@@ -276,6 +327,21 @@ macro_rules! gen_impl_active {
     };
 }
 
+#[macro_export]
+macro_rules! delegate_active {
+    ($type:ty, $element:expr) => {
+        impl GMActiveT for $type {
+            fn set_active(&mut self, active: bool) {
+                self.$element.set_active(active);
+            }
+
+            fn get_active(&self) -> bool {
+                self.$element.get_active()
+            }
+        }
+    }
+}
+
 pub trait GMVisibleT {
     fn set_visible(&mut self, visible: bool);
 
@@ -300,6 +366,21 @@ macro_rules! gen_impl_visible {
             }
         }
     };
+}
+
+#[macro_export]
+macro_rules! delegate_visible {
+    ($type:ty, $element:expr) => {
+        impl GMVisibleT for $type {
+            fn set_visible(&mut self, active: bool) {
+                self.$element.set_visible(active);
+            }
+
+            fn get_visible(&self) -> bool {
+                self.$element.get_visible()
+            }
+        }
+    }
 }
 
 pub trait GMSizeT {
@@ -354,6 +435,37 @@ macro_rules! gen_impl_size {
             }
         }
     };
+}
+
+#[macro_export]
+macro_rules! delegate_size {
+    ($type:ty, $element:expr) => {
+        impl GMSizeT for $type {
+            fn set_width(&mut self, width: f32) {
+                self.$element.set_width(width);
+            }
+
+            fn get_width(&self) -> f32 {
+                self.$element.get_width()
+            }
+
+            fn set_height(&mut self, height: f32) {
+                self.$element.set_height(height);
+            }
+
+            fn get_height(&self) -> f32 {
+                self.$element.get_height()
+            }
+
+            fn get_size2(&self) -> GMSize {
+                self.$element.get_size2()
+            }
+
+            fn get_size3(&self) -> &GMSize {
+                self.$element.get_size3()
+            }
+        }
+    }
 }
 
 pub trait GMMessageT {
