@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::texture::{GMTexture, GMTextureT};
-use crate::math::{GMVec2D, GMFlipXY, GMSize};
+use crate::math::{GMVec2D, GMSize};
 use crate::util::{GMDrawT, GMUpdateT, GMVisibleT, GMActiveT, GMFlipXYT, GMSizeT};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
@@ -23,7 +23,8 @@ pub struct GMSprite {
     animation: GMAnimation,
     angle: f32,
     scale: f32,
-    flip_xy: GMFlipXY,
+    flip_x: bool,
+    flip_y: bool,
     size: GMSize,
     visible: bool,
     active: bool,
@@ -45,7 +46,8 @@ impl GMSprite {
             angle: 0.0,
             scale: 1.0,
             size: GMSize::new(width, height),
-            flip_xy: GMFlipXY::new(false, false),
+            flip_x: false,
+            flip_y: false,
             visible: true,
             active: true,
         }
@@ -58,10 +60,8 @@ impl GMDrawT for GMSprite {
             let index = self.animation.texture_index();
             let dx = self.position.x;
             let dy = self.position.y;
-            let flip_x = self.flip_xy.flip_x;
-            let flip_y = self.flip_xy.flip_y;
 
-            self.texture.draw_opt(dx, dy, index, self.angle, self.scale, flip_x, flip_y, context);
+            self.texture.draw_opt(dx, dy, index, self.angle, self.scale, self.flip_x, self.flip_y, context);
         }
     }
 }

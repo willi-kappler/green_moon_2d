@@ -8,7 +8,7 @@ use log::debug;
 
 use crate::texture::{GMTexture, GMTextureT};
 use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMFlipXYT, GMSizeT};
-use crate::math::{GMVec2D, GMSize, GMFlipXY};
+use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 
@@ -71,7 +71,8 @@ pub struct GMBitmapChar {
     position: GMVec2D,
     angle: f32,
     scale: f32,
-    flip_xy: GMFlipXY,
+    flip_x: bool,
+    flip_y: bool,
     visible: bool,
     // TODO: alpha value
 }
@@ -83,7 +84,8 @@ impl GMBitmapChar {
             position,
             angle: 0.0,
             scale: 1.0,
-            flip_xy: GMFlipXY::new(false, false),
+            flip_x: false,
+            flip_y: false,
             visible: true,
         }
     }
@@ -314,10 +316,8 @@ impl GMDrawT for GMBitmapText {
                 if c.visible {
                     let dx = self.position.x + c.position.x;
                     let dy = self.position.y + c.position.y;
-                    let flip_x = c.flip_xy.flip_x;
-                    let flip_y = c.flip_xy.flip_y;
 
-                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, flip_x, flip_y, context);
+                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, c.flip_x, c.flip_y, context);
                 }
             }
         }
