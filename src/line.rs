@@ -17,6 +17,28 @@ pub enum GMLineMode {
 // TODO: Try to use trait object instead of GMSprite
 // Maybe use a GMLineT as trait object ?
 
+pub trait GMLineT: GMActiveT + GMVisibleT + GMDrawT + GMUpdateT + GMPositionT {
+    fn clone_box(&self) -> Box<dyn GMLineT>;
+}
+
+impl Clone for Box<dyn GMLineT> {
+    fn clone(&self) -> Box<dyn GMLineT> {
+        self.clone_box()
+    }
+}
+
+impl<U: GMLineT + 'static> From<U> for Box<dyn GMLineT> {
+    fn from(line: U) -> Self {
+        Box::new(line)
+    }
+}
+
+impl From<&dyn GMLineT> for Box<dyn GMLineT> {
+    fn from(line: &dyn GMLineT) -> Self {
+        line.clone_box()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct GMLine {
     pub start: GMVec2D,
