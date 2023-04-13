@@ -126,6 +126,21 @@ impl From<(f32, f32)> for GMVec2D {
     }
 }
 
+impl From<[f32; 2]> for GMVec2D {
+    fn from([x, y]: [f32; 2]) -> Self {
+        GMVec2D { x, y }
+    }
+}
+
+impl From<&[f32]> for GMVec2D {
+    fn from(array: &[f32]) -> Self {
+        GMVec2D {
+            x: array[0],
+            y: array[1],
+        }
+    }
+}
+
 // TODO: impl from Vec<(f32, f32)> to Vec<GMVec2D>
 
 impl Display for GMVec2D {
