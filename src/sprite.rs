@@ -10,6 +10,7 @@ use crate::util::{GMDrawT, GMUpdateT, GMVisibleT, GMActiveT, GMFlipXYT, GMSizeT}
 use crate::context::GMContext;
 use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
 use crate::animation::GMAnimation;
+use crate::line::GMLineT;
 
 use crate::{gen_impl_position, gen_impl_rotation, gen_impl_scale, gen_impl_flipxy,
     gen_impl_visible, gen_impl_active, gen_impl_texture, gen_impl_size};
@@ -88,3 +89,9 @@ gen_impl_active!(GMSprite);
 gen_impl_texture!(GMSprite);
 
 gen_impl_size!(GMSprite);
+
+impl GMLineT for GMSprite {
+    fn clone_box(&self) -> Box<dyn GMLineT> {
+        Box::new(self.clone())
+    }
+}
