@@ -186,7 +186,7 @@ pub trait GMDrawT {
 
 #[macro_export]
 macro_rules! delegate_draw {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMDrawT for $type {
             fn draw(&self, context: &mut GMContext) {
                 self.$element.draw(context);
@@ -206,7 +206,7 @@ pub trait GMUpdateT {
 
 #[macro_export]
 macro_rules! delegate_update {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMUpdateT for $type {
             fn update(&mut self) {
                 self.$element.update();
@@ -279,7 +279,7 @@ macro_rules! gen_impl_flipxy {
 
 #[macro_export]
 macro_rules! delegate_flipxy {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMFlipXYT for $type {
             fn set_flip_x(&mut self, flip_x: bool) {
                 self.$element.set_flip_x(flip_x);
@@ -329,7 +329,7 @@ macro_rules! gen_impl_active {
 
 #[macro_export]
 macro_rules! delegate_active {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMActiveT for $type {
             fn set_active(&mut self, active: bool) {
                 self.$element.set_active(active);
@@ -370,7 +370,7 @@ macro_rules! gen_impl_visible {
 
 #[macro_export]
 macro_rules! delegate_visible {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMVisibleT for $type {
             fn set_visible(&mut self, active: bool) {
                 self.$element.set_visible(active);
@@ -439,7 +439,7 @@ macro_rules! gen_impl_size {
 
 #[macro_export]
 macro_rules! delegate_size {
-    ($type:ty, $element:expr) => {
+    ($type:ty, $element:ident) => {
         impl GMSizeT for $type {
             fn set_width(&mut self, width: f32) {
                 self.$element.set_width(width);
