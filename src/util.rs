@@ -179,27 +179,6 @@ pub fn extract_f32_n_m(values: Vec<&str>, n: usize, m: usize) -> (f32, f32) {
     (value1.parse::<f32>().unwrap(), value2.parse::<f32>().unwrap())
 }
 
-
-/*
-pub fn split_message(message: &str) -> (&str, &str) {
-    let pos = message.find(',').unwrap();
-    (&message[0..pos], &message[pos..])
-}
-
-pub fn extract_f32(message: &str) -> (&str, f32) {
-    let parts: Vec<&str> = message.split(',').collect();
-    let number = parts[1].parse::<f32>().unwrap();
-    (parts[0], number)
-}
-
-pub fn extract2_f32(message: &str) -> (&str, f32, f32) {
-    let parts: Vec<&str> = message.split(',').collect();
-    let number1 = parts[1].parse::<f32>().unwrap();
-    let number2 = parts[2].parse::<f32>().unwrap();
-    (parts[0], number1, number2)
-}
-*/
-
 pub trait GMDrawT {
     fn draw(&self, _context: &mut GMContext) {
     }

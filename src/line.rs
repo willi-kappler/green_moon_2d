@@ -165,10 +165,6 @@ impl GMUpdateT for GMLine {
             }
         }
     }
-
-    fn update2(&mut self, _context: &mut GMContext) {
-        self.update()
-    }
 }
 
 impl GMDrawT for GMLine {
