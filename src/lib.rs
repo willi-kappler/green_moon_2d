@@ -12,7 +12,7 @@ pub mod input;
 pub mod interpolation;
 // pub mod line;
 pub mod math;
-
+pub mod object;
 
 // pub mod movement;
 
