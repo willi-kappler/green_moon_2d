@@ -2,8 +2,7 @@
 use std::fmt::Debug;
 
 use crate::timer::GMTimer;
-use crate::util::{GMRepetition, GMActiveT};
-use crate::gen_impl_active;
+use crate::util::{GMRepetition};
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -133,5 +132,3 @@ impl GMAnimation {
         }
     }
 }
-
-gen_impl_active!(GMAnimation);

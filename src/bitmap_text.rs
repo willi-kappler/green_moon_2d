@@ -6,15 +6,10 @@ use std::fmt::Debug;
 
 use log::debug;
 
-use crate::texture::{GMTexture, GMTextureT};
-use crate::util::{error_panic, GMAlign, GMDrawT, GMUpdateT, GMVisibleT, GMFlipXYT, GMSizeT};
+use crate::texture::{GMTexture};
+use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
-use crate::movement::{GMPositionT, GMRotationT, GMScaleT};
-
-use crate::{gen_impl_position,
-    gen_impl_rotation, gen_impl_scale, gen_impl_flipxy, gen_impl_visible,
-    gen_impl_texture, gen_impl_size};
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
@@ -63,8 +58,6 @@ impl GMBitmapFont {
     }
 }
 
-gen_impl_texture!(GMBitmapFont);
-
 #[derive(Debug, Clone)]
 pub struct GMBitmapChar {
     index: u32,
@@ -98,16 +91,6 @@ impl GMBitmapChar {
         self.index
     }
 }
-
-gen_impl_position!(GMBitmapChar);
-
-gen_impl_rotation!(GMBitmapChar);
-
-gen_impl_scale!(GMBitmapChar);
-
-gen_impl_flipxy!(GMBitmapChar);
-
-gen_impl_visible!(GMBitmapChar);
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapText {
@@ -308,26 +291,3 @@ impl GMBitmapText {
         }
     }
 }
-
-impl GMDrawT for GMBitmapText {
-    fn draw(&self, context: &mut GMContext) {
-        if self.visible {
-            for c in self.chars.iter() {
-                if c.visible {
-                    let dx = self.position.x + c.position.x;
-                    let dy = self.position.y + c.position.y;
-
-                    self.font.texture.draw_opt(dx, dy, c.index, c.angle, c.scale, c.flip_x, c.flip_y, context);
-                }
-            }
-        }
-    }
-}
-
-impl GMUpdateT for GMBitmapText {}
-
-gen_impl_position!(GMBitmapText);
-
-gen_impl_visible!(GMBitmapText);
-
-gen_impl_size!(GMBitmapText);

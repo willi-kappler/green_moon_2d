@@ -73,24 +73,3 @@ impl GMTexture {
         self.unit_height
     }
 }
-
-pub trait GMTextureT {
-    fn set_texture(&mut self, texture: Arc<GMTexture>);
-    fn get_texture(&self) -> &Arc<GMTexture>;
-}
-
-#[macro_export]
-macro_rules! gen_impl_texture {
-    ($type:ty) => {
-        impl GMTextureT for $type {
-            fn set_texture(&mut self, texture: Arc<GMTexture>) {
-                self.texture = texture;
-            }
-
-            fn get_texture(&self) -> &Arc<GMTexture> {
-                &self.texture
-            }
-
-        }
-    };
-}
