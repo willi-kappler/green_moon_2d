@@ -4,9 +4,6 @@
 use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
-use crate::context::{GMContext};
-use crate::math::{GMSize};
-
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMAlign {
     TopLeft,

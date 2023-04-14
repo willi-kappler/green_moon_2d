@@ -1,6 +1,5 @@
 
 use std::fmt::{self, Debug, Formatter};
-use std::sync::Arc;
 
 use sdl2::render::Texture;
 use sdl2::rect::Rect;
