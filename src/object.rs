@@ -10,6 +10,7 @@ pub enum GMMessage {
     AddX(f32),
     AddXY(f32, f32),
     AddY(f32),
+    Custom(String),
     Draw,
     Reset,
     ToggleActive,
@@ -21,6 +22,7 @@ pub enum GMMessage {
 #[derive(Clone, Debug)]
 pub enum GMProperty {
     Active,
+    Custom(String),
     Name,
     Size,
     Text,
@@ -212,5 +214,14 @@ pub trait GMObjectT {
     fn get_property(&self, property: GMProperty) -> Option<GMValue> {
         let mut result = self.get_multi_property(vec![property]);
         result.pop()
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT>;
+}
+
+
+impl Clone for Box<dyn GMObjectT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
     }
 }
