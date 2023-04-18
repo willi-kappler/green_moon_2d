@@ -13,12 +13,7 @@ pub enum GMMessage {
     AddXY(f32, f32),
     AddY(f32),
     Custom(String),
-    Draw,
     Reset,
-    ToggleActive,
-    ToggleVisible,
-    Update,
-    InGroup(String),
 }
 
 #[derive(Clone, Debug)]
