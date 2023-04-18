@@ -1,7 +1,7 @@
 
 use std::cell::RefCell;
 use std::fmt::Debug;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 use crate::context::GMContext;
 use crate::math::GMVec2D;
@@ -30,21 +30,37 @@ pub enum GMProperty {
 #[derive(Clone, Debug)]
 pub enum GMValue {
     Bool(bool),
+    F32(f32),
+    F64(f64),
+    I16(i16),
+    I32(i32),
+    I64(i64),
+    I8(i8),
     String(String),
+    Tuple2(Box<GMValue>, Box<GMValue>),
+    Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+    U8(u8),
+    Vec(Vec<GMValue>),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMObjectManagerMessage {
     AddGroup(String, String),
     AddObject(String, Box<dyn GMObjectT>),
-    SetName(String, String),
-    SetZIndex(String, i32),
+    ClearCustomProperties(String),
     ClearGroups(String),
+    RemoveCustomProperty(String, String),
     RemoveGroup(String, String),
     RemoveObject(String),
     ReplaceObject(String, Box<dyn GMObjectT>),
     SetActive(String, bool),
+    SetCustomProperty(String, String, GMValue),
+    SetName(String, String),
     SetVisible(String, bool),
+    SetZIndex(String, i32),
     ToggleActive(String),
     ToggleVisible(String),
 }
@@ -57,6 +73,7 @@ struct GMObjectInfo {
     active: bool,
     visible: bool,
     groups: HashSet<String>,
+    custom_properties: HashMap<String, GMValue>,
     inner: RefCell<Box<dyn GMObjectT>>,
 }
 
@@ -88,6 +105,7 @@ impl GMObjectManager {
             active: true,
             visible: true,
             groups: HashSet::new(),
+            custom_properties: HashMap::new(),
             inner: RefCell::new(object.into()),
         };
 
@@ -114,7 +132,7 @@ impl GMObjectManager {
             if object.active {
                 if let Ok(mut object) = object.inner.try_borrow_mut() {
                     object.update(context, &self);
-                }    
+                }
             }
         }
     }
@@ -124,7 +142,7 @@ impl GMObjectManager {
             if object.visible {
                 if let Ok(object) = object.inner.try_borrow() {
                     object.draw(context);
-                }                    
+                }
             }
         }
     }
@@ -251,6 +269,43 @@ impl GMObjectManager {
         }
     }
 
+    pub fn set_custom_property(&mut self, name: &str, key: &str, value: GMValue) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.custom_properties.insert(key.to_string(), value);
+                break
+            }
+        }
+    }
+
+    pub fn get_custom_property(&self, name: &str, key: &str) -> Option<&GMValue> {
+        for object in self.objects.iter() {
+            if name == object.name {
+                return object.custom_properties.get(key);
+            }
+        }
+
+        return None
+    }
+
+    pub fn remove_custom_property(&mut self, name: &str, key: &str) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.custom_properties.remove(key);
+                break
+            }
+        }
+    }
+
+    pub fn clear_custom_properties(&mut self, name: &str) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.custom_properties.clear();
+                break
+            }
+        }
+    }
+
     pub fn send_message(&self, name: &str, message: &GMMessage, context: &mut GMContext) -> Option<GMValue> {
         for object in self.objects.iter() {
             if name == object.name {
@@ -313,7 +368,7 @@ impl GMObjectManager {
                     for (property, value) in properties.iter() {
                         object.set_property(property, value);
                     }
-                    break       
+                    break
                 }
             }
         }

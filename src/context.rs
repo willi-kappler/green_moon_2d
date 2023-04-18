@@ -1,5 +1,5 @@
 
-use std::collections::{VecDeque};
+use std::collections::{VecDeque, HashMap};
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -9,6 +9,7 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
+use crate::object::GMValue;
 use crate::resources::GMResources;
 use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
@@ -22,6 +23,7 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     resources: GMResources,
+    custom_properties: HashMap<String, GMValue>,
     window_width: f32,
     window_height: f32,
 }
@@ -38,6 +40,7 @@ impl GMContext {
             canvas,
             input,
             resources,
+            custom_properties: HashMap::new(),
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
         }
@@ -50,6 +53,24 @@ impl GMContext {
 
     pub fn resources_mut(&mut self) -> &mut GMResources {
         &mut self.resources
+    }
+
+    // Custom properties:
+
+    pub fn set_custom_property(&mut self, name: &str, value: GMValue) {
+        self.custom_properties.insert(name.to_string(), value);
+    }
+
+    pub fn get_custom_property(&self, name: &str) -> Option<&GMValue> {
+        self.custom_properties.get(name)
+    }
+
+    pub fn remove_custom_property(&mut self, name: &str) {
+        self.custom_properties.remove(name);
+    }
+
+    pub fn clear_custom_properties(&mut self) {
+        self.custom_properties.clear();
     }
 
     // Engine messages:
@@ -72,7 +93,6 @@ impl GMContext {
     pub fn change_title<T: Into<String>>(&mut self, title: T) {
         todo!("change_title: '{}'", title.into());
     }
-
 
     // Scene messages:
     pub(crate) fn next_scene_message(&mut self) -> Option<GMSceneManagerMessage> {
