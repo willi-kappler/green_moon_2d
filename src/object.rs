@@ -1,7 +1,7 @@
 
 use std::cell::RefCell;
 use std::fmt::Debug;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashSet, HashMap, VecDeque};
 
 use crate::context::GMContext;
 use crate::math::GMVec2D;
@@ -79,14 +79,14 @@ struct GMObjectInfo {
 
 pub struct GMObjectManager {
     objects: Vec<GMObjectInfo>,
-    manager_messages: RefCell<Vec<GMObjectManagerMessage>>,
+    manager_messages: RefCell<VecDeque<GMObjectManagerMessage>>,
 }
 
 impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
-            manager_messages: RefCell::new(Vec::new()),
+            manager_messages: RefCell::new(VecDeque::new()),
         }
     }
 
@@ -404,22 +404,63 @@ impl GMObjectManager {
 
     pub fn send_manager_message(&self, message: &GMObjectManagerMessage) {
         if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
-            messages.push(message.clone());
+            messages.push_back(message.clone());
         }
     }
 
     pub fn process_manager_messages(&mut self) {
-        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
-            for message in messages.iter() {
-                match message {
-                    _ => {
-                        // TODO: process message
-                        println!("{:?}", message);
-                    }
+        use GMObjectManagerMessage::*;
+
+        let mut messages = self.manager_messages.take();
+
+        while let Some(message) = messages.pop_front() {
+            match message {
+                AddGroup(object_name, group) => {
+                    self.add_group(&object_name, &group);
+                }
+                AddObject(object_name, object) => {
+                    self.add_object(&object_name, object);
+                }
+                ClearCustomProperties(object_name) => {
+                    self.clear_custom_properties(&object_name);
+                }
+                ClearGroups(object_name) => {
+                    self.clear_groups(&object_name);
+                }
+                RemoveCustomProperty(object_name, key) => {
+                    self.remove_custom_property(&object_name, &key);
+                }
+                RemoveGroup(object_name, group) => {
+                    self.remove_group(&object_name, &group);
+                }
+                RemoveObject(object_name) => {
+                    self.remove_object(&object_name);
+                }
+                ReplaceObject(object_name, object) => {
+                    self.replace_object(&object_name, object);
+                }
+                SetActive(object_name, active) => {
+                    self.set_active(&object_name, active);
+                }
+                SetCustomProperty(object_name, key, value) => {
+                    self.set_custom_property(&object_name, &key, value);
+                }
+                SetName(object_name, name) => {
+                    self.set_name(&object_name, &name);
+                }
+                SetVisible(object_name, visible) => {
+                    self.set_visible(&object_name, visible);
+                }
+                SetZIndex(object_name, z_index) => {
+                    self.set_z_index(&object_name, z_index);
+                }
+                ToggleActive(object_name) => {
+                    self.toggle_active(&object_name);
+                }
+                ToggleVisible(object_name) => {
+                    self.toggle_visible(&object_name);
                 }
             }
-
-            messages.clear();
         }
     }
 }
