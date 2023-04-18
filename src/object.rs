@@ -1,5 +1,7 @@
 
 use std::cell::RefCell;
+use std::fmt::Debug;
+use std::collections::HashSet;
 
 use crate::context::GMContext;
 use crate::math::GMVec2D;
@@ -23,7 +25,6 @@ pub enum GMMessage {
 pub enum GMProperty {
     Active,
     Custom(String),
-    Name,
     Size,
     Text,
     Vec2D,
@@ -31,7 +32,6 @@ pub enum GMProperty {
     X,
     XY,
     Y,
-    ZIndex,
 }
 
 #[derive(Clone, Debug)]
@@ -40,64 +40,84 @@ pub enum GMValue {
     String(String),
 }
 
+#[derive(Clone, Debug)]
+pub enum GMObjectManagerMessage {
+    AddObject(String, Box<dyn GMObjectT>),
+    ChangeName(String, String),
+    ChangeZIndex(String, i32),
+    RemoveObject(String),
+    ReplaceObject(String, Box<dyn GMObjectT>),
+    AddGroup(String, String),
+    RemoveGroup(String, String),
+    ClearGroups(String),
+}
+
+struct GMObjectInfo {
+    z_index: i32,
+    name: String,
+    groups: HashSet<String>,
+    object: RefCell<Box<dyn GMObjectT>>,
+}
+
 pub struct GMObjectManager {
-    objects: Vec<RefCell<Box<dyn GMObjectT>>>,
+    objects: Vec<GMObjectInfo>,
+    manager_messages: RefCell<Vec<GMObjectManagerMessage>>,
 }
 
 impl GMObjectManager {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            manager_messages: RefCell::new(Vec::new()),
         }
     }
 
-    // TODO: use Into<Box<dyn GMObjectT>>
+    pub fn clear(&mut self) {
+        self.objects.clear();
 
-    pub fn add_object(&mut self, object: Box<dyn GMObjectT>) {
-        self.objects.push(RefCell::new(object));
+        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
+            messages.clear();
+        }
     }
 
-    pub fn add_object2<T: GMObjectT + 'static>(&mut self, object: T) {
-        self.add_object(Box::new(object));
+    pub fn add_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T) {
+        let new_object = GMObjectInfo {
+            z_index: 0,
+            name: name.to_string(),
+            groups: HashSet::new(),
+            object: RefCell::new(object.into()),
+        };
+
+        self.objects.push(new_object);
     }
 
-    pub fn replace_object(&mut self, name: &str, object: Box<dyn GMObjectT>) {
-        // TODO: replace object with same name
-        todo!("replace object");
-    }
-
-    pub fn replace_object2<T: GMObjectT + 'static>(&mut self, name: &str, object: T) {
-        self.replace_object(name, Box::new(object));
+    pub fn replace_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, new_object: T) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.object.replace(new_object.into());
+                break
+            }
+        }
     }
 
     pub fn remove_object(&mut self, name: &str) {
         self.objects.retain(|o| {
-            if let Ok(object) = o.try_borrow() {
-                let maybe_name = object.get_property(GMProperty::Name);
-
-                if let Some(GMValue::String(name2)) = maybe_name {
-                    name2 != name
-                } else {
-                    true
-                }
-            } else {
-                false
-            }
+            name != o.name
         });
     }
 
     pub fn update(&self, context: &mut GMContext) {
         for object in self.objects.iter() {
-            if let Ok(mut object) = object.try_borrow_mut() {
-                object.send_message(GMMessage::Update, context, &self);
+            if let Ok(mut object) = object.object.try_borrow_mut() {
+                object.update(context, &self);
             }
         }
     }
 
     pub fn draw(&self, context: &mut GMContext) {
         for object in self.objects.iter() {
-            if let Ok(mut object) = object.try_borrow_mut() {
-                object.send_message(GMMessage::Draw, context, &self);
+            if let Ok(mut object) = object.object.try_borrow_mut() {
+                object.draw(context, &self);
             }
         }
     }
@@ -107,40 +127,83 @@ impl GMObjectManager {
         todo!("sort by z order");
     }
 
-    pub fn send_multi_message(&self, name: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> Vec<GMValue> {
-        for object in self.objects.iter() {
-            if let Ok(mut object) = object.try_borrow_mut() {
-                let maybe_name = object.get_property(GMProperty::Name);
+    pub fn change_z_index(&mut self, name: &str, z_index: i32) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.z_index = z_index;
+                break
+            }
+        }
+    }
 
-                if let Some(GMValue::String(name2)) = maybe_name {
-                    if name2 == name {
-                        return object.send_multi_message(messages, context, &self)
+    pub fn change_name(&mut self, old_name: &str, new_name: &str) {
+        for object in self.objects.iter_mut() {
+            if old_name == object.name {
+                object.name = new_name.to_string();
+                break
+            }
+        }
+    }
+
+    pub fn add_group(&mut self, name: &str, group: &str) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.groups.insert(group.to_string());
+            }
+        }
+    }
+
+    pub fn remove_group(&mut self, name: &str, group: &str) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.groups.remove(group);
+            }
+        }
+    }
+
+    pub fn clear_groups(&mut self, name: &str) {
+        for object in self.objects.iter_mut() {
+            if name == object.name {
+                object.groups.clear();
+            }
+        }
+    }
+
+    pub fn send_message(&self, name: &str, message: &GMMessage, context: &mut GMContext) -> Option<GMValue> {
+        for object in self.objects.iter() {
+            if name == object.name {
+                if let Ok(mut maybe_object) = object.object.try_borrow_mut() {
+                    return maybe_object.send_message(message, context, &self)
+                }
+            }
+        }
+
+        None
+    }
+
+    pub fn send_multi_message(&self, name: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> Vec<Option<GMValue>> {
+        let mut result = Vec::new();
+
+        for object in self.objects.iter() {
+            if name == object.name {
+                if let Ok(mut maybe_object) = object.object.try_borrow_mut() {
+                    for message in messages.iter() {
+                        result.push(maybe_object.send_message(message, context, &self));
                     }
                 }
             }
         }
 
-        Vec::new()
+        result
     }
 
-    pub fn send_message(&self, name: &str, message: GMMessage, context: &mut GMContext) -> Option<GMValue> {
-        let mut result = self.send_multi_message(name, vec![message], context);
-        result.pop()
-    }
-
-    pub fn send_message_group(&self, group: &str, message: GMMessage, context: &mut GMContext) -> Vec<GMValue> {
+    pub fn send_message_group(&self, group: &str, message: &GMMessage, context: &mut GMContext) -> Vec<Option<GMValue>> {
         let mut result = Vec::new();
 
         for object in self.objects.iter() {
-            if let Ok(mut object) = object.try_borrow_mut() {
-                let maybe_in_group = object.send_message(GMMessage::InGroup(group.to_string()), context, &self);
-
-                if let Some(GMValue::Bool(in_group)) = maybe_in_group {
-                    if in_group {
-                        if let Some(value) = object.send_message(message.clone(), context, &self) {
-                            result.push(value);
-                        }
-                    }
+            if object.groups.contains(group) {
+                if let Ok(mut object) = object.object.try_borrow_mut() {
+                    result.push(object.send_message(message, context, &self));
                 }
             }
         }
@@ -150,78 +213,112 @@ impl GMObjectManager {
 
     // TODO: send_multi_message_group
 
+    pub fn set_property(&self, name: &str, property: &GMProperty, value: &GMValue) {
+        for object in self.objects.iter() {
+            if name == object.name {
+                if let Ok(mut object) = object.object.try_borrow_mut() {
+                    object.set_property(property, value);
+                    break
+                }
+            }
+        }
+    }
+
     pub fn set_multi_property(&self, name: &str, properties: Vec<(GMProperty, GMValue)>) {
         for object in self.objects.iter() {
-            if let Ok(mut object) = object.try_borrow_mut() {
-                let maybe_name = object.get_property(GMProperty::Name);
-
-                if let Some(GMValue::String(name2)) = maybe_name {
-                    if name2 == name {
-                        object.set_multi_property(properties);
-                        break;
+            if name == object.name {
+                if let Ok(mut object) = object.object.try_borrow_mut() {
+                    for (property, value) in properties.iter() {
+                        object.set_property(property, value);
                     }
+                    break       
                 }
             }
         }
     }
 
-    pub fn set_property(&self, name: &str, property: GMProperty, value: GMValue) {
-        self.set_multi_property(name, vec![(property, value)]);
-    }
-
-    pub fn get_multi_property(&self, name: &str, properties: Vec<GMProperty>) -> Vec<GMValue> {
+    pub fn get_property(&self, name: &str, property: &GMProperty) -> Option<GMValue> {
         for object in self.objects.iter() {
-            if let Ok(object) = object.try_borrow() {
-                let maybe_name = object.get_property(GMProperty::Name);
+            if name == object.name {
+                if let Ok(object) = object.object.try_borrow() {
+                    return object.get_property(property)
+                }
+            }
+        }
 
-                if let Some(GMValue::String(name2)) = maybe_name {
-                    if name2 == name {
-                        return object.get_multi_property(properties)
+        None
+    }
+
+    pub fn get_multi_property(&self, name: &str, properties: Vec<GMProperty>) -> Vec<Option<GMValue>> {
+        let mut result = Vec::new();
+
+        for object in self.objects.iter() {
+            if name == object.name {
+                if let Ok(object) = object.object.try_borrow() {
+                    for property in properties.iter() {
+                        result.push(object.get_property(property));
                     }
                 }
             }
         }
 
-        Vec::new()
+        result
     }
 
-    pub fn get_property(&self, name: &str, property: GMProperty) -> Option<GMValue> {
-        let mut result = self.get_multi_property(name, vec![property]);
-        result.pop()
+    pub fn send_manager_message(&self, message: &GMObjectManagerMessage) {
+        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
+            messages.push(message.clone());
+        }
     }
 
+    pub fn process_manager_messages(&mut self) {
+        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
+            for message in messages.iter() {
+                match message {
+                    _ => {
+                        // TODO: process message
+                        println!("{:?}", message);
+                    }
+                }
+            }
+
+            messages.clear();
+        }
+    }
 }
 
 
 // TODO: Add pre-processing for messages: position, active, visible, ...
 
-pub trait GMObjectT {
-    fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> Vec<GMValue>;
+pub trait GMObjectT: Debug {
+    fn send_message(&mut self, message: &GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> Option<GMValue>;
 
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> Option<GMValue> {
-        let mut result = self.send_multi_message(vec![message], context, object_manager);
-        result.pop()
-    }
+    fn set_property(&mut self, property: &GMProperty, value: &GMValue);
 
-    fn set_multi_property(&mut self, properties: Vec<(GMProperty, GMValue)>);
-
-    fn set_property(&mut self, property: GMProperty, value: GMValue) {
-        self.set_multi_property(vec![(property, value)])
-    }
-
-    fn get_multi_property(&self, properties: Vec<GMProperty>) -> Vec<GMValue>;
-
-    fn get_property(&self, property: GMProperty) -> Option<GMValue> {
-        let mut result = self.get_multi_property(vec![property]);
-        result.pop()
-    }
+    fn get_property(&self, property: &GMProperty) -> Option<GMValue>;
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager);
+
+    fn draw(&mut self, context: &mut GMContext, object_manager: &GMObjectManager);
 }
 
 
 impl Clone for Box<dyn GMObjectT> {
     fn clone(&self) -> Self {
         self.clone_box()
+    }
+}
+
+impl<U: GMObjectT + 'static> From<U> for Box<dyn GMObjectT> {
+    fn from(object: U) -> Self {
+        Box::new(object)
+    }
+}
+
+impl From<&dyn GMObjectT> for Box<dyn GMObjectT> {
+    fn from(object: &dyn GMObjectT) -> Self {
+        object.clone_box()
     }
 }
