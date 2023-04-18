@@ -56,7 +56,6 @@ impl GMContext {
     }
 
     // Custom properties:
-
     pub fn set_custom_property(&mut self, name: &str, value: GMValue) {
         self.custom_properties.insert(name.to_string(), value);
     }
