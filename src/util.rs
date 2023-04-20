@@ -4,6 +4,11 @@
 use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
+const ALPHA_NUM: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+// Not possible yet...
+// const ALPHA_NUM2: Vec<char> = ALPHA_NUM.chars().collect();
+
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMAlign {
     TopLeft,
@@ -82,4 +87,18 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
     let mut rng = WyRand::new();
     let result = min + (rng.generate::<f32>() * length);
     result
+}
+
+// There is a better way to do this...
+pub fn random_string(len: usize) -> String {
+    let mut vec = Vec::with_capacity(len);
+    let mut rng = WyRand::new();
+    let chars = ALPHA_NUM.chars().collect::<Vec<char>>();
+
+    for i in 0..len {
+        let j = rng.generate_range(0..=ALPHA_NUM.len());
+        vec[i] = chars[j];
+    }
+
+    String::from_iter(vec)
 }
