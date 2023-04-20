@@ -68,7 +68,7 @@ pub enum GMObjectManagerMessage {
 
 // Maybe add custom properties for objects ?
 
-struct GMObjectInfo {
+pub struct GMObjectInfo {
     active: bool,
     custom_properties: HashMap<String, GMValue>,
     groups: HashSet<String>,
@@ -76,6 +76,20 @@ struct GMObjectInfo {
     name: String,
     visible: bool,
     z_index: i32,
+}
+
+impl GMObjectInfo {
+    pub fn new<T: Into<Box<dyn GMObjectT>>>(object: T) -> Self {
+        Self {
+            active: true,
+            custom_properties: HashMap::new(),
+            groups: HashSet::new(),
+            inner: RefCell::new(object.into()),
+            name: "".to_string(),
+            visible: true,
+            z_index: 0,
+        }
+    }
 }
 
 pub struct GMObjectManager {
@@ -101,15 +115,19 @@ impl GMObjectManager {
 
     pub fn add_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T) {
         let new_object = GMObjectInfo {
-            z_index: 0,
-            name: name.to_string(),
             active: true,
-            visible: true,
-            groups: HashSet::new(),
             custom_properties: HashMap::new(),
+            groups: HashSet::new(),
             inner: RefCell::new(object.into()),
+            name: name.to_string(),
+            visible: true,
+            z_index: 0,
         };
 
+        self.objects.push(new_object);
+    }
+
+    pub fn add_custom_object(&mut self, new_object: GMObjectInfo) {
         self.objects.push(new_object);
     }
 
