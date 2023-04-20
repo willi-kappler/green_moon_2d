@@ -8,7 +8,7 @@ use crate::math::GMVec2D;
 
 #[derive(Clone, Debug)]
 pub enum GMMessage {
-    AddVec2d(GMVec2D),
+    AddVec2D(GMVec2D),
     AddX(f32),
     AddXY(f32, f32),
     AddY(f32),
@@ -44,6 +44,7 @@ pub enum GMValue {
     U64(u64),
     U8(u8),
     Vec(Vec<GMValue>),
+    Vec2D(GMVec2D),
 }
 
 #[derive(Clone, Debug)]
@@ -68,13 +69,13 @@ pub enum GMObjectManagerMessage {
 // Maybe add custom properties for objects ?
 
 struct GMObjectInfo {
-    z_index: i32,
-    name: String,
     active: bool,
-    visible: bool,
-    groups: HashSet<String>,
     custom_properties: HashMap<String, GMValue>,
+    groups: HashSet<String>,
     inner: RefCell<Box<dyn GMObjectT>>,
+    name: String,
+    visible: bool,
+    z_index: i32,
 }
 
 pub struct GMObjectManager {
