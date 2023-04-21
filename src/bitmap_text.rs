@@ -1,7 +1,7 @@
 
 
 use std::collections::{HashMap};
-use std::sync::Arc;
+use std::rc::Rc;
 use std::fmt::Debug;
 
 use log::debug;
@@ -13,12 +13,12 @@ use crate::context::GMContext;
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapFont {
-    texture: Arc<GMTexture>,
+    texture: Rc<GMTexture>,
     mapping: HashMap<char, u32>,
 }
 
 impl GMBitmapFont {
-    pub fn new(texture: Arc<GMTexture>, char_mapping: &str) -> Self {
+    pub fn new(texture: Rc<GMTexture>, char_mapping: &str) -> Self {
         debug!("GMBitmapFont::new(), char_mapping: '{}'", char_mapping);
         // Maybe split texture into smaller char sized textures...
 
@@ -94,7 +94,7 @@ impl GMBitmapChar {
 
 #[derive(Debug, Clone)]
 pub struct GMBitmapText {
-    font: Arc<GMBitmapFont>,
+    font: Rc<GMBitmapFont>,
     position: GMVec2D,
     text: String,
     spacing: GMVec2D,
@@ -102,11 +102,10 @@ pub struct GMBitmapText {
     align: GMAlign,
     size: GMSize,
     chars: Vec<GMBitmapChar>,
-    visible: bool,
 }
 
 impl GMBitmapText {
-    pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: &Arc<GMBitmapFont>, position: T, text: S) -> Self {
+    pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: &Rc<GMBitmapFont>, position: T, text: S) -> Self {
         let position = position.into();
         let text = text.into();
 
@@ -121,7 +120,6 @@ impl GMBitmapText {
             align: GMAlign::BottomLeft,
             size: GMSize::new(0.0, 0.0),
             chars: Vec::new(),
-            visible: true,
         };
 
         text.reset_chars();
@@ -129,16 +127,16 @@ impl GMBitmapText {
         text
     }
 
-    pub fn set_font(&mut self, font: &Arc<GMBitmapFont>) {
+    pub fn set_font(&mut self, font: &Rc<GMBitmapFont>) {
         self.font = font.clone();
     }
 
-    pub fn set_font2(&mut self, font: &Arc<GMBitmapFont>) {
+    pub fn set_font2(&mut self, font: &Rc<GMBitmapFont>) {
         self.set_font(font);
         self.reset_chars();
     }
 
-    pub fn get_font(&self) -> &Arc<GMBitmapFont> {
+    pub fn get_font(&self) -> &Rc<GMBitmapFont> {
         &self.font
     }
 
