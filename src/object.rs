@@ -49,8 +49,10 @@ pub enum GMValue {
 
 #[derive(Clone, Debug)]
 pub enum GMObjectManagerMessage {
+    AddCustomObject(String, GMObjectInfo),
+    AddDrawObject(String, Box<dyn GMObjectT>, i32, i32),
     AddGroup(String, String),
-    AddObject(String, Box<dyn GMObjectT>),
+    AddNormalObject(String, Box<dyn GMObjectT>, i32),
     ClearCustomProperties(String),
     ClearGroups(String),
     RemoveCustomProperty(String, String),
@@ -114,14 +116,28 @@ impl GMObjectManager {
         }
     }
 
-    pub fn add_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T) {
+    pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
         let new_object = GMObjectInfo {
             active: true,
             custom_properties: HashMap::new(),
             draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
-            update_index: 0,
+            update_index: update_index,
+            visible: false,
+        };
+
+        self.objects.insert(name.to_string(), new_object);
+    }
+
+    pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
+        let new_object = GMObjectInfo {
+            active: true,
+            custom_properties: HashMap::new(),
+            draw_index: draw_index,
+            groups: HashSet::new(),
+            inner: RefCell::new(object.into()),
+            update_index: update_index,
             visible: true,
         };
 
@@ -370,11 +386,17 @@ impl GMObjectManager {
 
         while let Some(message) = messages.pop_front() {
             match message {
+                AddCustomObject(object_name, object_info) => {
+                    self.add_custom_object(&object_name, object_info);
+                }
+                AddDrawObject(object_name, object, update_index , draw_index) => {
+                    self.add_draw_object(&object_name, object, update_index, draw_index);
+                }
                 AddGroup(object_name, group) => {
                     self.add_group(&object_name, &group);
                 }
-                AddObject(object_name, object) => {
-                    self.add_object(&object_name, object);
+                AddNormalObject(object_name, object, update_index) => {
+                    self.add_normal_object(&object_name, object, update_index);
                 }
                 ClearCustomProperties(object_name) => {
                     self.clear_custom_properties(&object_name);
