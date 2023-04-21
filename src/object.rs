@@ -111,9 +111,8 @@ impl GMObjectManager {
     pub fn clear(&mut self) {
         self.objects.clear();
 
-        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
-            messages.clear();
-        }
+        let mut messages = self.manager_messages.borrow_mut();
+        messages.clear();
     }
 
     pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
@@ -374,9 +373,8 @@ impl GMObjectManager {
     }
 
     pub fn send_manager_message(&self, message: &GMObjectManagerMessage) {
-        if let Ok(mut messages) = self.manager_messages.try_borrow_mut() {
-            messages.push_back(message.clone());
-        }
+        let mut messages = self.manager_messages.borrow_mut();
+        messages.push_back(message.clone());
     }
 
     pub fn process_manager_messages(&mut self) {
