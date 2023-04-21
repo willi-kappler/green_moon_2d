@@ -59,23 +59,24 @@ pub enum GMObjectManagerMessage {
     ReplaceObject(String, Box<dyn GMObjectT>),
     SetActive(String, bool),
     SetCustomProperty(String, String, GMValue),
-    SetName(String, String),
+    SetDrawIndex(String, i32),
+    SetUpdateIndex(String, i32),
     SetVisible(String, bool),
-    SetZIndex(String, i32),
     ToggleActive(String),
     ToggleVisible(String),
 }
 
 // Maybe add custom properties for objects ?
 
+#[derive(Clone, Debug)]
 pub struct GMObjectInfo {
     active: bool,
     custom_properties: HashMap<String, GMValue>,
+    draw_index: i32,
     groups: HashSet<String>,
     inner: RefCell<Box<dyn GMObjectT>>,
-    name: String,
+    update_index: i32,
     visible: bool,
-    z_index: i32,
 }
 
 impl GMObjectInfo {
@@ -83,24 +84,24 @@ impl GMObjectInfo {
         Self {
             active: true,
             custom_properties: HashMap::new(),
+            draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
-            name: "".to_string(),
+            update_index: 0,
             visible: true,
-            z_index: 0,
         }
     }
 }
 
 pub struct GMObjectManager {
-    objects: Vec<GMObjectInfo>,
+    objects: HashMap<String, GMObjectInfo>,
     manager_messages: RefCell<VecDeque<GMObjectManagerMessage>>,
 }
 
 impl GMObjectManager {
     pub fn new() -> Self {
         Self {
-            objects: Vec::new(),
+            objects: HashMap::new(),
             manager_messages: RefCell::new(VecDeque::new()),
         }
     }
@@ -117,221 +118,172 @@ impl GMObjectManager {
         let new_object = GMObjectInfo {
             active: true,
             custom_properties: HashMap::new(),
+            draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
-            name: name.to_string(),
+            update_index: 0,
             visible: true,
-            z_index: 0,
         };
 
-        self.objects.push(new_object);
+        self.objects.insert(name.to_string(), new_object);
     }
 
-    pub fn add_custom_object(&mut self, new_object: GMObjectInfo) {
-        self.objects.push(new_object);
+    pub fn add_custom_object(&mut self, name: &str, new_object: GMObjectInfo) {
+        self.objects.insert(name.to_string(), new_object);
     }
 
     pub fn replace_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, new_object: T) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.inner.replace(new_object.into());
-                break
-            }
+        if let Some(object) = self.objects.get(name) {
+            object.inner.replace(new_object.into());
         }
     }
 
     pub fn remove_object(&mut self, name: &str) {
-        self.objects.retain(|o| {
-            name != o.name
-        });
+        self.objects.remove(name);
     }
 
     pub fn update(&self, context: &mut GMContext) {
-        for object in self.objects.iter() {
-            if object.active {
-                if let Ok(mut object) = object.inner.try_borrow_mut() {
-                    object.update(context, &self);
-                }
-            }
+        let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
+        objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
+
+        for o in objects {
+            o.inner.borrow_mut().update(context, &self);
         }
     }
 
     pub fn draw(&self, context: &mut GMContext) {
-        for object in self.objects.iter() {
-            if object.visible {
-                if let Ok(object) = object.inner.try_borrow() {
-                    object.draw(context);
-                }
-            }
+        let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.visible).collect();
+        objects.sort_by(|a, b| a.draw_index.cmp(&b.draw_index));
+
+        for o in objects {
+            o.inner.borrow().draw(context);
         }
     }
 
-    pub fn sort_by_z_index(&mut self) {
-        self.objects.sort_by(|a, b| a.z_index.cmp(&b.z_index));
-    }
-
-    pub fn set_z_index(&mut self, name: &str, z_index: i32) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.z_index = z_index;
-                break
-            }
+    pub fn set_draw_index(&mut self, name: &str, draw_index: i32) {
+        if let Some(object) = self.objects.get_mut(name) {
+            object.draw_index = draw_index;
         }
     }
 
-    pub fn get_z_index(&self, name: &str) -> i32 {
-        for object in self.objects.iter() {
-            if name == object.name {
-                return object.z_index;
-            }
+    pub fn get_draw_index(&self, name: &str) -> i32 {
+        if let Some(object) = self.objects.get(name) {
+            return object.draw_index;
         }
 
-        return 0
+        0
+    }
+
+    pub fn set_update_index(&mut self, name: &str, update_index: i32) {
+        if let Some(object) = self.objects.get_mut(name) {
+            object.update_index = update_index;
+        }
+    }
+
+    pub fn get_update_index(&self, name: &str) -> i32 {
+        if let Some(object) = self.objects.get(name) {
+            return object.update_index;
+        }
+
+        0
     }
 
     pub fn set_active(&mut self, name: &str, active: bool) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.active = active;
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.active = active;
         }
     }
 
     pub fn get_active(&self, name: &str) -> bool {
-        for object in self.objects.iter() {
-            if name == object.name {
-                return object.active;
-            }
+        if let Some(object) = self.objects.get(name) {
+            return object.active;
         }
 
-        return false
+        false
     }
 
     pub fn toggle_active(&mut self, name: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.active = !object.active;
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.active = !object.active;
         }
     }
 
     pub fn set_visible(&mut self, name: &str, visible: bool) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.visible = visible;
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.visible = visible;
         }
     }
 
     pub fn get_visible(&self, name: &str) -> bool {
-        for object in self.objects.iter() {
-            if name == object.name {
-                return object.visible;
-            }
+        if let Some(object) = self.objects.get(name) {
+            return object.visible;
         }
 
-        return false
+        false
     }
 
     pub fn toggle_visible(&mut self, name: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.visible = !object.visible;
-                break
-            }
-        }
-    }
-
-    pub fn set_name(&mut self, old_name: &str, new_name: &str) {
-        for object in self.objects.iter_mut() {
-            if old_name == object.name {
-                object.name = new_name.to_string();
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.visible = !object.visible;
         }
     }
 
     pub fn add_group(&mut self, name: &str, group: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.groups.insert(group.to_string());
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.groups.insert(group.to_string());
         }
     }
 
     pub fn is_in_group(&self, name: &str, group: &str) -> bool {
-        for object in self.objects.iter() {
-            if name == object.name {
-                return object.groups.contains(group);
-            }
+        if let Some(object) = self.objects.get(name) {
+            return object.groups.contains(group);
         }
 
-        return false
+        false
     }
 
     pub fn remove_group(&mut self, name: &str, group: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.groups.remove(group);
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.groups.remove(group);
         }
     }
 
     pub fn clear_groups(&mut self, name: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.groups.clear();
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.groups.clear();
         }
     }
 
     pub fn set_custom_property(&mut self, name: &str, key: &str, value: GMValue) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.custom_properties.insert(key.to_string(), value);
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.custom_properties.insert(key.to_string(), value);
         }
     }
 
     pub fn get_custom_property(&self, name: &str, key: &str) -> Option<&GMValue> {
-        for object in self.objects.iter() {
-            if name == object.name {
-                return object.custom_properties.get(key);
-            }
+        if let Some(object) = self.objects.get(name) {
+            return object.custom_properties.get(key);
         }
 
         return None
     }
 
     pub fn remove_custom_property(&mut self, name: &str, key: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.custom_properties.remove(key);
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.custom_properties.remove(key);
         }
     }
 
     pub fn clear_custom_properties(&mut self, name: &str) {
-        for object in self.objects.iter_mut() {
-            if name == object.name {
-                object.custom_properties.clear();
-                break
-            }
+        if let Some(object) = self.objects.get_mut(name) {
+            object.custom_properties.clear();
         }
     }
 
     pub fn send_message(&self, name: &str, message: &GMMessage, context: &mut GMContext) -> Option<GMValue> {
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(mut maybe_object) = object.inner.try_borrow_mut() {
-                    return maybe_object.send_message(message, context, &self)
-                }
-            }
+        if let Some(object) = self.objects.get(name) {
+            let mut borrowed_object = object.inner.borrow_mut();
+            return borrowed_object.send_message(message, context, &self);
         }
 
         None
@@ -340,27 +292,24 @@ impl GMObjectManager {
     pub fn send_multi_message(&self, name: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> Vec<Option<GMValue>> {
         let mut result = Vec::new();
 
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(mut maybe_object) = object.inner.try_borrow_mut() {
-                    for message in messages.iter() {
-                        result.push(maybe_object.send_message(message, context, &self));
-                    }
-                }
+        if let Some(object) = self.objects.get(name) {
+            let mut borrowed_object = object.inner.borrow_mut();
+
+            for message in messages {
+                result.push(borrowed_object.send_message(&message, context, &self));
             }
         }
 
         result
     }
 
-    pub fn send_message_group(&self, group: &str, message: &GMMessage, context: &mut GMContext) -> Vec<Option<GMValue>> {
+    pub fn send_message_group(&self, group: &str, message: &GMMessage, context: &mut GMContext) -> Vec<(String, Option<GMValue>)> {
         let mut result = Vec::new();
 
-        for object in self.objects.iter() {
+        for (name, object) in self.objects.iter() {
             if object.groups.contains(group) {
-                if let Ok(mut object) = object.inner.try_borrow_mut() {
-                    result.push(object.send_message(message, context, &self));
-                }
+                let mut borrowed_object = object.inner.borrow_mut();
+                result.push((name.clone(), borrowed_object.send_message(message, context, &self)));
             }
         }
 
@@ -370,36 +319,25 @@ impl GMObjectManager {
     // TODO: send_multi_message_group
 
     pub fn set_property(&self, name: &str, property: &GMProperty, value: &GMValue) {
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(mut object) = object.inner.try_borrow_mut() {
-                    object.set_property(property, value);
-                    break
-                }
-            }
+        if let Some(object) = self.objects.get(name) {
+            let mut borrowed_object = object.inner.borrow_mut();
+            borrowed_object.set_property(property, value);
         }
     }
 
     pub fn set_multi_property(&self, name: &str, properties: Vec<(GMProperty, GMValue)>) {
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(mut object) = object.inner.try_borrow_mut() {
-                    for (property, value) in properties.iter() {
-                        object.set_property(property, value);
-                    }
-                    break
-                }
+        if let Some(object) = self.objects.get(name) {
+            let mut borrowed_object = object.inner.borrow_mut();
+            for (property, value) in properties.iter() {
+                borrowed_object.set_property(property, value);
             }
         }
     }
 
     pub fn get_property(&self, name: &str, property: &GMProperty) -> Option<GMValue> {
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(object) = object.inner.try_borrow() {
-                    return object.get_property(property)
-                }
-            }
+        if let Some(object) = self.objects.get(name) {
+            let borrowed_object = object.inner.borrow();
+            return borrowed_object.get_property(property)
         }
 
         None
@@ -408,13 +346,11 @@ impl GMObjectManager {
     pub fn get_multi_property(&self, name: &str, properties: Vec<GMProperty>) -> Vec<Option<GMValue>> {
         let mut result = Vec::new();
 
-        for object in self.objects.iter() {
-            if name == object.name {
-                if let Ok(object) = object.inner.try_borrow() {
-                    for property in properties.iter() {
-                        result.push(object.get_property(property));
-                    }
-                }
+        if let Some(object) = self.objects.get(name) {
+            let borrowed_object = object.inner.borrow();
+
+            for property in properties.iter() {
+                result.push(borrowed_object.get_property(property));
             }
         }
 
@@ -464,14 +400,14 @@ impl GMObjectManager {
                 SetCustomProperty(object_name, key, value) => {
                     self.set_custom_property(&object_name, &key, value);
                 }
-                SetName(object_name, name) => {
-                    self.set_name(&object_name, &name);
+                SetDrawIndex(object_name, draw_index) => {
+                    self.set_draw_index(&object_name, draw_index);
+                }
+                SetUpdateIndex(object_name, update_index) => {
+                    self.set_update_index(&object_name, update_index);
                 }
                 SetVisible(object_name, visible) => {
                     self.set_visible(&object_name, visible);
-                }
-                SetZIndex(object_name, z_index) => {
-                    self.set_z_index(&object_name, z_index);
                 }
                 ToggleActive(object_name) => {
                     self.toggle_active(&object_name);
