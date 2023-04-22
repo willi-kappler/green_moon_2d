@@ -108,7 +108,7 @@ impl GMEngine {
         let context = self.context.as_mut()
             .expect("GMEngine::load_resources(), context not set, call init() on engine first!");
 
-        context.resources_mut().load_resources(path);
+        context.resources.load_resources(path);
     }
 
     pub fn get_resources(&self) -> &GMResources {
@@ -117,7 +117,7 @@ impl GMEngine {
         let context = self.context.as_ref()
             .expect("GMEngine::get_resources(), context not set, call init() on engine first!");
 
-        &context.resources()
+        &context.resources
     }
 
     pub fn get_resources_mut(&mut self) -> &mut GMResources {
@@ -126,7 +126,7 @@ impl GMEngine {
         let context = self.context.as_mut()
             .expect("GMEngine::get_resources(), context not set, call init() on engine first!");
 
-        context.resources_mut()
+        &mut context.resources
     }
 
     pub fn add_scene<T: 'static + GMSceneT>(&mut self, name: &str, scene: T) {

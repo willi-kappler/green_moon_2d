@@ -22,10 +22,10 @@ pub struct GMContext {
     scene_messages: VecDeque<GMSceneManagerMessage>,
     canvas: Canvas<Window>,
     input: GMInput,
-    resources: GMResources,
+    pub resources: GMResources,
     custom_properties: HashMap<String, GMValue>,
-    window_width: f32,
-    window_height: f32,
+    pub window_width: f32,
+    pub window_height: f32,
 }
 
 impl GMContext {
@@ -44,15 +44,6 @@ impl GMContext {
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
         }
-    }
-
-    // Resources:
-    pub fn resources(&self) -> &GMResources {
-        &self.resources
-    }
-
-    pub fn resources_mut(&mut self) -> &mut GMResources {
-        &mut self.resources
     }
 
     // Custom properties:
@@ -175,13 +166,5 @@ impl GMContext {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
                 .expect("GMContext::set_fullscreen(), could not set fullscreen off");
         }
-    }
-
-    pub fn window_width(&self) -> f32 {
-        self.window_width
-    }
-
-    pub fn window_height(&self) -> f32 {
-        self.window_height
     }
 }
