@@ -6,11 +6,11 @@ use crate::util::{GMRepetition};
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
-    active: bool,
+    pub active: bool,
     current_frame: usize,
     frames: Vec<(u32, f32)>, // (index, duration in seconds)
     timer: GMTimer,
-    repetition: GMRepetition,
+    pub repetition: GMRepetition,
 }
 
 impl GMAnimation {
@@ -28,14 +28,6 @@ impl GMAnimation {
         self.frames[self.current_frame].0
     }
 
-    pub fn inc_frame(&mut self, amount: usize) {
-        self.current_frame += amount;
-    }
-
-    pub fn dec_frame(&mut self, amount: usize) {
-        self.current_frame -= amount;
-    }
-
     pub fn frame_at_end(&self) -> bool {
         self.current_frame >= self.frames.len() - 1
     }
@@ -44,15 +36,7 @@ impl GMAnimation {
         self.current_frame == 0
     }
 
-    pub fn last_frame(&self) -> usize {
-        self.frames.len() - 1
-    }
-
-    pub fn timer_finished(&mut self) -> bool {
-        self.timer.finished()
-    }
-
-    pub fn set_new_timer_duration(&mut self) {
+    fn set_new_timer_duration(&mut self) {
         self.timer.set_duration(self.frames[self.current_frame].1);
         self.timer.start();
     }
