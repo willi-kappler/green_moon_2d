@@ -11,6 +11,25 @@ pub trait GMCurveT : Debug {
     fn clone_box(&self) -> Box<dyn GMCurveT>;
 }
 
+impl Clone for Box<dyn GMCurveT> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+impl<U: GMCurveT + 'static> From<U> for Box<dyn GMCurveT> {
+    fn from(object: U) -> Self {
+        Box::new(object)
+    }
+}
+
+impl From<&dyn GMCurveT> for Box<dyn GMCurveT> {
+    fn from(object: &dyn GMCurveT) -> Self {
+        object.clone_box()
+    }
+}
+
+
 #[derive(Debug, Clone)]
 pub struct GMCuLinear;
 
@@ -76,22 +95,16 @@ impl GMCurveT for GMCuSinSlope {
     }
 }
 
-impl Clone for Box<dyn GMCurveT> {
-    fn clone(&self) -> Self {
-        self.clone_box()
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct GMInterpolate<T> {
-    start: T,
-    end: T,
+    pub start: T,
+    pub end: T,
     diff: T,
-    speed: f32,
-    current_step: f32,
+    pub speed: f32,
+    pub current_step: f32,
     current_value: T,
-    repetition: GMRepetition,
-    curve: Box<dyn GMCurveT>,
+    pub repetition: GMRepetition,
+    pub curve: Box<dyn GMCurveT>,
 }
 
 impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> GMInterpolate<T> {
@@ -111,68 +124,12 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> G
         }
     }
 
-    pub fn set_start(&mut self, start: T) {
-        self.start = start;
-    }
-
-    pub fn get_start(&self) -> T {
-        self.start
-    }
-
-    pub fn get_start_mut(&mut self) -> &mut T {
-        &mut self.start
-    }
-
-    pub fn set_end(&mut self, end: T) {
-        self.end = end;
-    }
-
-    pub fn get_end(&self) -> T {
-        self.end
-    }
-
-    pub fn get_end_mut(&mut self) -> &mut T {
-        &mut self.end
-    }
-
     pub fn calculate_diff(&mut self) {
         self.diff = self.end - self.start;
     }
 
-    pub fn set_speed(&mut self, speed: f32) {
-        self.speed = speed;
-    }
-
-    pub fn get_speed(&self) -> f32 {
-        self.speed
-    }
-
-    pub fn set_current_step(&mut self, current_step: f32) {
-        self.current_step = current_step;
-    }
-
-    pub fn get_current_step(&self) -> f32 {
-        self.current_step
-    }
-
     pub fn get_current_value(&self) -> T {
         self.current_value
-    }
-
-    pub fn set_repetition(&mut self, repetition: GMRepetition) {
-        self.repetition = repetition;
-    }
-
-    pub fn get_repetition(&self) -> GMRepetition {
-        self.repetition
-    }
-
-    pub fn set_curve<U: GMCurveT + 'static>(&mut self, curve: U) {
-        self.curve = Box::new(curve);
-    }
-
-    pub fn set_curve2(&mut self, curve: Box<dyn GMCurveT>) {
-        self.curve = curve;
     }
 
     pub fn calculate_value(&mut self) {
