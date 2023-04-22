@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, AddAssign, Sub, Mul};
 use std::fmt::Display;
 
 use std::f32::consts::TAU;
@@ -101,6 +101,13 @@ impl Add for GMVec2D {
 
     fn add(self, rhs: Self) -> Self::Output {
         GMVec2D::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl AddAssign for GMVec2D {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
     }
 }
 
