@@ -90,6 +90,7 @@ pub fn random_range_f32(min: f32, max: f32) -> f32 {
 }
 
 // There is a better way to do this...
+/*
 pub fn random_string(len: usize) -> String {
     let mut vec = Vec::with_capacity(len);
     let mut rng = WyRand::new();
@@ -102,3 +103,4 @@ pub fn random_string(len: usize) -> String {
 
     String::from_iter(vec)
 }
+*/
