@@ -79,3 +79,8 @@ impl GMObjectT for GMMultiTarget {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct GMTimedMessage {
+    pub messages: Vec<GMMessage>,
+    pub targets: Vec<String>,
+}
