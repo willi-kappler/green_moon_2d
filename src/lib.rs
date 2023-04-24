@@ -14,6 +14,7 @@ pub mod interpolation;
 
 pub mod macros;
 pub mod math;
+pub mod object_util;
 pub mod object;
 
 // pub mod movement;

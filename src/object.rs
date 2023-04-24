@@ -28,12 +28,14 @@ pub enum GMMessage {
     GetHorizontal,
     GetNumElements,
     GetPosition,
+    GetPositions,
     GetSize,
     GetSpacing,
     GetSpacingX,
     GetSpacingXY,
     GetSpacingY,
     GetTarget,
+    GetTargets,
     GetText,
     GetX,
     GetXY,
@@ -49,12 +51,14 @@ pub enum GMMessage {
     SetHorizontal(bool),
     SetNumElements(usize),
     SetPosition(GMVec2D),
+    SetPositions(Vec<GMVec2D>),
     SetSize(GMSize),
     SetSpacing(GMVec2D),
     SetSpacingX(f32),
     SetSpacingXY(f32, f32),
     SetSpacingY(f32),
     SetTarget(String),
+    SetTargets(Vec<String>),
     SetText(String),
     SetX(f32),
     SetXY(f32, f32),
@@ -84,9 +88,11 @@ pub enum GMValue {
     I8I8(i8, i8),
     None,
     Position(GMVec2D),
+    Positions(Vec<GMVec2D>),
     Size(GMSize),
     String(String),
     Target(String),
+    Targets(Vec<String>),
     Tuple2(Box<GMValue>, Box<GMValue>),
     Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
     U16(u16),
@@ -501,39 +507,5 @@ impl<U: GMObjectT + 'static> From<U> for Box<dyn GMObjectT> {
 impl From<&dyn GMObjectT> for Box<dyn GMObjectT> {
     fn from(object: &dyn GMObjectT) -> Self {
         object.clone_box()
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMForewardToElement {
-    pub target: String,
-    pub element: usize,
-}
-
-impl GMObjectT for GMForewardToElement {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetTarget(target) => {
-                self.target = target
-            }
-            GMMessage::SetElement(element) => {
-                self.element = element
-            }
-            GMMessage::GetTarget => {
-                return GMValue::String(self.target.clone())
-            }
-            GMMessage::GetElement => {
-                return GMValue::USize(self.element)
-            }
-            _ => {
-                return object_manager.send_message(&self.target, GMMessage::ToElement(self.element, Box::new(message)), context)
-            }
-        }
-
-        GMValue::None
-    }
-
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
-        Box::new(self.clone())
     }
 }
