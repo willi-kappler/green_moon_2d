@@ -10,7 +10,7 @@ use crate::texture::{GMTexture};
 use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
-use crate::object::{GMObjectT, GMMessage, GMValue, GMSetProperty, GMGetProperty, GMObjectManager};
+use crate::object::{GMObjectT, GMMessage, GMValue, GMObjectManager};
 
 
 #[derive(Debug, Clone)]
@@ -233,108 +233,92 @@ impl GMObjectT for GMBitmapText {
             GMMessage::ToggleHorizontal => {
                 self.horizontal = !self.horizontal;
             }
+            GMMessage::SetAlign(align) => {
+                self.align = align;
+            }
+            GMMessage::SetFont(font) => {
+                self.font = font;
+            }
+            GMMessage::SetHorizontal(horizontal) => {
+                self.horizontal = horizontal;
+            }
+            GMMessage::SetPosition(vec) => {
+                self.position = vec;
+            }
+            GMMessage::SetSpacing(spacing) => {
+                self.spacing = spacing;
+            }
+            GMMessage::SetSpacingX(x) => {
+                self.spacing.x = x;
+            }
+            GMMessage::SetSpacingXY(x, y) => {
+                self.spacing.x = x;
+                self.spacing.y = y;
+            }
+            GMMessage::SetSpacingY(y) => {
+                self.spacing.y = y;
+            }
+            GMMessage::SetText(text) => {
+                self.text = text;
+            }
+            GMMessage::SetX(x) => {
+                self.position.x = x;
+            }
+            GMMessage::SetXY(x, y) => {
+                self.position.x = x;
+                self.position.y = y;
+            }
+            GMMessage::SetY(y) => {
+                self.position.y = y;
+            }
+            GMMessage::GetAlign => {
+                return GMValue::Align(self.align)
+            }
+            GMMessage::GetFont => {
+                return GMValue::Font(self.font.clone())
+            }
+            GMMessage::GetHorizontal => {
+                return GMValue::Bool(self.horizontal)
+            }
+            GMMessage::GetNumElements => {
+                return GMValue::USize(self.chars.len())
+            }
+            GMMessage::GetPosition => {
+                return GMValue::Vec2D(self.position)
+            }
+            GMMessage::GetSize => {
+                return GMValue::Size(self.size)
+            }
+            GMMessage::GetSpacing => {
+                return GMValue::Vec2D(self.spacing)
+            }
+            GMMessage::GetSpacingX => {
+                return GMValue::F32(self.spacing.x)
+            }
+            GMMessage::GetSpacingXY => {
+                return GMValue::F32F32(self.spacing.x, self.spacing.y)
+            }
+            GMMessage::GetSpacingY => {
+                return GMValue::F32(self.spacing.y)
+            }
+            GMMessage::GetText => {
+                return GMValue::String(self.text.clone())
+            }
+            GMMessage::GetX => {
+                return GMValue::F32(self.position.x)
+            }
+            GMMessage::GetXY => {
+                return GMValue::F32F32(self.position.x, self.position.y)
+            }
+            GMMessage::GetY => {
+                return GMValue::F32(self.position.y)
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))
             }
         }
 
         GMValue::None
-    }
-
-    fn set_property(&mut self, property: GMSetProperty, _object_manager: &GMObjectManager) {
-        match property {
-            GMSetProperty::Align(align) => {
-                self.align = align;
-            }
-            GMSetProperty::Font(font) => {
-                self.font = font;
-            }
-            GMSetProperty::Horizontal(horizontal) => {
-                self.horizontal = horizontal;
-            }
-            GMSetProperty::Position(vec) => {
-                self.position = vec;
-            }
-            GMSetProperty::Spacing(spacing) => {
-                self.spacing = spacing;
-            }
-            GMSetProperty::SpacingX(x) => {
-                self.spacing.x = x;
-            }
-            GMSetProperty::SpacingXY(x, y) => {
-                self.spacing.x = x;
-                self.spacing.y = y;
-            }
-            GMSetProperty::SpacingY(y) => {
-                self.spacing.y = y;
-            }
-            GMSetProperty::Text(text) => {
-                self.text = text;
-            }
-            GMSetProperty::X(x) => {
-                self.position.x = x;
-            }
-            GMSetProperty::XY(x, y) => {
-                self.position.x = x;
-                self.position.y = y;
-            }
-            GMSetProperty::Y(y) => {
-                self.position.y = y;
-            }
-            _ => {
-                error_panic(&format!("Wrong property for GMBitmapText::set_property: {:?}", property))
-            }
-        }
-    }
-
-    fn get_property(&self, property: GMGetProperty, _object_manager: &GMObjectManager) -> GMValue {
-        match property {
-            GMGetProperty::Align => {
-                GMValue::Align(self.align)
-            }
-            GMGetProperty::Font => {
-                GMValue::Font(self.font.clone())
-            }
-            GMGetProperty::Horizontal => {
-                GMValue::Bool(self.horizontal)
-            }
-            GMGetProperty::NumElements => {
-                GMValue::USize(self.chars.len())
-            }
-            GMGetProperty::Position => {
-                GMValue::Vec2D(self.position)
-            }
-            GMGetProperty::Size => {
-                GMValue::Size(self.size)
-            }
-            GMGetProperty::Spacing => {
-                GMValue::Vec2D(self.spacing)
-            }
-            GMGetProperty::SpacingX => {
-                GMValue::F32(self.spacing.x)
-            }
-            GMGetProperty::SpacingXY => {
-                GMValue::F32F32(self.spacing.x, self.spacing.y)
-            }
-            GMGetProperty::SpacingY => {
-                GMValue::F32(self.spacing.y)
-            }
-            GMGetProperty::Text => {
-                GMValue::String(self.text.clone())
-            }
-            GMGetProperty::X => {
-                GMValue::F32(self.position.x)
-            }
-            GMGetProperty::XY => {
-                GMValue::F32F32(self.position.x, self.position.y)
-            }
-            GMGetProperty::Y => {
-                GMValue::F32(self.position.y)
-            }
-            _ => {
-                error_panic(&format!("Wrong property for GMBitmapText::get_property: {:?}", property))
-            }
-        }
     }
 
     fn draw(&self, context: &mut GMContext) {
