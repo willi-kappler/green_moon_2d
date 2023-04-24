@@ -194,7 +194,7 @@ impl GMBitmapText {
 }
 
 impl GMObjectT for GMBitmapText {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> Option<GMValue> {
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
 
         match message {
             GMMessage::AddPosition(vec) => {
@@ -238,10 +238,10 @@ impl GMObjectT for GMBitmapText {
             }
         }
 
-        None
+        GMValue::None
     }
 
-    fn set_property(&mut self, property: GMSetProperty) {
+    fn set_property(&mut self, property: GMSetProperty, _object_manager: &GMObjectManager) {
         match property {
             GMSetProperty::Align(align) => {
                 self.align = align;
@@ -287,7 +287,7 @@ impl GMObjectT for GMBitmapText {
         }
     }
 
-    fn get_property(&self, property: &GMGetProperty) -> GMValue {
+    fn get_property(&self, property: GMGetProperty, _object_manager: &GMObjectManager) -> GMValue {
         match property {
             GMGetProperty::Align => {
                 GMValue::Align(self.align)
