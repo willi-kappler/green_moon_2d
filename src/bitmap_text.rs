@@ -206,19 +206,11 @@ impl GMObjectT for GMBitmapText {
             GMMessage::AddSpacingX(x) => {
                 self.spacing.x += x;
             }
-            GMMessage::AddSpacingXY(x, y) => {
-                self.spacing.x += x;
-                self.spacing.y += y;
-            }
             GMMessage::AddSpacingY(y) => {
                 self.spacing.y += y;
             }
             GMMessage::AddX(x) => {
                 self.position.x += x;
-            }
-            GMMessage::AddXY(x, y) => {
-                self.position.x += x;
-                self.position.y += y;
             }
             GMMessage::AddY(y) => {
                 self.position.y += y;
@@ -250,10 +242,6 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::SetSpacingX(x) => {
                 self.spacing.x = x;
-            }
-            GMMessage::SetSpacingXY(x, y) => {
-                self.spacing.x = x;
-                self.spacing.y = y;
             }
             GMMessage::SetSpacingY(y) => {
                 self.spacing.y = y;
@@ -295,9 +283,6 @@ impl GMObjectT for GMBitmapText {
             GMMessage::GetSpacingX => {
                 return GMValue::F32(self.spacing.x)
             }
-            GMMessage::GetSpacingXY => {
-                return GMValue::F32F32(self.spacing.x, self.spacing.y)
-            }
             GMMessage::GetSpacingY => {
                 return GMValue::F32(self.spacing.y)
             }
@@ -307,11 +292,37 @@ impl GMObjectT for GMBitmapText {
             GMMessage::GetX => {
                 return GMValue::F32(self.position.x)
             }
-            GMMessage::GetXY => {
-                return GMValue::F32F32(self.position.x, self.position.y)
-            }
             GMMessage::GetY => {
                 return GMValue::F32(self.position.y)
+            }
+            GMMessage::Tuple2(left, right) => {
+                match (*left, *right) {
+                    (GMMessage::AddSpacingX(x), GMMessage::AddSpacingY(y)) => {
+                        self.spacing.x += x;
+                        self.spacing.y += y;                                
+                    }
+                    (GMMessage::AddX(x), GMMessage::AddY(y)) => {
+                        self.position.x += x;
+                        self.position.y += y;
+                    }
+                    (GMMessage::SetSpacingX(x), GMMessage::SetSpacingY(y)) => {
+                        self.spacing.x = x;
+                        self.spacing.y = y;                                
+                    }
+                    (GMMessage::GetSpacingX, GMMessage::GetSpacingY) => {
+                        let left = Box::new(GMValue::F32(self.spacing.x));
+                        let right = Box::new(GMValue::F32(self.spacing.y));
+                        return GMValue::Tuple2(left, right);
+                    }
+                    (GMMessage::GetX, GMMessage::GetY) => {
+                        let left = Box::new(GMValue::F32(self.position.x));
+                        let right = Box::new(GMValue::F32(self.position.y));
+                        return GMValue::Tuple2(left, right);
+                    }
+                    (l, r) => {
+                        error_panic(&format!("Wrong message for GMBitmapText::send_message: left: {:?}, right: {:?}", l, r))
+                    }
+                }
             }
             _ => {
                 error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))

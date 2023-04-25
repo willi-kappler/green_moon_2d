@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use crate::context::GMContext;
 use crate::math::{GMVec2D, GMSize};
-use crate::util::GMAlign;
+use crate::util::{GMAlign, error_panic};
 use crate::bitmap_text::GMBitmapFont;
 
 #[derive(Clone, Debug)]
@@ -14,107 +14,113 @@ pub enum GMMessage {
     AddPosition(GMVec2D),
     AddSpacing(GMVec2D),
     AddSpacingX(f32),
-    AddSpacingXY(f32, f32),
     AddSpacingY(f32),
     AddX(f32),
-    AddXY(f32, f32),
     AddY(f32),
     Custom(String),
     GetAlign,
+    GetAll(Box<GMMessage>),
     GetCustom(String),
-    GetElement,
+    GetElementIndices,
     GetFont,
     GetHorizontal,
-    GetMessages,
+    GetMessage,
     GetNumElements,
     GetPosition,
-    GetPositions,
     GetRepeat,
     GetSize,
     GetSpacing,
     GetSpacingX,
-    GetSpacingXY,
     GetSpacingY,
     GetTarget,
-    GetTargets,
     GetText,
     GetTimeout,
     GetX,
     GetXY,
     GetY,
+    Multiple(Vec<GMMessage>),
+    OMAddCustomObject(String, GMObjectInfo),
+    OMAddDrawObject(String, Box<dyn GMObjectT>, i32, i32),
+    OMAddGroup(String, String),
+    OMAddNormalObject(String, Box<dyn GMObjectT>, i32),
+    OMClearCustomProperties(String),
+    OMClearGroups(String),
+    OMRemoveCustomProperty(String, String),
+    OMRemoveGroup(String, String),
+    OMRemoveObject(String),
+    OMReplaceObject(String, Box<dyn GMObjectT>),
+    OMSetActive(String, bool),
+    OMSetCustomProperty(String, String, GMValue),
+    OMSetDrawIndex(String, i32),
+    OMSetUpdateIndex(String, i32),
+    OMSetVisible(String, bool),
+    OMToggleActive(String),
+    OMToggleVisible(String),
     Reset,
     ResetChars,
     ResetPosition,
     SetAlign(GMAlign),
     SetCustom(String, GMValue),
-    SetElement(usize),
+    SetElementIndices(Vec<usize>),
     SetFont(Rc<GMBitmapFont>),
+    SetFontName(String),
     SetHorizontal(bool),
-    SetMessages(Vec<GMMessage>),
+    SetMessage(Box<GMMessage>),
     SetNumElements(usize),
     SetPosition(GMVec2D),
-    SetPositions(Vec<GMVec2D>),
     SetRepeat(bool),
     SetSize(GMSize),
     SetSpacing(GMVec2D),
     SetSpacingX(f32),
-    SetSpacingXY(f32, f32),
     SetSpacingY(f32),
-    SetTarget(String),
-    SetTargets(Vec<String>),
+    SetTarget(GMTarget),
     SetText(String),
     SetTimeout(f32),
+    SetValueOf(usize, GMValue),
     SetX(f32),
     SetXY(f32, f32),
     SetY(f32),
-    ToAllElements(Vec<GMMessage>),
-    ToElementN(usize, Vec<GMMessage>),
+    ToAllElements(Box<GMMessage>),
+    ToElementN(usize, Box<GMMessage>),
     ToggleHorizontal,
     Trigger,
+    Tuple2(Box<GMMessage>, Box<GMMessage>),
+    Tuple3(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
+    Tuple4(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
 }
 
 #[derive(Clone, Debug)]
 pub enum GMValue {
     Align(GMAlign),
     Bool(bool),
-    BoolBool(bool, bool),
-    Element(usize),
+    ElementIndices(Vec<usize>),
     F32(f32),
-    F32F32(f32, f32),
     F64(f64),
-    F64F64(f64, f64),
     Font(Rc<GMBitmapFont>),
     I16(i16),
-    I16I16(i16, i16),
     I32(i32),
-    I32I32(i32, i32),
     I64(i64),
-    I64I64(i64, i64),
     I8(i8),
-    I8I8(i8, i8),
-    Messages(Vec<GMMessage>),
+    Message(Box<GMMessage>),
     Multiple(Vec<GMValue>),
+    Name(String),
     None,
+    Object(Box<dyn GMObjectT>),
     Position(GMVec2D),
-    Positions(Vec<GMVec2D>),
     Repeat(bool),
     Size(GMSize),
     String(String),
-    Target(String),
-    Targets(Vec<String>),
+    Target(GMTarget),
+    Text(String),
     Timeout(f32),
     Tuple2(Box<GMValue>, Box<GMValue>),
     Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
+    Tuple4(Box<GMValue>, Box<GMValue>, Box<GMValue>, Box<GMValue>),
     U16(u16),
-    U16U16(u16, u16),
     U32(u32),
-    U32U32(u32, u32),
     U64(u64),
-    U64U64(u64, u64),
     U8(u8),
-    U8U8(u8, u8),
     USize(usize),
-    USizeUSize(usize, usize),
     Vec2D(GMVec2D),
 }
 
@@ -125,24 +131,12 @@ impl From<()> for GMValue {
 }
 
 #[derive(Clone, Debug)]
-pub enum GMObjectManagerMessage {
-    AddCustomObject(String, GMObjectInfo),
-    AddDrawObject(String, Box<dyn GMObjectT>, i32, i32),
-    AddGroup(String, String),
-    AddNormalObject(String, Box<dyn GMObjectT>, i32),
-    ClearCustomProperties(String),
-    ClearGroups(String),
-    RemoveCustomProperty(String, String),
-    RemoveGroup(String, String),
-    RemoveObject(String),
-    ReplaceObject(String, Box<dyn GMObjectT>),
-    SetActive(String, bool),
-    SetCustomProperty(String, String, GMValue),
-    SetDrawIndex(String, i32),
-    SetUpdateIndex(String, i32),
-    SetVisible(String, bool),
-    ToggleActive(String),
-    ToggleVisible(String),
+pub enum GMTarget {
+    Single(String),
+    Multiple(Vec<String>),
+    Group(String),
+    MultipleGroups(Vec<String>),
+    ObjectManager,
 }
 
 #[derive(Clone, Debug)]
@@ -172,7 +166,7 @@ impl GMObjectInfo {
 
 pub struct GMObjectManager {
     objects: HashMap<String, GMObjectInfo>,
-    manager_messages: RefCell<VecDeque<GMObjectManagerMessage>>,
+    manager_messages: RefCell<VecDeque<GMMessage>>,
 }
 
 impl GMObjectManager {
@@ -232,13 +226,18 @@ impl GMObjectManager {
         self.objects.remove(name);
     }
 
-    pub fn update(&self, context: &mut GMContext) {
+    fn update_objects(&self, context: &mut GMContext) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
         objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
 
         for o in objects {
             o.inner.borrow_mut().update(context, &self);
         }
+    }
+
+    pub fn update(&mut self, context: &mut GMContext) {
+        self.update_objects(context);
+        self.process_manager_messages();
     }
 
     pub fn draw(&self, context: &mut GMContext) {
@@ -370,102 +369,148 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message(&self, name: &str, message: GMMessage, context: &mut GMContext) -> GMValue {
-        if let Some(object) = self.objects.get(name) {
-            let mut borrowed_object = object.inner.borrow_mut();
-            return borrowed_object.send_message(message, context, &self);
+    /*
+    fn send_message_inner(&self, object: &GMObjectInfo, message: GMMessage, context: &mut GMContext) -> GMValue {
+        let mut borrowed_object = object.inner.borrow_mut();
+
+        match message {
+            GMMessage::Multiple(messages) => {
+                let mut result = Vec::new();
+
+                for inner_message in messages.iter() {
+                    result.push(borrowed_object.send_message(*inner_message, context, &self));
+                }
+
+                GMValue::Multiple(result)
+            }
+            _ => {
+                borrowed_object.send_message(message, context, &self)
+            }
+        }
+    }
+    */
+
+    pub fn send_message<T: Into<GMTarget>>(&self, target: T, message: GMMessage, context: &mut GMContext) -> GMValue {
+        let target = target.into();
+
+        match target {
+            GMTarget::Single(name) => {
+                if let Some(object) = self.objects.get(&name) {
+                    let mut borrowed_object = object.inner.borrow_mut();
+                    return borrowed_object.send_message(message, context, &self);
+                }                        
+            }
+            GMTarget::Multiple(names) => {
+                let mut result = Vec::new();
+
+                for name in names {
+                    if let Some(object) = self.objects.get(&name) {
+                        let mut borrowed_object = object.inner.borrow_mut();
+                        let value = borrowed_object.send_message(message.clone(), context, &self);
+                        result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                    }
+                }
+
+                return GMValue::Multiple(result);
+            }
+            GMTarget::Group(group) => {
+                let mut result = Vec::new();
+
+                for (name, object) in self.objects.iter() {
+                    if object.groups.contains(&group) {
+                        let mut borrowed_object = object.inner.borrow_mut();
+                        let value = borrowed_object.send_message(message.clone(), context, &self);
+                        result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                    }
+                }
+
+                return GMValue::Multiple(result);
+            }
+            GMTarget::MultipleGroups(groups) => {
+                let mut result = Vec::new();
+
+                for (name, object) in self.objects.iter() {
+                    for group in groups.iter() {
+                        if object.groups.contains(group) {
+                            let mut borrowed_object = object.inner.borrow_mut();
+                            let value = borrowed_object.send_message(message.clone(), context, &self);
+                            result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                            // This break ensures that the message is not sent multiple times
+                            // to the same object if it is in multiple matching groups.
+                            break;
+                        }    
+                    }
+                }
+
+                return GMValue::Multiple(result);                
+            }
+            GMTarget::ObjectManager => {
+                let mut messages = self.manager_messages.borrow_mut();
+                messages.push_back(message);
+            }
         }
 
         GMValue::None
     }
 
-    pub fn send_multi_message(&self, name: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> Vec<GMValue> {
-        if let Some(object) = self.objects.get(name) {
-            let mut borrowed_object = object.inner.borrow_mut();
-
-            borrowed_object.send_multi_message(messages, context, &self);
-        }
-
-        Vec::new()
-    }
-
-    pub fn send_message_group(&self, group: &str, message: GMMessage, context: &mut GMContext) -> Vec<(String, GMValue)> {
-        let mut result = Vec::new();
-
-        for (name, object) in self.objects.iter() {
-            if object.groups.contains(group) {
-                let mut borrowed_object = object.inner.borrow_mut();
-                result.push((name.clone(), borrowed_object.send_message(message.clone(), context, &self)));
-            }
-        }
-
-        result
-    }
-
-    // TODO: send_multi_message_group
-
-    pub fn send_manager_message(&self, message: &GMObjectManagerMessage) {
-        let mut messages = self.manager_messages.borrow_mut();
-        messages.push_back(message.clone());
-    }
-
     pub fn process_manager_messages(&mut self) {
-        use GMObjectManagerMessage::*;
-
         let mut messages = self.manager_messages.take();
 
         while let Some(message) = messages.pop_front() {
             match message {
-                AddCustomObject(object_name, object_info) => {
+                GMMessage::OMAddCustomObject(object_name, object_info) => {
                     self.add_custom_object(&object_name, object_info);
                 }
-                AddDrawObject(object_name, object, update_index , draw_index) => {
+                GMMessage::OMAddDrawObject(object_name, object, update_index , draw_index) => {
                     self.add_draw_object(&object_name, object, update_index, draw_index);
                 }
-                AddGroup(object_name, group) => {
+                GMMessage::OMAddGroup(object_name, group) => {
                     self.add_group(&object_name, &group);
                 }
-                AddNormalObject(object_name, object, update_index) => {
+                GMMessage::OMAddNormalObject(object_name, object, update_index) => {
                     self.add_normal_object(&object_name, object, update_index);
                 }
-                ClearCustomProperties(object_name) => {
+                GMMessage::OMClearCustomProperties(object_name) => {
                     self.clear_custom_properties(&object_name);
                 }
-                ClearGroups(object_name) => {
+                GMMessage::OMClearGroups(object_name) => {
                     self.clear_groups(&object_name);
                 }
-                RemoveCustomProperty(object_name, key) => {
+                GMMessage::OMRemoveCustomProperty(object_name, key) => {
                     self.remove_custom_property(&object_name, &key);
                 }
-                RemoveGroup(object_name, group) => {
+                GMMessage::OMRemoveGroup(object_name, group) => {
                     self.remove_group(&object_name, &group);
                 }
-                RemoveObject(object_name) => {
+                GMMessage::OMRemoveObject(object_name) => {
                     self.remove_object(&object_name);
                 }
-                ReplaceObject(object_name, object) => {
+                GMMessage::OMReplaceObject(object_name, object) => {
                     self.replace_object(&object_name, object);
                 }
-                SetActive(object_name, active) => {
+                GMMessage::OMSetActive(object_name, active) => {
                     self.set_active(&object_name, active);
                 }
-                SetCustomProperty(object_name, key, value) => {
+                GMMessage::OMSetCustomProperty(object_name, key, value) => {
                     self.set_custom_property(&object_name, &key, value);
                 }
-                SetDrawIndex(object_name, draw_index) => {
+                GMMessage::OMSetDrawIndex(object_name, draw_index) => {
                     self.set_draw_index(&object_name, draw_index);
                 }
-                SetUpdateIndex(object_name, update_index) => {
+                GMMessage::OMSetUpdateIndex(object_name, update_index) => {
                     self.set_update_index(&object_name, update_index);
                 }
-                SetVisible(object_name, visible) => {
+                GMMessage::OMSetVisible(object_name, visible) => {
                     self.set_visible(&object_name, visible);
                 }
-                ToggleActive(object_name) => {
+                GMMessage::OMToggleActive(object_name) => {
                     self.toggle_active(&object_name);
                 }
-                ToggleVisible(object_name) => {
+                GMMessage::OMToggleVisible(object_name) => {
                     self.toggle_visible(&object_name);
+                }
+                _ => {
+                    error_panic(&format!("Wrong message for GMObjectManager::process_manager_messages: {:?}", message))
                 }
             }
         }
@@ -478,16 +523,6 @@ impl GMObjectManager {
 pub trait GMObjectT: Debug {
     fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
-    }
-
-    fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> Vec<GMValue> {
-        let mut result = Vec::with_capacity(messages.len());
-
-        for message in messages {
-            result.push(self.send_message(message, context, object_manager));
-        }
-
-        result
     }
 
     fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
