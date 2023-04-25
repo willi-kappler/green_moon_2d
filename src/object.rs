@@ -82,7 +82,6 @@ pub enum GMMessage {
     SetTimeout(f32),
     SetValueOf(usize, GMValue),
     SetX(f32),
-    SetXY(f32, f32),
     SetY(f32),
     ToAllElements(Box<GMMessage>),
     ToElementN(usize, Box<GMMessage>),
@@ -476,7 +475,7 @@ impl GMObjectManager {
                     }
                 }
 
-                return GMValue::Multiple(result);                
+                return GMValue::Multiple(result);
             }
             GMTarget::ObjectManager => {
                 let mut messages = self.manager_messages.borrow_mut();

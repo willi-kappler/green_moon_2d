@@ -37,8 +37,13 @@ impl GMObjectT for GMForewardToElement {
                 return GMValue::ElementIndices(self.elements.clone())
             }
             GMMessage::Multiple(messages) => {
-                // TODO: 
-                todo!();
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 if self.elements.is_empty() {
@@ -49,8 +54,8 @@ impl GMObjectT for GMForewardToElement {
                     for element in self.elements.iter() {
                         new_message.push(GMMessage::ToElementN(*element, Box::new(message.clone())));
                     }
-    
-                    return object_manager.send_message(self.target.clone(), GMMessage::Multiple(new_message), context);    
+
+                    return object_manager.send_message(self.target.clone(), GMMessage::Multiple(new_message), context);
                 }
             }
         }
@@ -86,8 +91,13 @@ impl GMObjectT for GMOtherTarget {
                 return GMValue::Target(self.target.clone())
             }
             GMMessage::Multiple(messages) => {
-                // TODO: 
-                todo!();
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 return object_manager.send_message(self.target.clone(), message, context);
@@ -122,7 +132,7 @@ impl GMTimedMessage {
 }
 
 impl GMObjectT for GMTimedMessage {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetMessage(message) => {
                 self.message = *message;
@@ -149,8 +159,13 @@ impl GMObjectT for GMTimedMessage {
                 return GMValue::Repeat(self.repeat)
             }
             GMMessage::Multiple(messages) => {
-                // TODO: 
-                todo!();
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
@@ -210,8 +225,13 @@ impl GMObjectT for GMTrigger {
                 return object_manager.send_message(self.target.clone(), message, context);
             }
             GMMessage::Multiple(messages) => {
-                // TODO: 
-                todo!();
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
@@ -254,8 +274,13 @@ impl GMObjectT for GMTriggerPair {
                 return GMValue::Multiple(result)
             }
             GMMessage::Multiple(messages) => {
-                // TODO: 
-                todo!();
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))

@@ -231,6 +231,10 @@ impl GMObjectT for GMBitmapText {
             GMMessage::SetFont(font) => {
                 self.font = font;
             }
+            GMMessage::SetFontName(name) => {
+                let font = context.resources.get_font(&name);
+                self.font = font.clone();
+            }
             GMMessage::SetHorizontal(horizontal) => {
                 self.horizontal = horizontal;
             }
@@ -251,10 +255,6 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::SetX(x) => {
                 self.position.x = x;
-            }
-            GMMessage::SetXY(x, y) => {
-                self.position.x = x;
-                self.position.y = y;
             }
             GMMessage::SetY(y) => {
                 self.position.y = y;
@@ -299,7 +299,7 @@ impl GMObjectT for GMBitmapText {
                 match (*left, *right) {
                     (GMMessage::AddSpacingX(x), GMMessage::AddSpacingY(y)) => {
                         self.spacing.x += x;
-                        self.spacing.y += y;                                
+                        self.spacing.y += y;
                     }
                     (GMMessage::AddX(x), GMMessage::AddY(y)) => {
                         self.position.x += x;
@@ -307,7 +307,11 @@ impl GMObjectT for GMBitmapText {
                     }
                     (GMMessage::SetSpacingX(x), GMMessage::SetSpacingY(y)) => {
                         self.spacing.x = x;
-                        self.spacing.y = y;                                
+                        self.spacing.y = y;
+                    }
+                    (GMMessage::SetX(x), GMMessage::SetY(y)) => {
+                        self.position.x = x;
+                        self.position.y = y;
                     }
                     (GMMessage::GetSpacingX, GMMessage::GetSpacingY) => {
                         let left = Box::new(GMValue::F32(self.spacing.x));
