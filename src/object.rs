@@ -20,8 +20,10 @@ pub enum GMMessage {
     Custom(String),
     GetAlign,
     GetAll(Box<GMMessage>),
+    GetChild,
     GetCustom(String),
     GetElementIndices,
+    GetElementObject(usize),
     GetFont,
     GetHorizontal,
     GetMessage,
@@ -60,8 +62,10 @@ pub enum GMMessage {
     ResetChars,
     ResetPosition,
     SetAlign(GMAlign),
+    SetChild(Box<dyn GMObjectT>),
     SetCustom(String, GMValue),
     SetElementIndices(Vec<usize>),
+    SetElementObject(usize, Box<dyn GMObjectT>),
     SetFont(Rc<GMBitmapFont>),
     SetFontName(String),
     SetHorizontal(bool),
@@ -219,6 +223,8 @@ impl GMObjectManager {
     pub fn replace_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, new_object: T) {
         if let Some(object) = self.objects.get(name) {
             object.inner.replace(new_object.into());
+        } else {
+            error_panic(&format!("GMObjectManager::replace_object: object {} not found", name));
         }
     }
 
@@ -252,120 +258,144 @@ impl GMObjectManager {
     pub fn set_draw_index(&mut self, name: &str, draw_index: i32) {
         if let Some(object) = self.objects.get_mut(name) {
             object.draw_index = draw_index;
+        } else {
+            error_panic(&format!("GMObjectManager::set_draw_index: object {} not found", name));
         }
     }
 
     pub fn get_draw_index(&self, name: &str) -> i32 {
         if let Some(object) = self.objects.get(name) {
             return object.draw_index;
+        } else {
+            error_panic(&format!("GMObjectManager::get_draw_index: object {} not found", name));
         }
-
-        0
     }
 
     pub fn set_update_index(&mut self, name: &str, update_index: i32) {
         if let Some(object) = self.objects.get_mut(name) {
             object.update_index = update_index;
+        } else {
+            error_panic(&format!("GMObjectManager::set_update_index: object {} not found", name));
         }
     }
 
     pub fn get_update_index(&self, name: &str) -> i32 {
         if let Some(object) = self.objects.get(name) {
             return object.update_index;
+        } else {
+            error_panic(&format!("GMObjectManager::get_update_index: object {} not found", name));
         }
-
-        0
     }
 
     pub fn set_active(&mut self, name: &str, active: bool) {
         if let Some(object) = self.objects.get_mut(name) {
             object.active = active;
+        } else {
+            error_panic(&format!("GMObjectManager::set_active: object {} not found", name));
         }
     }
 
     pub fn get_active(&self, name: &str) -> bool {
         if let Some(object) = self.objects.get(name) {
             return object.active;
+        } else {
+            error_panic(&format!("GMObjectManager::get_active: object {} not found", name));
         }
-
-        false
     }
 
     pub fn toggle_active(&mut self, name: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.active = !object.active;
+        } else {
+            error_panic(&format!("GMObjectManager::toggle_active: object {} not found", name));
         }
     }
 
     pub fn set_visible(&mut self, name: &str, visible: bool) {
         if let Some(object) = self.objects.get_mut(name) {
             object.visible = visible;
+        } else {
+            error_panic(&format!("GMObjectManager::set_visible: object {} not found", name));
         }
     }
 
     pub fn get_visible(&self, name: &str) -> bool {
         if let Some(object) = self.objects.get(name) {
             return object.visible;
+        } else {
+            error_panic(&format!("GMObjectManager::get_visible: object {} not found", name));
         }
-
-        false
     }
 
     pub fn toggle_visible(&mut self, name: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.visible = !object.visible;
+        } else {
+            error_panic(&format!("GMObjectManager::toggle_visible: object {} not found", name));
         }
     }
 
     pub fn add_group(&mut self, name: &str, group: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.insert(group.to_string());
+        } else {
+            error_panic(&format!("GMObjectManager::add_group: object {} not found", name));
         }
     }
 
     pub fn is_in_group(&self, name: &str, group: &str) -> bool {
         if let Some(object) = self.objects.get(name) {
             return object.groups.contains(group);
+        } else {
+            error_panic(&format!("GMObjectManager::is_in_group: object {} not found", name));
         }
-
-        false
     }
 
     pub fn remove_group(&mut self, name: &str, group: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.remove(group);
+        } else {
+            error_panic(&format!("GMObjectManager::remove_group: object {} not found", name));
         }
     }
 
     pub fn clear_groups(&mut self, name: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.clear();
+        } else {
+            error_panic(&format!("GMObjectManager::clear_groups: object {} not found", name));
         }
     }
 
     pub fn set_custom_property(&mut self, name: &str, key: &str, value: GMValue) {
         if let Some(object) = self.objects.get_mut(name) {
             object.custom_properties.insert(key.to_string(), value);
+        } else {
+            error_panic(&format!("GMObjectManager::set_custom_property: object {} not found", name));
         }
     }
 
     pub fn get_custom_property(&self, name: &str, key: &str) -> Option<&GMValue> {
         if let Some(object) = self.objects.get(name) {
             return object.custom_properties.get(key);
+        } else {
+            error_panic(&format!("GMObjectManager::get_custom_property: object {} not found", name));
         }
-
-        return None
     }
 
     pub fn remove_custom_property(&mut self, name: &str, key: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.custom_properties.remove(key);
+        } else {
+            error_panic(&format!("GMObjectManager::remove_custom_property: object {} not found", name));
         }
     }
 
     pub fn clear_custom_properties(&mut self, name: &str) {
         if let Some(object) = self.objects.get_mut(name) {
             object.custom_properties.clear();
+        } else {
+            error_panic(&format!("GMObjectManager::clear_custom_properties: object {} not found", name));
         }
     }
 
@@ -398,7 +428,9 @@ impl GMObjectManager {
                 if let Some(object) = self.objects.get(&name) {
                     let mut borrowed_object = object.inner.borrow_mut();
                     return borrowed_object.send_message(message, context, &self);
-                }                        
+                } else {
+                    error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
+                }
             }
             GMTarget::Multiple(names) => {
                 let mut result = Vec::new();
@@ -408,6 +440,8 @@ impl GMObjectManager {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
                         result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                    } else {
+                        error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
                     }
                 }
 
@@ -438,7 +472,7 @@ impl GMObjectManager {
                             // This break ensures that the message is not sent multiple times
                             // to the same object if it is in multiple matching groups.
                             break;
-                        }    
+                        }
                     }
                 }
 

@@ -194,7 +194,7 @@ impl GMBitmapText {
 }
 
 impl GMObjectT for GMBitmapText {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
 
         match message {
             GMMessage::AddPosition(vec) => {
@@ -320,9 +320,18 @@ impl GMObjectT for GMBitmapText {
                         return GMValue::Tuple2(left, right);
                     }
                     (l, r) => {
-                        error_panic(&format!("Wrong message for GMBitmapText::send_message: left: {:?}, right: {:?}", l, r))
+                        error_panic(&format!("Wrong message for GMBitmapText::send_message: Tuple2(left, right), left: {:?}, right: {:?}", l, r))
                     }
                 }
+            }
+            GMMessage::Multiple(messages) => {
+                let mut result = Vec::new();
+
+                for m in messages.iter() {
+                    result.push(self.send_message(m.clone(), context, object_manager));
+                }
+
+                return GMValue::Multiple(result)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))
