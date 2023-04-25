@@ -37,7 +37,7 @@ impl GMAnimation {
     }
 
     fn set_new_timer_duration(&mut self) {
-        self.timer.set_duration(self.frames[self.current_frame].1);
+        self.timer.duration = self.frames[self.current_frame].1;
         self.timer.start();
     }
 
