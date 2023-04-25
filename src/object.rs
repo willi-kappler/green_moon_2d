@@ -24,11 +24,12 @@ pub enum GMMessage {
     GetCustom(String),
     GetElement,
     GetFont,
-    GetFromElement(usize, Box<GMMessage>),
     GetHorizontal,
+    GetMessages,
     GetNumElements,
     GetPosition,
     GetPositions,
+    GetRepeat,
     GetSize,
     GetSpacing,
     GetSpacingX,
@@ -37,6 +38,7 @@ pub enum GMMessage {
     GetTarget,
     GetTargets,
     GetText,
+    GetTimeout,
     GetX,
     GetXY,
     GetY,
@@ -47,11 +49,12 @@ pub enum GMMessage {
     SetCustom(String, GMValue),
     SetElement(usize),
     SetFont(Rc<GMBitmapFont>),
-    SetForElement(usize, Box<GMMessage>),
     SetHorizontal(bool),
+    SetMessages(Vec<GMMessage>),
     SetNumElements(usize),
     SetPosition(GMVec2D),
     SetPositions(Vec<GMVec2D>),
+    SetRepeat(bool),
     SetSize(GMSize),
     SetSpacing(GMVec2D),
     SetSpacingX(f32),
@@ -60,11 +63,14 @@ pub enum GMMessage {
     SetTarget(String),
     SetTargets(Vec<String>),
     SetText(String),
+    SetTimeout(f32),
     SetX(f32),
     SetXY(f32, f32),
     SetY(f32),
-    ToElement(usize, Box<GMMessage>),
+    ToAllElements(Vec<GMMessage>),
+    ToElementN(usize, Vec<GMMessage>),
     ToggleHorizontal,
+    Trigger,
 }
 
 #[derive(Clone, Debug)]
@@ -86,13 +92,17 @@ pub enum GMValue {
     I64I64(i64, i64),
     I8(i8),
     I8I8(i8, i8),
+    Messages(Vec<GMMessage>),
+    Multiple(Vec<GMValue>),
     None,
     Position(GMVec2D),
     Positions(Vec<GMVec2D>),
+    Repeat(bool),
     Size(GMSize),
     String(String),
     Target(String),
     Targets(Vec<String>),
+    Timeout(f32),
     Tuple2(Box<GMValue>, Box<GMValue>),
     Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
     U16(u16),
@@ -105,7 +115,6 @@ pub enum GMValue {
     U8U8(u8, u8),
     USize(usize),
     USizeUSize(usize, usize),
-    Vec(Vec<GMValue>),
     Vec2D(GMVec2D),
 }
 
@@ -135,8 +144,6 @@ pub enum GMObjectManagerMessage {
     ToggleActive(String),
     ToggleVisible(String),
 }
-
-// Maybe add custom properties for objects ?
 
 #[derive(Clone, Debug)]
 pub struct GMObjectInfo {
