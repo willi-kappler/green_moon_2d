@@ -31,31 +31,26 @@ impl GMObjectT for GMForewardToElement {
                 self.elements = elements
             }
             GMMessage::GetTarget => {
-                return GMValue::Target(self.target.clone())
+                //return GMValue::Target(self.target.clone())
+                return self.target.clone().into()
             }
             GMMessage::GetElementIndices => {
                 return GMValue::ElementIndices(self.elements.clone())
             }
             GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for m in messages.iter() {
-                    result.push(self.send_message(m.clone(), context, object_manager));
-                }
-
-                return GMValue::Multiple(result)
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 if self.elements.is_empty() {
                     return object_manager.send_message(self.target.clone(), GMMessage::ToAllElements(Box::new(message)), context);
                 } else {
-                    let mut new_message = Vec::new();
+                    let mut new_messages = Vec::new();
 
                     for element in self.elements.iter() {
-                        new_message.push(GMMessage::ToElementN(*element, Box::new(message.clone())));
+                        new_messages.push(GMMessage::ToElementN(*element, Box::new(message.clone())));
                     }
 
-                    return object_manager.send_message(self.target.clone(), GMMessage::Multiple(new_message), context);
+                    return object_manager.send_message(self.target.clone(), new_messages.into(), context);
                 }
             }
         }
@@ -88,16 +83,11 @@ impl GMObjectT for GMOtherTarget {
                 self.target = target
             }
             GMMessage::GetTarget => {
-                return GMValue::Target(self.target.clone())
+                // return GMValue::Target(self.target.clone())
+                return self.target.clone().into()
             }
             GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for m in messages.iter() {
-                    result.push(self.send_message(m.clone(), context, object_manager));
-                }
-
-                return GMValue::Multiple(result)
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 return object_manager.send_message(self.target.clone(), message, context);
@@ -147,10 +137,12 @@ impl GMObjectT for GMTimedMessage {
                 self.repeat = repeat;
             }
             GMMessage::GetMessage => {
-                return GMValue::Message(Box::new(self.message.clone()))
+                //return GMValue::Message(Box::new(self.message.clone()))
+                return self.message.clone().into()
             }
             GMMessage::GetTarget => {
-                return GMValue::Target(self.target.clone())
+                // return GMValue::Target(self.target.clone())
+                return self.target.clone().into()
             }
             GMMessage::GetTimeout => {
                 return GMValue::Timeout(self.timer.duration)
@@ -159,13 +151,7 @@ impl GMObjectT for GMTimedMessage {
                 return GMValue::Repeat(self.repeat)
             }
             GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for m in messages.iter() {
-                    result.push(self.send_message(m.clone(), context, object_manager));
-                }
-
-                return GMValue::Multiple(result)
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
@@ -216,22 +202,18 @@ impl GMObjectT for GMTrigger {
                 self.target = targets
             }
             GMMessage::GetMessage => {
-                return GMValue::Message(Box::new(self.message.clone()))
+                //return GMValue::Message(Box::new(self.message.clone()))
+                return self.message.clone().into()
             }
             GMMessage::GetTarget => {
-                return GMValue::Target(self.target.clone())
+                //return GMValue::Target(self.target.clone())
+                return self.target.clone().into()
             }
             GMMessage::Trigger => {
-                return object_manager.send_message(self.target.clone(), message, context);
+                return object_manager.send_message(self.target.clone(), message, context)
             }
             GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for m in messages.iter() {
-                    result.push(self.send_message(m.clone(), context, object_manager));
-                }
-
-                return GMValue::Multiple(result)
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
@@ -271,16 +253,11 @@ impl GMObjectT for GMTriggerPair {
                     result.push(object_manager.send_message(target.clone(), message.clone(), context));
                 }
 
-                return GMValue::Multiple(result)
+                //return GMValue::Multiple(result)
+                return result.into()
             }
             GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for m in messages.iter() {
-                    result.push(self.send_message(m.clone(), context, object_manager));
-                }
-
-                return GMValue::Multiple(result)
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))

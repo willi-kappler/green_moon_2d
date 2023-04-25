@@ -92,6 +92,12 @@ pub enum GMMessage {
     Tuple4(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
 }
 
+impl From<Vec<GMMessage>> for GMMessage {
+    fn from(messages: Vec<GMMessage>) -> Self {
+        GMMessage::Multiple(messages)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum GMValue {
     Align(GMAlign),
@@ -100,6 +106,7 @@ pub enum GMValue {
     F32(f32),
     F64(f64),
     Font(Rc<GMBitmapFont>),
+    Horizontal(bool),
     I16(i16),
     I32(i32),
     I64(i64),
@@ -112,6 +119,7 @@ pub enum GMValue {
     Position(GMVec2D),
     Repeat(bool),
     Size(GMSize),
+    Spacing(GMVec2D),
     String(String),
     Target(GMTarget),
     Text(String),
@@ -133,6 +141,54 @@ impl From<()> for GMValue {
     }
 }
 
+impl From<GMAlign> for GMValue {
+    fn from(value: GMAlign) -> Self {
+        Self::Align(value)
+    }
+}
+
+impl From<GMSize> for GMValue {
+    fn from(value: GMSize) -> Self {
+        Self::Size(value)
+    }
+}
+
+impl From<Rc<GMBitmapFont>> for GMValue {
+    fn from(value: Rc<GMBitmapFont>) -> Self {
+        Self::Font(value)
+    }
+}
+
+impl From<(f32, f32)> for GMValue {
+    fn from((v1, v2): (f32, f32)) -> Self {
+        Self::Tuple2(Box::new(GMValue::F32(v1)), Box::new(GMValue::F32(v2)))
+    }
+}
+
+impl From<(f32, f32, f32)> for GMValue {
+    fn from((v1, v2, v3): (f32, f32, f32)) -> Self {
+        Self::Tuple3(Box::new(GMValue::F32(v1)), Box::new(GMValue::F32(v2)), Box::new(GMValue::F32(v3)))
+    }
+}
+
+impl From<GMMessage> for GMValue {
+    fn from(value: GMMessage) -> Self {
+        Self::Message(Box::new(value))
+    }
+}
+
+impl From<GMTarget> for GMValue {
+    fn from(value: GMTarget) -> Self {
+        Self::Target(value)
+    }
+}
+
+impl From<Vec<GMValue>> for GMValue {
+    fn from(value: Vec<GMValue>) -> Self {
+        Self::Multiple(value)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum GMTarget {
     Single(String),
@@ -140,6 +196,26 @@ pub enum GMTarget {
     Group(String),
     MultipleGroups(Vec<String>),
     ObjectManager,
+}
+
+impl From<&str> for GMTarget {
+    fn from(value: &str) -> Self {
+        Self::Single(value.to_string())
+    }
+}
+
+impl From<String> for GMTarget {
+    fn from(value: String) -> Self {
+        Self::Single(value)
+    }
+}
+
+impl From<&[&str]> for GMTarget {
+    fn from(value: &[&str]) -> Self {
+        let vec = value.to_vec();
+        let vec2: Vec<String> = vec.iter().map(|s| s.to_string()).collect();
+        Self::Multiple(vec2)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -556,6 +632,16 @@ impl GMObjectManager {
 pub trait GMObjectT: Debug {
     fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
+    }
+
+    fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let mut result = Vec::new();
+
+        for message in messages.iter() {
+            result.push(self.send_message(message.clone(), context, object_manager));
+        }
+
+        return result.into()
     }
 
     fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
