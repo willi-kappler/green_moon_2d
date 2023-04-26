@@ -84,7 +84,7 @@ impl GMObjectT for GMTEWave {
         let message1 = GMMessage::Custom1("get_horizontal".to_string());
         let message2 = GMMessage::GetChildCount;
 
-        let result = object_manager.send_message(self.target.clone(), (message1, message2).into(), context);
+        let result = object_manager.send_message(&self.target, (message1, message2).into(), context);
 
         if let GMValue::Tuple2(value1, value2) = result {
             if let GMValue::Bool(horizontal) = *value1 {
@@ -98,7 +98,7 @@ impl GMObjectT for GMTEWave {
                             offset += self.offset;
                         }
                         let add_chars_y = ("add_chars_y", new_positions.into()).into();
-                        object_manager.send_message(self.target.clone(), add_chars_y, context);
+                        object_manager.send_message(&self.target, add_chars_y, context);
                     } else {
                         let mut new_positions = Vec::with_capacity(num_of_chars);
 
@@ -108,7 +108,7 @@ impl GMObjectT for GMTEWave {
                             offset += self.offset;
                         }
                         let add_chars_x = ("add_chars_x", new_positions.into()).into();
-                        object_manager.send_message(self.target.clone(), add_chars_x, context);
+                        object_manager.send_message(&self.target, add_chars_x, context);
                     }
 
                     self.time += self.speed;

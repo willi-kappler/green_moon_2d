@@ -540,12 +540,10 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message<T: Into<GMTarget>>(&self, target: T, message: GMMessage, context: &mut GMContext) -> GMValue {
-        let target = target.into();
-
+    pub fn send_message(&self, target: &GMTarget, message: GMMessage, context: &mut GMContext) -> GMValue {
         match target {
             GMTarget::Single(name) => {
-                if let Some(object) = self.objects.get(&name) {
+                if let Some(object) = self.objects.get(name) {
                     let mut borrowed_object = object.inner.borrow_mut();
                     return borrowed_object.send_message(message, context, &self);
                 } else {
@@ -556,7 +554,7 @@ impl GMObjectManager {
                 let mut result = Vec::new();
 
                 for name in names {
-                    if let Some(object) = self.objects.get(&name) {
+                    if let Some(object) = self.objects.get(name) {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
                         result.push(value);
@@ -571,7 +569,7 @@ impl GMObjectManager {
                 let mut result = Vec::new();
 
                 for (_, object) in self.objects.iter() {
-                    if object.groups.contains(&group) {
+                    if object.groups.contains(group) {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
                         result.push(value);

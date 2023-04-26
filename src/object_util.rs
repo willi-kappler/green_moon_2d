@@ -50,7 +50,7 @@ impl GMObjectT for GMForewardToElement {
             _ => {
                 if self.elements.is_empty() {
                     let new_message = GMMessage::Custom2("to_all_elements".to_string(), message.into());
-                    return object_manager.send_message(self.target.clone(), new_message, context);
+                    return object_manager.send_message(&self.target, new_message, context);
                 } else {
                     let mut new_messages = Vec::new();
 
@@ -60,7 +60,7 @@ impl GMObjectT for GMForewardToElement {
                         new_messages.push(new_message);
                     }
 
-                    return object_manager.send_message(self.target.clone(), new_messages.into(), context);
+                    return object_manager.send_message(&self.target, new_messages.into(), context);
                 }
             }
         }
@@ -99,7 +99,7 @@ impl GMObjectT for GMOtherTarget {
                 return self.target.clone().into()
             }
             _ => {
-                return object_manager.send_message(self.target.clone(), message, context);
+                return object_manager.send_message(&self.target, message, context);
             }
         }
 
@@ -176,7 +176,7 @@ impl GMObjectT for GMTimedMessage {
                 self.timer.start();
             }
 
-            object_manager.send_message(self.target.clone(), self.message.clone(), context);
+            object_manager.send_message(&self.target, self.message.clone(), context);
         }
     }
 
@@ -220,7 +220,7 @@ impl GMObjectT for GMTrigger {
                 return self.target.clone().into()
             }
             GMMessage::Custom1(name) if name == "trigger" => {
-                return object_manager.send_message(self.target.clone(), self.message.clone(), context)
+                return object_manager.send_message(&self.target, self.message.clone(), context)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
@@ -259,7 +259,7 @@ impl GMObjectT for GMTriggerPair {
                 let mut result = Vec::new();
 
                 for (target, message) in self.pairs.iter() {
-                    result.push(object_manager.send_message(target.clone(), message.clone(), context));
+                    result.push(object_manager.send_message(&target, message.clone(), context));
                 }
 
                 return result.into()
@@ -317,7 +317,7 @@ impl GMObjectT for GMMultiply {
                     result.push(message.clone());
                 }
 
-                return object_manager.send_message(self.target.clone(), result.into(), context)
+                return object_manager.send_message(&self.target, result.into(), context)
             }
         }
 
