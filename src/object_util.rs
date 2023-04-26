@@ -1,7 +1,7 @@
 
 
 use crate::context::GMContext;
-use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget, self};
+use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget};
 use crate::timer::GMTimer;
 use crate::util::{error_panic};
 
@@ -9,14 +9,14 @@ use crate::util::{error_panic};
 #[derive(Clone, Debug)]
 pub struct GMForewardToElement {
     pub target: GMTarget,
-    pub elements: Vec<usize>,
+    pub elements: Vec<GMValue>,
 }
 
 impl GMForewardToElement {
     pub fn new<T: Into<GMTarget>>(target: T, elements: Vec<usize>) -> Self {
         Self {
             target: target.into(),
-            elements,
+            elements: elements.iter().map(|e| GMValue::USize(*e)).collect(),
         }
     }
 }
@@ -27,24 +27,33 @@ impl GMObjectT for GMForewardToElement {
             GMMessage::SetTarget(target) => {
                 self.target = target
             }
-            GMMessage::SetElementIndices(elements) => {
-                self.elements = elements
-            }
             GMMessage::GetTarget => {
-                //return GMValue::Target(self.target.clone())
                 return self.target.clone().into()
             }
-            GMMessage::GetElementIndices => {
-                return GMValue::ElementIndices(self.elements.clone())
+            GMMessage::Custom1(name) if name == "get_element_indices" => {
+                let result: GMValue = self.elements.clone().into();
+                return GMValue::Custom2("element_indices".to_string(), Box::new(result))
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_element_indices" => {
+                self.elements.clear();
+
+                for element in values {
+                    if let GMValue::USize(_) = element {
+                        self.elements.push(element);
+                    }
+                }
             }
             _ => {
                 if self.elements.is_empty() {
-                    return object_manager.send_message(self.target.clone(), GMMessage::ToAllElements(Box::new(message)), context);
+                    let new_message = GMMessage::Custom2("to_all_elements".to_string(), message.into());
+                    return object_manager.send_message(self.target.clone(), new_message, context);
                 } else {
                     let mut new_messages = Vec::new();
 
                     for element in self.elements.iter() {
-                        new_messages.push(GMMessage::ToElementN(*element, Box::new(message.clone())));
+                        let value2 = message.clone().into();
+                        let new_message = GMMessage::Custom2("to_element_n".to_string(), (element.clone(), value2).into());
+                        new_messages.push(new_message);
                     }
 
                     return object_manager.send_message(self.target.clone(), new_messages.into(), context);
@@ -80,7 +89,6 @@ impl GMObjectT for GMOtherTarget {
                 self.target = target
             }
             GMMessage::GetTarget => {
-                // return GMValue::Target(self.target.clone())
                 return self.target.clone().into()
             }
             _ => {
@@ -124,25 +132,25 @@ impl GMObjectT for GMTimedMessage {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::SetTimeout(timeout) => {
-                self.timer.duration = timeout;
-            }
-            GMMessage::SetRepeat(repeat) => {
-                self.repeat = repeat;
-            }
             GMMessage::GetMessage => {
-                //return GMValue::Message(Box::new(self.message.clone()))
                 return self.message.clone().into()
             }
             GMMessage::GetTarget => {
-                // return GMValue::Target(self.target.clone())
                 return self.target.clone().into()
             }
-            GMMessage::GetTimeout => {
-                return GMValue::Timeout(self.timer.duration)
+            GMMessage::Custom1(name) if name == "get_timeout" => {
+                let value = Box::new(GMValue::F32(self.timer.duration));
+                return GMValue::Custom2("timeout".to_string(), value)
             }
-            GMMessage::GetRepeat => {
-                return GMValue::Repeat(self.repeat)
+            GMMessage::Custom1(name) if name == "get_repeat" => {
+                let value = Box::new(GMValue::Bool(self.repeat));
+                return GMValue::Custom2("repeat".to_string(), value)
+            }
+            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_timeout" => {
+                self.timer.duration = value;
+            }
+            GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_repeat" => {
+                self.repeat = value;
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
@@ -193,15 +201,13 @@ impl GMObjectT for GMTrigger {
                 self.target = targets
             }
             GMMessage::GetMessage => {
-                //return GMValue::Message(Box::new(self.message.clone()))
                 return self.message.clone().into()
             }
             GMMessage::GetTarget => {
-                //return GMValue::Target(self.target.clone())
                 return self.target.clone().into()
             }
-            GMMessage::Trigger => {
-                return object_manager.send_message(self.target.clone(), message, context)
+            GMMessage::Custom1(name) if name == "trigger" => {
+                return object_manager.send_message(self.target.clone(), self.message.clone(), context)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
@@ -234,14 +240,13 @@ impl GMTriggerPair {
 impl GMObjectT for GMTriggerPair {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::Trigger => {
+            GMMessage::Custom1(name) if name == "trigger" => {
                 let mut result = Vec::new();
 
                 for (target, message) in self.pairs.iter() {
                     result.push(object_manager.send_message(target.clone(), message.clone(), context));
                 }
 
-                //return GMValue::Multiple(result)
                 return result.into()
             }
             _ => {
@@ -273,17 +278,19 @@ impl GMMultiply {
 impl GMObjectT for GMMultiply {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::SetFactor(factor) => {
-                self.factor = factor;
-            }
             GMMessage::SetTarget(target) => {
                 self.target = target
             }
-            GMMessage::GetFactor => {
-                return GMValue::Factor(self.factor)
-            }
+
             GMMessage::GetTarget => {
                 return self.target.clone().into()
+            }
+            GMMessage::Custom1(name) if name == "get_factor" => {
+                let value = Box::new(GMValue::U32(self.factor));
+                return GMValue::Custom2("factor".to_string(), value)
+            }
+            GMMessage::Custom2(name, GMValue::U32(value)) if name == "set_factor" => {
+                self.factor = value;
             }
             _ => {
                 let mut result = Vec::new();

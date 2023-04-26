@@ -2,44 +2,28 @@
 use std::cell::RefCell;
 use std::fmt::Debug;
 use std::collections::{HashSet, HashMap, VecDeque};
+use std::any::Any;
 use std::rc::Rc;
 
 use crate::context::GMContext;
 use crate::math::{GMVec2D, GMSize};
-use crate::util::{GMAlign, error_panic};
-use crate::bitmap_text::GMBitmapFont;
+use crate::util::{error_panic};
 
 #[derive(Clone, Debug)]
 pub enum GMMessage {
     AddPosition(GMVec2D),
-    AddSpacing(GMVec2D),
-    AddSpacingX(f32),
-    AddSpacingY(f32),
     AddX(f32),
     AddY(f32),
-    Custom(String),
-    GetAlign,
-    GetAll(Box<GMMessage>),
-    GetChild,
+    Custom1(String),
+    Custom2(String, GMValue),
+    GetChild(String),
+    GetChildCount,
     GetCustom(String),
-    GetElementIndices,
-    GetElementObject(usize),
-    GetFactor,
-    GetFont,
-    GetHorizontal,
     GetMessage,
-    GetNumElements,
     GetPosition,
-    GetRepeat,
     GetSize,
-    GetSpacing,
-    GetSpacingX,
-    GetSpacingY,
     GetTarget,
-    GetText,
-    GetTimeout,
     GetX,
-    GetXY,
     GetY,
     Multiple(Vec<GMMessage>),
     OMAddCustomObject(String, GMObjectInfo),
@@ -60,35 +44,14 @@ pub enum GMMessage {
     OMToggleActive(String),
     OMToggleVisible(String),
     Reset,
-    ResetChars,
-    ResetPosition,
-    SetAlign(GMAlign),
-    SetChild(Box<dyn GMObjectT>),
+    SetChild(String, Box<dyn GMObjectT>),
     SetCustom(String, GMValue),
-    SetElementIndices(Vec<usize>),
-    SetElementObject(usize, Box<dyn GMObjectT>),
-    SetFactor(u32),
-    SetFont(Rc<GMBitmapFont>),
-    SetFontName(String),
-    SetHorizontal(bool),
     SetMessage(Box<GMMessage>),
-    SetNumElements(usize),
     SetPosition(GMVec2D),
-    SetRepeat(bool),
     SetSize(GMSize),
-    SetSpacing(GMVec2D),
-    SetSpacingX(f32),
-    SetSpacingY(f32),
     SetTarget(GMTarget),
-    SetText(String),
-    SetTimeout(f32),
-    SetValueOf(usize, GMValue),
     SetX(f32),
     SetY(f32),
-    ToAllElements(Box<GMMessage>),
-    ToElementN(usize, Box<GMMessage>),
-    ToggleHorizontal,
-    Trigger,
     Tuple2(Box<GMMessage>, Box<GMMessage>),
     Tuple3(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
     Tuple4(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
@@ -102,14 +65,12 @@ impl From<Vec<GMMessage>> for GMMessage {
 
 #[derive(Clone, Debug)]
 pub enum GMValue {
-    Align(GMAlign),
+    Any(Rc<dyn Any>),
     Bool(bool),
-    ElementIndices(Vec<usize>),
+    Custom1(String),
+    Custom2(String, Box<GMValue>),
     F32(f32),
     F64(f64),
-    Factor(u32),
-    Font(Rc<GMBitmapFont>),
-    Horizontal(bool),
     I16(i16),
     I32(i32),
     I64(i64),
@@ -120,13 +81,10 @@ pub enum GMValue {
     None,
     Object(Box<dyn GMObjectT>),
     Position(GMVec2D),
-    Repeat(bool),
+    SharedObject(Rc<dyn GMObjectT>),
     Size(GMSize),
-    Spacing(GMVec2D),
     String(String),
     Target(GMTarget),
-    Text(String),
-    Timeout(f32),
     Tuple2(Box<GMValue>, Box<GMValue>),
     Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
     Tuple4(Box<GMValue>, Box<GMValue>, Box<GMValue>, Box<GMValue>),
@@ -141,24 +99,6 @@ pub enum GMValue {
 impl From<()> for GMValue {
     fn from(_value: ()) -> Self {
         Self::None
-    }
-}
-
-impl From<GMAlign> for GMValue {
-    fn from(value: GMAlign) -> Self {
-        Self::Align(value)
-    }
-}
-
-impl From<GMSize> for GMValue {
-    fn from(value: GMSize) -> Self {
-        Self::Size(value)
-    }
-}
-
-impl From<Rc<GMBitmapFont>> for GMValue {
-    fn from(value: Rc<GMBitmapFont>) -> Self {
-        Self::Font(value)
     }
 }
 
@@ -494,27 +434,6 @@ impl GMObjectManager {
             error_panic(&format!("GMObjectManager::clear_custom_properties: object {} not found", name));
         }
     }
-
-    /*
-    fn send_message_inner(&self, object: &GMObjectInfo, message: GMMessage, context: &mut GMContext) -> GMValue {
-        let mut borrowed_object = object.inner.borrow_mut();
-
-        match message {
-            GMMessage::Multiple(messages) => {
-                let mut result = Vec::new();
-
-                for inner_message in messages.iter() {
-                    result.push(borrowed_object.send_message(*inner_message, context, &self));
-                }
-
-                GMValue::Multiple(result)
-            }
-            _ => {
-                borrowed_object.send_message(message, context, &self)
-            }
-        }
-    }
-    */
 
     pub fn send_message<T: Into<GMTarget>>(&self, target: T, message: GMMessage, context: &mut GMContext) -> GMValue {
         let target = target.into();

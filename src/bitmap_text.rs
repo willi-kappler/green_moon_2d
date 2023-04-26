@@ -200,58 +200,14 @@ impl GMObjectT for GMBitmapText {
             GMMessage::AddPosition(vec) => {
                 self.position += vec;
             }
-            GMMessage::AddSpacing(vec) => {
-                self.spacing += vec;
-            }
-            GMMessage::AddSpacingX(x) => {
-                self.spacing.x += x;
-            }
-            GMMessage::AddSpacingY(y) => {
-                self.spacing.y += y;
-            }
             GMMessage::AddX(x) => {
                 self.position.x += x;
             }
             GMMessage::AddY(y) => {
                 self.position.y += y;
             }
-            GMMessage::ResetChars => {
-                self.reset_chars();
-            }
-
-            GMMessage::ResetPosition => {
-                self.reset_positions();
-            }
-            GMMessage::ToggleHorizontal => {
-                self.horizontal = !self.horizontal;
-            }
-            GMMessage::SetAlign(align) => {
-                self.align = align;
-            }
-            GMMessage::SetFont(font) => {
-                self.font = font;
-            }
-            GMMessage::SetFontName(name) => {
-                let font = context.resources.get_font(&name);
-                self.font = font.clone();
-            }
-            GMMessage::SetHorizontal(horizontal) => {
-                self.horizontal = horizontal;
-            }
             GMMessage::SetPosition(vec) => {
                 self.position = vec;
-            }
-            GMMessage::SetSpacing(spacing) => {
-                self.spacing = spacing;
-            }
-            GMMessage::SetSpacingX(x) => {
-                self.spacing.x = x;
-            }
-            GMMessage::SetSpacingY(y) => {
-                self.spacing.y = y;
-            }
-            GMMessage::SetText(text) => {
-                self.text = text;
             }
             GMMessage::SetX(x) => {
                 self.position.x = x;
@@ -259,38 +215,14 @@ impl GMObjectT for GMBitmapText {
             GMMessage::SetY(y) => {
                 self.position.y = y;
             }
-            GMMessage::GetAlign => {
-                //return GMValue::Align(self.align)
-                return self.align.into()
-            }
-            GMMessage::GetFont => {
-                //return GMValue::Font(self.font.clone())
-                return self.font.clone().into()
-            }
-            GMMessage::GetHorizontal => {
-                return GMValue::Horizontal(self.horizontal)
-            }
-            GMMessage::GetNumElements => {
+            GMMessage::GetChildCount => {
                 return GMValue::USize(self.chars.len())
             }
             GMMessage::GetPosition => {
                 return GMValue::Position(self.position)
             }
             GMMessage::GetSize => {
-                //return GMValue::Size(self.size)
-                return self.size.into()
-            }
-            GMMessage::GetSpacing => {
-                return GMValue::Spacing(self.spacing)
-            }
-            GMMessage::GetSpacingX => {
-                return GMValue::F32(self.spacing.x)
-            }
-            GMMessage::GetSpacingY => {
-                return GMValue::F32(self.spacing.y)
-            }
-            GMMessage::GetText => {
-                return GMValue::Text(self.text.clone())
+                return GMValue::Size(self.size)
             }
             GMMessage::GetX => {
                 return GMValue::F32(self.position.x)
@@ -309,6 +241,79 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
+            }
+            GMMessage::Custom1(name) if name == "reset_chars" => {
+                self.reset_chars();
+            }
+            GMMessage::Custom1(name) if name == "reset_position" => {
+                self.reset_positions();
+            }
+            GMMessage::Custom1(name) if name == "toggle_horizontal" => {
+                self.horizontal = !self.horizontal;
+            }
+            GMMessage::Custom1(name) if name == "get_align" => {
+                let value = Box::new(GMValue::Any(Rc::new(self.align)));
+                return GMValue::Custom2("align".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_font" => {
+                let value = Box::new(GMValue::Any(self.font.clone()));
+                return GMValue::Custom2("font".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_horizontal" => {
+                let value = Box::new(GMValue::Bool(self.horizontal));
+                return GMValue::Custom2("horizontal".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_spacing" => {
+                let value = Box::new(GMValue::Vec2D(self.spacing));
+                return GMValue::Custom2("spacing".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_spacing_x" => {
+                let value = Box::new(GMValue::F32(self.spacing.x));
+                return GMValue::Custom2("spacing_x".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_spacing_y" => {
+                let value = Box::new(GMValue::F32(self.spacing.y));
+                return GMValue::Custom2("spacing_y".to_string(), value)
+            }
+            GMMessage::Custom1(name) if name == "get_text" => {
+                let value = Box::new(GMValue::String(self.text.clone()));
+                return GMValue::Custom2("text".to_string(), value)
+            }
+            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
+                self.spacing += value;
+            }
+            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_x" => {
+                self.spacing.x += value;
+            }
+            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_y" => {
+                self.spacing.y += value;
+            }
+            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_align" => {
+                let align = value.downcast::<GMAlign>().unwrap();
+                self.align = *align;
+            }
+            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font" => {
+                let font = value.downcast::<GMBitmapFont>().unwrap();
+                self.font = font;
+            }
+            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font_name" => {
+                let font = context.resources.get_font(&value);
+                self.font = font.clone();
+            }
+            GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_horizontal" => {
+                self.horizontal = value;
+            }
+            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "set_spacing" => {
+                self.spacing = value;
+            }
+            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_x" => {
+                self.spacing.x = value;
+            }
+            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_y" => {
+                self.spacing.y = value;
+            }
+            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_text" => {
+                self.text = value;
             }
             _ => {
                 error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))
