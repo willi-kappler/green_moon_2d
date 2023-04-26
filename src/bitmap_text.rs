@@ -329,6 +329,63 @@ impl GMObjectT for GMBitmapText {
             GMMessage::Custom2(name, GMValue::String(value)) if name == "set_text" => {
                 self.text = value;
             }
+            // Messages for character manipulation:
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_position" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::Vec2D(position) = values[i] {
+                        c.position += position;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_position" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::Vec2D(position) = values[i] {
+                        c.position = position;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_x" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(x) = values[i] {
+                        c.position.x += x;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_y" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(y) = values[i] {
+                        c.position.y += y;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_x" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(x) = values[i] {
+                        c.position.x = x;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_y" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(y) = values[i] {
+                        c.position.y = y;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_angle" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(angle) = values[i] {
+                        c.angle = angle;
+                    }
+                }
+            }
+            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_scale" => {
+                for (i, c) in self.chars.iter_mut().enumerate() {
+                    if let GMValue::F32(scale) = values[i] {
+                        c.scale = scale;
+                    }
+                }
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))
             }
