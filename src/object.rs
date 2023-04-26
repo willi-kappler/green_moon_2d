@@ -99,7 +99,6 @@ pub enum GMValue {
     I8(i8),
     Message(Box<GMMessage>),
     Multiple(Vec<GMValue>),
-    Name(String),
     None,
     Object(Box<dyn GMObjectT>),
     Position(GMVec2D),
@@ -560,7 +559,7 @@ impl GMObjectManager {
                     if let Some(object) = self.objects.get(&name) {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
-                        result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                        result.push(value);
                     } else {
                         error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
                     }
@@ -571,11 +570,11 @@ impl GMObjectManager {
             GMTarget::Group(group) => {
                 let mut result = Vec::new();
 
-                for (name, object) in self.objects.iter() {
+                for (_, object) in self.objects.iter() {
                     if object.groups.contains(&group) {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
-                        result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                        result.push(value);
                     }
                 }
 
@@ -584,12 +583,12 @@ impl GMObjectManager {
             GMTarget::MultipleGroups(groups) => {
                 let mut result = Vec::new();
 
-                for (name, object) in self.objects.iter() {
+                for (_, object) in self.objects.iter() {
                     for group in groups.iter() {
                         if object.groups.contains(group) {
                             let mut borrowed_object = object.inner.borrow_mut();
                             let value = borrowed_object.send_message(message.clone(), context, &self);
-                            result.push(GMValue::Tuple2(Box::new(GMValue::Name(name.clone())), Box::new(value)));
+                            result.push(value);
                             // This break ensures that the message is not sent multiple times
                             // to the same object if it is in multiple matching groups.
                             break;
