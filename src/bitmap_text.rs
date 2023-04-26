@@ -252,32 +252,46 @@ impl GMObjectT for GMBitmapText {
                 self.horizontal = !self.horizontal;
             }
             GMMessage::Custom1(name) if name == "get_align" => {
-                let value = Box::new(GMValue::Any(Rc::new(self.align)));
-                return GMValue::Custom2("align".to_string(), value)
+                // let value = Box::new(GMValue::Any(Rc::new(self.align)));
+                // return GMValue::Custom2("align".to_string(), value)
+                let value = GMValue::Any(Rc::new(self.align));
+                return ("align", value).into()
             }
             GMMessage::Custom1(name) if name == "get_font" => {
-                let value = Box::new(GMValue::Any(self.font.clone()));
-                return GMValue::Custom2("font".to_string(), value)
+                // let value = Box::new(GMValue::Any(self.font.clone()));
+                // return GMValue::Custom2("font".to_string(), value)
+                let value = GMValue::Any(self.font.clone());
+                return ("font", value).into()
             }
             GMMessage::Custom1(name) if name == "get_horizontal" => {
-                let value = Box::new(GMValue::Bool(self.horizontal));
-                return GMValue::Custom2("horizontal".to_string(), value)
+                // let value = Box::new(GMValue::Bool(self.horizontal));
+                // return GMValue::Custom2("horizontal".to_string(), value)
+                let value = self.horizontal.into();
+                return ("horizontal", value).into()
             }
             GMMessage::Custom1(name) if name == "get_spacing" => {
-                let value = Box::new(GMValue::Vec2D(self.spacing));
-                return GMValue::Custom2("spacing".to_string(), value)
+                // let value = Box::new(GMValue::Vec2D(self.spacing));
+                // return GMValue::Custom2("spacing".to_string(), value)
+                let value = self.spacing.into();
+                return ("spacing", value).into()
             }
             GMMessage::Custom1(name) if name == "get_spacing_x" => {
-                let value = Box::new(GMValue::F32(self.spacing.x));
-                return GMValue::Custom2("spacing_x".to_string(), value)
+                // let value = Box::new(GMValue::F32(self.spacing.x));
+                // return GMValue::Custom2("spacing_x".to_string(), value)
+                let value = self.spacing.x.into();
+                return ("spacing_x", value).into()
             }
             GMMessage::Custom1(name) if name == "get_spacing_y" => {
-                let value = Box::new(GMValue::F32(self.spacing.y));
-                return GMValue::Custom2("spacing_y".to_string(), value)
+                // let value = Box::new(GMValue::F32(self.spacing.y));
+                // return GMValue::Custom2("spacing_y".to_string(), value)
+                let value = self.spacing.y.into();
+                return ("spacing_y", value).into()
             }
             GMMessage::Custom1(name) if name == "get_text" => {
-                let value = Box::new(GMValue::String(self.text.clone()));
-                return GMValue::Custom2("text".to_string(), value)
+                // let value = Box::new(GMValue::String(self.text.clone()));
+                // return GMValue::Custom2("text".to_string(), value)
+                let value = self.text.clone().into();
+                return ("text", value).into()
             }
             GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
                 self.spacing += value;

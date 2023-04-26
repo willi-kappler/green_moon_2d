@@ -59,7 +59,31 @@ pub enum GMMessage {
 
 impl From<Vec<GMMessage>> for GMMessage {
     fn from(messages: Vec<GMMessage>) -> Self {
-        GMMessage::Multiple(messages)
+        Self::Multiple(messages)
+    }
+}
+
+impl From<(&str, GMValue)> for GMMessage {
+    fn from((name, value): (&str, GMValue)) -> Self {
+        Self::Custom2(name.to_string(), value)
+    }
+}
+
+impl From<(GMMessage, GMMessage)> for GMMessage {
+    fn from((m1, m2): (GMMessage, GMMessage)) -> Self {
+        Self::Tuple2(Box::new(m1), Box::new(m2))
+    }
+}
+
+impl From<(GMMessage, GMMessage, GMMessage)> for GMMessage {
+    fn from((m1, m2, m3): (GMMessage, GMMessage, GMMessage)) -> Self {
+        Self::Tuple3(Box::new(m1), Box::new(m2), Box::new(m3))
+    }
+}
+
+impl From<(GMMessage, GMMessage, GMMessage, GMMessage)> for GMMessage {
+    fn from((m1, m2, m3, m4): (GMMessage, GMMessage, GMMessage, GMMessage)) -> Self {
+        Self::Tuple4(Box::new(m1), Box::new(m2), Box::new(m3), Box::new(m4))
     }
 }
 
@@ -99,6 +123,84 @@ pub enum GMValue {
 impl From<()> for GMValue {
     fn from(_value: ()) -> Self {
         Self::None
+    }
+}
+
+impl From<bool> for GMValue {
+    fn from(value: bool) -> Self {
+        Self::Bool(value)
+    }
+}
+
+impl From<u8> for GMValue {
+    fn from(value: u8) -> Self {
+        Self::U8(value)
+    }
+}
+
+impl From<u16> for GMValue {
+    fn from(value: u16) -> Self {
+        Self::U16(value)
+    }
+}
+
+impl From<u32> for GMValue {
+    fn from(value: u32) -> Self {
+        Self::U32(value)
+    }
+}
+
+impl From<u64> for GMValue {
+    fn from(value: u64) -> Self {
+        Self::U64(value)
+    }
+}
+
+impl From<i8> for GMValue {
+    fn from(value: i8) -> Self {
+        Self::I8(value)
+    }
+}
+
+impl From<i16> for GMValue {
+    fn from(value: i16) -> Self {
+        Self::I16(value)
+    }
+}
+
+impl From<i32> for GMValue {
+    fn from(value: i32) -> Self {
+        Self::I32(value)
+    }
+}
+
+impl From<i64> for GMValue {
+    fn from(value: i64) -> Self {
+        Self::I64(value)
+    }
+}
+
+impl From<usize> for GMValue {
+    fn from(value: usize) -> Self {
+        Self::USize(value)
+    }
+}
+
+impl From<f32> for GMValue {
+    fn from(value: f32) -> Self {
+        Self::F32(value)
+    }
+}
+
+impl From<GMVec2D> for GMValue {
+    fn from(value: GMVec2D) -> Self {
+        Self::Vec2D(value)
+    }
+}
+
+impl From<String> for GMValue {
+    fn from(value: String) -> Self {
+        Self::String(value)
     }
 }
 
@@ -147,6 +249,12 @@ impl From<(GMValue, GMValue, GMValue, GMValue)> for GMValue {
 impl From<Vec<GMValue>> for GMValue {
     fn from(value: Vec<GMValue>) -> Self {
         Self::Multiple(value)
+    }
+}
+
+impl From<(&str, GMValue)> for GMValue {
+    fn from((name, value): (&str, GMValue)) -> Self {
+        Self::Custom2(name.to_string(), Box::new(value))
     }
 }
 

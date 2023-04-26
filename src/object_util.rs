@@ -32,7 +32,8 @@ impl GMObjectT for GMForewardToElement {
             }
             GMMessage::Custom1(name) if name == "get_element_indices" => {
                 let result: GMValue = self.elements.clone().into();
-                return GMValue::Custom2("element_indices".to_string(), Box::new(result))
+                // return GMValue::Custom2("element_indices".to_string(), Box::new(result))
+                return ("element_indices", result).into()
             }
             GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_element_indices" => {
                 self.elements.clear();
@@ -52,7 +53,8 @@ impl GMObjectT for GMForewardToElement {
 
                     for element in self.elements.iter() {
                         let value2 = message.clone().into();
-                        let new_message = GMMessage::Custom2("to_element_n".to_string(), (element.clone(), value2).into());
+                        // let new_message = GMMessage::Custom2("to_element_n".to_string(), (element.clone(), value2).into());
+                        let new_message = ("to_element_n", (element.clone(), value2).into()).into();
                         new_messages.push(new_message);
                     }
 
@@ -139,12 +141,16 @@ impl GMObjectT for GMTimedMessage {
                 return self.target.clone().into()
             }
             GMMessage::Custom1(name) if name == "get_timeout" => {
-                let value = Box::new(GMValue::F32(self.timer.duration));
-                return GMValue::Custom2("timeout".to_string(), value)
+                // let value = Box::new(GMValue::F32(self.timer.duration));
+                // return GMValue::Custom2("timeout".to_string(), value)
+                let value = self.timer.duration.into();
+                return ("timeout", value).into()
             }
             GMMessage::Custom1(name) if name == "get_repeat" => {
-                let value = Box::new(GMValue::Bool(self.repeat));
-                return GMValue::Custom2("repeat".to_string(), value)
+                // let value = Box::new(GMValue::Bool(self.repeat));
+                // return GMValue::Custom2("repeat".to_string(), value)
+                let value = self.repeat.into();
+                return ("repeat", value).into()
             }
             GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_timeout" => {
                 self.timer.duration = value;
@@ -286,8 +292,10 @@ impl GMObjectT for GMMultiply {
                 return self.target.clone().into()
             }
             GMMessage::Custom1(name) if name == "get_factor" => {
-                let value = Box::new(GMValue::U32(self.factor));
-                return GMValue::Custom2("factor".to_string(), value)
+                // let value = Box::new(GMValue::U32(self.factor));
+                // return GMValue::Custom2("factor".to_string(), value)
+                let value = self.factor.into();
+                return ("factor", value).into()
             }
             GMMessage::Custom2(name, GMValue::U32(value)) if name == "set_factor" => {
                 self.factor = value;
