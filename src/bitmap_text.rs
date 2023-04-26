@@ -298,44 +298,14 @@ impl GMObjectT for GMBitmapText {
             GMMessage::GetY => {
                 return GMValue::F32(self.position.y)
             }
-            GMMessage::Tuple2(left, right) => {
-                match (*left, *right) {
-                    (GMMessage::AddSpacingX(x), GMMessage::AddSpacingY(y)) => {
-                        self.spacing.x += x;
-                        self.spacing.y += y;
-                    }
-                    (GMMessage::AddX(x), GMMessage::AddY(y)) => {
-                        self.position.x += x;
-                        self.position.y += y;
-                    }
-                    (GMMessage::SetSpacingX(x), GMMessage::SetSpacingY(y)) => {
-                        self.spacing.x = x;
-                        self.spacing.y = y;
-                    }
-                    (GMMessage::SetX(x), GMMessage::SetY(y)) => {
-                        self.position.x = x;
-                        self.position.y = y;
-                    }
-                    (GMMessage::GetSpacingX, GMMessage::GetSpacingY) => {
-                        /*
-                        let left = Box::new(GMValue::F32(self.spacing.x));
-                        let right = Box::new(GMValue::F32(self.spacing.y));
-                        return GMValue::Tuple2(left, right);
-                        */
-                        return (self.spacing.x, self.spacing.y).into()
-                    }
-                    (GMMessage::GetX, GMMessage::GetY) => {
-                        /*
-                        let left = Box::new(GMValue::F32(self.position.x));
-                        let right = Box::new(GMValue::F32(self.position.y));
-                        return GMValue::Tuple2(left, right);
-                        */
-                        return (self.position.x, self.position.y).into()
-                    }
-                    (l, r) => {
-                        error_panic(&format!("Wrong message for GMBitmapText::send_message: Tuple2(left, right), left: {:?}, right: {:?}", l, r))
-                    }
-                }
+            GMMessage::Tuple2(m1, m2) => {
+                return self.send_tuple2_message(*m1, *m2, context, object_manager)
+            }
+            GMMessage::Tuple3(m1, m2, m3) => {
+                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
+            }
+            GMMessage::Tuple4(m1, m2, m3, m4) => {
+                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)

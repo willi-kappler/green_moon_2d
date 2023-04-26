@@ -1,7 +1,7 @@
 
 
 use crate::context::GMContext;
-use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget};
+use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget, self};
 use crate::timer::GMTimer;
 use crate::util::{error_panic};
 
@@ -36,9 +36,6 @@ impl GMObjectT for GMForewardToElement {
             }
             GMMessage::GetElementIndices => {
                 return GMValue::ElementIndices(self.elements.clone())
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 if self.elements.is_empty() {
@@ -86,9 +83,6 @@ impl GMObjectT for GMOtherTarget {
                 // return GMValue::Target(self.target.clone())
                 return self.target.clone().into()
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             _ => {
                 return object_manager.send_message(self.target.clone(), message, context);
             }
@@ -122,7 +116,7 @@ impl GMTimedMessage {
 }
 
 impl GMObjectT for GMTimedMessage {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetMessage(message) => {
                 self.message = *message;
@@ -149,9 +143,6 @@ impl GMObjectT for GMTimedMessage {
             }
             GMMessage::GetRepeat => {
                 return GMValue::Repeat(self.repeat)
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
@@ -212,9 +203,6 @@ impl GMObjectT for GMTrigger {
             GMMessage::Trigger => {
                 return object_manager.send_message(self.target.clone(), message, context)
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
             }
@@ -256,13 +244,59 @@ impl GMObjectT for GMTriggerPair {
                 //return GMValue::Multiple(result)
                 return result.into()
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             _ => {
                 error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))
             }
         }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMMultiply {
+    pub factor: u32,
+    pub target: GMTarget,
+}
+
+impl GMMultiply {
+    pub fn new<T: Into<GMTarget>>(target: T, factor: u32) -> Self {
+        Self {
+            factor,
+            target: target.into(),
+        }
+    }
+}
+
+impl GMObjectT for GMMultiply {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::SetFactor(factor) => {
+                self.factor = factor;
+            }
+            GMMessage::SetTarget(target) => {
+                self.target = target
+            }
+            GMMessage::GetFactor => {
+                return GMValue::Factor(self.factor)
+            }
+            GMMessage::GetTarget => {
+                return self.target.clone().into()
+            }
+            _ => {
+                let mut result = Vec::new();
+
+                for _ in 0..self.factor {
+                    result.push(message.clone());
+                }
+
+                return object_manager.send_message(self.target.clone(), result.into(), context)
+            }
+        }
+
+        GMValue::None
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

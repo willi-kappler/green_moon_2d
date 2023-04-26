@@ -24,6 +24,7 @@ pub enum GMMessage {
     GetCustom(String),
     GetElementIndices,
     GetElementObject(usize),
+    GetFactor,
     GetFont,
     GetHorizontal,
     GetMessage,
@@ -66,6 +67,7 @@ pub enum GMMessage {
     SetCustom(String, GMValue),
     SetElementIndices(Vec<usize>),
     SetElementObject(usize, Box<dyn GMObjectT>),
+    SetFactor(u32),
     SetFont(Rc<GMBitmapFont>),
     SetFontName(String),
     SetHorizontal(bool),
@@ -105,6 +107,7 @@ pub enum GMValue {
     ElementIndices(Vec<usize>),
     F32(f32),
     F64(f64),
+    Factor(u32),
     Font(Rc<GMBitmapFont>),
     Horizontal(bool),
     I16(i16),
@@ -180,6 +183,24 @@ impl From<GMMessage> for GMValue {
 impl From<GMTarget> for GMValue {
     fn from(value: GMTarget) -> Self {
         Self::Target(value)
+    }
+}
+
+impl From<(GMValue, GMValue)> for GMValue {
+    fn from((v1, v2): (GMValue, GMValue)) -> Self {
+        Self::Tuple2(Box::new(v1), Box::new(v2))
+    }
+}
+
+impl From<(GMValue, GMValue, GMValue)> for GMValue {
+    fn from((v1, v2, v3): (GMValue, GMValue, GMValue)) -> Self {
+        Self::Tuple3(Box::new(v1), Box::new(v2), Box::new(v3))
+    }
+}
+
+impl From<(GMValue, GMValue, GMValue, GMValue)> for GMValue {
+    fn from((v1, v2, v3, v4): (GMValue, GMValue, GMValue, GMValue)) -> Self {
+        Self::Tuple4(Box::new(v1), Box::new(v2), Box::new(v3), Box::new(v4))
     }
 }
 
@@ -632,6 +653,30 @@ impl GMObjectManager {
 pub trait GMObjectT: Debug {
     fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
+    }
+
+    fn send_tuple2_message(&mut self, message1: GMMessage, message2: GMMessage, context: &mut GMContext,
+        object_manager: &GMObjectManager) -> GMValue {
+        let result1 = self.send_message(message1, context, object_manager);
+        let result2 = self.send_message(message2, context, object_manager);
+        (result1, result2).into()
+    }
+
+    fn send_tuple3_message(&mut self, message1: GMMessage, message2: GMMessage, message3: GMMessage,
+        context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let result1 = self.send_message(message1, context, object_manager);
+        let result2 = self.send_message(message2, context, object_manager);
+        let result3 = self.send_message(message3, context, object_manager);
+        (result1, result2, result3).into()
+    }
+
+    fn send_tuple4_message(&mut self, message1: GMMessage, message2: GMMessage, message3: GMMessage, message4: GMMessage,
+        context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let result1 = self.send_message(message1, context, object_manager);
+        let result2 = self.send_message(message2, context, object_manager);
+        let result3 = self.send_message(message3, context, object_manager);
+        let result4 = self.send_message(message4, context, object_manager);
+        (result1, result2, result3, result4).into()
     }
 
     fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
