@@ -4,10 +4,11 @@
 use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
-const ALPHA_NUM: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+// const ALPHA_NUM: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // Not possible yet...
 // const ALPHA_NUM2: Vec<char> = ALPHA_NUM.chars().collect();
+
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMAlign {
