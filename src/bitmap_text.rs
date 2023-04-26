@@ -253,31 +253,31 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::Custom1(name) if name == "get_align" => {
                 let value = GMValue::Any(Rc::new(self.align));
-                return ("align", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_font" => {
                 let value = GMValue::Any(self.font.clone());
-                return ("font", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_horizontal" => {
                 let value = self.horizontal.into();
-                return ("horizontal", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_spacing" => {
                 let value = self.spacing.into();
-                return ("spacing", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_spacing_x" => {
                 let value = self.spacing.x.into();
-                return ("spacing_x", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_spacing_y" => {
                 let value = self.spacing.y.into();
-                return ("spacing_y", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_text" => {
                 let value = self.text.clone().into();
-                return ("text", value).into()
+                return value
             }
             GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
                 self.spacing += value;
@@ -293,14 +293,17 @@ impl GMObjectT for GMBitmapText {
                 self.align = *align;
             }
             GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font" => {
+                debug!("GMBitmapText::send_message(), set_font");
                 let font = value.downcast::<GMBitmapFont>().unwrap();
                 self.font = font;
             }
             GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font_name" => {
+                debug!("GMBitmapText::send_message(), set_font, font_name: {}", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
             }
             GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_horizontal" => {
+                debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
                 self.horizontal = value;
             }
             GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "set_spacing" => {

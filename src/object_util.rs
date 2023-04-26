@@ -1,4 +1,5 @@
 
+use log::debug;
 
 use crate::context::GMContext;
 use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget};
@@ -14,8 +15,11 @@ pub struct GMForewardToElement {
 
 impl GMForewardToElement {
     pub fn new<T: Into<GMTarget>>(target: T, elements: Vec<usize>) -> Self {
+        let target = target.into();
+        debug!("GMForewardToElement::new(), target: {:?}", target);
+
         Self {
-            target: target.into(),
+            target,
             elements: elements.iter().map(|e| GMValue::USize(*e)).collect(),
         }
     }
@@ -32,7 +36,7 @@ impl GMObjectT for GMForewardToElement {
             }
             GMMessage::Custom1(name) if name == "get_element_indices" => {
                 let result: GMValue = self.elements.clone().into();
-                return ("element_indices", result).into()
+                return result
             }
             GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_element_indices" => {
                 self.elements.clear();
@@ -76,8 +80,11 @@ pub struct GMOtherTarget {
 
 impl GMOtherTarget {
     pub fn new<T: Into<GMTarget>>(target: T) -> Self {
+        let target = target.into();
+        debug!("GMOtherTarget::new(), target: {:?}", target);
+
         Self {
-            target: target.into(),
+            target,
         }
     }
 }
@@ -113,10 +120,13 @@ pub struct GMTimedMessage {
 }
 
 impl GMTimedMessage {
-    pub fn new<T: Into<GMTarget>>(message: GMMessage, targets: T, timeout: f32, repeat: bool) -> Self {
+    pub fn new<T: Into<GMTarget>>(message: GMMessage, target: T, timeout: f32, repeat: bool) -> Self {
+        let target = target.into();
+        debug!("GMTimedMessage::new(), target: {:?}, timeout: {}, repeat: {}, message: {:?}", target, timeout, repeat, message);
+
         Self {
             message,
-            target: targets.into(),
+            target,
             timer: GMTimer::new(timeout),
             repeat
         }
@@ -140,11 +150,11 @@ impl GMObjectT for GMTimedMessage {
             }
             GMMessage::Custom1(name) if name == "get_timeout" => {
                 let value = self.timer.duration.into();
-                return ("timeout", value).into()
+                return value
             }
             GMMessage::Custom1(name) if name == "get_repeat" => {
                 let value = self.repeat.into();
-                return ("repeat", value).into()
+                return value
             }
             GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_timeout" => {
                 self.timer.duration = value;
@@ -184,6 +194,9 @@ pub struct GMTrigger {
 
 impl GMTrigger {
     pub fn new<T: Into<GMTarget>>(target: T, message: GMMessage) -> Self {
+        let target = target.into();
+        debug!("GMTrigger::new(), target: {:?}, message: {:?}", target, message);
+
         Self {
             target: target.into(),
             message,
@@ -231,6 +244,8 @@ pub struct GMTriggerPair {
 
 impl GMTriggerPair {
     pub fn new(pairs: Vec<(GMTarget, GMMessage)>) -> Self {
+        debug!("GMTriggerPair::new()");
+
         Self {
             pairs
         }
@@ -268,6 +283,9 @@ pub struct GMMultiply {
 
 impl GMMultiply {
     pub fn new<T: Into<GMTarget>>(target: T, factor: u32) -> Self {
+        let target = target.into();
+        debug!("GMMultiply::new(), target: {:?}, factor: {}", target, factor);
+
         Self {
             factor,
             target: target.into(),
@@ -287,7 +305,7 @@ impl GMObjectT for GMMultiply {
             }
             GMMessage::Custom1(name) if name == "get_factor" => {
                 let value = self.factor.into();
-                return ("factor", value).into()
+                return value
             }
             GMMessage::Custom2(name, GMValue::U32(value)) if name == "set_factor" => {
                 self.factor = value;
