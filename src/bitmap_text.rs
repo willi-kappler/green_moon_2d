@@ -280,6 +280,10 @@ impl GMObjectT for GMBitmapText {
             GMMessage::Custom1(name) if name == "toggle_horizontal" => {
                 self.horizontal = !self.horizontal;
             }
+            GMMessage::Custom1(name) if name == "toggle_horizontal2" => {
+                self.horizontal = !self.horizontal;
+                self.reset_positions();
+            }
             GMMessage::Custom1(name) if name == "get_align" => {
                 let value = GMValue::Any(Rc::new(self.align));
                 return value
@@ -336,14 +340,14 @@ impl GMObjectT for GMBitmapText {
                 self.reset_positions();
             }
             GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_align" => {
-                debug!("GMBitmapText::send_message(), set_align: {:?}", value);
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
+                debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
             }
             GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_align2" => {
-                debug!("GMBitmapText::send_message(), set_align: {:?}", value);
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
+                debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
                 self.reset_positions();
             }
             GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font" => {
