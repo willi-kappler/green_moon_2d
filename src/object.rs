@@ -42,7 +42,6 @@ pub enum GMMessage {
     OMSetVisible(String, bool),
     OMToggleActive(String),
     OMToggleVisible(String),
-    Reset,
     SetChild(String, Box<dyn GMObjectT>),
     SetMessage(Box<GMMessage>),
     SetPosition(GMVec2D),
