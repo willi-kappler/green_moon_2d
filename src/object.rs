@@ -291,13 +291,13 @@ impl From<&[&str]> for GMTarget {
 
 #[derive(Clone, Debug)]
 pub struct GMObjectInfo {
-    active: bool,
-    custom_properties: HashMap<String, GMValue>,
-    draw_index: i32,
-    groups: HashSet<String>,
-    inner: RefCell<Box<dyn GMObjectT>>,
-    update_index: i32,
-    visible: bool,
+    pub active: bool,
+    pub custom_properties: HashMap<String, GMValue>,
+    pub draw_index: i32,
+    pub groups: HashSet<String>,
+    pub inner: RefCell<Box<dyn GMObjectT>>,
+    pub update_index: i32,
+    pub visible: bool,
 }
 
 impl GMObjectInfo {
@@ -349,12 +349,46 @@ impl GMObjectManager {
         self.objects.insert(name.to_string(), new_object);
     }
 
+    pub fn add_normal_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, group: &str) {
+        let mut groups = HashSet::new();
+        groups.insert(group.to_string());
+
+        let new_object = GMObjectInfo {
+            active: true,
+            custom_properties: HashMap::new(),
+            draw_index: 0,
+            groups,
+            inner: RefCell::new(object.into()),
+            update_index: update_index,
+            visible: false,
+        };
+
+        self.objects.insert(name.to_string(), new_object);
+    }
+
     pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
         let new_object = GMObjectInfo {
             active: true,
             custom_properties: HashMap::new(),
             draw_index: draw_index,
             groups: HashSet::new(),
+            inner: RefCell::new(object.into()),
+            update_index: update_index,
+            visible: true,
+        };
+
+        self.objects.insert(name.to_string(), new_object);
+    }
+
+    pub fn add_draw_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32, group: &str) {
+        let mut groups = HashSet::new();
+        groups.insert(group.to_string());
+
+        let new_object = GMObjectInfo {
+            active: true,
+            custom_properties: HashMap::new(),
+            draw_index: draw_index,
+            groups,
             inner: RefCell::new(object.into()),
             update_index: update_index,
             visible: true,
