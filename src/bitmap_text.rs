@@ -297,10 +297,22 @@ impl GMObjectT for GMBitmapText {
                 let font = value.downcast::<GMBitmapFont>().unwrap();
                 self.font = font;
             }
-            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font_name" => {
+            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font" => {
                 debug!("GMBitmapText::send_message(), set_font, font_name: {}", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
+            }
+            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font2" => {
+                debug!("GMBitmapText::send_message(), set_font2");
+                let font = value.downcast::<GMBitmapFont>().unwrap();
+                self.font = font;
+                self.reset_chars()
+            }
+            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font2" => {
+                debug!("GMBitmapText::send_message(), set_font2, font_name: {}", value);
+                let font = context.resources.get_font(&value);
+                self.font = font.clone();
+                self.reset_chars()
             }
             GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_horizontal" => {
                 debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
