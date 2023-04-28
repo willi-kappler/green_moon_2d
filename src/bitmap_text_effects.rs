@@ -118,24 +118,6 @@ impl GMObjectT for GMTEWave {
                 }
             }
         }
-
-/*         if horizontal {
-            for bitmap_char in text.get_chars_mut() {
-                bitmap_char.add_position_y((self.time + offset).sin() * self.amplitude);
-                offset += self.offset;
-            }
-        } else {
-            for bitmap_char in text.get_chars_mut() {
-                bitmap_char.add_position_x((self.time + offset).sin() * self.amplitude);
-                offset += self.offset;
-            }
-        }
-
-        self.time += self.speed;
-
-        if self.time > TAU {
-            self.time -= TAU;
-        } */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
