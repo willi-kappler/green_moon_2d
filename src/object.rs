@@ -194,6 +194,12 @@ impl From<GMVec2D> for GMValue {
     }
 }
 
+impl From<&str> for GMValue {
+    fn from(value: &str) -> Self {
+        Self::String(value.to_string())
+    }
+}
+
 impl From<String> for GMValue {
     fn from(value: String) -> Self {
         Self::String(value)
@@ -308,6 +314,7 @@ impl GMObjectInfo {
     }
 }
 
+#[derive(Debug)]
 pub struct GMObjectManager {
     objects: HashMap<String, GMObjectInfo>,
     manager_messages: RefCell<VecDeque<GMMessage>>,
@@ -602,6 +609,14 @@ impl GMObjectManager {
         }
 
         GMValue::None
+    }
+
+    pub fn send_custom_message1(&self, target: &GMTarget, message: &str, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom1(message.to_string()), context)
+    }
+
+    pub fn send_custom_message2(&self, target: &GMTarget, message: &str, value: GMValue, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom2(message.to_string(), value), context)
     }
 
     pub fn process_manager_messages(&mut self) {
