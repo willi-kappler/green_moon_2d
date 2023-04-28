@@ -26,40 +26,30 @@ impl TextScene1 {
 
         // Set up title text:
         let mut text = GMBitmapText::new(font1, (512.0, 100.0), "TEXT 1");
-        text.align = GMAlign::BottomCenter;
-        text.reset_chars();
+        text.set_align(GMAlign::BottomCenter);
 
-        object_manager.add_draw_object("title", text, 0, 0);
-        object_manager.add_group("title", "style1");
+        object_manager.add_draw_object_group("title", text, 0, 0, "style1");
 
         // Set up description:
         text = GMBitmapText::new(font1, (512.0, 200.0), "PRESS 1 2 3");
-        text.align = GMAlign::BottomCenter;
-        text.reset_chars();
+        text.set_align(GMAlign::BottomCenter);
 
-        object_manager.add_draw_object("description1", text, 0, 0);
-        object_manager.add_group("description1", "style1");
+        object_manager.add_draw_object_group("description1", text, 0, 0, "style1");
 
         text = GMBitmapText::new(font1, (512.0, 300.0), "TO CHANGE FONT");
-        text.align = GMAlign::BottomCenter;
-        text.reset_chars();
+        text.set_align(GMAlign::BottomCenter);
 
-        object_manager.add_draw_object("description2", text, 0, 0);
-        object_manager.add_group("description2", "style1");
+        object_manager.add_draw_object_group("description2", text, 0, 0, "style1");
 
         text = GMBitmapText::new(font1, (512.0, 350.0), "THIS IS FONT 1");
-        text.align = GMAlign::BottomCenter;
-        text.reset_chars();
+        text.set_align(GMAlign::BottomCenter);
 
-        object_manager.add_draw_object("description3", text, 0, 0);
-        object_manager.add_group("description3", "style1");
+        object_manager.add_draw_object_group("description3", text, 0, 0, "style1");
 
         text = GMBitmapText::new(font1, (512.0, 400.0), "CUDDLY");
-        text.align = GMAlign::BottomCenter;
-        text.reset_chars();
+        text.set_align(GMAlign::BottomCenter);
 
-        object_manager.add_draw_object("description4", text, 0, 0);
-        object_manager.add_group("description4", "style1");
+        object_manager.add_draw_object_group("description4", text, 0, 0, "style1");
 
         Self {
             object_manager,
@@ -70,7 +60,7 @@ impl TextScene1 {
         self.object_manager.send_custom_message2(&"description3".into(), "set_text".into(), text1.into(), context);
         self.object_manager.send_custom_message2(&"description4".into(), "set_text".into(), text2.into(), context);
 
-        self.object_manager.send_custom_message2(&GMTarget::Group("style1".to_string()), "set_font2".into(), font.into(), context);    
+        self.object_manager.send_custom_message2(&GMTarget::Group("style1".to_string()), "set_font2".into(), font.into(), context);
     }
 }
 
