@@ -274,7 +274,7 @@ impl GMObjectT for GMBitmapText {
             GMMessage::Custom0(name) if name == "reset_chars" => {
                 self.reset_chars();
             }
-            GMMessage::Custom0(name) if name == "reset_position" => {
+            GMMessage::Custom0(name) if name == "reset_positions" => {
                 self.reset_positions();
             }
             GMMessage::Custom0(name) if name == "toggle_horizontal" => {
