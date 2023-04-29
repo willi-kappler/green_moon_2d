@@ -59,10 +59,10 @@ impl TextScene1 {
     }
 
     fn change_text_and_font(&mut self, text1: &str, text2: &str, font: &str, context: &mut GMContext) {
-        self.object_manager.send_custom_message2(&"description3".into(), "set_text".into(), text1.into(), context);
-        self.object_manager.send_custom_message2(&"description4".into(), "set_text".into(), text2.into(), context);
+        self.object_manager.send_custom_message2(&"description3".into(), "set_text", text1.into(), context);
+        self.object_manager.send_custom_message2(&"description4".into(), "set_text", text2.into(), context);
 
-        self.object_manager.send_custom_message2(&self.target_group, "set_font2".into(), font.into(), context);
+        self.object_manager.send_custom_message2(&self.target_group, "set_font2", font.into(), context);
     }
 }
 
