@@ -23,10 +23,27 @@ impl GMForewardToElement {
             elements: elements.iter().map(|e| GMValue::USize(*e)).collect(),
         }
     }
-}
 
-impl GMObjectT for GMForewardToElement {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn forward_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        if self.elements.is_empty() {
+            let new_message = GMMessage::ToAllChildren(message.into());
+            return object_manager.send_message(&self.target, new_message, context);
+        } else {
+            let mut new_messages = Vec::new();
+
+            for value in self.elements.iter() {
+                if let GMValue::USize(element) = value {
+                    let value2 = message.clone().into();
+                    let new_message = GMMessage::ToChild(*element, value2);
+                    new_messages.push(new_message);
+                }
+            }
+
+            return object_manager.send_message(&self.target, new_messages.into(), context);
+        }
+    }
+
+    fn keep_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
                 self.target = target
@@ -47,25 +64,55 @@ impl GMObjectT for GMForewardToElement {
                     }
                 }
             }
-            _ => {
-                if self.elements.is_empty() {
-                    let new_message = GMMessage::Custom1("to_all_elements".to_string(), message.into());
-                    return object_manager.send_message(&self.target, new_message, context);
-                } else {
-                    let mut new_messages = Vec::new();
+            GMMessage::Tuple2(m1, m2) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                return (result1, result2).into()
+            }
+            GMMessage::Tuple3(m1, m2, m3) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                return (result1, result2, result3).into()
+            }
+            GMMessage::Tuple4(m1, m2, m3, m4) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                let result4 = self.keep_message(*m4, context, object_manager);
+                return (result1, result2, result3, result4).into()
+            }
+            GMMessage::Multiple(messages) => {
+                let mut result = Vec::new();
 
-                    for element in self.elements.iter() {
-                        let value2 = message.clone().into();
-                        let new_message = ("to_element_n", (element.clone(), value2).into()).into();
-                        new_messages.push(new_message);
-                    }
-
-                    return object_manager.send_message(&self.target, new_messages.into(), context);
+                for message in messages.iter() {
+                    result.push(self.keep_message(message.clone(), context, object_manager));
                 }
+
+                return result.into()
+                    }
+            _ => {
+                error_panic(&format!("Wrong message for GMForewardToElement::send_message: {:?}", message))
             }
         }
 
         GMValue::None
+    }
+}
+
+impl GMObjectT for GMForewardToElement {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Keep(self_message) => {
+                self.keep_message(*self_message, context, object_manager)
+            }
+            GMMessage::Forward(fwd_message) => {
+                self.forward_message(*fwd_message, context, object_manager)
+            }
+            _ => {
+                self.forward_message(message, context, object_manager)
+            }
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -87,10 +134,8 @@ impl GMOtherTarget {
             target,
         }
     }
-}
 
-impl GMObjectT for GMOtherTarget {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn keep_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
                 self.target = target
@@ -98,12 +143,55 @@ impl GMObjectT for GMOtherTarget {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
+            GMMessage::Tuple2(m1, m2) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                return (result1, result2).into()
+            }
+            GMMessage::Tuple3(m1, m2, m3) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                return (result1, result2, result3).into()
+            }
+            GMMessage::Tuple4(m1, m2, m3, m4) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                let result4 = self.keep_message(*m4, context, object_manager);
+                return (result1, result2, result3, result4).into()
+            }
+            GMMessage::Multiple(messages) => {
+                let mut result = Vec::new();
+
+                for message in messages.iter() {
+                    result.push(self.keep_message(message.clone(), context, object_manager));
+                }
+
+                return result.into()
+                    }
             _ => {
-                return object_manager.send_message(&self.target, message, context);
+                error_panic(&format!("Wrong message for GMOtherTarget::send_message: {:?}", message))
             }
         }
 
         GMValue::None
+    }
+}
+
+impl GMObjectT for GMOtherTarget {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Keep(self_message) => {
+                self.keep_message(*self_message, context, object_manager)
+            }
+            GMMessage:: Forward(fwd_message) => {
+                object_manager.send_message(&self.target, *fwd_message, context)
+            }
+            _ => {
+                object_manager.send_message(&self.target, message, context)
+            }
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -264,10 +352,16 @@ impl GMObjectT for GMTriggerPair {
 
                 return result.into()
             }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_pairs" => {
+                self.pairs = (*value.downcast::<Vec<(GMTarget, GMMessage)>>().unwrap()).clone();
+            }
+            // TODO: add "get_pairs"
             _ => {
                 error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))
             }
         }
+
+        GMValue::None
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -291,10 +385,18 @@ impl GMMultiply {
             target: target.into(),
         }
     }
-}
 
-impl GMObjectT for GMMultiply {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn forward_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let mut result = Vec::new();
+
+        for _ in 0..self.factor {
+            result.push(message.clone());
+        }
+
+        return object_manager.send_message(&self.target, result.into(), context)
+    }
+
+    fn keep_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
                 self.target = target
@@ -310,18 +412,55 @@ impl GMObjectT for GMMultiply {
             GMMessage::Custom1(name, GMValue::U32(value)) if name == "set_factor" => {
                 self.factor = value;
             }
-            _ => {
+            GMMessage::Tuple2(m1, m2) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                return (result1, result2).into()
+            }
+            GMMessage::Tuple3(m1, m2, m3) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                return (result1, result2, result3).into()
+            }
+            GMMessage::Tuple4(m1, m2, m3, m4) => {
+                let result1 = self.keep_message(*m1, context, object_manager);
+                let result2 = self.keep_message(*m2, context, object_manager);
+                let result3 = self.keep_message(*m3, context, object_manager);
+                let result4 = self.keep_message(*m4, context, object_manager);
+                return (result1, result2, result3, result4).into()
+            }
+            GMMessage::Multiple(messages) => {
                 let mut result = Vec::new();
 
-                for _ in 0..self.factor {
-                    result.push(message.clone());
+                for message in messages.iter() {
+                    result.push(self.keep_message(message.clone(), context, object_manager));
                 }
 
-                return object_manager.send_message(&self.target, result.into(), context)
+                return result.into()
+            }
+            _ => {
+                error_panic(&format!("Wrong message for GMForewardToElement::send_message: {:?}", message))
             }
         }
 
         GMValue::None
+    }
+}
+
+impl GMObjectT for GMMultiply {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Keep(self_message) => {
+                self.keep_message(*self_message, context, object_manager)
+            }
+            GMMessage:: Forward(fwd_message) => {
+                self.forward_message(*fwd_message, context, object_manager)
+            }
+            _ => {
+                self.forward_message(message, context, object_manager)
+            }
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
