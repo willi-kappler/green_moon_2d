@@ -12,6 +12,8 @@ use green_moon_2d::object::{GMObjectManager, GMTarget};
 struct TextScene1 {
     object_manager: GMObjectManager,
     target_group: GMTarget,
+    target_d3: GMTarget,
+    target_d4: GMTarget,
 }
 
 impl TextScene1 {
@@ -55,13 +57,14 @@ impl TextScene1 {
         Self {
             object_manager,
             target_group: GMTarget::Group("style1".to_string()),
+            target_d3: GMTarget::Single("description3".to_string()),
+            target_d4: GMTarget::Single("description4".to_string()),
         }
     }
 
     fn change_text_and_font(&mut self, text1: &str, text2: &str, font: &str, context: &mut GMContext) {
-        self.object_manager.send_custom_message2(&"description3".into(), "set_text", text1.into(), context);
-        self.object_manager.send_custom_message2(&"description4".into(), "set_text", text2.into(), context);
-
+        self.object_manager.send_custom_message2(&self.target_d3, "set_text", text1.into(), context);
+        self.object_manager.send_custom_message2(&self.target_d4, "set_text", text2.into(), context);
         self.object_manager.send_custom_message2(&self.target_group, "set_font2", font.into(), context);
     }
 }
