@@ -14,8 +14,11 @@ pub enum GMMessage {
     AddPosition(GMVec2D),
     AddX(f32),
     AddY(f32),
-    Custom1(String),
-    Custom2(String, GMValue),
+    Custom0(String),
+    Custom1(String, GMValue),
+    Custom2(String, GMValue, GMValue),
+    Custom3(String, GMValue, GMValue, GMValue),
+    Custom4(String, GMValue, GMValue, GMValue, GMValue),
     GetChild(usize),
     GetChildCount,
     GetMessage,
@@ -64,7 +67,7 @@ impl From<Vec<GMMessage>> for GMMessage {
 
 impl From<(&str, GMValue)> for GMMessage {
     fn from((name, value): (&str, GMValue)) -> Self {
-        Self::Custom2(name.to_string(), value)
+        Self::Custom1(name.to_string(), value)
     }
 }
 
@@ -103,7 +106,8 @@ pub enum GMValue {
     None,
     Object(Box<dyn GMObjectT>),
     Position(GMVec2D),
-    SharedObject(Rc<dyn GMObjectT>),
+    Shared(Rc<GMValue>),
+    SharedCell(Rc<RefCell<GMValue>>),
     Size(GMSize),
     String(String),
     Target(GMTarget),
@@ -647,12 +651,12 @@ impl GMObjectManager {
         GMValue::None
     }
 
-    pub fn send_custom_message1(&self, target: &GMTarget, message: &str, context: &mut GMContext) -> GMValue {
-        self.send_message(target, GMMessage::Custom1(message.to_string()), context)
+    pub fn send_custom_message0(&self, target: &GMTarget, message: &str, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom0(message.to_string()), context)
     }
 
-    pub fn send_custom_message2(&self, target: &GMTarget, message: &str, value: GMValue, context: &mut GMContext) -> GMValue {
-        self.send_message(target, GMMessage::Custom2(message.to_string(), value), context)
+    pub fn send_custom_message1(&self, target: &GMTarget, message: &str, value: GMValue, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom1(message.to_string(), value), context)
     }
 
     pub fn process_manager_messages(&mut self) {
