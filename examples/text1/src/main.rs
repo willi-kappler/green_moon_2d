@@ -74,50 +74,14 @@ impl GMSceneT for TextScene1 {
 
         if context.event(GMEventCode::Key1Up) {
             self.change_text_and_font("THIS IS FONT 1", "CUDDLY", "font_cuddly", context);
-
-/*             self.object_manager.send_custom_message2(&"description3".into(), "set_text".into(), "THIS IS FONT 1".into(), context);
-            self.object_manager.send_custom_message2(&"description4".into(), "set_text".into(), "CUDDLY".into(), context);
-
-            self.object_manager.send_custom_message2(&GMTarget::Group("style1".to_string()), "set_font2".into(), "font_cuddly".into(), context); */
-
-/*             self.descriptions[2].set_text("THIS IS FONT 1");
-            self.descriptions[3].set_text("CUDDLY");
-
-            for text in self.descriptions.iter_mut() {
-                text.set_font2(&self.font1);
-            } */
         }
 
         if context.event(GMEventCode::Key2Up) {
             self.change_text_and_font("THIS IS FONT 2", "BLAGGER", "font_blagger", context);
-
-/*             self.object_manager.send_custom_message2(&"description3".into(), "set_text".into(), "THIS IS FONT 2".into(), context);
-            self.object_manager.send_custom_message2(&"description4".into(), "set_text".into(), "BLAGGER".into(), context);
-
-            self.object_manager.send_custom_message2(&GMTarget::Group("style1".to_string()), "set_font2".into(), "font_blagger".into(), context); */
-
-/*             self.descriptions[2].set_text("THIS IS FONT 2");
-            self.descriptions[3].set_text("BLAGGER");
-
-            for text in self.descriptions.iter_mut() {
-                text.set_font2(&self.font2);
-            } */
         }
 
         if context.event(GMEventCode::Key3Up) {
             self.change_text_and_font("THIS IS FONT 3", "BBC", "font_bbc", context);
-
-/*             self.object_manager.send_custom_message2(&"description3".into(), "set_text".into(), "THIS IS FONT 3".into(), context);
-            self.object_manager.send_custom_message2(&"description4".into(), "set_text".into(), "BBC".into(), context);
-
-            self.object_manager.send_custom_message2(&GMTarget::Group("style1".to_string()), "set_font2".into(), "font_bbc".into(), context); */
-
-/*             self.descriptions[2].set_text("THIS IS FONT 3");
-            self.descriptions[3].set_text("BBC");
-
-            for text in self.descriptions.iter_mut() {
-                text.set_font2(&self.font3);
-            } */
         }
 
         self.object_manager.update(context);
