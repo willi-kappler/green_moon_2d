@@ -61,7 +61,7 @@ impl TextScene2 {
     }
 
     fn change_alignment(&mut self, align: GMAlign, context: &mut GMContext) {
-        self.object_manager.send_custom_message2(&self.target, "set_align2", GMValue::Any(Rc::new(align)), context);
+        self.object_manager.send_custom_message1(&self.target, "set_align2", GMValue::Any(Rc::new(align)), context);
     }
 }
 
@@ -110,7 +110,7 @@ impl GMSceneT for TextScene2 {
         }
 
         if context.event(GMEventCode::KeyHUp) {
-            self.object_manager.send_custom_message1(&self.target, "toggle_horizontal2", context);
+            self.object_manager.send_custom_message0(&self.target, "toggle_horizontal2", context);
         }
 
         self.object_manager.update(context);
