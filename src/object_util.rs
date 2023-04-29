@@ -34,11 +34,11 @@ impl GMObjectT for GMForewardToElement {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Custom1(name) if name == "get_element_indices" => {
+            GMMessage::Custom0(name) if name == "get_element_indices" => {
                 let result: GMValue = self.elements.clone().into();
                 return result
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_element_indices" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_element_indices" => {
                 self.elements.clear();
 
                 for element in values {
@@ -49,7 +49,7 @@ impl GMObjectT for GMForewardToElement {
             }
             _ => {
                 if self.elements.is_empty() {
-                    let new_message = GMMessage::Custom2("to_all_elements".to_string(), message.into());
+                    let new_message = GMMessage::Custom1("to_all_elements".to_string(), message.into());
                     return object_manager.send_message(&self.target, new_message, context);
                 } else {
                     let mut new_messages = Vec::new();
@@ -148,18 +148,18 @@ impl GMObjectT for GMTimedMessage {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Custom1(name) if name == "get_timeout" => {
+            GMMessage::Custom0(name) if name == "get_timeout" => {
                 let value = self.timer.duration.into();
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_repeat" => {
+            GMMessage::Custom0(name) if name == "get_repeat" => {
                 let value = self.repeat.into();
                 return value
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_timeout" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_timeout" => {
                 self.timer.duration = value;
             }
-            GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_repeat" => {
+            GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_repeat" => {
                 self.repeat = value;
             }
             _ => {
@@ -219,7 +219,7 @@ impl GMObjectT for GMTrigger {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Custom1(name) if name == "trigger" => {
+            GMMessage::Custom0(name) if name == "trigger" => {
                 return object_manager.send_message(&self.target, self.message.clone(), context)
             }
             _ => {
@@ -255,7 +255,7 @@ impl GMTriggerPair {
 impl GMObjectT for GMTriggerPair {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::Custom1(name) if name == "trigger" => {
+            GMMessage::Custom0(name) if name == "trigger" => {
                 let mut result = Vec::new();
 
                 for (target, message) in self.pairs.iter() {
@@ -303,11 +303,11 @@ impl GMObjectT for GMMultiply {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Custom1(name) if name == "get_factor" => {
+            GMMessage::Custom0(name) if name == "get_factor" => {
                 let value = self.factor.into();
                 return value
             }
-            GMMessage::Custom2(name, GMValue::U32(value)) if name == "set_factor" => {
+            GMMessage::Custom1(name, GMValue::U32(value)) if name == "set_factor" => {
                 self.factor = value;
             }
             _ => {

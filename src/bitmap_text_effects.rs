@@ -52,22 +52,22 @@ impl GMObjectT for GMTEWave {
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
-            GMMessage::Custom1(name) if name == "get_ampitude" => {
+            GMMessage::Custom0(name) if name == "get_ampitude" => {
                 return self.amplitude.into()
             }
-            GMMessage::Custom1(name) if name == "get_speed" => {
+            GMMessage::Custom0(name) if name == "get_speed" => {
                 return self.speed.into()
             }
-            GMMessage::Custom1(name) if name == "get_offset" => {
+            GMMessage::Custom0(name) if name == "get_offset" => {
                 return self.offset.into()
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_amplitude" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_amplitude" => {
                 self.amplitude = value
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_speed" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_speed" => {
                 self.speed = value
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_offset" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_offset" => {
                 self.offset = value
             }
             _ => {
@@ -81,7 +81,7 @@ impl GMObjectT for GMTEWave {
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         let mut offset = 0.0;
 
-        let message1 = GMMessage::Custom1("get_horizontal".to_string());
+        let message1 = GMMessage::Custom0("get_horizontal".to_string());
         let message2 = GMMessage::GetChildCount;
 
         let result = object_manager.send_message(&self.target, (message1, message2).into(), context);

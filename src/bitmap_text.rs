@@ -271,159 +271,159 @@ impl GMObjectT for GMBitmapText {
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
-            GMMessage::Custom1(name) if name == "reset_chars" => {
+            GMMessage::Custom0(name) if name == "reset_chars" => {
                 self.reset_chars();
             }
-            GMMessage::Custom1(name) if name == "reset_position" => {
+            GMMessage::Custom0(name) if name == "reset_position" => {
                 self.reset_positions();
             }
-            GMMessage::Custom1(name) if name == "toggle_horizontal" => {
+            GMMessage::Custom0(name) if name == "toggle_horizontal" => {
                 self.horizontal = !self.horizontal;
             }
-            GMMessage::Custom1(name) if name == "toggle_horizontal2" => {
+            GMMessage::Custom0(name) if name == "toggle_horizontal2" => {
                 self.horizontal = !self.horizontal;
                 self.reset_positions();
             }
-            GMMessage::Custom1(name) if name == "get_align" => {
+            GMMessage::Custom0(name) if name == "get_align" => {
                 let value = GMValue::Any(Rc::new(self.align));
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_font" => {
+            GMMessage::Custom0(name) if name == "get_font" => {
                 let value = GMValue::Any(self.font.clone());
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_horizontal" => {
+            GMMessage::Custom0(name) if name == "get_horizontal" => {
                 let value = self.horizontal.into();
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_spacing" => {
+            GMMessage::Custom0(name) if name == "get_spacing" => {
                 let value = self.spacing.into();
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_spacing_x" => {
+            GMMessage::Custom0(name) if name == "get_spacing_x" => {
                 let value = self.spacing.x.into();
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_spacing_y" => {
+            GMMessage::Custom0(name) if name == "get_spacing_y" => {
                 let value = self.spacing.y.into();
                 return value
             }
-            GMMessage::Custom1(name) if name == "get_text" => {
+            GMMessage::Custom0(name) if name == "get_text" => {
                 let value = self.text.clone().into();
                 return value
             }
-            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
+            GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
                 debug!("GMBitmapText::send_message(), add_spacing: {}", value);
                 self.spacing += value;
             }
-            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "add_spacing2" => {
+            GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "add_spacing2" => {
                 debug!("GMBitmapText::send_message(), add_spacing: {}", value);
                 self.spacing += value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_x" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_x" => {
                 debug!("GMBitmapText::send_message(), add_spacing_x: {}", value);
                 self.spacing.x += value;
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_x2" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_x2" => {
                 debug!("GMBitmapText::send_message(), add_spacing_x: {}", value);
                 self.spacing.x += value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_y" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_y" => {
                 debug!("GMBitmapText::send_message(), add_spacing_y: {}", value);
                 self.spacing.y += value;
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "add_spacing_y2" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_y2" => {
                 debug!("GMBitmapText::send_message(), add_spacing_y: {}", value);
                 self.spacing.y += value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_align" => {
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_align" => {
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
                 debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
             }
-            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_align2" => {
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_align2" => {
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
                 debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font" => {
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_font" => {
                 debug!("GMBitmapText::send_message(), set_font");
                 let font = value.downcast::<GMBitmapFont>().unwrap();
                 self.font = font;
             }
-            GMMessage::Custom2(name, GMValue::Any(value)) if name == "set_font2" => {
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_font2" => {
                 debug!("GMBitmapText::send_message(), set_font2");
                 let font = value.downcast::<GMBitmapFont>().unwrap();
                 self.font = font;
                 self.reset_chars()
             }
-            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font" => {
+            GMMessage::Custom1(name, GMValue::String(value)) if name == "set_font" => {
                 debug!("GMBitmapText::send_message(), set_font, font_name: {}", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
             }
-            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_font2" => {
+            GMMessage::Custom1(name, GMValue::String(value)) if name == "set_font2" => {
                 debug!("GMBitmapText::send_message(), set_font2, font_name: {}", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
                 self.reset_chars()
             }
-            GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_horizontal" => {
+            GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_horizontal" => {
                 debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
                 self.horizontal = value;
             }
-            GMMessage::Custom2(name, GMValue::Bool(value)) if name == "set_horizontal2" => {
+            GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_horizontal2" => {
                 debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
                 self.horizontal = value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "set_spacing" => {
+            GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "set_spacing" => {
                 debug!("GMBitmapText::send_message(), set_spacing: {}", value);
                 self.spacing = value;
             }
-            GMMessage::Custom2(name, GMValue::Vec2D(value)) if name == "set_spacing2" => {
+            GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "set_spacing2" => {
                 debug!("GMBitmapText::send_message(), set_spacing: {}", value);
                 self.spacing = value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_x" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_x" => {
                 debug!("GMBitmapText::send_message(), set_spacing_x: {}", value);
                 self.spacing.x = value;
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_x2" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_x2" => {
                 debug!("GMBitmapText::send_message(), set_spacing_x: {}", value);
                 self.spacing.x = value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_y" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_y" => {
                 debug!("GMBitmapText::send_message(), set_spacing_y: {}", value);
                 self.spacing.y = value;
             }
-            GMMessage::Custom2(name, GMValue::F32(value)) if name == "set_spacing_y2" => {
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_y2" => {
                 debug!("GMBitmapText::send_message(), set_spacing_y: {}", value);
                 self.spacing.y = value;
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_text" => {
+            GMMessage::Custom1(name, GMValue::String(value)) if name == "set_text" => {
                 self.text = value;
             }
-            GMMessage::Custom2(name, GMValue::String(value)) if name == "set_text2" => {
+            GMMessage::Custom1(name, GMValue::String(value)) if name == "set_text2" => {
                 self.text = value;
                 self.reset_positions();
             }
             // Messages for character manipulation:
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_position" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_position" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::Vec2D(position) = values[i] {
                         c.position += position;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_position2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_position2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::Vec2D(position) = values[i] {
                         c.position += position;
@@ -431,14 +431,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_position" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_position" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::Vec2D(position) = values[i] {
                         c.position = position;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_position2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_position2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::Vec2D(position) = values[i] {
                         c.position = position;
@@ -446,14 +446,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_x" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_x" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(x) = values[i] {
                         c.position.x += x;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_x2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_x2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(x) = values[i] {
                         c.position.x += x;
@@ -461,14 +461,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_y" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_y" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(y) = values[i] {
                         c.position.y += y;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "add_chars_y2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_y2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(y) = values[i] {
                         c.position.y += y;
@@ -476,14 +476,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_x" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_x" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(x) = values[i] {
                         c.position.x = x;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_x2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_x2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(x) = values[i] {
                         c.position.x = x;
@@ -491,14 +491,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_y" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_y" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(y) = values[i] {
                         c.position.y = y;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_y2" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_y2" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(y) = values[i] {
                         c.position.y = y;
@@ -506,14 +506,14 @@ impl GMObjectT for GMBitmapText {
                 }
                 self.reset_positions();
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_angle" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_angle" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(angle) = values[i] {
                         c.angle = angle;
                     }
                 }
             }
-            GMMessage::Custom2(name, GMValue::Multiple(values)) if name == "set_chars_scale" => {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_scale" => {
                 for (i, c) in self.chars.iter_mut().enumerate() {
                     if let GMValue::F32(scale) = values[i] {
                         c.scale = scale;
