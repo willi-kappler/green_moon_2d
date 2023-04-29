@@ -423,6 +423,14 @@ impl GMObjectManager {
         self.objects.remove(name);
     }
 
+    pub fn remove_objects_in_group(&mut self, group: &str) {
+        self.objects.retain(|_, v| !v.groups.contains(group));
+    }
+
+    pub fn remove_objects_not_in_group(&mut self, group: &str) {
+        self.objects.retain(|_, v| v.groups.contains(group));
+    }
+
     fn update_objects(&self, context: &mut GMContext) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
         objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
@@ -486,6 +494,22 @@ impl GMObjectManager {
         }
     }
 
+    pub fn set_active_in_group(&mut self, group: &str, active: bool) {
+        for object in self.objects.values_mut() {
+            if object.groups.contains(group) {
+                object.active = active;
+            }
+        }
+    }
+
+    pub fn set_active_not_in_group(&mut self, group: &str, active: bool) {
+        for object in self.objects.values_mut() {
+            if !object.groups.contains(group) {
+                object.active = active;
+            }
+        }
+    }
+
     pub fn get_active(&self, name: &str) -> bool {
         if let Some(object) = self.objects.get(name) {
             return object.active;
@@ -507,6 +531,22 @@ impl GMObjectManager {
             object.visible = visible;
         } else {
             error_panic(&format!("GMObjectManager::set_visible: object {} not found", name));
+        }
+    }
+
+    pub fn set_visible_in_group(&mut self, group: &str, visible: bool) {
+        for object in self.objects.values_mut() {
+            if object.groups.contains(group) {
+                object.visible = visible;
+            }
+        }
+    }
+
+    pub fn set_visible_not_in_group(&mut self, group: &str, visible: bool) {
+        for object in self.objects.values_mut() {
+            if !object.groups.contains(group) {
+                object.active = visible;
+            }
         }
     }
 
