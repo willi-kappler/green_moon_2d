@@ -56,7 +56,7 @@ impl TextScene2 {
 
         Self {
             object_manager,
-            target: GMTarget::Single("demo_text".to_string(),),
+            target: GMTarget::Single("demo_text".to_string()),
         }
     }
 
