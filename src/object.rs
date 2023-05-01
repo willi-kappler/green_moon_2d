@@ -634,8 +634,10 @@ impl GMObjectManager {
         match target {
             GMTarget::Single(name) => {
                 if let Some(object) = self.objects.get(name) {
-                    let mut borrowed_object = object.inner.borrow_mut();
-                    return borrowed_object.send_message(message, context, &self);
+                    if object.active {
+                        let mut borrowed_object = object.inner.borrow_mut();
+                        return borrowed_object.send_message(message, context, &self);
+                    }
                 } else {
                     error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
                 }
@@ -645,9 +647,11 @@ impl GMObjectManager {
 
                 for name in names {
                     if let Some(object) = self.objects.get(name) {
-                        let mut borrowed_object = object.inner.borrow_mut();
-                        let value = borrowed_object.send_message(message.clone(), context, &self);
-                        result.push(value);
+                        if object.active {
+                            let mut borrowed_object = object.inner.borrow_mut();
+                            let value = borrowed_object.send_message(message.clone(), context, &self);
+                            result.push(value);
+                        }
                     } else {
                         error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
                     }
@@ -659,7 +663,7 @@ impl GMObjectManager {
                 let mut result = Vec::new();
 
                 for (_, object) in self.objects.iter() {
-                    if object.groups.contains(group) {
+                    if object.active && object.groups.contains(group) {
                         let mut borrowed_object = object.inner.borrow_mut();
                         let value = borrowed_object.send_message(message.clone(), context, &self);
                         result.push(value);
@@ -673,7 +677,7 @@ impl GMObjectManager {
 
                 for (_, object) in self.objects.iter() {
                     for group in groups.iter() {
-                        if object.groups.contains(group) {
+                        if object.active && object.groups.contains(group) {
                             let mut borrowed_object = object.inner.borrow_mut();
                             let value = borrowed_object.send_message(message.clone(), context, &self);
                             result.push(value);
