@@ -95,10 +95,11 @@ impl From<(GMMessage, GMMessage, GMMessage, GMMessage)> for GMMessage {
 pub enum GMValue {
     Any(Rc<dyn Any>),
     Bool(bool),
-    Custom1(String),
-    Custom2(String, Box<GMValue>),
-    Custom3(String, Box<GMValue>, Box<GMValue>),
-    Custom4(String, Box<GMValue>, Box<GMValue>, Box<GMValue>),
+    Custom0(String),
+    Custom1(String, Box<GMValue>),
+    Custom2(String, Box<GMValue>, Box<GMValue>),
+    Custom3(String, Box<GMValue>, Box<GMValue>, Box<GMValue>),
+    Custom4(String, Box<GMValue>, Box<GMValue>, Box<GMValue>, Box<GMValue>),
     F32(f32),
     F64(f64),
     I16(i16),
@@ -266,7 +267,25 @@ impl From<Vec<GMValue>> for GMValue {
 
 impl From<(&str, GMValue)> for GMValue {
     fn from((name, value): (&str, GMValue)) -> Self {
-        Self::Custom2(name.to_string(), Box::new(value))
+        Self::Custom1(name.to_string(), Box::new(value))
+    }
+}
+
+impl From<(&str, GMValue, GMValue)> for GMValue {
+    fn from((name, value1, value2): (&str, GMValue, GMValue)) -> Self {
+        Self::Custom2(name.to_string(), Box::new(value1), Box::new(value2))
+    }
+}
+
+impl From<(&str, GMValue, GMValue, GMValue)> for GMValue {
+    fn from((name, value1, value2, value3): (&str, GMValue, GMValue, GMValue)) -> Self {
+        Self::Custom3(name.to_string(), Box::new(value1), Box::new(value2), Box::new(value3))
+    }
+}
+
+impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMValue {
+    fn from((name, value1, value2, value3, value4): (&str, GMValue, GMValue, GMValue, GMValue)) -> Self {
+        Self::Custom4(name.to_string(), Box::new(value1), Box::new(value2), Box::new(value3), Box::new(value4))
     }
 }
 
