@@ -27,7 +27,7 @@ pub mod object;
 pub mod resources;
 pub mod scene;
 // pub mod score;
-// pub mod sprite;
+pub mod sprite;
 // pub mod sprite_effect;
 
 pub mod texture;
