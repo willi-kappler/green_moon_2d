@@ -7,10 +7,10 @@ use crate::util::{GMRepetition};
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
     pub active: bool,
-    current_frame: usize,
+    pub current_frame: usize,
+    pub repetition: GMRepetition,
     frames: Vec<(u32, f32)>, // (index, duration in seconds)
     timer: GMTimer,
-    pub repetition: GMRepetition,
 }
 
 impl GMAnimation {
@@ -18,9 +18,9 @@ impl GMAnimation {
         Self {
             active: true,
             current_frame: 0,
+            repetition,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
-            repetition,
         }
     }
 
