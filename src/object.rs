@@ -94,6 +94,7 @@ impl From<(GMMessage, GMMessage, GMMessage, GMMessage)> for GMMessage {
 #[derive(Clone, Debug)]
 pub enum GMValue {
     Any(Rc<dyn Any>),
+    Binary(Vec<u8>),
     Bool(bool),
     Custom0(String),
     Custom1(String, Box<GMValue>),
