@@ -217,6 +217,12 @@ impl From<String> for GMValue {
     }
 }
 
+impl From<(bool, bool)> for GMValue {
+    fn from((v1, v2): (bool, bool)) -> Self {
+        Self::Tuple2(Box::new(GMValue::Bool(v1)), Box::new(GMValue::Bool(v2)))
+    }
+}
+
 impl From<(f32, f32)> for GMValue {
     fn from((v1, v2): (f32, f32)) -> Self {
         Self::Tuple2(Box::new(GMValue::F32(v1)), Box::new(GMValue::F32(v2)))
