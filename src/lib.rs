@@ -18,7 +18,7 @@ pub mod math;
 pub mod object_util;
 pub mod object;
 
-// pub mod movement;
+pub mod movement;
 
 // pub mod menu;
 // pub mod menu_item;
