@@ -707,7 +707,7 @@ impl GMObjectManager {
         self.send_message(target, GMMessage::Custom1(message.to_string(), value), context)
     }
 
-    pub fn process_manager_messages(&mut self) {
+    fn process_manager_messages(&mut self) {
         let mut messages = self.manager_messages.take();
 
         while let Some(message) = messages.pop_front() {
