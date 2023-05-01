@@ -413,7 +413,7 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::Custom1(name, GMValue::String(value)) if name == "set_text2" => {
                 self.text = value;
-                self.reset_positions();
+                self.reset_chars();
             }
             // Messages for character manipulation:
             GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_position" => {
