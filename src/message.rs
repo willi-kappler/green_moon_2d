@@ -59,6 +59,35 @@ pub enum GMMessage {
     Tuple4(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
 }
 
+impl GMMessage {
+    pub fn chain(self, message: GMMessage) -> GMMessage {
+        match self {
+            Self::Tuple2(m1, m2) => {
+                Self::Tuple3(m1, m2, Box::new(message))
+            }
+            Self::Tuple3(m1, m2, m3) => {
+                Self::Tuple4(m1, m2, m3, Box::new(message))
+            }
+            Self::Tuple4(m1, m2, m3, m4) => {
+                let mut messages = Vec::new();
+                messages.push(*m1);
+                messages.push(*m2);
+                messages.push(*m3);
+                messages.push(*m4);
+                messages.push(message);
+                Self::Multiple(messages)
+            }
+            Self::Multiple(mut messages) => {
+                messages.push(message);
+                Self::Multiple(messages)
+            }
+            _ => {
+                Self::Tuple2(Box::new(self), Box::new(message))
+            }
+        }
+    }
+}
+
 impl From<Vec<GMMessage>> for GMMessage {
     fn from(messages: Vec<GMMessage>) -> Self {
         Self::Multiple(messages)
@@ -68,6 +97,24 @@ impl From<Vec<GMMessage>> for GMMessage {
 impl From<(&str, GMValue)> for GMMessage {
     fn from((name, value): (&str, GMValue)) -> Self {
         Self::Custom1(name.to_string(), value)
+    }
+}
+
+impl From<(&str, GMValue, GMValue)> for GMMessage {
+    fn from((name, value1, value2): (&str, GMValue, GMValue)) -> Self {
+        Self::Custom2(name.to_string(), value1, value2)
+    }
+}
+
+impl From<(&str, GMValue, GMValue, GMValue)> for GMMessage {
+    fn from((name, value1, value2, value3): (&str, GMValue, GMValue, GMValue)) -> Self {
+        Self::Custom3(name.to_string(), value1, value2, value3)
+    }
+}
+
+impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMMessage {
+    fn from((name, value1, value2, value3, value4): (&str, GMValue, GMValue, GMValue, GMValue)) -> Self {
+        Self::Custom4(name.to_string(), value1, value2, value3, value4)
     }
 }
 
