@@ -211,3 +211,29 @@ impl GMObjectT for GMMVVelAccel {
         Box::new(self.clone())
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMMVTwoPoints {
+
+}
+
+impl GMMVTwoPoints {
+    pub fn new() -> Self {
+        Self {
+
+        }
+    }
+}
+
+impl GMObjectT for GMMVTwoPoints {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        GMValue::None
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
