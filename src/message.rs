@@ -61,6 +61,7 @@ pub enum GMMessage {
 
 impl GMMessage {
     pub fn chain(self, message: GMMessage) -> GMMessage {
+        // TODO: match also on message
         match self {
             Self::Tuple2(m1, m2) => {
                 Self::Tuple3(m1, m2, Box::new(message))

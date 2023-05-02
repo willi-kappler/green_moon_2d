@@ -48,6 +48,7 @@ pub enum GMValue {
 
 impl GMValue {
     pub fn chain(self, value: GMValue) -> GMValue {
+        // TODO: match also on value
         match self {
             Self::Tuple2(v1, v2) => {
                 Self::Tuple3(v1, v2, Box::new(value))
