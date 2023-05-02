@@ -9,7 +9,7 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
-use crate::object::GMValue;
+use crate::value::GMValue;
 use crate::resources::GMResources;
 use crate::input::{GMInput, GMEventCode};
 use crate::scene::{GMSceneT, GMSceneManagerMessage};

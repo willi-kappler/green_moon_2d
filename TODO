@@ -1,5 +1,4 @@
 
-- Split GMMessage, GMTarget and GMValue into separate files
 
 - GMParticleManager
 - GMBulletManager

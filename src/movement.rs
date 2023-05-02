@@ -1,5 +1,9 @@
 
-use crate::object::{GMMessage, GMValue, GMTarget, GMObjectManager, GMObjectT};
+use crate::object::GMObjectT;
+use crate::message::GMMessage;
+use crate::value::GMValue;
+use crate::target::GMTarget;
+use crate::object_manager::GMObjectManager;
 use crate::math::{GMVec2D, GMCircle};
 use crate::context::GMContext;
 use crate::util::error_panic;

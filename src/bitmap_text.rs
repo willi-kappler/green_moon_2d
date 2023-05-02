@@ -10,7 +10,10 @@ use crate::texture::{GMTexture};
 use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
-use crate::object::{GMObjectT, GMMessage, GMValue, GMObjectManager};
+use crate::object::GMObjectT;
+use crate::message::GMMessage;
+use crate::value::GMValue;
+use crate::object_manager::GMObjectManager;
 
 
 #[derive(Debug, Clone)]

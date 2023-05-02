@@ -5,7 +5,7 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::util::{GMAlign, error_panic};
-use green_moon_2d::object::{GMObjectManager};
+use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
 

@@ -10,7 +10,10 @@ use crate::animation::GMAnimation;
 use crate::util::{error_panic, GMRepetition};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
-use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager};
+use crate::object::GMObjectT;
+use crate::message::GMMessage;
+use crate::value::GMValue;
+use crate::object_manager::GMObjectManager;
 
 
 #[derive(Clone, Debug)]

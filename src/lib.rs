@@ -15,10 +15,11 @@ pub mod interpolation;
 
 pub mod macros;
 pub mod math;
+pub mod message;
+pub mod movement;
+pub mod object_manager;
 pub mod object_util;
 pub mod object;
-
-pub mod movement;
 
 // pub mod menu;
 // pub mod menu_item;
@@ -28,15 +29,15 @@ pub mod resources;
 pub mod scene;
 // pub mod score;
 pub mod sprite;
+pub mod target;
 // pub mod sprite_effect;
-
 pub mod texture;
 
 // pub mod tilemap;
 // pub mod tileset;
 pub mod timer;
-
 pub mod util;
+pub mod value;
 
 pub use context::GMContext;
 pub use engine::GMEngine;

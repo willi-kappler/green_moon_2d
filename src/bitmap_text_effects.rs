@@ -5,7 +5,11 @@ use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
-use crate::object::{GMObjectT, GMMessage, GMValue, GMTarget, GMObjectManager};
+use crate::object::{GMObjectT};
+use crate::message::GMMessage;
+use crate::value::GMValue;
+use crate::target::GMTarget;
+use crate::object_manager::GMObjectManager;
 use crate::util::error_panic;
 use crate::math::GMVec2D;
 

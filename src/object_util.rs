@@ -2,9 +2,13 @@
 use log::debug;
 
 use crate::context::GMContext;
-use crate::object::{GMMessage, GMValue, GMObjectT, GMObjectManager, GMTarget};
+use crate::object::GMObjectT;
 use crate::timer::GMTimer;
 use crate::util::{error_panic};
+use crate::message::GMMessage;
+use crate::value::GMValue;
+use crate::target::GMTarget;
+use crate::object_manager::GMObjectManager;
 
 
 #[derive(Clone, Debug)]
