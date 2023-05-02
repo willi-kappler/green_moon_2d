@@ -46,6 +46,35 @@ pub enum GMValue {
     Vec2D(GMVec2D),
 }
 
+impl GMValue {
+    pub fn chain(self, value: GMValue) -> GMValue {
+        match self {
+            Self::Tuple2(v1, v2) => {
+                Self::Tuple3(v1, v2, Box::new(value))
+            }
+            Self::Tuple3(v1, v2, v3) => {
+                Self::Tuple4(v1, v2, v3, Box::new(value))
+            }
+            Self::Tuple4(v1, v2, v3, v4) => {
+                let mut values = Vec::new();
+                values.push(v1);
+                values.push(v2);
+                values.push(v3);
+                values.push(v4);
+                values.push(value);
+                Self::Multiple(values)
+            }
+            Self::Multiple(mut values) => {
+                values.push(value);
+                Self::Multiple(values)
+            }
+            _ => {
+                Self::Tuple2(Box::new(self), Box::new(value))
+            }
+        }
+    }
+}
+
 impl From<()> for GMValue {
     fn from(_value: ()) -> Self {
         Self::None
