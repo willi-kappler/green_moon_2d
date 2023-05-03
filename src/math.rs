@@ -4,6 +4,8 @@ use std::fmt::Display;
 use std::f32::consts::TAU;
 
 
+// TODO: Add a send_message method to GMVec2D
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
@@ -156,6 +158,8 @@ impl Display for GMVec2D {
     }
 }
 
+// TODO: Add a send_message method to GMSize
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMSize {
     pub width: f32,
@@ -191,6 +195,8 @@ impl Display for GMSize {
         write!(f, "(w: {}, h: {})", self.width, self.height)
     }
 }
+
+// TODO: Add a send_message method to GMRectangle
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMRectangle {
@@ -259,6 +265,8 @@ impl Display for GMRectangle {
         write!(f, "(x1: {}, y1: {}, x2: {}, y2: {})", self.x1, self.y1, self.x2, self.y2)
     }
 }
+
+// TODO: Add a send_message method to GMCircle
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMCircle {

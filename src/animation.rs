@@ -4,6 +4,8 @@ use std::fmt::Debug;
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition};
 
+// TODO: Add send_message method to GMAnimation
+
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
     pub active: bool,
