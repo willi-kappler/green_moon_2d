@@ -68,24 +68,6 @@ impl GMForewardToElement {
                     }
                 }
             }
-            GMMessage::Tuple2(m1, m2) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                return (result1, result2).into()
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                return (result1, result2, result3).into()
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                let result4 = self.keep_message(*m4, context, object_manager);
-                return (result1, result2, result3, result4).into()
-            }
             GMMessage::Multiple(messages) => {
                 let mut result = Vec::new();
 
@@ -146,24 +128,6 @@ impl GMOtherTarget {
             }
             GMMessage::GetTarget => {
                 return self.target.clone().into()
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                return (result1, result2).into()
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                return (result1, result2, result3).into()
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                let result4 = self.keep_message(*m4, context, object_manager);
-                return (result1, result2, result3, result4).into()
             }
             GMMessage::Multiple(messages) => {
                 let mut result = Vec::new();
@@ -415,24 +379,6 @@ impl GMMultiply {
             }
             GMMessage::Custom1(name, GMValue::U32(value)) if name == "set_factor" => {
                 self.factor = value;
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                return (result1, result2).into()
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                return (result1, result2, result3).into()
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                let result1 = self.keep_message(*m1, context, object_manager);
-                let result2 = self.keep_message(*m2, context, object_manager);
-                let result3 = self.keep_message(*m3, context, object_manager);
-                let result4 = self.keep_message(*m4, context, object_manager);
-                return (result1, result2, result3, result4).into()
             }
             GMMessage::Multiple(messages) => {
                 let mut result = Vec::new();

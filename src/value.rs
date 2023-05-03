@@ -16,9 +16,7 @@ pub enum GMValue {
     Bool(bool),
     Custom0(String),
     Custom1(String, Box<GMValue>),
-    Custom2(String, Box<GMValue>, Box<GMValue>),
-    Custom3(String, Box<GMValue>, Box<GMValue>, Box<GMValue>),
-    Custom4(String, Box<GMValue>, Box<GMValue>, Box<GMValue>, Box<GMValue>),
+    CustomM(String, Vec<GMValue>),
     F32(f32),
     F64(f64),
     I16(i16),
@@ -35,9 +33,6 @@ pub enum GMValue {
     Size(GMSize),
     String(String),
     Target(GMTarget),
-    Tuple2(Box<GMValue>, Box<GMValue>),
-    Tuple3(Box<GMValue>, Box<GMValue>, Box<GMValue>),
-    Tuple4(Box<GMValue>, Box<GMValue>, Box<GMValue>, Box<GMValue>),
     U16(u16),
     U32(u32),
     U64(u64),
@@ -49,16 +44,7 @@ pub enum GMValue {
 impl GMValue {
     pub fn to_vec(self) -> Vec<GMValue> {
         match self {
-            Self::Tuple2(v1, v2) => {
-                vec![*v1, *v2]
-            }
-            Self::Tuple3(v1, v2, v3) => {
-                vec![*v1, *v2, *v3]
-            }
-            Self::Tuple4(v1, v2, v3, v4) => {
-                vec![*v1, *v2, *v3, *v4]
-            }
-            Self::Multiple(mut values) => {
+            Self::Multiple(values) => {
                 values
             }
             _ => {
@@ -68,29 +54,30 @@ impl GMValue {
     }
 
     pub fn chain(self, value: GMValue) -> GMValue {
-        // TODO: match also on value
         match self {
-            Self::Tuple2(v1, v2) => {
-                Self::Tuple3(v1, v2, Box::new(value))
-            }
-            Self::Tuple3(v1, v2, v3) => {
-                Self::Tuple4(v1, v2, v3, Box::new(value))
-            }
-            Self::Tuple4(v1, v2, v3, v4) => {
-                let mut values = Vec::new();
-                values.push(v1);
-                values.push(v2);
-                values.push(v3);
-                values.push(v4);
-                values.push(value);
-                Self::Multiple(values)
-            }
-            Self::Multiple(mut values) => {
-                values.push(value);
-                Self::Multiple(values)
+            Self::Multiple(mut left_values) => {
+                match value {
+                    Self::Multiple(right_values) => {
+                        left_values.extend(right_values);
+                        left_values.into()
+                    }
+                    _ => {
+                        left_values.push(value);
+                        left_values.into()
+                    }
+                }
             }
             _ => {
-                Self::Tuple2(Box::new(self), Box::new(value))
+                match value {
+                    Self::Multiple(right_values) => {
+                        let mut left_values = vec![self];
+                        left_values.extend(right_values);
+                        left_values.into()
+                    }
+                    _ => {
+                        vec![self, value].into()
+                    }
+                }
             }
         }
     }
@@ -188,19 +175,19 @@ impl From<String> for GMValue {
 
 impl From<(bool, bool)> for GMValue {
     fn from((v1, v2): (bool, bool)) -> Self {
-        Self::Tuple2(Box::new(GMValue::Bool(v1)), Box::new(GMValue::Bool(v2)))
+        vec![v1.into(), v2.into()].into()
     }
 }
 
 impl From<(f32, f32)> for GMValue {
     fn from((v1, v2): (f32, f32)) -> Self {
-        Self::Tuple2(Box::new(GMValue::F32(v1)), Box::new(GMValue::F32(v2)))
+        vec![v1.into(), v2.into()].into()
     }
 }
 
 impl From<(f32, f32, f32)> for GMValue {
     fn from((v1, v2, v3): (f32, f32, f32)) -> Self {
-        Self::Tuple3(Box::new(GMValue::F32(v1)), Box::new(GMValue::F32(v2)), Box::new(GMValue::F32(v3)))
+        vec![v1.into(), v2.into(), v3.into()].into()
     }
 }
 
@@ -218,19 +205,19 @@ impl From<GMTarget> for GMValue {
 
 impl From<(GMValue, GMValue)> for GMValue {
     fn from((v1, v2): (GMValue, GMValue)) -> Self {
-        Self::Tuple2(Box::new(v1), Box::new(v2))
+        vec![v1, v2].into()
     }
 }
 
 impl From<(GMValue, GMValue, GMValue)> for GMValue {
     fn from((v1, v2, v3): (GMValue, GMValue, GMValue)) -> Self {
-        Self::Tuple3(Box::new(v1), Box::new(v2), Box::new(v3))
+        vec![v1, v2, v3].into()
     }
 }
 
 impl From<(GMValue, GMValue, GMValue, GMValue)> for GMValue {
     fn from((v1, v2, v3, v4): (GMValue, GMValue, GMValue, GMValue)) -> Self {
-        Self::Tuple4(Box::new(v1), Box::new(v2), Box::new(v3), Box::new(v4))
+        vec![v1, v2, v3, v4].into()
     }
 }
 
@@ -248,18 +235,18 @@ impl From<(&str, GMValue)> for GMValue {
 
 impl From<(&str, GMValue, GMValue)> for GMValue {
     fn from((name, value1, value2): (&str, GMValue, GMValue)) -> Self {
-        Self::Custom2(name.to_string(), Box::new(value1), Box::new(value2))
+        Self::CustomM(name.to_string(), vec![value1, value2])
     }
 }
 
 impl From<(&str, GMValue, GMValue, GMValue)> for GMValue {
     fn from((name, value1, value2, value3): (&str, GMValue, GMValue, GMValue)) -> Self {
-        Self::Custom3(name.to_string(), Box::new(value1), Box::new(value2), Box::new(value3))
+        Self::CustomM(name.to_string(), vec![value1, value2, value3])
     }
 }
 
 impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMValue {
     fn from((name, value1, value2, value3, value4): (&str, GMValue, GMValue, GMValue, GMValue)) -> Self {
-        Self::Custom4(name.to_string(), Box::new(value1), Box::new(value2), Box::new(value3), Box::new(value4))
+        Self::CustomM(name.to_string(), vec![value1, value2, value3, value4])
     }
 }

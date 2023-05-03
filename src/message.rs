@@ -14,9 +14,7 @@ pub enum GMMessage {
     AddY(f32),
     Custom0(String),
     Custom1(String, GMValue),
-    Custom2(String, GMValue, GMValue),
-    Custom3(String, GMValue, GMValue, GMValue),
-    Custom4(String, GMValue, GMValue, GMValue, GMValue),
+    CustomM(String, Vec<GMValue>),
     Forward(Box<GMMessage>),
     GetChild(usize),
     GetChildCount,
@@ -54,23 +52,11 @@ pub enum GMMessage {
     SetY(f32),
     ToChild(usize, Box<GMMessage>),
     ToAllChildren(Box<GMMessage>),
-    Tuple2(Box<GMMessage>, Box<GMMessage>),
-    Tuple3(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
-    Tuple4(Box<GMMessage>, Box<GMMessage>, Box<GMMessage>, Box<GMMessage>),
 }
 
 impl GMMessage {
     pub fn to_vec(self) -> Vec<GMMessage> {
         match self {
-            Self::Tuple2(m1, m2) => {
-                vec![*m1, *m2]
-            }
-            Self::Tuple3(m1, m2, m3) => {
-                vec![*m1, *m2, *m3]
-            }
-            Self::Tuple4(m1, m2, m3, m4) => {
-                vec![*m1, *m2, *m3, *m4]
-            }
             Self::Multiple(messages) => {
                 messages
             }
@@ -82,110 +68,29 @@ impl GMMessage {
 
     pub fn chain(self, message: GMMessage) -> GMMessage {
         match self {
-            Self::Tuple2(m1, m2) => {
-                match message {
-                    Self::Tuple2(m3, m4) => {
-                        (m1, m2, m3, m4).into()
-                    }
-                    Self::Tuple3(m3, m4, m5) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5];
-                        messages.into()
-                    }
-                    Self::Tuple4(m3, m4, m5, m6) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6];
-                        messages.into()
-                    }
-                    Self::Multiple(right_messages) => {
-                        let messages = vec![*m1, *m2];
-                        messages.extend(right_messages);
-                        messages.into()
-                    }
-                    _ => {
-                        (m1, m2, message).into()
-                    }
-                }
-            }
-            Self::Tuple3(m1, m2, m3) => {
-                match message {
-                    Self::Tupel2(m4, m5) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5];
-                        messages.into()
-                    }
-                    Self::Tuple3(m4, m5, m6) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6];
-                        messages.into()
-                    }
-                    Self::Tuple4(m4, m5, m6, m7) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6, *m7];
-                        messages.into()
-                    }
-                    Self::Multiple(right_messages) => {
-                        let messages = vec![*m1, *m2, *m3];
-                        messages.extend(right_messages);
-                        messages.into()
-                    }
-                    _ => {
-                        (m1, m2, m3, message).into()
-                    }
-                }
-            }
-            Self::Tuple4(m1, m2, m3, m4) => {
-                match message {
-                    Self::Tuple2(m5, m6) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6];
-                        messages.into()
-                    }
-                    Self::Tuple3(m5, m6, m7) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6, *m7];
-                        messages.into()
-                    }
-                    Self::Tuple4(m5, m6, m7, m8) => {
-                        let messages = vec![*m1, *m2, *m3, *m4, *m5, *m6, *m7, *m8];
-                        messages.into()
-                    }
-                    Self::Multiple(right_messages) => {
-                        let messages = vec![*m1, *m2, *m3, *m4];
-                        messages.extend(right_messages);
-                        messages.into()
-                    }
-                    _ => {
-                        let messages = vec![*m1, *m2, *m3, *m4, message];
-                        messages.into()
-                    }
-                }
-            }
             Self::Multiple(mut left_messages) => {
                 match message {
-                    Self::Tuple2(m1, m2) => {
-                        left_messages.push(*m1);
-                        left_messages.push(*m2);
+                    Self::Multiple(right_messages) => {
+                        left_messages.extend(right_messages);
                         left_messages.into()
                     }
-                    Self::Tuple3(m1, m2, m3) => {
-                        left_messages.push(*m1);
-                        left_messages.push(*m2);
-                        left_messages.push(*m3);
-                        left_messages.into()
-                    }
-                    Self::Tuple4(m1, m2, m3, m4) => {
-                        left_messages.push(*m1);
-                        left_messages.push(*m2);
-                        left_messages.push(*m3);
-                        left_messages.push(*m4);
-                        left_messages.into()
-                    }
-                    Self::Multiple(right_message) => {
-                        left_messages.extend(right_message);
-                        left_messages.into()
-                    }
-                    _ =>{
+                    _ => {
                         left_messages.push(message);
                         left_messages.into()
                     }
                 }
             }
             _ => {
-                (self, message).into()
+                match message {
+                    Self::Multiple(right_messages) => {
+                        let mut left_messages = vec![self];
+                        left_messages.extend(right_messages);
+                        left_messages.into()
+                    }
+                    _ => {
+                        vec![self, message].into()
+                    }
+                }
             }
         }
     }
@@ -205,36 +110,36 @@ impl From<(&str, GMValue)> for GMMessage {
 
 impl From<(&str, GMValue, GMValue)> for GMMessage {
     fn from((name, value1, value2): (&str, GMValue, GMValue)) -> Self {
-        Self::Custom2(name.to_string(), value1, value2)
+        Self::CustomM(name.to_string(), vec![value1, value2])
     }
 }
 
 impl From<(&str, GMValue, GMValue, GMValue)> for GMMessage {
     fn from((name, value1, value2, value3): (&str, GMValue, GMValue, GMValue)) -> Self {
-        Self::Custom3(name.to_string(), value1, value2, value3)
+        Self::CustomM(name.to_string(), vec![value1, value2, value3])
     }
 }
 
 impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMMessage {
     fn from((name, value1, value2, value3, value4): (&str, GMValue, GMValue, GMValue, GMValue)) -> Self {
-        Self::Custom4(name.to_string(), value1, value2, value3, value4)
+        Self::CustomM(name.to_string(), vec![value1, value2, value3, value4])
     }
 }
 
 impl From<(GMMessage, GMMessage)> for GMMessage {
     fn from((m1, m2): (GMMessage, GMMessage)) -> Self {
-        Self::Tuple2(Box::new(m1), Box::new(m2))
+        vec![m1, m2].into()
     }
 }
 
 impl From<(GMMessage, GMMessage, GMMessage)> for GMMessage {
     fn from((m1, m2, m3): (GMMessage, GMMessage, GMMessage)) -> Self {
-        Self::Tuple3(Box::new(m1), Box::new(m2), Box::new(m3))
+        vec![m1, m2, m3].into()
     }
 }
 
 impl From<(GMMessage, GMMessage, GMMessage, GMMessage)> for GMMessage {
     fn from((m1, m2, m3, m4): (GMMessage, GMMessage, GMMessage, GMMessage)) -> Self {
-        Self::Tuple4(Box::new(m1), Box::new(m2), Box::new(m3), Box::new(m4))
+        vec![m1, m2, m3, m4].into()
     }
 }

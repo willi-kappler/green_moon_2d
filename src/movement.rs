@@ -34,15 +34,6 @@ impl GMObjectT for GMMVVelocity {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
-            }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
@@ -97,15 +88,6 @@ impl GMObjectT for GMMVAcceleration {
             }
             GMMessage::SetTarget(target) => {
                 self.target = target;
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
@@ -163,15 +145,6 @@ impl GMObjectT for GMMVVelAccel {
             }
             GMMessage::SetTarget(target) => {
                 self.target = target;
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)

@@ -14,30 +14,6 @@ pub trait GMObjectT: Debug {
         GMValue::None
     }
 
-    fn send_tuple2_message(&mut self, message1: GMMessage, message2: GMMessage, context: &mut GMContext,
-        object_manager: &GMObjectManager) -> GMValue {
-        let result1 = self.send_message(message1, context, object_manager);
-        let result2 = self.send_message(message2, context, object_manager);
-        (result1, result2).into()
-    }
-
-    fn send_tuple3_message(&mut self, message1: GMMessage, message2: GMMessage, message3: GMMessage,
-        context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        let result1 = self.send_message(message1, context, object_manager);
-        let result2 = self.send_message(message2, context, object_manager);
-        let result3 = self.send_message(message3, context, object_manager);
-        (result1, result2, result3).into()
-    }
-
-    fn send_tuple4_message(&mut self, message1: GMMessage, message2: GMMessage, message3: GMMessage, message4: GMMessage,
-        context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        let result1 = self.send_message(message1, context, object_manager);
-        let result2 = self.send_message(message2, context, object_manager);
-        let result3 = self.send_message(message3, context, object_manager);
-        let result4 = self.send_message(message4, context, object_manager);
-        (result1, result2, result3, result4).into()
-    }
-
     fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         let mut result = Vec::new();
 

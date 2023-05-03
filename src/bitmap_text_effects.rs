@@ -46,15 +46,6 @@ impl GMObjectT for GMTEWave {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
-            }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
@@ -99,9 +90,9 @@ impl GMObjectT for GMTEWave {
 
         let result = object_manager.send_message(&self.target, (message1, message2).into(), context);
 
-        if let GMValue::Tuple2(value1, value2) = result {
-            if let GMValue::Bool(horizontal) = *value1 {
-                if let GMValue::USize(num_of_chars) = *value2 {
+        if let GMValue::Multiple(values) = result {
+            if let GMValue::Bool(horizontal) = values[0] {
+                if let GMValue::USize(num_of_chars) = values[1] {
                     let mut offset = 0.0;
 
                     if horizontal {
@@ -178,15 +169,6 @@ impl GMObjectT for GMTEShake {
             }
             GMMessage::GetTarget => {
                 return self.target.clone().into()
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
@@ -277,15 +259,6 @@ impl GMObjectT for GMTERotateChars {
             GMMessage::GetTarget => {
                 return self.target.clone().into()
             }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
-            }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
@@ -372,15 +345,6 @@ impl GMObjectT for GMTEScale {
             }
             GMMessage::GetTarget => {
                 return self.target.clone().into()
-            }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)

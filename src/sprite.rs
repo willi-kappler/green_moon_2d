@@ -93,15 +93,6 @@ impl GMObjectT for GMSprite {
             GMMessage::GetY => {
                 return GMValue::F32(self.position.y)
             }
-            GMMessage::Tuple2(m1, m2) => {
-                return self.send_tuple2_message(*m1, *m2, context, object_manager)
-            }
-            GMMessage::Tuple3(m1, m2, m3) => {
-                return self.send_tuple3_message(*m1, *m2, *m3, context, object_manager)
-            }
-            GMMessage::Tuple4(m1, m2, m3, m4) => {
-                return self.send_tuple4_message(*m1, *m2, *m3, *m4, context, object_manager)
-            }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
@@ -170,9 +161,9 @@ impl GMObjectT for GMSprite {
             GMMessage::Custom1(name, GMValue::Bool(flip_y)) if name == "set_flip_y" => {
                 self.flip_y = flip_y;
             }
-            GMMessage::Custom1(name, GMValue::Tuple2(flip_x, flip_y)) if name == "set_flip_xy" => {
-                if let GMValue::Bool(fx) = *flip_x {
-                    if let GMValue::Bool(fy) = *flip_y {
+            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_flip_xy" => {
+                if let GMValue::Bool(fx) = values[0] {
+                    if let GMValue::Bool(fy) = values[1] {
                         self.flip_x = fx;
                         self.flip_y = fy;
                     }
