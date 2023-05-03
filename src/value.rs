@@ -175,19 +175,19 @@ impl From<String> for GMValue {
 
 impl From<(bool, bool)> for GMValue {
     fn from((v1, v2): (bool, bool)) -> Self {
-        vec![v1.into(), v2.into()].into()
+        vec![GMValue::Bool(v1), v2.into()].into()
     }
 }
 
 impl From<(f32, f32)> for GMValue {
     fn from((v1, v2): (f32, f32)) -> Self {
-        vec![v1.into(), v2.into()].into()
+        vec![GMValue::F32(v1), v2.into()].into()
     }
 }
 
 impl From<(f32, f32, f32)> for GMValue {
     fn from((v1, v2, v3): (f32, f32, f32)) -> Self {
-        vec![v1.into(), v2.into(), v3.into()].into()
+        vec![GMValue::F32(v1), v2.into(), v3.into()].into()
     }
 }
 
@@ -218,6 +218,20 @@ impl From<(GMValue, GMValue, GMValue)> for GMValue {
 impl From<(GMValue, GMValue, GMValue, GMValue)> for GMValue {
     fn from((v1, v2, v3, v4): (GMValue, GMValue, GMValue, GMValue)) -> Self {
         vec![v1, v2, v3, v4].into()
+    }
+}
+
+impl From<Vec<GMVec2D>> for GMValue {
+    fn from(values: Vec<GMVec2D>) -> Self {
+        let values: Vec<GMValue> = values.iter().map(|v| GMValue::Vec2D(*v)).collect();
+        Self::Multiple(values)
+    }
+}
+
+impl From<Vec<f32>> for GMValue {
+    fn from(values: Vec<f32>) -> Self {
+        let values: Vec<GMValue> = values.iter().map(|v| GMValue::F32(*v)).collect();
+        Self::Multiple(values)
     }
 }
 
