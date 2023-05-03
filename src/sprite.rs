@@ -85,13 +85,13 @@ impl GMObjectT for GMSprite {
                 self.position.y = y;
             }
             GMMessage::GetPosition => {
-                return GMValue::Position(self.position)
+                return self.position.into()
             }
             GMMessage::GetX => {
-                return GMValue::F32(self.position.x)
+                return self.position.x.into()
             }
             GMMessage::GetY => {
-                return GMValue::F32(self.position.y)
+                return self.position.y.into()
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
