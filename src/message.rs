@@ -63,33 +63,19 @@ impl GMMessage {
     pub fn to_vec(self) -> Vec<GMMessage> {
         match self {
             Self::Tuple2(m1, m2) => {
-                let mut messages = Vec::new();
-                messages.push(*m1);
-                messages.push(*m2);
-                messages
+                vec![*m1, *m2]
             }
             Self::Tuple3(m1, m2, m3) => {
-                let mut messages = Vec::new();
-                messages.push(*m1);
-                messages.push(*m2);
-                messages.push(*m3);
-                messages
+                vec![*m1, *m2, *m3]
             }
             Self::Tuple4(m1, m2, m3, m4) => {
-                let mut messages = Vec::new();
-                messages.push(*m1);
-                messages.push(*m2);
-                messages.push(*m3);
-                messages.push(*m4);
-                messages
+                vec![*m1, *m2, *m3, *m4]
             }
             Self::Multiple(messages) => {
                 messages
             }
             _ => {
-                let mut messages = Vec::new();
-                messages.push(self);
-                messages
+                vec![self]
             }
         }
     }

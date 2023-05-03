@@ -47,6 +47,26 @@ pub enum GMValue {
 }
 
 impl GMValue {
+    pub fn to_vec(self) -> Vec<GMValue> {
+        match self {
+            Self::Tuple2(v1, v2) => {
+                vec![*v1, *v2]
+            }
+            Self::Tuple3(v1, v2, v3) => {
+                vec![*v1, *v2, *v3]
+            }
+            Self::Tuple4(v1, v2, v3, v4) => {
+                vec![*v1, *v2, *v3, *v4]
+            }
+            Self::Multiple(mut values) => {
+                values
+            }
+            _ => {
+                vec![self]
+            }
+        }
+    }
+
     pub fn chain(self, value: GMValue) -> GMValue {
         // TODO: match also on value
         match self {
