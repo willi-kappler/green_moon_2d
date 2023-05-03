@@ -1,5 +1,7 @@
 
 
+- Add send_message for GMAnimation, GMVec2D, ...
+
 - GMParticleManager
 - GMBulletManager
 - GMBorder
