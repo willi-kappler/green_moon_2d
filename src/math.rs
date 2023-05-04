@@ -3,6 +3,12 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
+use crate::object::GMObjectT;
+use crate::message::GMMessage;
+use crate::object_manager::GMObjectManager;
+use crate::value::GMValue;
+use crate::context::GMContext;
+
 
 // TODO: Add a send_message method to GMVec2D
 
@@ -157,6 +163,22 @@ impl Display for GMVec2D {
         write!(f, "(x: {}, y: {})", self.x, self.y)
     }
 }
+
+impl GMObjectT for GMVec2D {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        GMValue::None
+    }
+
+    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
+        
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+
 
 // TODO: Add a send_message method to GMSize
 

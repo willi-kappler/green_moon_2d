@@ -5,6 +5,12 @@ use std::fmt::Debug;
 
 use crate::util::GMRepetition;
 use crate::math::GMVec2D;
+use crate::object::GMObjectT;
+use crate::message::GMMessage;
+use crate::object_manager::GMObjectManager;
+use crate::value::GMValue;
+use crate::context::GMContext;
+
 
 pub trait GMCurveT : Debug {
     fn evaluate(&mut self, x: f32) -> f32;
@@ -215,3 +221,31 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> G
 pub type GMInterpolateF32 = GMInterpolate<f32>;
 
 pub type GMInterpolateVec2D = GMInterpolate<GMVec2D>;
+
+impl GMObjectT for GMInterpolateF32 {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        GMValue::None
+    }
+
+    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
+        
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+impl GMObjectT for GMInterpolateVec2D {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        GMValue::None
+    }
+
+    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
+        
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
