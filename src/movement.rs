@@ -382,3 +382,25 @@ impl GMObjectT for GMMVTwoPoints {
         Box::new(self.clone())
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMMVCircle {
+    pub target: GMTarget,
+    pub interpolation: GMInterpolateF32,
+    pub center: GMVec2D,
+    pub radius: f32,
+}
+
+impl GMObjectT for GMMVCircle {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        GMValue::None
+    }
+
+    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
+        
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
