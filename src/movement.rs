@@ -192,6 +192,7 @@ impl GMObjectT for GMMVVelAccel {
 pub struct GMMVTwoPoints {
     pub target: GMTarget,
     pub interpolation: GMInterpolateVec2D,
+    pub auto_update: bool,
 }
 
 impl GMMVTwoPoints {
@@ -202,6 +203,7 @@ impl GMMVTwoPoints {
         Self {
             target,
             interpolation,
+            auto_update: true,
         }
     }
 }
@@ -330,6 +332,12 @@ impl GMObjectT for GMMVTwoPoints {
                     }
                 }
             }
+            GMMessage::Custom0(name) if name == "get_start" => {
+                return self.interpolation.start.into()
+            }
+            GMMessage::Custom0(name) if name == "get_end" => {
+                return self.interpolation.end.into()
+            }
             GMMessage::Custom0(name) if name == "get_speed" => {
                 return self.interpolation.speed.into()
             }
@@ -350,6 +358,17 @@ impl GMObjectT for GMMVTwoPoints {
             }
             GMMessage::Custom0(name) if name == "is_finished" => {
                 return self.interpolation.is_finished().into()
+            }
+            GMMessage::Custom0(name) if name == "update" => {
+                self.interpolation.update();
+                let new_pos = self.interpolation.get_current_value();
+                object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start" => {
+                self.interpolation.start = start;
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(end)) if name == "set_end" => {
+                self.interpolation.end = end;
             }
             GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
                 self.interpolation.speed = speed;
@@ -373,9 +392,11 @@ impl GMObjectT for GMMVTwoPoints {
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        self.interpolation.update();
-        let new_pos = self.interpolation.get_current_value();
-        object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
+        if self.auto_update {
+            self.interpolation.update();
+            let new_pos = self.interpolation.get_current_value();
+            object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -387,17 +408,55 @@ impl GMObjectT for GMMVTwoPoints {
 pub struct GMMVCircle {
     pub target: GMTarget,
     pub interpolation: GMInterpolateF32,
-    pub center: GMVec2D,
-    pub radius: f32,
+    pub circle: GMCircle,
+    pub auto_update: bool,
+    pub child: Option<Box<dyn GMObjectT>>,
+}
+
+impl GMMVCircle {
+    pub fn new<T: Into<GMTarget>>(target: T, center: GMVec2D, radius: f32) -> Self {
+        let target = target.into();
+        let interpolation = GMInterpolateF32::new(0.0, 360.0, 1.0, 0.0);
+        let circle = GMCircle::new(center, radius);
+
+        Self {
+            target,
+            interpolation,
+            circle,
+            auto_update: true,
+            child: None,
+        }
+    }
+
+    pub fn set_child(&mut self) {
+
+    }
 }
 
 impl GMObjectT for GMMVCircle {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            _ => {
+                error_panic(&format!("Wrong message for GMMVCircle::send_message: {:?}", message))
+            }
+        }
+
         GMValue::None
     }
 
-    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
-        
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            self.interpolation.update();
+            let angle = self.interpolation.get_current_value();
+            let new_position = self.circle.position_from_deg(angle);
+            let message = GMMessage::SetPosition(new_position);
+
+            if let Some(child) = &mut self.child {
+                child.send_message(message, context, object_manager);
+            } else {
+                object_manager.send_message(&self.target, message, context);
+            }
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

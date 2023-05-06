@@ -1,15 +1,18 @@
 
+use std::fmt;
+use std::rc::Rc;
+
 use log::debug;
 
 use crate::context::GMContext;
-use crate::object::GMObjectT;
-use crate::timer::GMTimer;
-use crate::util::{error_panic};
+use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D, GMCurveT};
 use crate::message::GMMessage;
-use crate::value::GMValue;
-use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
-
+use crate::object::GMObjectT;
+use crate::target::GMTarget;
+use crate::timer::GMTimer;
+use crate::util::{error_panic, GMRepetition};
+use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
 pub struct GMForewardToElement {
@@ -239,44 +242,104 @@ impl GMObjectT for GMTimedMessage {
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
     }
-
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
+pub struct GMTimedFunc {
+    pub timer: GMTimer,
+    pub repeat: bool,
+    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
+}
+
+impl GMTimedFunc {
+    pub fn new(timeout: f32, repeat: bool, func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+        debug!("GMTimedFunc::new(), timeout: {}, repeat: {}", timeout, repeat);
+
+        Self {
+            timer: GMTimer::new(timeout),
+            repeat,
+            func,
+        }
+    }
+}
+
+impl fmt::Debug for GMTimedFunc {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMTimedFunc, timeout: {}, repeat: {}", self.timer.duration, self.repeat)
+    }
+}
+
+impl GMObjectT for GMTimedFunc {
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Custom0(name) if name == "get_timeout" => {
+                let value = self.timer.duration.into();
+                return value
+            }
+            GMMessage::Custom0(name) if name == "get_repeat" => {
+                let value = self.repeat.into();
+                return value
+            }
+            GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_timeout" => {
+                self.timer.duration = value;
+            }
+            GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_repeat" => {
+                self.repeat = value;
+            }
+            _ => {
+                error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.timer.finished() {
+            if self.repeat {
+                self.timer.start();
+            }
+
+            (self.func)(context, object_manager);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+
+#[derive(Clone)]
 pub struct GMTrigger {
-    pub message: GMMessage,
-    pub target: GMTarget,
+    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
 }
 
 impl GMTrigger {
-    pub fn new<T: Into<GMTarget>>(target: T, message: GMMessage) -> Self {
-        let target = target.into();
-        debug!("GMTrigger::new(), target: {:?}, message: {:?}", target, message);
+    pub fn new(func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+        debug!("GMTrigger::new()");
 
         Self {
-            target: target.into(),
-            message,
+            func,
         }
+    }
+}
+
+impl fmt::Debug for GMTrigger {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMTrigger")
     }
 }
 
 impl GMObjectT for GMTrigger {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::SetMessage(messages) => {
-                self.message = *messages
-            }
-            GMMessage::SetTarget(targets) => {
-                self.target = targets
-            }
-            GMMessage::GetMessage => {
-                return self.message.clone().into()
-            }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
-            }
             GMMessage::Custom0(name) if name == "trigger" => {
-                return object_manager.send_message(&self.target, self.message.clone(), context)
+                (self.func)(context, object_manager)
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
+                let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                self.func = func;
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
@@ -416,4 +479,119 @@ impl GMObjectT for GMMultiply {
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
     }
+}
+
+#[derive(Clone)]
+pub struct GMValueInterpolateF32 {
+    pub interpolation: GMInterpolateF32,
+    pub func: fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager),
+    pub auto_update: bool,
+}
+
+impl GMValueInterpolateF32 {
+    pub fn new(start: f32, end: f32, speed: f32, func: fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+        debug!("GMValueInterpolateF32::new(), start: {}, end: {}, speed: {}", start, end, speed);
+
+        let interpolation = GMInterpolateF32::new(start, end, speed, 0.0);
+
+        Self {
+            interpolation,
+            func,
+            auto_update: true,
+        }
+    }
+}
+
+impl fmt::Debug for GMValueInterpolateF32 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMValueInterpolateF32, start: {}, end: {}, speed: {}", self.interpolation.start, self.interpolation.end, self.interpolation.speed)
+    }
+}
+
+impl GMObjectT for GMValueInterpolateF32 {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Custom0(name) if name == "get_start" => {
+                return self.interpolation.start.into()
+            }
+            GMMessage::Custom0(name) if name == "get_end" => {
+                return self.interpolation.end.into()
+            }
+            GMMessage::Custom0(name) if name == "get_speed" => {
+                return self.interpolation.speed.into()
+            }
+            GMMessage::Custom0(name) if name == "get_step" => {
+                return self.interpolation.current_step.into()
+            }
+            GMMessage::Custom0(name) if name == "get_value" => {
+                return self.interpolation.get_current_value().into()
+            }
+            GMMessage::Custom0(name) if name == "get_repetition" => {
+                return GMValue::Any(Rc::new(self.interpolation.repetition))
+            }
+            GMMessage::Custom0(name) if name == "get_curve" => {
+                return GMValue::Any(Rc::new(self.interpolation.curve.clone()))
+            }
+            GMMessage::Custom0(name) if name == "reset" => {
+                self.interpolation.reset();
+            }
+            GMMessage::Custom0(name) if name == "is_finished" => {
+                return self.interpolation.is_finished().into()
+            }
+            GMMessage::Custom0(name) if name == "update" => {
+                self.interpolation.update();
+                let value = self.interpolation.get_current_value();
+                (self.func)(value, context, object_manager);
+            }
+            GMMessage::Custom1(name, GMValue::F32(start)) if name == "set_start" => {
+                self.interpolation.start = start;
+            }
+            GMMessage::Custom1(name, GMValue::F32(end)) if name == "set_end" => {
+                self.interpolation.end = end;
+            }
+            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
+                self.interpolation.speed = speed;
+            }
+            GMMessage::Custom1(name, GMValue::F32(step)) if name == "set_step" => {
+                self.interpolation.current_step = step;
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_repetition" => {
+                let repetition = value.downcast::<GMRepetition>().unwrap();
+                self.interpolation.repetition = (*repetition).clone();
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_curve" => {
+                let curve = value.downcast::<Box<dyn GMCurveT>>().unwrap();
+                self.interpolation.curve = (*curve).clone();
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
+                let func = *value.downcast::<fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                self.func = func;
+            }
+            _ => {
+                error_panic(&format!("Wrong message for GMValueInterpolateF32::send_message: {:?}", message))
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            self.interpolation.update();
+            let value = self.interpolation.get_current_value();
+            (self.func)(value, context, object_manager);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+pub struct GMMapMessage {
+    pub target: GMTarget,
+}
+
+pub struct GMMatchMessage {
+    pub target: GMTarget,
 }
