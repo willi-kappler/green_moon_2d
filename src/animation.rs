@@ -3,13 +3,6 @@ use std::fmt::Debug;
 
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition};
-use crate::object::GMObjectT;
-use crate::message::GMMessage;
-use crate::object_manager::GMObjectManager;
-use crate::value::GMValue;
-use crate::context::GMContext;
-
-// TODO: Add send_message method to GMAnimation
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -121,19 +114,5 @@ impl GMAnimation {
                 }
             }
         }
-    }
-}
-
-impl GMObjectT for GMAnimation {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        GMValue::None
-    }
-
-    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
-        
-    }
-
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
-        Box::new(self.clone())
     }
 }
