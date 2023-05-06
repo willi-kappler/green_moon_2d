@@ -1,6 +1,7 @@
 
 
-- Add send_message for GMAnimation, GMVec2D, ...
+- Add send_message for GMAnimation
+- Move GMCurveT to its own module
 
 - GMParticleManager
 - GMBulletManager
