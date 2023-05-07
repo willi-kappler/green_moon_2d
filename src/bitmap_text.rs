@@ -247,9 +247,6 @@ impl GMObjectT for GMBitmapText {
             GMMessage::SetY(y) => {
                 self.position.y = y;
             }
-            GMMessage::GetChildCount => {
-                return GMValue::USize(self.chars.len())
-            }
             GMMessage::GetPosition => {
                 return GMValue::Position(self.position)
             }
@@ -264,6 +261,9 @@ impl GMObjectT for GMBitmapText {
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
+            }
+            GMMessage::Custom0(name) if name == "get_char_count" => {
+                return GMValue::USize(self.chars.len())
             }
             GMMessage::Custom0(name) if name == "reset_chars" => {
                 self.reset_chars();

@@ -86,7 +86,7 @@ impl GMObjectT for GMTEWave {
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         let message1 = GMMessage::Custom0("get_horizontal".to_string());
-        let message2 = GMMessage::GetChildCount;
+        let message2 = GMMessage::Custom0("get_char_count".to_string());
 
         let result = object_manager.send_message(&self.target, (message1, message2).into(), context);
 
@@ -200,7 +200,7 @@ impl GMObjectT for GMTEShake {
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, GMMessage::GetChildCount, context);
+        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
             self.time += self.speed;
@@ -289,7 +289,7 @@ impl GMObjectT for GMTERotateChars {
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, GMMessage::GetChildCount, context);
+        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
             let mut delta = 0.0;
@@ -394,7 +394,7 @@ impl GMObjectT for GMTEScale {
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, GMMessage::GetChildCount, context);
+        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
             let mut offset = 0.0;
