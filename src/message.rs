@@ -16,8 +16,6 @@ pub enum GMMessage {
     Custom1(String, GMValue),
     CustomM(String, Vec<GMValue>),
     Forward(Box<GMMessage>),
-    GetChild(usize),
-    GetChildCount,
     GetMessage,
     GetPosition,
     GetSize,
@@ -43,15 +41,12 @@ pub enum GMMessage {
     OMSetVisible(String, bool),
     OMToggleActive(String),
     OMToggleVisible(String),
-    SetChild(usize, Box<dyn GMObjectT>),
     SetMessage(Box<GMMessage>),
     SetPosition(GMVec2D),
     SetSize(GMSize),
     SetTarget(GMTarget),
     SetX(f32),
     SetY(f32),
-    ToChild(usize, Box<GMMessage>),
-    ToAllChildren(Box<GMMessage>),
 }
 
 impl GMMessage {
