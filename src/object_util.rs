@@ -39,7 +39,7 @@ impl GMTimedMessage {
 }
 
 impl GMObjectT for GMTimedMessage {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetMessage(message) => {
                 self.message = *message;
@@ -67,6 +67,9 @@ impl GMObjectT for GMTimedMessage {
             GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_repeat" => {
                 self.repeat = value;
             }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
             }
@@ -89,6 +92,47 @@ impl GMObjectT for GMTimedMessage {
         Box::new(self.clone())
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMTimedMultiMessage {
+    pub items: Vec<(GMTimer, bool, GMTarget, GMMessage)>,
+}
+
+impl GMTimedMultiMessage {
+    pub fn new(mut items: Vec<(f32, bool, GMTarget, GMMessage)>) -> Self {
+
+        Self {
+            items: items.drain(0..).map(|(duration, repeat, target, message)| (GMTimer::new(duration), repeat, target, message)).collect(),
+        }
+    }
+}
+
+impl GMObjectT for GMTimedMultiMessage {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            _ => {
+                error_panic(&format!("Wrong message for GMTimedMultiMessage::send_message: {:?}", message))
+            }
+        }
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        for (timer, repeat, target, message) in self.items.iter_mut() {
+            if timer.finished() {
+                if *repeat {
+                    timer.start();
+                }
+
+                object_manager.send_message(&target, message.clone(), context);
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
 
 #[derive(Clone)]
 pub struct GMTimedFunc {
@@ -116,7 +160,7 @@ impl fmt::Debug for GMTimedFunc {
 }
 
 impl GMObjectT for GMTimedFunc {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::Custom0(name) if name == "get_timeout" => {
                 let value = self.timer.duration.into();
@@ -131,6 +175,13 @@ impl GMObjectT for GMTimedFunc {
             }
             GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_repeat" => {
                 self.repeat = value;
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
+                let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                self.func = func;
+            }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
             }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
@@ -187,6 +238,9 @@ impl GMObjectT for GMTrigger {
                 let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
                 self.func = func;
             }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
             }
@@ -199,8 +253,6 @@ impl GMObjectT for GMTrigger {
         Box::new(self.clone())
     }
 }
-
-
 
 #[derive(Clone, Debug)]
 pub struct GMTriggerPair {
@@ -232,7 +284,13 @@ impl GMObjectT for GMTriggerPair {
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_pairs" => {
                 self.pairs = (*value.downcast::<Vec<(GMTarget, GMMessage)>>().unwrap()).clone();
             }
-            // TODO: add "get_pairs"
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_single_pair" => {
+                let (index, target, message) = (*value.downcast::<(usize, GMTarget, GMMessage)>().unwrap()).clone();
+                self.pairs[index] = (target, message);
+            }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))
             }
@@ -308,6 +366,9 @@ impl GMObjectT for GMValueInterpolateF32 {
                 let value = self.interpolation.get_current_value();
                 (self.func)(value, context, object_manager);
             }
+            GMMessage::Custom0(name) if name == "calculate_diff" => {
+                self.interpolation.calculate_diff();
+            }
             GMMessage::Custom1(name, GMValue::F32(start)) if name == "set_start" => {
                 self.interpolation.start = start;
             }
@@ -331,6 +392,9 @@ impl GMObjectT for GMValueInterpolateF32 {
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
                 let func = *value.downcast::<fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
                 self.func = func;
+            }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
             }
             _ => {
                 error_panic(&format!("Wrong message for GMValueInterpolateF32::send_message: {:?}", message))
@@ -407,7 +471,6 @@ impl GMObjectT for GMValueInterpolateVec2D {
             GMMessage::Custom0(name) if name == "get_curve" => {
                 return GMValue::Any(Rc::new(self.interpolation.curve.clone()))
             }
-            // TODO: Add get_func
             GMMessage::Custom0(name) if name == "reset" => {
                 self.interpolation.reset();
             }
@@ -418,6 +481,9 @@ impl GMObjectT for GMValueInterpolateVec2D {
                 self.interpolation.update();
                 let value = self.interpolation.get_current_value();
                 (self.func)(value, context, object_manager);
+            }
+            GMMessage::Custom0(name) if name == "calculate_diff" => {
+                self.interpolation.calculate_diff();
             }
             GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start" => {
                 self.interpolation.start = start;
@@ -442,6 +508,9 @@ impl GMObjectT for GMValueInterpolateVec2D {
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
                 let func = *value.downcast::<fn(value: GMVec2D, context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
                 self.func = func;
+            }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
             }
             _ => {
                 error_panic(&format!("Wrong message for GMValueInterpolateVec2D::send_message: {:?}", message))
@@ -492,21 +561,25 @@ impl fmt::Debug for GMMapMessage {
 impl GMObjectT for GMMapMessage {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::Keep(own_message) => {
-                match *own_message {
+            GMMessage::Keep(keep_message) => {
+                match *keep_message {
                     GMMessage::GetTarget => {
                         return self.target.clone().into();
                     }
                     GMMessage::SetTarget(target) => {
                         self.target = target;
                     }
-                    // TODO: Add get_func
                     GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
                         let func = *value.downcast::<fn(message: GMMessage) -> GMMessage>().unwrap();
                         self.func = func;
                     }
+                    GMMessage::Multiple(mut messages) => {
+                        // Wrap all messages in "keep" messages and use recursive call:
+                        let messages: Vec<GMMessage> = messages.drain(0..).map(|m| GMMessage::Keep(Box::new(m))).collect();
+                        self.send_multi_message(messages, context, object_manager);
+                    }
                     _ => {
-                        error_panic(&format!("Wrong message for GMMapMessage::send_message: {:?}", own_message))
+                        error_panic(&format!("Wrong message for GMMapMessage::send_message: {:?}", keep_message))
                     }
                 }
             }
@@ -523,8 +596,31 @@ impl GMObjectT for GMMapMessage {
     }
 }
 
+#[derive(Clone)]
 pub struct GMCustomSend {
-    pub target: GMTarget,
+    pub func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue,
 }
 
+impl GMCustomSend {
+    pub fn new(func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue) -> Self {
+        Self {
+            func,
+        }
+    }
+}
 
+impl fmt::Debug for GMCustomSend {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMCustomSend")
+    }
+}
+
+impl GMObjectT for GMCustomSend {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        (self.func)(message, context, object_manager)
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
