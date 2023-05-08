@@ -108,12 +108,30 @@ impl GMTimedMultiMessage {
 }
 
 impl GMObjectT for GMTimedMultiMessage {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         match message {
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_items" => {
+                let mut items = (*value.downcast::<Vec<(f32, bool, GMTarget, GMMessage)>>().unwrap()).clone();
+                self.items = items.drain(0..).map(|(duration, repeat, target, message)| (GMTimer::new(duration), repeat, target, message)).collect();
+            }
+            GMMessage::Custom2(name, GMValue::F32(duration), GMValue::USize(index)) if name == "set_timeout" => {
+                self.items[index].0.duration = duration;
+            }
+            GMMessage::Custom2(name, GMValue::Bool(repeat), GMValue::USize(index)) if name == "set_repeat" => {
+                self.items[index].1 = repeat;
+            }
+            GMMessage::Custom2(name, GMValue::Target(target), GMValue::USize(index)) if name == "set_target" => {
+                self.items[index].2 = target;
+            }
+            GMMessage::Custom2(name, GMValue::Message(message), GMValue::USize(index)) if name == "set_message" => {
+                self.items[index].3 = *message;
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMTimedMultiMessage::send_message: {:?}", message))
             }
         }
+
+        GMValue::None
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
