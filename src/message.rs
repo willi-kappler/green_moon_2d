@@ -14,6 +14,7 @@ pub enum GMMessage {
     AddY(f32),
     Custom0(String),
     Custom1(String, GMValue),
+    Custom2(String, GMValue, GMValue),
     CustomM(String, Vec<GMValue>),
     Forward(Box<GMMessage>),
     GetMessage,
