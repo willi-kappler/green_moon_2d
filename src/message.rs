@@ -15,6 +15,7 @@ pub enum GMMessage {
     Custom0(String),
     Custom1(String, GMValue),
     Custom2(String, GMValue, GMValue),
+    Custom3(String, GMValue, GMValue, GMValue),
     CustomM(String, Vec<GMValue>),
     Forward(Box<GMMessage>),
     GetMessage,
