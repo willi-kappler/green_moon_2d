@@ -5,7 +5,8 @@ use std::rc::Rc;
 use log::debug;
 
 use crate::context::GMContext;
-use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D, GMCurveT};
+use crate::curve::GMCurveT;
+use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D};
 use crate::math::GMVec2D;
 use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
@@ -110,9 +111,17 @@ impl GMTimedMultiMessage {
 impl GMObjectT for GMTimedMultiMessage {
     fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         match message {
+            GMMessage::Custom0(name) if name == "reset_all_timers" => {
+                for item in self.items.iter_mut() {
+                    item.0.start();
+                }
+            }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_items" => {
                 let mut items = (*value.downcast::<Vec<(f32, bool, GMTarget, GMMessage)>>().unwrap()).clone();
                 self.items = items.drain(0..).map(|(duration, repeat, target, message)| (GMTimer::new(duration), repeat, target, message)).collect();
+            }
+            GMMessage::Custom1(name, GMValue::USize(index)) if name == "reset_timer" => {
+                self.items[index].0.start();
             }
             GMMessage::Custom2(name, GMValue::F32(duration), GMValue::USize(index)) if name == "set_timeout" => {
                 self.items[index].0.duration = duration;

@@ -8,6 +8,7 @@ pub mod collision;
 pub mod configuration;
 
 pub mod context;
+pub mod curve;
 pub mod engine;
 pub mod input;
 pub mod interpolation;
