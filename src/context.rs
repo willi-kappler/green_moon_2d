@@ -1,5 +1,5 @@
 
-use std::collections::{VecDeque, HashMap};
+use std::collections::VecDeque;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -9,12 +9,13 @@ use sdl2::rect::Rect;
 
 use log::debug;
 
-use crate::value::GMValue;
-use crate::resources::GMResources;
-use crate::input::{GMInput, GMEventCode};
-use crate::scene::{GMSceneT, GMSceneManagerMessage};
-use crate::engine::GMEngineMessage;
 use crate::configuration::GMConfiguration;
+use crate::engine::GMEngineMessage;
+use crate::input::{GMInput, GMEventCode};
+use crate::resources::GMResources;
+use crate::scene::{GMSceneT, GMSceneManagerMessage};
+use crate::state::GMState;
+use crate::value::GMValue;
 
 
 pub struct GMContext {
@@ -23,7 +24,7 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     pub resources: GMResources,
-    custom_properties: HashMap<String, GMValue>,
+    custom_properties: GMState,
     pub window_width: f32,
     pub window_height: f32,
 }
@@ -40,7 +41,7 @@ impl GMContext {
             canvas,
             input,
             resources,
-            custom_properties: HashMap::new(),
+            custom_properties: GMState::new(),
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
         }
@@ -48,15 +49,15 @@ impl GMContext {
 
     // Custom properties:
     pub fn set_custom_property(&mut self, name: &str, value: GMValue) {
-        self.custom_properties.insert(name.to_string(), value);
+        self.custom_properties.set_property(name, value);
     }
 
-    pub fn get_custom_property(&self, name: &str) -> Option<&GMValue> {
-        self.custom_properties.get(name)
+    pub fn get_custom_property(&self, name: &str) -> &GMValue {
+        self.custom_properties.get_property(name)
     }
 
     pub fn remove_custom_property(&mut self, name: &str) {
-        self.custom_properties.remove(name);
+        self.custom_properties.remove_property(name);
     }
 
     pub fn clear_custom_properties(&mut self) {

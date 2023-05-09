@@ -11,6 +11,7 @@ use crate::math::GMVec2D;
 use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
+use crate::state::GMState;
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, GMRepetition};
@@ -165,16 +166,19 @@ impl GMObjectT for GMTimedMultiMessage {
 pub struct GMTimedFunc {
     pub timer: GMTimer,
     pub repeat: bool,
-    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
+    pub state: GMState,
+    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState),
 }
 
 impl GMTimedFunc {
-    pub fn new(timeout: f32, repeat: bool, func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+    pub fn new(timeout: f32, repeat: bool, func: fn(context: &mut GMContext,
+            object_manager: &GMObjectManager, state: &mut GMState)) -> Self {
         debug!("GMTimedFunc::new(), timeout: {}, repeat: {}", timeout, repeat);
 
         Self {
             timer: GMTimer::new(timeout),
             repeat,
+            state: GMState::new(),
             func,
         }
     }
@@ -204,7 +208,8 @@ impl GMObjectT for GMTimedFunc {
                 self.repeat = value;
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                let func = *value.downcast::<fn(context: &mut GMContext,
+                        object_manager: &GMObjectManager, state: &mut GMState)>().unwrap();
                 self.func = func;
             }
             GMMessage::Multiple(messages) => {
@@ -224,7 +229,7 @@ impl GMObjectT for GMTimedFunc {
                 self.timer.start();
             }
 
-            (self.func)(context, object_manager);
+            (self.func)(context, object_manager, &mut self.state);
         }
     }
 
@@ -236,14 +241,16 @@ impl GMObjectT for GMTimedFunc {
 
 #[derive(Clone)]
 pub struct GMTrigger {
-    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
+    pub state: GMState,
+    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState),
 }
 
 impl GMTrigger {
-    pub fn new(func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+    pub fn new(func: fn(context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState)) -> Self {
         debug!("GMTrigger::new()");
 
         Self {
+            state: GMState::new(),
             func,
         }
     }
@@ -259,10 +266,11 @@ impl GMObjectT for GMTrigger {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::Custom0(name) if name == "trigger" => {
-                (self.func)(context, object_manager)
+                (self.func)(context, object_manager, &mut self.state)
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                let func = *value.downcast::<fn(context: &mut GMContext,
+                    object_manager: &GMObjectManager, state: &mut GMState)>().unwrap();
                 self.func = func;
             }
             GMMessage::Multiple(messages) => {
@@ -334,20 +342,23 @@ impl GMObjectT for GMTriggerPair {
 #[derive(Clone)]
 pub struct GMValueInterpolateF32 {
     pub interpolation: GMInterpolateF32,
-    pub func: fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager),
     pub auto_update: bool,
+    pub state: GMState,
+    pub func: fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState),
 }
 
 impl GMValueInterpolateF32 {
-    pub fn new(start: f32, end: f32, speed: f32, func: fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+    pub fn new(start: f32, end: f32, speed: f32, func: fn(value: f32, context: &mut GMContext,
+            object_manager: &GMObjectManager, state: &mut GMState)) -> Self {
         debug!("GMValueInterpolateF32::new(), start: {}, end: {}, speed: {}", start, end, speed);
 
         let interpolation = GMInterpolateF32::new(start, end, speed, 0.0);
 
         Self {
             interpolation,
-            func,
             auto_update: true,
+            state: GMState::new(),
+            func,
         }
     }
 }
@@ -391,7 +402,7 @@ impl GMObjectT for GMValueInterpolateF32 {
             GMMessage::Custom0(name) if name == "update" => {
                 self.interpolation.update();
                 let value = self.interpolation.get_current_value();
-                (self.func)(value, context, object_manager);
+                (self.func)(value, context, object_manager, &mut self.state);
             }
             GMMessage::Custom0(name) if name == "calculate_diff" => {
                 self.interpolation.calculate_diff();
@@ -417,7 +428,8 @@ impl GMObjectT for GMValueInterpolateF32 {
                 self.interpolation.curve = (*curve).clone();
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(value: f32, context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                let func = *value.downcast::<fn(value: f32, context: &mut GMContext,
+                    object_manager: &GMObjectManager, state: &mut GMState)>().unwrap();
                 self.func = func;
             }
             GMMessage::Multiple(messages) => {
@@ -435,7 +447,7 @@ impl GMObjectT for GMValueInterpolateF32 {
         if self.auto_update {
             self.interpolation.update();
             let value = self.interpolation.get_current_value();
-            (self.func)(value, context, object_manager);
+            (self.func)(value, context, object_manager, &mut self.state);
         }
     }
 
@@ -447,12 +459,14 @@ impl GMObjectT for GMValueInterpolateF32 {
 #[derive(Clone)]
 pub struct GMValueInterpolateVec2D {
     pub interpolation: GMInterpolateVec2D,
-    pub func: fn(value: GMVec2D, context: &mut GMContext, object_manager: &GMObjectManager),
     pub auto_update: bool,
+    pub state: GMState,
+    pub func: fn(value: GMVec2D, context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState),
 }
 
 impl GMValueInterpolateVec2D {
-    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>>(start: U, end: V, speed: f32, func: fn(value: GMVec2D, context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>>(start: U, end: V, speed: f32, func: fn(value: GMVec2D,
+            context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState)) -> Self {
         let start = start.into();
         let end = end.into();
 
@@ -462,8 +476,9 @@ impl GMValueInterpolateVec2D {
 
         Self {
             interpolation,
-            func,
             auto_update: true,
+            state: GMState::new(),
+            func,
         }
     }
 }
@@ -507,7 +522,7 @@ impl GMObjectT for GMValueInterpolateVec2D {
             GMMessage::Custom0(name) if name == "update" => {
                 self.interpolation.update();
                 let value = self.interpolation.get_current_value();
-                (self.func)(value, context, object_manager);
+                (self.func)(value, context, object_manager, &mut self.state);
             }
             GMMessage::Custom0(name) if name == "calculate_diff" => {
                 self.interpolation.calculate_diff();
@@ -533,7 +548,8 @@ impl GMObjectT for GMValueInterpolateVec2D {
                 self.interpolation.curve = (*curve).clone();
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(value: GMVec2D, context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
+                let func = *value.downcast::<fn(value: GMVec2D, context: &mut GMContext,
+                    object_manager: &GMObjectManager, state: &mut GMState)>().unwrap();
                 self.func = func;
             }
             GMMessage::Multiple(messages) => {
@@ -551,7 +567,7 @@ impl GMObjectT for GMValueInterpolateVec2D {
         if self.auto_update {
             self.interpolation.update();
             let value = self.interpolation.get_current_value();
-            (self.func)(value, context, object_manager);
+            (self.func)(value, context, object_manager, &mut self.state);
         }
     }
 
@@ -564,16 +580,18 @@ impl GMObjectT for GMValueInterpolateVec2D {
 #[derive(Clone)]
 pub struct GMMapMessage {
     pub target: GMTarget,
-    pub func: fn(message: GMMessage) -> GMMessage,
+    pub state: GMState,
+    pub func: fn(message: GMMessage, state: &mut GMState) -> GMMessage,
 }
 
 impl GMMapMessage {
-    pub fn new<T: Into<GMTarget>>(target: T, func: fn(message: GMMessage) -> GMMessage) -> Self {
+    pub fn new<T: Into<GMTarget>>(target: T, func: fn(message: GMMessage, state: &mut GMState) -> GMMessage) -> Self {
         let target = target.into();
         debug!("GMMapMessage::new(), target: {:?}", target);
 
         Self {
             target,
+            state: GMState::new(),
             func,
         }
     }
@@ -597,7 +615,7 @@ impl GMObjectT for GMMapMessage {
                         self.target = target;
                     }
                     GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                        let func = *value.downcast::<fn(message: GMMessage) -> GMMessage>().unwrap();
+                        let func = *value.downcast::<fn(message: GMMessage, state: &mut GMState) -> GMMessage>().unwrap();
                         self.func = func;
                     }
                     GMMessage::Multiple(mut messages) => {
@@ -611,7 +629,7 @@ impl GMObjectT for GMMapMessage {
                 }
             }
             _ => {
-                let new_message = (self.func)(message);
+                let new_message = (self.func)(message, &mut self.state);
                 object_manager.send_message(&self.target, new_message, context);
             }
         }
@@ -625,12 +643,15 @@ impl GMObjectT for GMMapMessage {
 
 #[derive(Clone)]
 pub struct GMCustomSend {
-    pub func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue,
+    pub state: GMState,
+    pub func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager, state: &mut GMState) -> GMValue,
 }
 
 impl GMCustomSend {
-    pub fn new(func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue) -> Self {
+    pub fn new(func: fn(message: GMMessage, context: &mut GMContext,
+            object_manager: &GMObjectManager, state: &mut GMState) -> GMValue) -> Self {
         Self {
+            state: GMState::new(),
             func,
         }
     }
@@ -644,7 +665,7 @@ impl fmt::Debug for GMCustomSend {
 
 impl GMObjectT for GMCustomSend {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        (self.func)(message, context, object_manager)
+        (self.func)(message, context, object_manager, &mut self.state)
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
