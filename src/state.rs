@@ -5,7 +5,7 @@ use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
 pub struct GMState {
-    state: HashMap<String, GMValue>,
+    pub state: HashMap<String, GMValue>,
 }
 
 impl GMState {
@@ -27,11 +27,21 @@ impl GMState {
         }
     }
 
+    pub fn get_property_mut(&mut self, name: &str) -> &mut GMValue {
+        self.state.get_mut(name).unwrap()
+    }
+
     pub fn remove_property(&mut self, name: &str) {
         self.state.remove(name);
     }
 
     pub fn clear(&mut self) {
         self.state.clear();
+    }
+}
+
+impl Into<GMValue> for GMState {
+    fn into(self) -> GMValue {
+        GMValue::State(self)
     }
 }

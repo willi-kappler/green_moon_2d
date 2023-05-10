@@ -1,10 +1,11 @@
 
 
 use crate::math::{GMVec2D, GMSize};
-use crate::value::GMValue;
 use crate::object_manager::GMObjectInfo;
 use crate::object::GMObjectT;
+use crate::state::GMState;
 use crate::target::GMTarget;
+use crate::value::GMValue;
 
 
 #[derive(Clone, Debug)]
@@ -12,6 +13,7 @@ pub enum GMMessage {
     AddPosition(GMVec2D),
     AddX(f32),
     AddY(f32),
+    ClearState,
     Custom0(String),
     Custom1(String, GMValue),
     Custom2(String, GMValue, GMValue),
@@ -21,6 +23,8 @@ pub enum GMMessage {
     GetMessage,
     GetPosition,
     GetSize,
+    GetState,
+    GetStateProperty(String),
     GetTarget,
     GetX,
     GetY,
@@ -43,9 +47,12 @@ pub enum GMMessage {
     OMSetVisible(String, bool),
     OMToggleActive(String),
     OMToggleVisible(String),
+    RemoveStateProperty(String),
     SetMessage(Box<GMMessage>),
     SetPosition(GMVec2D),
     SetSize(GMSize),
+    SetState(GMState),
+    SetStateProperty(String, GMValue),
     SetTarget(GMTarget),
     SetX(f32),
     SetY(f32),
