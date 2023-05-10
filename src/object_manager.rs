@@ -8,11 +8,12 @@ use crate::message::GMMessage;
 use crate::util::error_panic;
 use crate::context::GMContext;
 use crate::target::GMTarget;
+use crate::state::GMState;
 
 #[derive(Clone, Debug)]
 pub struct GMObjectInfo {
     pub active: bool,
-    pub custom_properties: HashMap<String, GMValue>,
+    pub state: GMState,
     pub draw_index: i32,
     pub groups: HashSet<String>,
     pub inner: RefCell<Box<dyn GMObjectT>>,
@@ -24,7 +25,7 @@ impl GMObjectInfo {
     pub fn new<T: Into<Box<dyn GMObjectT>>>(object: T) -> Self {
         Self {
             active: true,
-            custom_properties: HashMap::new(),
+            state: GMState::new(),
             draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
@@ -58,7 +59,7 @@ impl GMObjectManager {
     pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
         let new_object = GMObjectInfo {
             active: true,
-            custom_properties: HashMap::new(),
+            state: GMState::new(),
             draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
@@ -75,7 +76,7 @@ impl GMObjectManager {
 
         let new_object = GMObjectInfo {
             active: true,
-            custom_properties: HashMap::new(),
+            state: GMState::new(),
             draw_index: 0,
             groups,
             inner: RefCell::new(object.into()),
@@ -89,7 +90,7 @@ impl GMObjectManager {
     pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
         let new_object = GMObjectInfo {
             active: true,
-            custom_properties: HashMap::new(),
+            state: GMState::new(),
             draw_index: draw_index,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
@@ -106,7 +107,7 @@ impl GMObjectManager {
 
         let new_object = GMObjectInfo {
             active: true,
-            custom_properties: HashMap::new(),
+            state: GMState::new(),
             draw_index: draw_index,
             groups,
             inner: RefCell::new(object.into()),
@@ -308,25 +309,25 @@ impl GMObjectManager {
         }
     }
 
-    pub fn set_custom_property(&mut self, name: &str, key: &str, value: GMValue) {
+    pub fn set_custom_property(&mut self, name: &str, property: &str, value: GMValue) {
         if let Some(object) = self.objects.get_mut(name) {
-            object.custom_properties.insert(key.to_string(), value);
+            object.state.set_property(property, value);
         } else {
             error_panic(&format!("GMObjectManager::set_custom_property: object {} not found", name));
         }
     }
 
-    pub fn get_custom_property(&self, name: &str, key: &str) -> Option<&GMValue> {
+    pub fn get_custom_property(&self, name: &str, property: &str) -> &GMValue {
         if let Some(object) = self.objects.get(name) {
-            return object.custom_properties.get(key);
+            return object.state.get_property(property);
         } else {
             error_panic(&format!("GMObjectManager::get_custom_property: object {} not found", name));
         }
     }
 
-    pub fn remove_custom_property(&mut self, name: &str, key: &str) {
+    pub fn remove_custom_property(&mut self, name: &str, property: &str) {
         if let Some(object) = self.objects.get_mut(name) {
-            object.custom_properties.remove(key);
+            object.state.remove_property(property);
         } else {
             error_panic(&format!("GMObjectManager::remove_custom_property: object {} not found", name));
         }
@@ -334,7 +335,7 @@ impl GMObjectManager {
 
     pub fn clear_custom_properties(&mut self, name: &str) {
         if let Some(object) = self.objects.get_mut(name) {
-            object.custom_properties.clear();
+            object.state.clear();
         } else {
             error_panic(&format!("GMObjectManager::clear_custom_properties: object {} not found", name));
         }
