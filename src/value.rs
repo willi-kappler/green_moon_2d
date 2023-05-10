@@ -6,7 +6,6 @@ use std::cell::RefCell;
 use crate::math::{GMVec2D, GMSize};
 use crate::message::GMMessage;
 use crate::object::GMObjectT;
-use crate::state::GMState;
 use crate::target::GMTarget;
 
 
@@ -32,7 +31,6 @@ pub enum GMValue {
     Shared(Rc<GMValue>),
     SharedCell(Rc<RefCell<GMValue>>),
     Size(GMSize),
-    State(GMState),
     String(String),
     Target(GMTarget),
     U16(u16),

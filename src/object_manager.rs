@@ -13,10 +13,10 @@ use crate::state::GMState;
 #[derive(Clone, Debug)]
 pub struct GMObjectInfo {
     pub active: bool,
-    pub state: GMState,
     pub draw_index: i32,
     pub groups: HashSet<String>,
     pub inner: RefCell<Box<dyn GMObjectT>>,
+    pub state: RefCell<GMState>,
     pub update_index: i32,
     pub visible: bool,
 }
@@ -25,10 +25,10 @@ impl GMObjectInfo {
     pub fn new<T: Into<Box<dyn GMObjectT>>>(object: T) -> Self {
         Self {
             active: true,
-            state: GMState::new(),
             draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
+            state: RefCell::new(GMState::new()),
             update_index: 0,
             visible: true,
         }
@@ -57,15 +57,9 @@ impl GMObjectManager {
     }
 
     pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
-        let new_object = GMObjectInfo {
-            active: true,
-            state: GMState::new(),
-            draw_index: 0,
-            groups: HashSet::new(),
-            inner: RefCell::new(object.into()),
-            update_index: update_index,
-            visible: false,
-        };
+        let mut new_object = GMObjectInfo::new(object);
+        new_object.visible = false;
+        new_object.update_index = update_index;
 
         self.objects.insert(name.to_string(), new_object);
     }
@@ -74,29 +68,18 @@ impl GMObjectManager {
         let mut groups = HashSet::new();
         groups.insert(group.to_string());
 
-        let new_object = GMObjectInfo {
-            active: true,
-            state: GMState::new(),
-            draw_index: 0,
-            groups,
-            inner: RefCell::new(object.into()),
-            update_index: update_index,
-            visible: false,
-        };
+        let mut new_object = GMObjectInfo::new(object);
+        new_object.visible = false;
+        new_object.update_index = update_index;
+        new_object.groups = groups;
 
         self.objects.insert(name.to_string(), new_object);
     }
 
     pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
-        let new_object = GMObjectInfo {
-            active: true,
-            state: GMState::new(),
-            draw_index: draw_index,
-            groups: HashSet::new(),
-            inner: RefCell::new(object.into()),
-            update_index: update_index,
-            visible: true,
-        };
+        let mut new_object = GMObjectInfo::new(object);
+        new_object.draw_index = draw_index;
+        new_object.update_index = update_index;
 
         self.objects.insert(name.to_string(), new_object);
     }
@@ -105,15 +88,10 @@ impl GMObjectManager {
         let mut groups = HashSet::new();
         groups.insert(group.to_string());
 
-        let new_object = GMObjectInfo {
-            active: true,
-            state: GMState::new(),
-            draw_index: draw_index,
-            groups,
-            inner: RefCell::new(object.into()),
-            update_index: update_index,
-            visible: true,
-        };
+        let mut new_object = GMObjectInfo::new(object);
+        new_object.draw_index = draw_index;
+        new_object.update_index = update_index;
+        new_object.groups = groups;
 
         self.objects.insert(name.to_string(), new_object);
     }
@@ -140,6 +118,22 @@ impl GMObjectManager {
 
     pub fn remove_objects_not_in_group(&mut self, group: &str) {
         self.objects.retain(|_, v| v.groups.contains(group));
+    }
+
+    pub fn get_object(&self, name: &str) -> &GMObjectInfo {
+        if let Some(object) = self.objects.get(name) {
+            return object;
+        } else {
+            error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+        }
+    }
+
+    pub fn get_object_mut(&self, name: &str) -> &mut GMObjectInfo {
+        if let Some(object) = self.objects.get_mut(name) {
+            return object;
+        } else {
+            error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+        }
     }
 
     fn update_objects(&self, context: &mut GMContext) {
@@ -309,35 +303,83 @@ impl GMObjectManager {
         }
     }
 
-    pub fn set_custom_property(&mut self, name: &str, property: &str, value: GMValue) {
-        if let Some(object) = self.objects.get_mut(name) {
-            object.state.set_property(property, value);
-        } else {
-            error_panic(&format!("GMObjectManager::set_custom_property: object {} not found", name));
-        }
-    }
-
-    pub fn get_custom_property(&self, name: &str, property: &str) -> &GMValue {
+    pub fn get_state_property(&self, name: &str, property: &str) -> &GMValue {
         if let Some(object) = self.objects.get(name) {
-            return object.state.get_property(property);
+            return object.state.borrow().get_property(property);
         } else {
-            error_panic(&format!("GMObjectManager::get_custom_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
         }
     }
 
-    pub fn remove_custom_property(&mut self, name: &str, property: &str) {
-        if let Some(object) = self.objects.get_mut(name) {
-            object.state.remove_property(property);
+    pub fn set_state_property<T: Into<GMValue>>(&self, name: &str, property: &str, value: T) {
+        if let Some(object) = self.objects.get(name) {
+            object.state.borrow_mut().set_property(name, value);
         } else {
-            error_panic(&format!("GMObjectManager::remove_custom_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
         }
     }
 
-    pub fn clear_custom_properties(&mut self, name: &str) {
-        if let Some(object) = self.objects.get_mut(name) {
-            object.state.clear();
+    pub fn set_state_property_in_group<T: Into<GMValue>>(&self, group: &str, property: &str, value: T) {
+        for object in self.objects.values() {
+            if object.groups.contains(group) {
+                object.state.borrow_mut().set_property(property, value);
+            }
+        }
+    }
+
+    pub fn set_state_property_not_in_group<T: Into<GMValue>>(&self, group: &str, property: &str, value: T) {
+        for object in self.objects.values() {
+            if !object.groups.contains(group) {
+                object.state.borrow_mut().set_property(property, value);
+            }
+        }
+    }
+
+    pub fn remove_state_property(&self, name: &str, property: &str) {
+        if let Some(object) = self.objects.get(name) {
+            return object.state.borrow().remove_property(property);
         } else {
-            error_panic(&format!("GMObjectManager::clear_custom_properties: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+        }
+    }
+
+    pub fn remove_state_property_in_group(&self, group: &str, property: &str) {
+        for object in self.objects.values() {
+            if object.groups.contains(group) {
+                object.state.borrow_mut().remove_property(property);
+            }
+        }
+    }
+
+    pub fn remove_state_property_not_in_group(&self, group: &str, property: &str) {
+        for object in self.objects.values() {
+            if !object.groups.contains(group) {
+                object.state.borrow_mut().remove_property(property);
+            }
+        }
+    }
+
+    pub fn clear_state_property(&self, name: &str) {
+        if let Some(object) = self.objects.get(name) {
+            object.state.borrow_mut().clear();
+        } else {
+            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+        }
+    }
+
+    pub fn get_state(&self, name: &str) -> &RefCell<GMState> {
+        if let Some(object) = self.objects.get(name) {
+            return &object.state;
+        } else {
+            error_panic(&format!("GMObjectManager::get_state: object {} not found", name));
+        }
+    }
+
+    pub fn set_state(&self, name: &str, state: GMState) -> GMState {
+        if let Some(object) = self.objects.get(name) {
+            return object.state.replace(state)
+        } else {
+            error_panic(&format!("GMObjectManager::set_state: object {} not found", name));
         }
     }
 
@@ -414,8 +456,12 @@ impl GMObjectManager {
         self.send_message(target, GMMessage::Custom0(message.to_string()), context)
     }
 
-    pub fn send_custom_message1(&self, target: &GMTarget, message: &str, value: GMValue, context: &mut GMContext) -> GMValue {
-        self.send_message(target, GMMessage::Custom1(message.to_string(), value), context)
+    pub fn send_custom_message1<U: Into<GMValue>>(&self, target: &GMTarget, message: &str, value: U, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom1(message.to_string(), value.into()), context)
+    }
+
+    pub fn send_custom_message2<U: Into<GMValue>, V: Into<GMValue>>(&self, target: &GMTarget, message: &str, value1: U, value2: V, context: &mut GMContext) -> GMValue {
+        self.send_message(target, GMMessage::Custom2(message.to_string(), value1.into(), value2.into()), context)
     }
 
     fn process_manager_messages(&mut self) {
@@ -435,14 +481,8 @@ impl GMObjectManager {
                 GMMessage::OMAddNormalObject(object_name, object, update_index) => {
                     self.add_normal_object(&object_name, object, update_index);
                 }
-                GMMessage::OMClearCustomProperties(object_name) => {
-                    self.clear_custom_properties(&object_name);
-                }
                 GMMessage::OMClearGroups(object_name) => {
                     self.clear_groups(&object_name);
-                }
-                GMMessage::OMRemoveCustomProperty(object_name, key) => {
-                    self.remove_custom_property(&object_name, &key);
                 }
                 GMMessage::OMRemoveGroup(object_name, group) => {
                     self.remove_group(&object_name, &group);
@@ -455,9 +495,6 @@ impl GMObjectManager {
                 }
                 GMMessage::OMSetActive(object_name, active) => {
                     self.set_active(&object_name, active);
-                }
-                GMMessage::OMSetCustomProperty(object_name, key, value) => {
-                    self.set_custom_property(&object_name, &key, value);
                 }
                 GMMessage::OMSetDrawIndex(object_name, draw_index) => {
                     self.set_draw_index(&object_name, draw_index);

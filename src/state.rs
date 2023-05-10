@@ -15,33 +15,27 @@ impl GMState {
         }
     }
 
-    pub fn set_property(&mut self, name: &str, value: GMValue) {
-        self.state.insert(name.to_string(), value);
+    pub fn set_property<T: Into<GMValue>>(&mut self, property: &str, value: T) {
+        self.state.insert(property.to_string(), value.into());
     }
 
-    pub fn get_property(&self, name: &str) -> &GMValue {
-        if let Some(value) = self.state.get(name) {
+    pub fn get_property(&self, property: &str) -> &GMValue {
+        if let Some(value) = self.state.get(property) {
             value
         } else {
             &GMValue::None
         }
     }
 
-    pub fn get_property_mut(&mut self, name: &str) -> &mut GMValue {
-        self.state.get_mut(name).unwrap()
+    pub fn get_property_mut(&mut self, property: &str) -> &mut GMValue {
+        self.state.get_mut(property).unwrap()
     }
 
-    pub fn remove_property(&mut self, name: &str) {
-        self.state.remove(name);
+    pub fn remove_property(&mut self, property: &str) {
+        self.state.remove(property);
     }
 
     pub fn clear(&mut self) {
         self.state.clear();
-    }
-}
-
-impl Into<GMValue> for GMState {
-    fn into(self) -> GMValue {
-        GMValue::State(self)
     }
 }

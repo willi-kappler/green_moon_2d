@@ -3,7 +3,6 @@
 use crate::math::{GMVec2D, GMSize};
 use crate::object_manager::GMObjectInfo;
 use crate::object::GMObjectT;
-use crate::state::GMState;
 use crate::target::GMTarget;
 use crate::value::GMValue;
 
@@ -13,7 +12,6 @@ pub enum GMMessage {
     AddPosition(GMVec2D),
     AddX(f32),
     AddY(f32),
-    ClearState,
     Custom0(String),
     Custom1(String, GMValue),
     Custom2(String, GMValue, GMValue),
@@ -23,8 +21,6 @@ pub enum GMMessage {
     GetMessage,
     GetPosition,
     GetSize,
-    GetState,
-    GetStateProperty(String),
     GetTarget,
     GetX,
     GetY,
@@ -34,25 +30,19 @@ pub enum GMMessage {
     OMAddDrawObject(String, Box<dyn GMObjectT>, i32, i32),
     OMAddGroup(String, String),
     OMAddNormalObject(String, Box<dyn GMObjectT>, i32),
-    OMClearCustomProperties(String),
     OMClearGroups(String),
-    OMRemoveCustomProperty(String, String),
     OMRemoveGroup(String, String),
     OMRemoveObject(String),
     OMReplaceObject(String, Box<dyn GMObjectT>),
     OMSetActive(String, bool),
-    OMSetCustomProperty(String, String, GMValue),
     OMSetDrawIndex(String, i32),
     OMSetUpdateIndex(String, i32),
     OMSetVisible(String, bool),
     OMToggleActive(String),
     OMToggleVisible(String),
-    RemoveStateProperty(String),
     SetMessage(Box<GMMessage>),
     SetPosition(GMVec2D),
     SetSize(GMSize),
-    SetState(GMState),
-    SetStateProperty(String, GMValue),
     SetTarget(GMTarget),
     SetX(f32),
     SetY(f32),

@@ -111,7 +111,7 @@ impl GMObjectT for GMMVAcceleration {
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        object_manager.send_custom_message1(&self.target, "add_velocity", self.a.into(), context);
+        object_manager.send_custom_message1(&self.target, "add_velocity", self.a, context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
