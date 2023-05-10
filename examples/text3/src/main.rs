@@ -123,29 +123,29 @@ impl TextScene3 {
         match self.current_effect {
             CurrentEffect::Wave => {
                 self.object_manager.set_active("wave1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "---<<< SINE WAVE >>>---".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "---<<< SINE WAVE >>>---", context);
             }
             CurrentEffect::Shake => {
                 self.object_manager.set_active("shake1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "..... SHAKE .....".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "..... SHAKE .....", context);
             }
             CurrentEffect::Rotate => {
                 self.object_manager.set_active("rotate1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", ">>>>> ROTATE <<<<<".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", ">>>>> ROTATE <<<<<", context);
             }
             CurrentEffect::Scale => {
                 self.object_manager.set_active("scale1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--<>() SCALE ()<>--".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--<>() SCALE ()<>--", context);
             }
             CurrentEffect::WaveRotate => {
                 self.object_manager.set_active("wave1", true);
                 self.object_manager.set_active("rotate1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SINE WAVE ROTATE ---".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SINE WAVE ROTATE ---", context);
             }
             CurrentEffect::ShakeScale => {
                 self.object_manager.set_active("shake1", true);
                 self.object_manager.set_active("scale1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SHAKE AND SCALE ---".into(), context);
+                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SHAKE AND SCALE ---", context);
             }
         }
     }
@@ -153,40 +153,40 @@ impl TextScene3 {
     fn change_property(&mut self, property: u8, amount: f32, context: &mut GMContext) {
         match (&self.current_effect, property) {
             (CurrentEffect::Wave, 1) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", (amount * 0.5).into(), context);
+                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", amount * 0.5, context);
             }
             (CurrentEffect::Wave, 2) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_offset", (amount * 0.01).into(), context);
+                self.object_manager.send_custom_message1(&"wave1".into(), "add_offset", amount * 0.01, context);
             }
             (CurrentEffect::Shake, 1) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", amount * 0.1, context);
             }
             (CurrentEffect::Shake, 2) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_speed", (amount * 0.01).into(), context);
+                self.object_manager.send_custom_message1(&"shake1".into(), "add_speed", amount * 0.01, context);
             }
             (CurrentEffect::Rotate, 1) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", amount * 0.1, context);
             }
             (CurrentEffect::Rotate, 2) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_offset", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"rotate1".into(), "add_offset", amount * 0.1, context);
             }
             (CurrentEffect::Scale, 1) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", amount * 0.1, context);
             }
             (CurrentEffect::Scale, 2) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_amplitude", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"scale1".into(), "add_amplitude", amount * 0.1, context);
             }
             (CurrentEffect::WaveRotate, 1) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", (amount * 0.5).into(), context);
+                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", amount * 0.5, context);
             }
             (CurrentEffect::WaveRotate, 2) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", amount * 0.1, context);
             }
             (CurrentEffect::ShakeScale, 1) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", amount * 0.1, context);
             }
             (CurrentEffect::ShakeScale, 2) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", (amount * 0.1).into(), context);
+                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", amount * 0.1, context);
             }
             _ => {
                 error_panic(&format!("Unknown property id: {}", property));
