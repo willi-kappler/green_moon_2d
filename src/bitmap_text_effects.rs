@@ -214,7 +214,7 @@ impl GMObjectT for GMTEShake {
                 new_positions.push(GMValue::Vec2D(GMVec2D::new(dx, dy)));
             }
 
-            object_manager.send_custom_message1(&self.target, "add_chars_position", new_positions.into(), context);
+            object_manager.send_custom_message1(&self.target, "add_chars_position", new_positions, context);
         }
 
         if self.time > 1.0 {
@@ -300,7 +300,7 @@ impl GMObjectT for GMTERotateChars {
                 delta += self.offset;
             }
 
-            object_manager.send_custom_message1(&self.target, "set_chars_angle", new_angles.into(), context);
+            object_manager.send_custom_message1(&self.target, "set_chars_angle", new_angles, context);
         }
 
         self.time += self.speed;
@@ -405,7 +405,7 @@ impl GMObjectT for GMTEScale {
                 offset += self.offset;
             }
 
-            object_manager.send_custom_message1(&self.target, "set_chars_scale", new_scales.into(), context);
+            object_manager.send_custom_message1(&self.target, "set_chars_scale", new_scales, context);
         }
 
         self.time += self.speed;

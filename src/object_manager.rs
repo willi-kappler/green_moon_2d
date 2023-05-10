@@ -128,7 +128,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn get_object_mut(&self, name: &str) -> &mut GMObjectInfo {
+    pub fn get_object_mut(&mut self, name: &str) -> &mut GMObjectInfo {
         if let Some(object) = self.objects.get_mut(name) {
             return object;
         } else {
@@ -303,9 +303,9 @@ impl GMObjectManager {
         }
     }
 
-    pub fn get_state_property(&self, name: &str, property: &str) -> &GMValue {
+    pub fn get_state_property(&self, name: &str, property: &str) -> GMValue {
         if let Some(object) = self.objects.get(name) {
-            return object.state.borrow().get_property(property);
+            return object.state.borrow().get_property(property).clone();
         } else {
             error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
         }
@@ -313,31 +313,35 @@ impl GMObjectManager {
 
     pub fn set_state_property<T: Into<GMValue>>(&self, name: &str, property: &str, value: T) {
         if let Some(object) = self.objects.get(name) {
-            object.state.borrow_mut().set_property(name, value);
+            object.state.borrow_mut().set_property(property, value);
         } else {
             error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
         }
     }
 
     pub fn set_state_property_in_group<T: Into<GMValue>>(&self, group: &str, property: &str, value: T) {
+        let value = value.into();
+
         for object in self.objects.values() {
             if object.groups.contains(group) {
-                object.state.borrow_mut().set_property(property, value);
+                object.state.borrow_mut().set_property(property, value.clone());
             }
         }
     }
 
     pub fn set_state_property_not_in_group<T: Into<GMValue>>(&self, group: &str, property: &str, value: T) {
+        let value = value.into();
+
         for object in self.objects.values() {
             if !object.groups.contains(group) {
-                object.state.borrow_mut().set_property(property, value);
+                object.state.borrow_mut().set_property(property, value.clone());
             }
         }
     }
 
     pub fn remove_state_property(&self, name: &str, property: &str) {
         if let Some(object) = self.objects.get(name) {
-            return object.state.borrow().remove_property(property);
+            object.state.borrow_mut().remove_property(property);
         } else {
             error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
         }
