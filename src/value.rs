@@ -235,6 +235,13 @@ impl From<Vec<f32>> for GMValue {
     }
 }
 
+impl From<Vec<GMTarget>> for GMValue {
+    fn from(mut values: Vec<GMTarget>) -> Self {
+        let values: Vec<GMValue> = values.drain(0..).map(|v| GMValue::Target(v)).collect();
+        Self::Multiple(values)
+    }
+}
+
 impl From<Vec<GMValue>> for GMValue {
     fn from(value: Vec<GMValue>) -> Self {
         Self::Multiple(value)

@@ -623,6 +623,20 @@ impl GMObjectT for GMValueInterpolateVec2D {
                     object_manager: &GMObjectManager)>().unwrap();
                 self.func = func;
             }
+            GMMessage::GetMultiPosition => {
+                let positions = vec![self.interpolation.start, self.interpolation.end];
+                return positions.into();
+            }
+            GMMessage::SetMultiPosition(positions) => {
+                self.interpolation.start = positions[0];
+                self.interpolation.end = positions[1];
+                self.interpolation.calculate_diff();
+            }
+            GMMessage::AddMultiPosition(positions) => {
+                self.interpolation.start += positions[0];
+                self.interpolation.end += positions[1];
+                self.interpolation.calculate_diff();
+            }
             GMMessage::Multiple(messages) => {
                 self.send_multi_message(messages, context, object_manager);
             }
@@ -770,7 +784,7 @@ impl GMObjectT for GMCustomUpdate {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMapMessage::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMCustomUpdate::send_message: {:?}", message))
             }
         }
 
@@ -779,6 +793,61 @@ impl GMObjectT for GMCustomUpdate {
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         (self.func)(context, object_manager);
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMMultiPositionTarget {
+    targets: Vec<GMTarget>,
+}
+
+impl GMMultiPositionTarget {
+    pub fn new(targets: Vec<GMTarget>) -> Self {
+        Self {
+            targets,
+        }
+    }
+}
+
+impl GMObjectT for GMMultiPositionTarget {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::SetMultiPosition(positions) => {
+                for (target, position) in self.targets.iter().zip(positions) {
+                    object_manager.send_message(target, GMMessage::SetPosition(position), context);
+                }
+            }
+            GMMessage::Custom0(name) if name == "get_all_targets" => {
+                return self.targets.clone().into();
+            }
+            GMMessage::Custom1(name, GMValue::Multiple(mut values)) if name == "set_all_targets" => {
+                self.targets.clear();
+
+                for value in values.drain(0..) {
+                    if let GMValue::Target(target) = value {
+                        self.targets.push(target);
+                    }
+                }
+            }
+            GMMessage::Custom1(name, GMValue::USize(index)) if name == "get_target" => {
+                return self.targets[index].clone().into();
+            }
+            GMMessage::Custom2(name, GMValue::Target(target), GMValue::USize(index)) if name == "set_target" => {
+                self.targets[index] = target;
+            }
+            GMMessage::Multiple(messages) => {
+                self.send_multi_message(messages, context, object_manager);
+            }
+            _ => {
+                error_panic(&format!("Wrong message for GMMultiPositionTarget::send_message: {:?}", message))
+            }
+        }
+
+        GMValue::None
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

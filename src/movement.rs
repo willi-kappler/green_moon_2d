@@ -271,7 +271,124 @@ impl GMObjectT for GMMVCircle {
     }
 }
 
+
+#[derive(Clone, Debug)]
+pub struct GMMVMultiCircle {
+    pub target: GMTarget,
+    pub circle: GMCircle,
+    pub angle: f32,
+    pub angle_step: f32,
+    pub count: usize,
+}
+
+impl GMMVMultiCircle {
+    pub fn new<T: Into<GMTarget>>(target: T, center: GMVec2D, radius: f32, angle_step: f32, count: usize) -> Self {
+        let target = target.into();
+        let circle = GMCircle::new(center, radius);
+
+        Self {
+            target,
+            circle,
+            angle: 0.0,
+            angle_step,
+            count,
+        }
+    }
+
+    pub fn multi_pos(&self) -> Vec<GMVec2D> {
+        let mut result = Vec::with_capacity(self.count);
+        let mut angle = self.angle;
+
+        for _ in 0..self.count {
+            result.push(self.circle.position_from_deg(angle));
+            angle += self.angle_step;
+        }
+
+        result
+    }
+}
+
+impl GMObjectT for GMMVMultiCircle {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::GetPosition => {
+                return self.circle.center.into()
+            }
+            GMMessage::GetMultiPosition => {
+                return self.multi_pos().into()
+            }
+            GMMessage::GetX => {
+                return self.circle.center.x.into()
+            }
+            GMMessage::GetY => {
+                return self.circle.center.y.into()
+            }
+            GMMessage::AddPosition(pos) => {
+                self.circle.center += pos;
+            }
+            GMMessage::AddX(x) => {
+                self.circle.center.x += x;
+            }
+            GMMessage::AddY(y) => {
+                self.circle.center.y += y;
+            }
+            GMMessage::SetPosition(pos) => {
+                self.circle.center = pos;
+            }
+            GMMessage::SetX(x) => {
+                self.circle.center.x = x;
+            }
+            GMMessage::SetY(y) => {
+                self.circle.center.y = y;
+            }
+            GMMessage::GetTarget => {
+                return self.target.clone().into()
+            }
+            GMMessage::SetTarget(target) => {
+                self.target = target;
+            }
+            GMMessage::Custom0(name) if name == "update" => {
+                let positions = self.multi_pos().into();
+                object_manager.send_message(&self.target, GMMessage::SetMultiPosition(positions), context);
+            }
+            GMMessage::Custom0(name) if name == "get_radius" => {
+                return self.circle.radius.into()
+            }
+            GMMessage::Custom1(name, GMValue::F32(radius)) if name == "set_radius" => {
+                self.circle.radius = radius;
+            }
+            GMMessage::Custom0(name) if name == "get_angle" => {
+                return self.angle.into()
+            }
+            GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
+                self.angle = angle;
+            }
+            GMMessage::Custom0(name) if name == "get_angle_step" => {
+                return self.angle_step.into()
+            }
+            GMMessage::Custom1(name, GMValue::F32(angle_step)) if name == "set_angle_step" => {
+                self.angle_step = angle_step;
+            }
+            GMMessage::Custom0(name) if name == "get_count" => {
+                return self.count.into()
+            }
+            GMMessage::Custom1(name, GMValue::USize(count)) if name == "set_count" => {
+                self.count = count;
+            }
+            _ => {
+                error_panic(&format!("Wrong message for GMMVCircle::send_message: {:?}", message))
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct GMMVPath {
     pub target: GMTarget,
 }
-

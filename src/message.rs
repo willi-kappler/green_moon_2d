@@ -9,6 +9,7 @@ use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
 pub enum GMMessage {
+    AddMultiPosition(Vec<GMVec2D>),
     AddPosition(GMVec2D),
     AddX(f32),
     AddY(f32),
@@ -19,6 +20,7 @@ pub enum GMMessage {
     CustomM(String, Vec<GMValue>),
     Forward(Box<GMMessage>),
     GetMessage,
+    GetMultiPosition,
     GetPosition,
     GetSize,
     GetTarget,
@@ -41,6 +43,7 @@ pub enum GMMessage {
     OMToggleActive(String),
     OMToggleVisible(String),
     SetMessage(Box<GMMessage>),
+    SetMultiPosition(Vec<GMVec2D>),
     SetPosition(GMVec2D),
     SetSize(GMSize),
     SetTarget(GMTarget),
