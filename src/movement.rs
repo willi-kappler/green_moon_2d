@@ -1,6 +1,7 @@
 
 
 use crate::context::GMContext;
+use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
 use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
@@ -376,7 +377,7 @@ impl GMObjectT for GMMVMultiCircle {
                 self.count = count;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVCircle::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: {:?}", message))
             }
         }
 
@@ -391,4 +392,91 @@ impl GMObjectT for GMMVMultiCircle {
 #[derive(Clone, Debug)]
 pub struct GMMVPath {
     pub target: GMTarget,
+    pub positions: Vec<GMInterpolateVec2D>,
+    pub index: usize,
+    pub auto_update: bool,
+    pub repeat: bool,
 }
+
+impl GMMVPath {
+    pub fn new<T: Into<GMTarget>>(target: T, positions: Vec<GMInterpolateVec2D>) -> Self {
+        Self {
+            target: target.into(),
+            positions,
+            index: 0,
+            auto_update: true,
+            repeat: true,
+        }
+    }
+
+    pub fn update_position(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        self.positions[self.index].update();
+
+        let position = self.positions[self.index].get_current_value();
+
+        object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
+
+        if self.positions[self.index].is_finished() {
+            self.index += 1;
+            if self.index >= self.positions.len() {
+                if self.repeat {
+                    self.index = 0;
+                }
+            }
+        }    
+    }
+}
+
+impl GMObjectT for GMMVPath {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            // TODO: check messages
+            _ => {
+                error_panic(&format!("Wrong message for GMMVPath::send_message: {:?}", message))
+            }
+        }
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            self.update_position(context, object_manager);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMMVFollow {
+    pub source: String,
+    pub target: GMTarget,
+    pub interpolation: GMInterpolateVec2D,
+}
+
+impl GMMVFollow {
+
+}
+
+impl GMObjectT for GMMVFollow {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            // TODO: check messages
+            _ => {
+                error_panic(&format!("Wrong message for GMMVFollow::send_message: {:?}", message))
+            }
+        }
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        self.interpolation.update();
+        let pos = self.interpolation.get_current_value();
+        object_manager.send_message(&self.target, GMMessage::SetPosition(pos), context);
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+

@@ -854,3 +854,31 @@ impl GMObjectT for GMMultiPositionTarget {
         Box::new(self.clone())
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMCenterPosition {
+    pub target: GMTarget,
+}
+
+impl GMCenterPosition {
+    pub fn new<T: Into<GMTarget>>(target: T) -> Self {
+        Self {
+            target: target.into(),
+        }
+    }
+}
+
+impl GMObjectT for GMCenterPosition {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            // TODO: collect all positions from target and calculate the center
+            _ => {
+                error_panic(&format!("Wrong message for GMCenterPosition::send_message: {:?}", message))
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
