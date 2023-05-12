@@ -882,3 +882,31 @@ impl GMObjectT for GMCenterPosition {
         Box::new(self.clone())
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct GMRandomPosition {
+    pub target: GMTarget,
+}
+
+impl GMRandomPosition {
+    pub fn new<T: Into<GMTarget>>(target: T) -> Self {
+        Self {
+            target: target.into(),
+        }
+    }
+}
+
+impl GMObjectT for GMRandomPosition {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            // TODO: select a random target and return that position
+            _ => {
+                error_panic(&format!("Wrong message for GMRandomPosition::send_message: {:?}", message))
+            }
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
