@@ -1,7 +1,6 @@
 
 
-- Add send_message for GMAnimation
-- Move GMCurveT to its own module
+- movement: GMMVWarp, GMMVBounce
 
 - GMParticleManager
 - GMBulletManager
@@ -19,3 +18,7 @@ Future TODO:
 - procedural graphics
 - procedural sound
 - procedural levels / maps
+
+
+https://docs.rs/thiserror/1.0.40/thiserror/
+https://github.com/dtolnay/thiserror

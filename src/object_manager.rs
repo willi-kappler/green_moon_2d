@@ -387,47 +387,57 @@ impl GMObjectManager {
         }
     }
 
+    pub fn send_message_object(&self, name: &str, message: GMMessage, context: &mut GMContext) -> GMValue {
+        if let Some(object) = self.objects.get(name) {
+            if object.active {
+                let mut borrowed_object = object.inner.borrow_mut();
+                return borrowed_object.send_message(message, context, &self);
+            }
+        } else {
+            error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
+        }
+
+        GMValue::None
+    }
+
+    pub fn send_message_group(&self, group: &str, message: GMMessage, context: &mut GMContext) -> GMValue {
+        let mut result = Vec::new();
+
+        for (_, object) in self.objects.iter() {
+            if object.active && object.groups.contains(group) {
+                let mut borrowed_object = object.inner.borrow_mut();
+                let value = borrowed_object.send_message(message.clone(), context, &self);
+                result.push(value);
+            }
+        }
+
+        return GMValue::Multiple(result);
+    }
+
+    pub fn send_message_group_each(&self, group: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+        let mut result = Vec::new();
+
+        // TODO:
+
+        return GMValue::Multiple(result);
+    }
+
     pub fn send_message(&self, target: &GMTarget, message: GMMessage, context: &mut GMContext) -> GMValue {
         match target {
             GMTarget::Single(name) => {
-                if let Some(object) = self.objects.get(name) {
-                    if object.active {
-                        let mut borrowed_object = object.inner.borrow_mut();
-                        return borrowed_object.send_message(message, context, &self);
-                    }
-                } else {
-                    error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
-                }
+                return self.send_message_object(name, message, context)
             }
             GMTarget::Multiple(names) => {
                 let mut result = Vec::new();
 
                 for name in names {
-                    if let Some(object) = self.objects.get(name) {
-                        if object.active {
-                            let mut borrowed_object = object.inner.borrow_mut();
-                            let value = borrowed_object.send_message(message.clone(), context, &self);
-                            result.push(value);
-                        }
-                    } else {
-                        error_panic(&format!("GMObjectManager::send_message: object {} not found", name));
-                    }
+                    result.push(self.send_message_object(name, message.clone(), context));
                 }
 
                 return GMValue::Multiple(result);
             }
             GMTarget::Group(group) => {
-                let mut result = Vec::new();
-
-                for (_, object) in self.objects.iter() {
-                    if object.active && object.groups.contains(group) {
-                        let mut borrowed_object = object.inner.borrow_mut();
-                        let value = borrowed_object.send_message(message.clone(), context, &self);
-                        result.push(value);
-                    }
-                }
-
-                return GMValue::Multiple(result);
+                return self.send_message_group(group, message, context)
             }
             GMTarget::MultipleGroups(groups) => {
                 let mut result = Vec::new();

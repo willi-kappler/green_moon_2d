@@ -802,13 +802,13 @@ impl GMObjectT for GMCustomUpdate {
 
 #[derive(Clone, Debug)]
 pub struct GMMultiPositionTarget {
-    targets: Vec<GMTarget>,
+    target: GMTarget,
 }
 
 impl GMMultiPositionTarget {
-    pub fn new(targets: Vec<GMTarget>) -> Self {
+    pub fn new(target: GMTarget) -> Self {
         Self {
-            targets,
+            target,
         }
     }
 }
@@ -817,27 +817,37 @@ impl GMObjectT for GMMultiPositionTarget {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetMultiPosition(positions) => {
-                for (target, position) in self.targets.iter().zip(positions) {
-                    object_manager.send_message(target, GMMessage::SetPosition(position), context);
-                }
-            }
-            GMMessage::Custom0(name) if name == "get_all_targets" => {
-                return self.targets.clone().into();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(mut values)) if name == "set_all_targets" => {
-                self.targets.clear();
-
-                for value in values.drain(0..) {
-                    if let GMValue::Target(target) = value {
-                        self.targets.push(target);
+                match &self.target {
+                    GMTarget::Single(name) => {
+                        let new_message = GMMessage::SetPosition(positions[0]);
+                        object_manager.send_message_object(name, new_message, context);
+                    }
+                    GMTarget::Multiple(names) => {
+                        for (name, position) in names.iter().zip(positions) {
+                            let new_message = GMMessage::SetPosition(position);
+                            object_manager.send_message_object(name, new_message, context);
+                        }
+                    }
+                    GMTarget::Group(name) => {
+                        // object_manager.send_message_group(name, new_message, context);
+                    }
+                    GMTarget::MultipleGroups(names) => {
+                        // object_manager.send_message_group(name, new_message, context);
+                    }
+                    _ => {
+                        error_panic(&format!("Wrong target for GMMultiPositionTarget::SetMultiPosition: {:?}", self.target))
                     }
                 }
+
+/*                 for (target, position) in self.targets.iter().zip(positions) {
+                    object_manager.send_message(target, GMMessage::SetPosition(position), context);
+                } */
             }
-            GMMessage::Custom1(name, GMValue::USize(index)) if name == "get_target" => {
-                return self.targets[index].clone().into();
+            GMMessage::GetTarget => {
+                return self.target.clone().into();
             }
-            GMMessage::Custom2(name, GMValue::Target(target), GMValue::USize(index)) if name == "set_target" => {
-                self.targets[index] = target;
+            GMMessage::SetTarget(target) => {
+                self.target = target
             }
             GMMessage::Multiple(messages) => {
                 self.send_multi_message(messages, context, object_manager);
