@@ -891,7 +891,6 @@ impl GMCenterPosition {
 impl GMObjectT for GMCenterPosition {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            // TODO: collect all positions from source and calculate the center
             GMMessage::GetTarget => {
                 return self.target.clone().into();
             }
