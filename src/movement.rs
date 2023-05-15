@@ -1,6 +1,7 @@
 
 
 use crate::context::GMContext;
+use crate::curve::GMCurveT;
 use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
 use crate::message::GMMessage;
@@ -36,9 +37,6 @@ impl GMObjectT for GMMVVelocity {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             GMMessage::Custom0(name) if name == "get_velocity" => {
                 return self.v.into();
             }
@@ -47,6 +45,9 @@ impl GMObjectT for GMMVVelocity {
             }
             GMMessage::Custom1(name, GMValue::Vec2D(v)) if name == "add_velocity" => {
                 self.v += v;
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVVelocity::send_message: {:?}", message))
@@ -91,9 +92,6 @@ impl GMObjectT for GMMVAcceleration {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             GMMessage::Custom0(name) if name == "get_acceleration" => {
                 return self.a.into();
             }
@@ -102,6 +100,9 @@ impl GMObjectT for GMMVAcceleration {
             }
             GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "add_acceleration" => {
                 self.a += a;
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVAcceleration::send_message: {:?}", message))
@@ -148,9 +149,6 @@ impl GMObjectT for GMMVVelAccel {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
-            }
             GMMessage::Custom0(name) if name == "get_velocity" => {
                 return self.v.into();
             }
@@ -168,6 +166,9 @@ impl GMObjectT for GMMVVelAccel {
             }
             GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "add_acceleration" => {
                 self.a += a;
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVVelAccel::send_message: {:?}", message))
@@ -258,6 +259,9 @@ impl GMObjectT for GMMVCircle {
             }
             GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
                 self.angle = angle;
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVCircle::send_message: {:?}", message))
@@ -376,6 +380,9 @@ impl GMObjectT for GMMVMultiCircle {
             GMMessage::Custom1(name, GMValue::USize(count)) if name == "set_count" => {
                 self.count = count;
             }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: {:?}", message))
             }
@@ -431,10 +438,15 @@ impl GMObjectT for GMMVPath {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             // TODO: check messages
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMMVPath::send_message: {:?}", message))
             }
         }
+
+        GMValue::None
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
@@ -450,23 +462,67 @@ impl GMObjectT for GMMVPath {
 
 #[derive(Clone, Debug)]
 pub struct GMMVFollow {
-    pub source: String,
     pub target: GMTarget,
+    pub source: GMTarget,
     pub interpolation: GMInterpolateVec2D,
 }
 
 impl GMMVFollow {
-
+    pub fn new<E: Into<GMTarget>, F: Into<GMTarget>>(target: E, source: F) -> Self {
+        Self {
+            target: target.into(),
+            source: source.into(),
+            interpolation: GMInterpolateVec2D::new(GMVec2D::new(0.0, 0.0), GMVec2D::new(0.0, 0.0), 0.1, 0.0),
+        }
+    }
 }
 
 impl GMObjectT for GMMVFollow {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             // TODO: check messages
+            GMMessage::GetTarget => {
+                return self.target.clone().into();
+            }
+            GMMessage::SetTarget(target) => {
+                self.target = target;
+            }
+            GMMessage::Custom0(name) if name == "get_source" => {
+                return self.source.clone().into();
+            }
+            GMMessage::Custom1(name, GMValue::Target(source)) if name == "set_source" => {
+                self.source = source;
+            }
+            GMMessage::Custom0(name) if name == "get_speed" => {
+                return self.interpolation.speed.into();
+            }
+            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
+                self.interpolation.speed = speed;
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_curve" => {
+                let curve = (*value.downcast::<Box<dyn GMCurveT>>().unwrap()).clone();
+                self.interpolation.curve = curve;
+            }
+            GMMessage::Custom0(name) if name == "update_source" => {
+                let value = object_manager.send_message(&self.source, GMMessage::GetPosition, context);
+
+                if let GMValue::Vec2D(new_end) = value {
+                    let new_start = self.interpolation.get_current_value();
+                    self.interpolation.start = new_start;
+                    self.interpolation.end = new_end;
+                    self.interpolation.current_step = 0.0;
+                    self.interpolation.calculate_diff();
+                }
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
+            }
             _ => {
                 error_panic(&format!("Wrong message for GMMVFollow::send_message: {:?}", message))
             }
         }
+
+        GMValue::None
     }
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {

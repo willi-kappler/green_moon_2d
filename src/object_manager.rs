@@ -531,9 +531,12 @@ impl GMObjectManager {
                 return result.into();
             }
             GMTarget::ObjectManager => {
-                error_panic(&format!("GMObjectManager::send_message_zip: wrong target, only objects and groups allowed, target: {:?} ", target));
+                let mut manager_messages = self.manager_messages.borrow_mut();
+                manager_messages.push_back(messages[0].clone());
             }
         }
+
+        GMValue::None
     }
 
     pub fn send_custom_message0(&self, target: &GMTarget, message: &str, context: &mut GMContext) -> GMValue {

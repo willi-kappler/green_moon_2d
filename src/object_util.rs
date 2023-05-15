@@ -4,7 +4,6 @@ use std::rc::Rc;
 
 use log::debug;
 use nanorand::{WyRand, Rng};
-use sdl2::sys::random;
 
 use crate::context::GMContext;
 use crate::curve::GMCurveT;
