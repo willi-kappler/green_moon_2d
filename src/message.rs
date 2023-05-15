@@ -49,6 +49,7 @@ pub enum GMMessage {
     SetTarget(GMTarget),
     SetX(f32),
     SetY(f32),
+    Update,
 }
 
 impl GMMessage {

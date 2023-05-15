@@ -243,7 +243,7 @@ impl GMObjectT for GMMVCircle {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Custom0(name) if name == "update" => {
+            GMMessage::Update => {
                 let new_pos = self.circle.position_from_deg(self.angle);
                 object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
             }
@@ -348,7 +348,7 @@ impl GMObjectT for GMMVMultiCircle {
             GMMessage::SetTarget(target) => {
                 self.target = target;
             }
-            GMMessage::Custom0(name) if name == "update" => {
+            GMMessage::Update => {
                 let positions = self.multi_pos().into();
                 object_manager.send_message(&self.target, GMMessage::SetMultiPosition(positions), context);
             }
@@ -423,7 +423,7 @@ impl GMMVPath {
                     self.index = 0;
                 }
             }
-        }    
+        }
     }
 }
 
