@@ -29,14 +29,14 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new<T: Into<GMVec2D>>(position: T, texture: Rc<GMTexture>, animation: GMAnimation) -> GMSprite {
+    pub fn new<T: Into<GMVec2D>>(position: T, texture: &Rc<GMTexture>, animation: GMAnimation) -> GMSprite {
         let position = position.into();
 
         let (width, height) = texture.get_unit_dimension();
 
         GMSprite {
             position,
-            texture,
+            texture: texture.clone(),
             animation,
             angle: 0.0,
             scale: 1.0,
@@ -92,9 +92,6 @@ impl GMObjectT for GMSprite {
             }
             GMMessage::GetY => {
                 return self.position.y.into()
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
             }
             // Custom animation messages:
             GMMessage::Custom0(name) if name == "animation_finished" => {
@@ -172,6 +169,9 @@ impl GMObjectT for GMSprite {
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_texture" => {
                 let texture = value.downcast::<GMTexture>().unwrap();
                 self.set_texture(&texture);
+            }
+            GMMessage::Multiple(messages) => {
+                return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMSprite::send_message: {:?}", message))
