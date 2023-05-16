@@ -87,17 +87,37 @@ impl SpriteScene1 {
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
             |value, context, object_manager| {
                 let target = "circle_head1".into();
-                let message1: GMMessage = ("set_angle", value.into()).into();
-                let message = message1.chain(GMMessage::Update);
+                let message: GMMessage = ("set_angle", value.into()).into();
                 object_manager.send_message(&target, message, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
         object_manager.add_normal_object("angle_circle_head1", interpolate, 0);
 
+        // Ice troll1 sprite
+        let texture = resources.get_texture("tex_ice_troll1");
+        let animation = resources.get_animation("anim_ice_troll1");
+        sprite = GMSprite::new((512.0, 600.0), texture, animation);
+        object_manager.add_draw_object("ice_troll1", sprite, 0, 0);
 
+        let mut interpolate = GMValueInterpolateVec2D::new((100.0, 600.0), (900.0, 600.0), 0.002,
+            |value, context, object_manager| {
+                let target = "ice_troll1".into();
+                let message = GMMessage::SetPosition(value);
+                object_manager.send_message(&target, message, context);
+            }
+        );
+        interpolate.interpolation.repetition = GMRepetition::LoopForward;
+        object_manager.add_normal_object("move_ice_troll1", interpolate, 0);
 
-
+        let mut interpolate = GMValueInterpolateF32::new(0.5, 4.0, 0.01,
+            |value, context, object_manager| {
+                let target = "ice_troll1".into();
+                object_manager.send_custom_message1(&target, "set_scale", value, context);
+            }
+        );
+        interpolate.interpolation.repetition = GMRepetition::PingPongForward;
+        object_manager.add_normal_object("rotate_ice1", interpolate, 0);
 
         Self {
             object_manager,
