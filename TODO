@@ -1,5 +1,7 @@
 
 
+- Add chain() for GMValue, GMTarget
+
 - movement: GMMVWarp, GMMVBounce
 
 - GMLine
