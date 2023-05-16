@@ -193,6 +193,7 @@ pub struct GMMVCircle {
     pub target: GMTarget,
     pub circle: GMCircle,
     pub angle: f32,
+    pub auto_update: bool,
 }
 
 impl GMMVCircle {
@@ -204,6 +205,7 @@ impl GMMVCircle {
             target,
             circle,
             angle: 0.0,
+            auto_update: true,
         }
     }
 }
@@ -269,6 +271,13 @@ impl GMObjectT for GMMVCircle {
         }
 
         GMValue::None
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            let new_pos = self.circle.position_from_deg(self.angle);
+            object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);        
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
