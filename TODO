@@ -2,9 +2,10 @@
 
 - movement: GMMVWarp, GMMVBounce
 
+- GMLine
+- GMBorder
 - GMParticleManager
 - GMBulletManager
-- GMBorder
 - GMScore
 - GMTileMap
 - GMMenuItem
