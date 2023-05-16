@@ -1,6 +1,7 @@
 
 
 - Add chain() for GMValue, GMTarget
+- Add log if object with same name gets overwritten.
 
 - movement: GMMVWarp, GMMVBounce
 
