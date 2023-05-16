@@ -5,7 +5,6 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMAlign, GMRepetition};
-use green_moon_2d::target::GMTarget;
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::object_util::{GMValueInterpolateF32, GMValueInterpolateVec2D};
@@ -87,8 +86,7 @@ impl SpriteScene1 {
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
             |value, context, object_manager| {
                 let target = "circle_head1".into();
-                let message: GMMessage = ("set_angle", value.into()).into();
-                object_manager.send_message(&target, message, context);
+                object_manager.send_custom_message1(&target, "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -117,7 +115,7 @@ impl SpriteScene1 {
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
-        object_manager.add_normal_object("rotate_ice1", interpolate, 0);
+        object_manager.add_normal_object("scale_ice_troll1", interpolate, 0);
 
         Self {
             object_manager,
