@@ -10,6 +10,7 @@ use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::object_util::{GMValueInterpolateF32, GMValueInterpolateVec2D};
 use green_moon_2d::message::GMMessage;
+use green_moon_2d::movement::GMMVCircle;
 
 
 #[derive(Debug)]
@@ -73,6 +74,30 @@ impl SpriteScene1 {
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
         object_manager.add_normal_object("rotate_ice1", interpolate, 0);
+
+        // Head sprite
+        let texture = resources.get_texture("tex_head1");
+        let animation = resources.get_animation("anim_head1");
+        sprite = GMSprite::new((512.0, 400.0), texture, animation);
+        object_manager.add_draw_object("head1", sprite, 0, 0);
+
+        let circle = GMMVCircle::new("head1", (512.0, 400.0).into(), 70.0);
+        object_manager.add_normal_object("circle_head1", circle, 0);
+
+        let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
+            |value, context, object_manager| {
+                let target = GMTarget::Single("circle_head1".to_string());
+                let message1 = GMMessage::Custom1("set_angle".to_string(), value.into());
+                let message2 = GMMessage::Update;
+                let message = (message1, message2).into();
+                object_manager.send_message(&target, message, context);
+            }
+        );
+        interpolate.interpolation.repetition = GMRepetition::PingPongForward;
+        object_manager.add_normal_object("angle_circle_head1", interpolate, 0);
+
+
+
 
 
         Self {
