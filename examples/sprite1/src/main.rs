@@ -58,7 +58,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateVec2D::new((100.0, 300.0), (900.0, 300.0), 0.007,
             |value, context, object_manager| {
-                let target = GMTarget::Single("ice1".to_string());
+                let target = "ice1".into();
                 let message = GMMessage::SetPosition(value);
                 object_manager.send_message(&target, message, context);
             }
@@ -68,7 +68,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(-30.0, 30.0, 0.05,
             |value, context, object_manager| {
-                let target = GMTarget::Single("ice1".to_string());
+                let target = "ice1".into();
                 object_manager.send_custom_message1(&target, "set_angle", value, context);
             }
         );
@@ -86,10 +86,9 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
             |value, context, object_manager| {
-                let target = GMTarget::Single("circle_head1".to_string());
-                let message1 = GMMessage::Custom1("set_angle".to_string(), value.into());
-                let message2 = GMMessage::Update;
-                let message = (message1, message2).into();
+                let target = "circle_head1".into();
+                let message1: GMMessage = ("set_angle", value.into()).into();
+                let message = message1.chain(GMMessage::Update);
                 object_manager.send_message(&target, message, context);
             }
         );
