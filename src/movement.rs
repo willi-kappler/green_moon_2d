@@ -197,7 +197,7 @@ pub struct GMMVCircle {
 }
 
 impl GMMVCircle {
-    pub fn new<T: Into<GMTarget>>(target: T, center: GMVec2D, radius: f32) -> Self {
+    pub fn new<T: Into<GMTarget>, U: Into<GMVec2D>>(target: T, center: U, radius: f32) -> Self {
         let target = target.into();
         let circle = GMCircle::new(center, radius);
 
@@ -276,7 +276,7 @@ impl GMObjectT for GMMVCircle {
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         if self.auto_update {
             let new_pos = self.circle.position_from_deg(self.angle);
-            object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);        
+            object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
         }
     }
 
