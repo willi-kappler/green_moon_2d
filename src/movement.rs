@@ -1,4 +1,5 @@
 
+use std::fmt;
 
 use crate::context::GMContext;
 use crate::curve::GMCurveT;
@@ -286,26 +287,28 @@ impl GMObjectT for GMMVCircle {
 }
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct GMMVMultiCircle {
-    pub target: GMTarget,
     pub circle: GMCircle,
     pub angle: f32,
     pub angle_step: f32,
     pub count: usize,
+    pub auto_update: bool,
+    pub func: fn(value: Vec<GMVec2D>, context: &mut GMContext, object_manager: &GMObjectManager),
 }
 
 impl GMMVMultiCircle {
-    pub fn new<T: Into<GMTarget>>(target: T, center: GMVec2D, radius: f32, angle_step: f32, count: usize) -> Self {
-        let target = target.into();
+    pub fn new(center: GMVec2D, radius: f32, angle_step: f32, count: usize, func: fn(value: Vec<GMVec2D>,
+        context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
         let circle = GMCircle::new(center, radius);
 
         Self {
-            target,
             circle,
             angle: 0.0,
             angle_step,
             count,
+            auto_update: true,
+            func,
         }
     }
 
@@ -319,6 +322,12 @@ impl GMMVMultiCircle {
         }
 
         result
+    }
+}
+
+impl fmt::Debug for GMMVMultiCircle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMMVMultiCircle, center: '{}', radius: '{}', angle_step: '{}', count: '{}'", self.circle.center, self.circle.radius, self.angle_step, self.count)
     }
 }
 
@@ -355,15 +364,9 @@ impl GMObjectT for GMMVMultiCircle {
             GMMessage::SetY(y) => {
                 self.circle.center.y = y;
             }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
-            }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
             GMMessage::Update => {
-                let positions = self.multi_pos().into();
-                object_manager.send_message(&self.target, GMMessage::SetMultiPosition(positions), context);
+                let positions = self.multi_pos();
+                (self.func)(positions, context, object_manager);
             }
             GMMessage::Custom0(name) if name == "get_radius" => {
                 return self.circle.radius.into()
@@ -389,6 +392,11 @@ impl GMObjectT for GMMVMultiCircle {
             GMMessage::Custom1(name, GMValue::USize(count)) if name == "set_count" => {
                 self.count = count;
             }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
+                let func = *value.downcast::<fn(value: Vec<GMVec2D>, context: &mut GMContext,
+                    object_manager: &GMObjectManager)>().unwrap();
+                self.func = func;
+            }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
             }
@@ -398,6 +406,13 @@ impl GMObjectT for GMMVMultiCircle {
         }
 
         GMValue::None
+    }
+
+    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            let positions = self.multi_pos();
+            (self.func)(positions, context, object_manager);
+        }
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
