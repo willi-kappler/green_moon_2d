@@ -80,7 +80,7 @@ impl SpriteScene1 {
         sprite = GMSprite::new((512.0, 400.0), texture, animation);
         object_manager.add_draw_object("head1", sprite, 0, 0);
 
-        let circle = GMMVCircle::new("head1", (512.0, 400.0).into(), 70.0);
+        let circle = GMMVCircle::new("head1", (512.0, 400.0), 70.0);
         object_manager.add_normal_object("circle_head1", circle, 0);
 
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
