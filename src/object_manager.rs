@@ -2,6 +2,8 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::cell::RefCell;
 
+use log::info;
+
 use crate::value::GMValue;
 use crate::object::GMObjectT;
 use crate::message::GMMessage;
@@ -56,12 +58,18 @@ impl GMObjectManager {
         messages.clear();
     }
 
+    fn insert_object(&mut self, name: &str, object: GMObjectInfo) {
+        if let Some(_) = self.objects.insert(name.to_string(), object) {
+            info!("GMObjectManager: object '{}' has been replaced", name);
+        }
+    }
+
     pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
         let mut new_object = GMObjectInfo::new(object);
         new_object.visible = false;
         new_object.update_index = update_index;
 
-        self.objects.insert(name.to_string(), new_object);
+        self.insert_object(name, new_object);
     }
 
     pub fn add_normal_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, group: &str) {
@@ -73,7 +81,7 @@ impl GMObjectManager {
         new_object.update_index = update_index;
         new_object.groups = groups;
 
-        self.objects.insert(name.to_string(), new_object);
+        self.insert_object(name, new_object);
     }
 
     pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
@@ -81,7 +89,7 @@ impl GMObjectManager {
         new_object.draw_index = draw_index;
         new_object.update_index = update_index;
 
-        self.objects.insert(name.to_string(), new_object);
+        self.insert_object(name, new_object);
     }
 
     pub fn add_draw_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32, group: &str) {
@@ -93,11 +101,11 @@ impl GMObjectManager {
         new_object.update_index = update_index;
         new_object.groups = groups;
 
-        self.objects.insert(name.to_string(), new_object);
+        self.insert_object(name, new_object);
     }
 
     pub fn add_custom_object(&mut self, name: &str, new_object: GMObjectInfo) {
-        self.objects.insert(name.to_string(), new_object);
+        self.insert_object(name, new_object);
     }
 
     pub fn replace_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, new_object: T) {
