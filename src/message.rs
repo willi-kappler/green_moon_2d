@@ -100,6 +100,12 @@ impl From<Vec<GMMessage>> for GMMessage {
     }
 }
 
+impl From<&str> for GMMessage {
+    fn from(name: &str) -> Self {
+        Self::Custom0(name.to_string())
+    }
+}
+
 impl From<(&str, GMValue)> for GMMessage {
     fn from((name, value): (&str, GMValue)) -> Self {
         Self::Custom1(name.to_string(), value)
