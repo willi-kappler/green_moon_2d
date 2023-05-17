@@ -298,7 +298,7 @@ pub struct GMMVMultiCircle {
 }
 
 impl GMMVMultiCircle {
-    pub fn new(center: GMVec2D, radius: f32, angle_step: f32, count: usize, func: fn(value: Vec<GMVec2D>,
+    pub fn new<T: Into<GMVec2D>>(center: T, radius: f32, angle_step: f32, count: usize, func: fn(value: Vec<GMVec2D>,
         context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
         let circle = GMCircle::new(center, radius);
 
