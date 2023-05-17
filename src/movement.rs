@@ -594,11 +594,23 @@ pub struct GMMVFollow {
 }
 
 impl GMMVFollow {
-    pub fn new<E: Into<GMTarget>, F: Into<GMTarget>>(target: E, source: F) -> Self {
+    pub fn new<E: Into<GMTarget>, F: Into<GMTarget>, U: Into<GMVec2D>, V: Into<GMVec2D>>(target: E, source: F, speed: f32, start: U, end: V) -> Self {
         Self {
             target: target.into(),
             source: source.into(),
-            interpolation: GMInterpolateVec2D::new(GMVec2D::new(0.0, 0.0), GMVec2D::new(0.0, 0.0), 0.1, 0.0),
+            interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
+        }
+    }
+
+    pub fn update_source(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        let value = object_manager.send_message(&self.source, GMMessage::GetPosition, context);
+
+        if let GMValue::Vec2D(new_end) = value {
+            let new_start = self.interpolation.get_current_value();
+            self.interpolation.start = new_start;
+            self.interpolation.end = new_end;
+            self.interpolation.calculate_diff();
+            self.interpolation.reset();
         }
     }
 }
@@ -629,15 +641,7 @@ impl GMObjectT for GMMVFollow {
                 self.interpolation.curve = curve;
             }
             GMMessage::Custom0(name) if name == "update_source" => {
-                let value = object_manager.send_message(&self.source, GMMessage::GetPosition, context);
-
-                if let GMValue::Vec2D(new_end) = value {
-                    let new_start = self.interpolation.get_current_value();
-                    self.interpolation.start = new_start;
-                    self.interpolation.end = new_end;
-                    self.interpolation.calculate_diff();
-                    self.interpolation.reset();
-                }
+                self.update_source(context, object_manager);
             }
             GMMessage::Multiple(messages) => {
                 return self.send_multi_message(messages, context, object_manager)
