@@ -7,9 +7,9 @@ use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::sprite::GMSprite;
-use green_moon_2d::object_util::{GMValueInterpolateF32, GMValueInterpolateVec2D};
+use green_moon_2d::object_util::{GMValueInterpolateF32, GMTimedMessage};
 use green_moon_2d::message::GMMessage;
-use green_moon_2d::movement::{GMMVCircle, GMMVMultiCircle};
+use green_moon_2d::movement::{GMMVCircle, GMMVMultiCircle, GMMVPath, GMMVFollow};
 use green_moon_2d::target::GMTarget;
 
 
@@ -20,13 +20,13 @@ struct SpriteScene2 {
 
 impl SpriteScene2 {
     fn new(engine: &GMEngine) -> Self {
-        // Access to resources
+        // Access to resources:
         let resources = engine.get_resources();
 
-        // Crate object manager
+        // Crate object manager:
         let mut object_manager = GMObjectManager::new();
 
-        // Get first font
+        // Get first font:
         let font1 = resources.get_font("font_cuddly");
 
         // Set up title text:
@@ -35,18 +35,18 @@ impl SpriteScene2 {
         object_manager.add_draw_object("title", text, 0, 0);
 
         // Set up objects:
-        // Set up text
+        // Set up text:
         text = GMBitmapText::new(font1, (0.0, 0.0), "BOOO!");
         text.set_align(GMAlign::MiddleCenter);
         object_manager.add_draw_object("ghost_text1", text, 0, 0);
 
-        // Set up ghost sprite
+        // Set up ghost sprite:
         let texture = resources.get_texture("tex_ghost1");
         let animation = resources.get_animation("anim_ghost1");
-        let sprite = GMSprite::new((0.0, 0.0), texture, animation.clone());
+        let mut sprite = GMSprite::new((0.0, 0.0), texture, animation.clone());
         object_manager.add_draw_object("ghost_sprite1", sprite.clone(), 0, 1);
 
-        // Big outer circle
+        // Big outer circle:
         let target: GMTarget = ("ghost_sprite1", "small_circle").into();
         let mut circle = GMMVCircle::new(target, (250.0, 250.0), 100.0);
         object_manager.add_normal_object("big_circle", circle, 0);
@@ -60,7 +60,7 @@ impl SpriteScene2 {
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
         object_manager.add_normal_object("big_angle", interpolate, 0);
 
-        // Small inner circle
+        // Small inner circle:
         circle = GMMVCircle::new("ghost_text1", (0.0, 0.0), 50.0);
         object_manager.add_normal_object("small_circle", circle, 0);
 
@@ -73,7 +73,7 @@ impl SpriteScene2 {
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
         object_manager.add_normal_object("small_angle", interpolate, 0);
 
-        // 4 ghosts in a circle
+        // 4 ghosts in a circle:
         object_manager.add_draw_object("multi_sprite1", sprite.clone(), 0, 0);
         object_manager.add_draw_object("multi_sprite2", sprite.clone(), 0, 0);
         object_manager.add_draw_object("multi_sprite3", sprite.clone(), 0, 0);
@@ -107,6 +107,35 @@ impl SpriteScene2 {
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
         object_manager.add_normal_object("multi_radius", interpolate, 0);
 
+        // Follow object:
+        // Ice sprite:
+        let texture = resources.get_texture("tex_ice2");
+        let animation = resources.get_empty_animation();
+        sprite = GMSprite::new((0.0, 0.0), texture, animation);
+        object_manager.add_draw_object("ice_sprite1", sprite, 0, 0);
+
+        // Head:
+        let texture = resources.get_texture("tex_head1");
+        let animation = resources.get_animation("anim_head1");
+        sprite = GMSprite::new((0.0, 0.0), texture, animation);
+        object_manager.add_draw_object("head_sprite1", sprite, 0, 0);
+
+        // Ice path:
+        let path = GMMVPath::new("ice_sprite1",
+            vec![((50.0, 600.0).into(), 0.01),
+                ((900.0, 400.0).into(), 0.01),
+                ((800.0, 700.0).into(), 0.01),
+                ((100.0, 700.0).into(), 0.01)]);
+
+        object_manager.add_normal_object("ice_path", path, 0);
+
+        // Follow:
+        let follow = GMMVFollow::new("head_sprite1", "ice_sprite1", 0.01, (512.0, 600.0), (50.0, 600.0));
+        object_manager.add_normal_object("follow_ice1", follow, 0);
+
+        // Timer update position:
+        let timer = GMTimedMessage::new(GMMessage::Custom0("update_source".into()), "follow_ice1", 1.0, true);
+        object_manager.add_normal_object("follow_timer", timer, 0);
 
         Self {
             object_manager,
