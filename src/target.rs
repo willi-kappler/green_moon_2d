@@ -27,3 +27,10 @@ impl From<&[&str]> for GMTarget {
         Self::Multiple(vec2)
     }
 }
+
+impl From<(&str, &str)> for GMTarget {
+    fn from((a, b): (&str, &str)) -> Self {
+        let vec = vec![a.to_string(), b.to_string()];
+        Self::Multiple(vec)
+    }
+}
