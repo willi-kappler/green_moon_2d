@@ -53,29 +53,29 @@ impl GMValue {
         }
     }
 
-    pub fn chain(self, value: GMValue) -> GMValue {
+    pub fn chain(self, other: GMValue) -> GMValue {
         match self {
             Self::Multiple(mut left_values) => {
-                match value {
+                match other {
                     Self::Multiple(right_values) => {
                         left_values.extend(right_values);
                         left_values.into()
                     }
                     _ => {
-                        left_values.push(value);
+                        left_values.push(other);
                         left_values.into()
                     }
                 }
             }
             _ => {
-                match value {
+                match other {
                     Self::Multiple(right_values) => {
                         let mut left_values = vec![self];
                         left_values.extend(right_values);
                         left_values.into()
                     }
                     _ => {
-                        vec![self, value].into()
+                        vec![self, other].into()
                     }
                 }
             }

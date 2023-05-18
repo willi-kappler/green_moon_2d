@@ -64,29 +64,29 @@ impl GMMessage {
         }
     }
 
-    pub fn chain(self, message: GMMessage) -> GMMessage {
+    pub fn chain(self, other: GMMessage) -> GMMessage {
         match self {
             Self::Multiple(mut left_messages) => {
-                match message {
+                match other {
                     Self::Multiple(right_messages) => {
                         left_messages.extend(right_messages);
                         left_messages.into()
                     }
                     _ => {
-                        left_messages.push(message);
+                        left_messages.push(other);
                         left_messages.into()
                     }
                 }
             }
             _ => {
-                match message {
+                match other {
                     Self::Multiple(right_messages) => {
                         let mut left_messages = vec![self];
                         left_messages.extend(right_messages);
                         left_messages.into()
                     }
                     _ => {
-                        vec![self, message].into()
+                        vec![self, other].into()
                     }
                 }
             }

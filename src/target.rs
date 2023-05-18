@@ -12,28 +12,27 @@ pub enum GMTarget {
 impl GMTarget {
     pub fn chain(self: Self, other: Self) -> Self {
         match self {
-            Self::Multiple(mut list1) => {
+            Self::Multiple(mut left_targets) => {
                 match other {
-                    Self::Multiple(list2) => {
-                        list1.extend(list2);
-                        GMTarget::Multiple(list1)
+                    Self::Multiple(right_targets) => {
+                        left_targets.extend(right_targets);
+                        left_targets.into()
                     }
                     _ => {
-                        list1.push(other);
-                        GMTarget::Multiple(list1)
+                        left_targets.push(other);
+                        left_targets.into()
                     }
                 }
             }
             _ => {
                 match other {
-                    Self::Multiple(list2) => {
-                        let mut list1 = vec![self];
-                        list1.extend(list2);
-                        GMTarget::Multiple(list1)
+                    Self::Multiple(right_targets) => {
+                        let mut left_targets = vec![self];
+                        left_targets.extend(right_targets);
+                        left_targets.into()
                     }
                     _ => {
-                        let list = vec![self, other];
-                        GMTarget::Multiple(list)
+                        vec![self, other].into()
                     }
                 }
             }
@@ -64,5 +63,11 @@ impl From<(&str, &str)> for GMTarget {
     fn from((a, b): (&str, &str)) -> Self {
         let targets = vec![GMTarget::from(a), GMTarget::from(b)];
         Self::Multiple(targets)
+    }
+}
+
+impl From<Vec<GMTarget>> for GMTarget {
+    fn from(targets: Vec<GMTarget>) -> Self {
+        GMTarget::Multiple(targets)
     }
 }
