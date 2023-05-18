@@ -408,11 +408,11 @@ impl GMObjectManager {
         GMValue::None
     }
 
-    pub fn send_message_object_zip(&self, names: &Vec<String>, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_object_zip(&self, names: &Vec<&str>, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
         let mut result = Vec::new();
 
         for (name, message) in names.iter().zip(messages) {
-            if let Some(object) = self.objects.get(name) {
+            if let Some(object) = self.objects.get(*name) {
                 if object.active {
                     let mut borrowed_object = object.inner.borrow_mut();
                     let value = borrowed_object.send_message(message.clone(), context, &self);

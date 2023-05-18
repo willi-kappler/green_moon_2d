@@ -1,7 +1,6 @@
 
 
 - Add debug output for object_manager (all objects by name)
-- Add chain() for GMValue, GMTarget
 - Maybe replace std hashmap with a faster one ?
 
 - movement: GMMVWarp, GMMVBounce
