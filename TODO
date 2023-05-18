@@ -1,13 +1,13 @@
 
 
-- Finish sprite2 example
 - Add debug output for object_manager (all objects by name)
 - Add chain() for GMValue, GMTarget
 - Maybe replace std hashmap with a faster one ?
 
 - movement: GMMVWarp, GMMVBounce
 
-- GMLine
+- GMLine (https://github.com/willi-kappler/green_moon_2d/blob/refactor4/src/line.rs)
+
 - GMBorder
 - GMParticleManager
 - GMBulletManager
@@ -28,3 +28,8 @@ Future TODO:
 
 https://docs.rs/thiserror/1.0.40/thiserror/
 https://github.com/dtolnay/thiserror
+
+
+SoundCloud, DarkSynth:
+https://soundcloud.com/tags/darksynth
+

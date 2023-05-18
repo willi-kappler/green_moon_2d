@@ -458,46 +458,24 @@ impl GMObjectManager {
 
     pub fn send_message(&self, target: &GMTarget, message: GMMessage, context: &mut GMContext) -> GMValue {
         match target {
-            GMTarget::Single(name) => {
+            GMTarget::Object(name) => {
                 return self.send_message_object(name, message, context)
-            }
-            GMTarget::Multiple(names) => {
-                let mut result = Vec::new();
-
-                for name in names {
-                    result.push(self.send_message_object(name, message.clone(), context));
-                }
-
-                return result.into();
             }
             GMTarget::Group(group) => {
                 return self.send_message_group(group, message, context)
             }
-            GMTarget::MultipleGroups(groups) => {
-                let mut result = Vec::new();
-
-                let objects = self.objects.iter()
-                    .map(|(_, o)| o)
-                    .filter(|o| o.active);
-
-                for object in objects {
-                    for group in groups.iter() {
-                        if object.groups.contains(group) {
-                            let mut borrowed_object = object.inner.borrow_mut();
-                            let value = borrowed_object.send_message(message.clone(), context, &self);
-                            result.push(value);
-                            // This break ensures that the message is not sent multiple times
-                            // to the same object if it is in multiple matching groups.
-                            break;
-                        }
-                    }
-                }
-
-                return result.into();
-            }
             GMTarget::ObjectManager => {
                 let mut messages = self.manager_messages.borrow_mut();
                 messages.push_back(message);
+            }
+            GMTarget::Multiple(targets) => {
+                let mut result = Vec::new();
+
+                for target in targets {
+                    result.push(self.send_message(target, message.clone(), context));
+                }
+
+                return result.into();
             }
         }
 
@@ -506,41 +484,24 @@ impl GMObjectManager {
 
     pub fn send_message_zip(&self, target: &GMTarget, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
         match target {
-            GMTarget::Single(name) => {
+            GMTarget::Object(name) => {
                 return self.send_message_object(name, messages[0].clone(), context)
-            }
-            GMTarget::Multiple(names) => {
-                return self.send_message_object_zip(names, messages, context)
             }
             GMTarget::Group(group) => {
                 return self.send_message_group_zip(group, messages, context)
             }
-            GMTarget::MultipleGroups(groups) => {
-                let mut result = Vec::new();
-
-                let objects = self.objects.iter()
-                    .map(|(_, o)| o)
-                    .filter(|o| o.active)
-                    .zip(messages);
-
-                for (object, message) in objects {
-                    for group in groups.iter() {
-                        if object.groups.contains(group) {
-                            let mut borrowed_object = object.inner.borrow_mut();
-                            let value = borrowed_object.send_message(message, context, &self);
-                            result.push(value);
-                            // This break ensures that the message is not sent multiple times
-                            // to the same object if it is in multiple matching groups.
-                            break;
-                        }
-                    }
-                }
-
-                return result.into();
-            }
             GMTarget::ObjectManager => {
                 let mut manager_messages = self.manager_messages.borrow_mut();
                 manager_messages.push_back(messages[0].clone());
+            }
+            GMTarget::Multiple(targets) => {
+                let mut result = Vec::new();
+
+                for (target, message) in targets.iter().zip(messages) {
+                    result.push(self.send_message(target, message, context));
+                }
+
+                return result.into();
             }
         }
 

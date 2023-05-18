@@ -59,8 +59,8 @@ impl TextScene1 {
         Self {
             object_manager,
             target_group: GMTarget::Group("style1".to_string()),
-            target_d3: GMTarget::Single("description3".to_string()),
-            target_d4: GMTarget::Single("description4".to_string()),
+            target_d3: "description3".into(),
+            target_d4: "description4".into(),
         }
     }
 
