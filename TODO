@@ -1,7 +1,13 @@
 
 
 - Add debug output for object_manager (all objects by name)
+
 - Maybe replace std hashmap with a faster one ?
+https://github.com/tkaitchuck/ahash
+https://github.com/rust-lang/hashbrown
+
+
+
 
 - movement: GMMVWarp, GMMVBounce
 
@@ -24,11 +30,7 @@ Future TODO:
 - procedural sound
 - procedural levels / maps
 
-
+- Error handling ?
 https://docs.rs/thiserror/1.0.40/thiserror/
 https://github.com/dtolnay/thiserror
-
-
-SoundCloud, DarkSynth:
-https://soundcloud.com/tags/darksynth
 
