@@ -26,6 +26,7 @@ pub enum GMMessage {
     GetTarget,
     GetX,
     GetY,
+    Init,
     Keep(Box<GMMessage>),
     Multiple(Vec<GMMessage>),
     OMAddCustomObject(String, GMObjectInfo),

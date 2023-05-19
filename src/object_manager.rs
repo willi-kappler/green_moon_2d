@@ -41,6 +41,7 @@ impl GMObjectInfo {
 pub struct GMObjectManager {
     objects: HashMap<String, GMObjectInfo>,
     manager_messages: RefCell<VecDeque<GMMessage>>,
+    init_objects: RefCell<Vec<String>>,
 }
 
 impl GMObjectManager {
@@ -48,6 +49,7 @@ impl GMObjectManager {
         Self {
             objects: HashMap::new(),
             manager_messages: RefCell::new(VecDeque::new()),
+            init_objects: RefCell::new(Vec::new()),
         }
     }
 
@@ -144,6 +146,29 @@ impl GMObjectManager {
         }
     }
 
+    pub fn initialize_object(&self, name: &str) {
+        let mut init = self.init_objects.borrow_mut();
+        init.push(name.to_string());
+    }
+
+    fn process_initialization(&self, context: &mut GMContext) {
+        let mut init = self.init_objects.borrow_mut();
+
+        if init.is_empty() {
+            return;
+        }
+
+        for name in init.iter() {
+            if let Some(object) = self.objects.get(name) {
+                object.inner.borrow_mut().send_message(GMMessage::Init, context, self);
+            } else {
+                error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+            }    
+        }
+
+        init.clear();
+    }
+
     fn update_objects(&self, context: &mut GMContext) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
         objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
@@ -154,6 +179,7 @@ impl GMObjectManager {
     }
 
     pub fn update(&mut self, context: &mut GMContext) {
+        self.process_initialization(context);
         self.update_objects(context);
         self.process_manager_messages();
     }
