@@ -1,6 +1,10 @@
 
 
-- Add debug output for object_manager (all objects by name)
+
+- Maybe move context to global static ?
+https://github.com/embassy-rs/static-cell
+https://docs.rs/once_cell/latest/once_cell/
+
 
 - Maybe replace std hashmap with a faster one ?
 https://github.com/tkaitchuck/ahash
@@ -29,6 +33,7 @@ Future TODO:
 - procedural graphics
 - procedural sound
 - procedural levels / maps
+
 
 - Error handling ?
 https://docs.rs/thiserror/1.0.40/thiserror/
