@@ -573,4 +573,12 @@ impl GMObjectManager {
             }
         }
     }
+
+    pub fn log_all_objects(&self) {
+        info!("All objects in current object manager:");
+
+        for (k, v) in self.objects.iter() {
+            info!("name: '{}', object: '{:?}'", k, v);
+        }
+    }
 }
