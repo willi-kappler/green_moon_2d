@@ -2,7 +2,6 @@
 pub mod animation;
 pub mod bitmap_text_effects;
 pub mod bitmap_text;
-// pub mod bitmap_text_effects;
 // pub mod border;
 pub mod collision;
 pub mod configuration;
@@ -12,7 +11,7 @@ pub mod curve;
 pub mod engine;
 pub mod input;
 pub mod interpolation;
-// pub mod line;
+pub mod line;
 
 pub mod macros;
 pub mod math;
@@ -32,7 +31,6 @@ pub mod scene;
 pub mod sprite;
 pub mod state;
 pub mod target;
-// pub mod sprite_effect;
 pub mod texture;
 
 // pub mod tilemap;

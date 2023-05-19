@@ -1,0 +1,197 @@
+
+use std::fmt::Debug;
+
+use crate::context::GMContext;
+use crate::math::GMVec2D;
+use crate::message::GMMessage;
+use crate::object_manager::GMObjectManager;
+use crate::object::GMObjectT;
+use crate::util::error_panic;
+use crate::value::GMValue;
+
+#[derive(Debug, Clone)]
+pub enum GMLineMode {
+    Number(u32),
+    Spacing(f32),
+}
+
+#[derive(Debug, Clone)]
+pub struct GMLine {
+    pub start: GMVec2D,
+    pub end: GMVec2D,
+    pub init_element: Box<dyn GMObjectT>,
+    pub elements: Vec<Box<dyn GMObjectT>>,
+    pub line_mode: GMLineMode,
+}
+
+impl GMLine {
+    pub fn new<T: Into<GMVec2D>, U: Into<GMVec2D>, V: Into<Box<dyn GMObjectT>>>(start: T, end: U, init_element: V, line_mode: GMLineMode) -> Self {
+        Self {
+            start: start.into(),
+            end: end.into(),
+            init_element: init_element.into(),
+            elements: Vec::new(),
+            line_mode,
+        }
+    }
+
+    pub fn set_start<V: Into<GMVec2D>>(&mut self, start: V) -> Vec<GMVec2D> {
+        self.start = start.into();
+        self.point_changed()
+    }
+
+    pub fn set_end<V: Into<GMVec2D>>(&mut self, end: V) -> Vec<GMVec2D> {
+        self.end = end.into();
+        self.point_changed()
+    }
+
+    pub fn point_changed(&mut self) -> Vec<GMVec2D> {
+        let direction = self.end - self.start;
+        let length = direction.len();
+
+        match self.line_mode {
+            GMLineMode::Number(number) => {
+                let spacing = length / (number as f32);
+                self.set_elements(number, spacing, direction)
+            }
+            GMLineMode::Spacing(spacing) => {
+                let number = (length / spacing).floor() as u32;
+                self.set_elements(number, spacing, direction)
+            }
+        }
+    }
+
+    pub fn set_number(&mut self, number: u32) -> Vec<GMVec2D> {
+        self.line_mode = GMLineMode::Number(number);
+
+        let direction = self.end - self.start;
+        let length = direction.len();
+        let spacing = length / (number as f32);
+
+        self.set_elements(number, spacing, direction)
+    }
+
+    pub fn set_spacing(&mut self, spacing: f32) -> Vec<GMVec2D> {
+        self.line_mode = GMLineMode::Spacing(spacing);
+
+        let direction = self.end - self.start;
+        let length = direction.len();
+        let number = (length / spacing).floor() as u32;
+
+        self.set_elements(number, spacing, direction)
+    }
+
+    pub fn set_elements(&mut self, number: u32, spacing: f32, mut direction: GMVec2D) -> Vec<GMVec2D> {
+        direction.norm();
+
+        // If more elements are needed just add them
+        let diff = ((number as i32) - (self.elements.len() as i32)) as i32;
+
+        for _ in 0..diff {
+            self.elements.push(self.init_element.clone());
+        }
+
+        // Remove unneeded elements:
+        self.elements.truncate(number as usize);
+
+        // Now re-calculate the positions of all elements
+        let mut result = Vec::new();
+    
+        for i in 0..number {
+            let new_position = self.start + (direction * (spacing * (i as f32)));
+            result.push(new_position);
+        }
+    
+        result
+    }
+}
+
+impl GMObjectT for GMLine {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match message {
+            GMMessage::Init => {
+                let positions = self.point_changed();
+
+                for (element, position) in self.elements.iter_mut().zip(positions) {
+                    element.send_message(GMMessage::SetPosition(position), context, object_manager);
+                }
+            }
+            // TODO: more messages...
+            _ => {
+                error_panic(&format!("Wrong message for GMMVFollow::send_message: {:?}", message))
+            }
+
+        }
+
+        GMValue::None
+    }
+
+    fn draw(&self, context: &mut GMContext) {
+        for element in self.elements.iter() {
+            element.draw(context);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+
+/*
+
+impl GMUpdateT for GMLine {
+    fn update(&mut self) {
+        if self.active {
+            for element in &mut self.elements {
+                element.update();
+            }
+        }
+    }
+}
+
+impl GMDrawT for GMLine {
+    fn draw(&self, context: &mut GMContext) {
+        if self.visible {
+            for element in &self.elements {
+                element.draw(context);
+            }
+        }
+    }
+}
+
+impl GMPositionMultipleT for GMLine {
+    fn set_position_x_n(&mut self, x: f32, index: usize) {
+        if index == 0 {
+            self.start.x = x;
+        } else {
+            self.end.x = x;
+        }
+    }
+
+    fn set_position_y_n(&mut self, y: f32, index: usize) {
+        if index == 0 {
+            self.start.y = y;
+        } else {
+            self.end.y = y;
+
+        }
+    }
+
+    fn get_position_x_n(&self, index: usize) -> f32 {
+        if index == 0 {
+            self.start.x
+        } else {
+            self.end.x
+        }
+    }
+
+    fn get_position_y_n(&self, index: usize) -> f32 {
+        if index == 0 {
+            self.start.y
+        } else {
+            self.end.y
+        }
+    }
+}
+*/
