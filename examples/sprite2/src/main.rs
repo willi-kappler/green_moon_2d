@@ -53,8 +53,7 @@ impl SpriteScene2 {
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.001,
             |value, context, object_manager| {
-                let target = "big_circle".into();
-                object_manager.send_custom_message1(&target, "set_angle", value, context);
+                object_manager.send_custom_message1(&"big_circle".into(), "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -66,8 +65,7 @@ impl SpriteScene2 {
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.01,
             |value, context, object_manager| {
-                let target = "small_circle".into();
-                object_manager.send_custom_message1(&target, "set_angle", value, context);
+                object_manager.send_custom_message1(&"small_circle".into(), "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -91,8 +89,7 @@ impl SpriteScene2 {
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.005,
             |value, context, object_manager| {
-                let target = "multi_circle".into();
-                object_manager.send_custom_message1(&target, "set_angle", value, context);
+                object_manager.send_custom_message1(&"multi_circle".into(), "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -100,8 +97,7 @@ impl SpriteScene2 {
 
         let mut interpolate = GMValueInterpolateF32::new(50.0, 100.0, 0.02,
             |value, context, object_manager| {
-                let target = "multi_circle".into();
-                object_manager.send_custom_message1(&target, "set_radius", value, context);
+                object_manager.send_custom_message1(&"multi_circle".into(), "set_radius", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;

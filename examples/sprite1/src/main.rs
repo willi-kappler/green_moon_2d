@@ -57,9 +57,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateVec2D::new((100.0, 300.0), (900.0, 300.0), 0.007,
             |value, context, object_manager| {
-                let target = "ice1".into();
-                let message = GMMessage::SetPosition(value);
-                object_manager.send_message(&target, message, context);
+                object_manager.send_message(&"ice1".into(), GMMessage::SetPosition(value), context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -67,8 +65,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(-30.0, 30.0, 0.05,
             |value, context, object_manager| {
-                let target = "ice1".into();
-                object_manager.send_custom_message1(&target, "set_angle", value, context);
+                object_manager.send_custom_message1(&"ice1".into(), "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -85,8 +82,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
             |value, context, object_manager| {
-                let target = "circle_head1".into();
-                object_manager.send_custom_message1(&target, "set_angle", value, context);
+                object_manager.send_custom_message1(&"circle_head1".into(), "set_angle", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -100,9 +96,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateVec2D::new((100.0, 600.0), (900.0, 600.0), 0.002,
             |value, context, object_manager| {
-                let target = "ice_troll1".into();
-                let message = GMMessage::SetPosition(value);
-                object_manager.send_message(&target, message, context);
+                object_manager.send_message(&"ice_troll1".into(), GMMessage::SetPosition(value), context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -110,8 +104,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(0.5, 4.0, 0.01,
             |value, context, object_manager| {
-                let target = "ice_troll1".into();
-                object_manager.send_custom_message1(&target, "set_scale", value, context);
+                object_manager.send_custom_message1(&"ice_troll1".into(), "set_scale", value, context);
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
