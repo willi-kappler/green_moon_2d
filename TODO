@@ -14,6 +14,12 @@ https://github.com/rust-lang/hashbrown
 - Maybe move child object to object manager ? (characters, line elements, ...)
     - Random names needed
 
+- Implement Any conversion for other types as well:
+    impl From<Rc<dyn Any>> for ...
+
+- Use GetRepetition, SetRepetition as message instead of Custom message
+
+- Impl to GMValue from GMLineMode
 
 - movement: GMMVWarp, GMMVBounce
 
