@@ -4,6 +4,7 @@ use crate::math::{GMVec2D, GMSize};
 use crate::object_manager::GMObjectInfo;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
+use crate::util::GMRepetition;
 use crate::value::GMValue;
 
 
@@ -22,6 +23,7 @@ pub enum GMMessage {
     GetMessage,
     GetMultiPosition,
     GetPosition,
+    GetRepetition,
     GetSize,
     GetTarget,
     GetX,
@@ -46,6 +48,7 @@ pub enum GMMessage {
     SetMessage(Box<GMMessage>),
     SetMultiPosition(Vec<GMVec2D>),
     SetPosition(GMVec2D),
+    SetRepetition(GMRepetition),
     SetSize(GMSize),
     SetTarget(GMTarget),
     SetX(f32),
