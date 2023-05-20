@@ -11,6 +11,8 @@ https://github.com/tkaitchuck/ahash
 https://github.com/rust-lang/hashbrown
 
 
+- Maybe move child object to object manager ? (characters, line elements, ...)
+    - Random names needed
 
 
 - movement: GMMVWarp, GMMVBounce
