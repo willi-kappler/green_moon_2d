@@ -1,5 +1,7 @@
 
 use std::fmt::Debug;
+use std::rc::Rc;
+use std::any::Any;
 
 use log::debug;
 
@@ -15,6 +17,19 @@ use crate::value::GMValue;
 pub enum GMLineMode {
     Number(u32),
     Spacing(f32),
+}
+
+impl GMObjectT for GMLineMode {
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+impl From<Rc<dyn Any>> for GMLineMode {
+    fn from(object: Rc<dyn Any>) -> Self {
+        let line_mode = object.downcast::<GMLineMode>().unwrap();
+        (*line_mode).clone()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -122,6 +137,39 @@ impl GMObjectT for GMLine {
                     element.send_message(GMMessage::SetPosition(position), context, object_manager);
                 }
             }
+            GMMessage::Custom0(name) if name == "get_start" => {
+                return self.start.into()
+            }
+            GMMessage::Custom0(name) if name == "get_end" => {
+                return self.end.into()
+            }
+            GMMessage::Custom0(name) if name == "get_init_element" => {
+                return self.init_element.clone().into()
+            }
+            GMMessage::Custom0(name) if name == "get_line_mode" => {
+                return GMValue::Any(Rc::new(self.line_mode.clone()))
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start" => {
+                self.start = start;
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start2" => {
+                self.start = start;
+                self.point_changed();
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(end)) if name == "set_end" => {
+                self.end = end;
+            }
+            GMMessage::Custom1(name, GMValue::Vec2D(end)) if name == "set_end2" => {
+                self.end = end;
+                self.point_changed();
+            }
+            GMMessage::Custom1(name, GMValue::Object(init_element)) if name == "set_init_element" => {
+                self.init_element = init_element;
+            }
+            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_line_mode" => {
+                self.line_mode = value.into();
+            }
+
             // TODO: more messages...
             _ => {
                 error_panic(&format!("Wrong message for GMMVFollow::send_message: '{:?}'", message))
