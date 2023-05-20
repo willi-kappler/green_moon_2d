@@ -114,7 +114,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             object.inner.replace(new_object.into());
         } else {
-            error_panic(&format!("GMObjectManager::replace_object: object {} not found", name));
+            error_panic(&format!("GMObjectManager::replace_object: object '{}' not found", name));
         }
     }
 
@@ -134,7 +134,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object;
         } else {
-            error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_object: object '{}' not found", name));
         }
     }
 
@@ -142,7 +142,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             return object;
         } else {
-            error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_object: object '{}' not found", name));
         }
     }
 
@@ -164,7 +164,7 @@ impl GMObjectManager {
             if let Some(object) = self.objects.get(name) {
                 object.inner.borrow_mut().send_message(GMMessage::Init, context, self);
             } else {
-                error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
+                error_panic(&format!("GMObjectManager::get_object: object '{}' not found", name));
             }
         }
 
@@ -199,7 +199,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.draw_index = draw_index;
         } else {
-            error_panic(&format!("GMObjectManager::set_draw_index: object {} not found", name));
+            error_panic(&format!("GMObjectManager::set_draw_index: object '{}' not found", name));
         }
     }
 
@@ -207,7 +207,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.draw_index;
         } else {
-            error_panic(&format!("GMObjectManager::get_draw_index: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_draw_index: object '{}' not found", name));
         }
     }
 
@@ -215,7 +215,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.update_index = update_index;
         } else {
-            error_panic(&format!("GMObjectManager::set_update_index: object {} not found", name));
+            error_panic(&format!("GMObjectManager::set_update_index: object '{}' not found", name));
         }
     }
 
@@ -223,7 +223,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.update_index;
         } else {
-            error_panic(&format!("GMObjectManager::get_update_index: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_update_index: object '{}' not found", name));
         }
     }
 
@@ -231,7 +231,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.active = active;
         } else {
-            error_panic(&format!("GMObjectManager::set_active: object {} not found", name));
+            error_panic(&format!("GMObjectManager::set_active: object '{}' not found", name));
         }
     }
 
@@ -255,7 +255,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.active;
         } else {
-            error_panic(&format!("GMObjectManager::get_active: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_active: object '{}' not found", name));
         }
     }
 
@@ -263,7 +263,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.active = !object.active;
         } else {
-            error_panic(&format!("GMObjectManager::toggle_active: object {} not found", name));
+            error_panic(&format!("GMObjectManager::toggle_active: object '{}' not found", name));
         }
     }
 
@@ -271,7 +271,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.visible = visible;
         } else {
-            error_panic(&format!("GMObjectManager::set_visible: object {} not found", name));
+            error_panic(&format!("GMObjectManager::set_visible: object '{}' not found", name));
         }
     }
 
@@ -295,7 +295,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.visible;
         } else {
-            error_panic(&format!("GMObjectManager::get_visible: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_visible: object '{}' not found", name));
         }
     }
 
@@ -303,7 +303,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.visible = !object.visible;
         } else {
-            error_panic(&format!("GMObjectManager::toggle_visible: object {} not found", name));
+            error_panic(&format!("GMObjectManager::toggle_visible: object '{}' not found", name));
         }
     }
 
@@ -311,7 +311,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.insert(group.to_string());
         } else {
-            error_panic(&format!("GMObjectManager::add_group: object {} not found", name));
+            error_panic(&format!("GMObjectManager::add_group: object '{}' not found", name));
         }
     }
 
@@ -319,7 +319,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.groups.contains(group);
         } else {
-            error_panic(&format!("GMObjectManager::is_in_group: object {} not found", name));
+            error_panic(&format!("GMObjectManager::is_in_group: object '{}' not found", name));
         }
     }
 
@@ -327,7 +327,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.remove(group);
         } else {
-            error_panic(&format!("GMObjectManager::remove_group: object {} not found", name));
+            error_panic(&format!("GMObjectManager::remove_group: object '{}' not found", name));
         }
     }
 
@@ -335,7 +335,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get_mut(name) {
             object.groups.clear();
         } else {
-            error_panic(&format!("GMObjectManager::clear_groups: object {} not found", name));
+            error_panic(&format!("GMObjectManager::clear_groups: object '{}' not found", name));
         }
     }
 
@@ -343,7 +343,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.state.borrow().get_property(property).clone();
         } else {
-            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object '{}' not found", name));
         }
     }
 
@@ -351,7 +351,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             object.state.borrow_mut().set_property(property, value);
         } else {
-            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object '{}' not found", name));
         }
     }
 
@@ -379,7 +379,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             object.state.borrow_mut().remove_property(property);
         } else {
-            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object '{}' not found", name));
         }
     }
 
@@ -403,7 +403,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             object.state.borrow_mut().clear();
         } else {
-            error_panic(&format!("GMObjectManager::get_state_property: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state_property: object '{}' not found", name));
         }
     }
 
@@ -411,7 +411,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return &object.state;
         } else {
-            error_panic(&format!("GMObjectManager::get_state: object {} not found", name));
+            error_panic(&format!("GMObjectManager::get_state: object '{}' not found", name));
         }
     }
 
@@ -419,7 +419,7 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             return object.state.replace(state)
         } else {
-            error_panic(&format!("GMObjectManager::set_state: object {} not found", name));
+            error_panic(&format!("GMObjectManager::set_state: object '{}' not found", name));
         }
     }
 
@@ -430,7 +430,7 @@ impl GMObjectManager {
                 return borrowed_object.send_message(message, context, &self);
             }
         } else {
-            error_panic(&format!("GMObjectManager::send_message_object: object {} not found", name));
+            error_panic(&format!("GMObjectManager::send_message_object: object '{}' not found", name));
         }
 
         GMValue::None
@@ -596,7 +596,7 @@ impl GMObjectManager {
                     self.toggle_visible(&object_name);
                 }
                 _ => {
-                    error_panic(&format!("Wrong message for GMObjectManager::process_manager_messages: {:?}", message))
+                    error_panic(&format!("Wrong message for GMObjectManager::process_manager_messages: '{:?}'", message))
                 }
             }
         }

@@ -174,7 +174,7 @@ impl GMObjectT for GMSprite {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMSprite::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMSprite::send_message: '{:?}'", message))
             }
         }
 

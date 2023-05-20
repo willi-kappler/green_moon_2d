@@ -29,7 +29,7 @@ pub struct GMTimedMessage {
 impl GMTimedMessage {
     pub fn new<T: Into<GMTarget>>(message: GMMessage, target: T, timeout: f32, repeat: bool) -> Self {
         let target = target.into();
-        debug!("GMTimedMessage::new(), target: {:?}, timeout: {}, repeat: {}, message: {:?}", target, timeout, repeat, message);
+        debug!("GMTimedMessage::new(), target: '{:?}', timeout: '{}', repeat: '{}', message: '{:?}'", target, timeout, repeat, message);
 
         Self {
             message,
@@ -73,7 +73,7 @@ impl GMObjectT for GMTimedMessage {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTimedMessage::send_message: '{:?}'", message))
             }
         }
 
@@ -137,7 +137,7 @@ impl GMObjectT for GMTimedMultiMessage {
                 self.items[index].3 = *message;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTimedMultiMessage::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTimedMultiMessage::send_message: '{:?}'", message))
             }
         }
 
@@ -213,7 +213,7 @@ impl GMObjectT for GMTimedSeqMessage {
                 self.items[index].2 = *message;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTimedSeqMessage::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTimedSeqMessage::send_message: '{:?}'", message))
             }
         }
 
@@ -252,7 +252,7 @@ pub struct GMTimedFunc {
 impl GMTimedFunc {
     pub fn new(timeout: f32, repeat: bool, func: fn(context: &mut GMContext,
             object_manager: &GMObjectManager)) -> Self {
-        debug!("GMTimedFunc::new(), timeout: {}, repeat: {}", timeout, repeat);
+        debug!("GMTimedFunc::new(), timeout: '{}', repeat: '{}'", timeout, repeat);
 
         Self {
             timer: GMTimer::new(timeout),
@@ -294,7 +294,7 @@ impl GMObjectT for GMTimedFunc {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTimedMessage::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTimedMessage::send_message: '{:?}'", message))
             }
         }
 
@@ -353,7 +353,7 @@ impl GMObjectT for GMTrigger {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTrigger::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTrigger::send_message: '{:?}'", message))
             }
         }
 
@@ -403,7 +403,7 @@ impl GMObjectT for GMTriggerPair {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTriggerPair::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTriggerPair::send_message: '{:?}'", message))
             }
         }
 
@@ -425,7 +425,7 @@ pub struct GMValueInterpolateF32 {
 impl GMValueInterpolateF32 {
     pub fn new(start: f32, end: f32, speed: f32, func: fn(value: f32, context: &mut GMContext,
             object_manager: &GMObjectManager)) -> Self {
-        debug!("GMValueInterpolateF32::new(), start: {}, end: {}, speed: {}", start, end, speed);
+        debug!("GMValueInterpolateF32::new(), start: '{}', end: '{}', speed: '{}'", start, end, speed);
 
         let interpolation = GMInterpolateF32::new(start, end, speed, 0.0);
 
@@ -439,7 +439,7 @@ impl GMValueInterpolateF32 {
 
 impl fmt::Debug for GMValueInterpolateF32 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "GMValueInterpolateF32, start: {}, end: {}, speed: {}", self.interpolation.start, self.interpolation.end, self.interpolation.speed)
+        write!(f, "GMValueInterpolateF32, start: '{}', end: '{}', speed: '{}'", self.interpolation.start, self.interpolation.end, self.interpolation.speed)
     }
 }
 
@@ -510,7 +510,7 @@ impl GMObjectT for GMValueInterpolateF32 {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMValueInterpolateF32::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMValueInterpolateF32::send_message: '{:?}'", message))
             }
         }
 
@@ -543,7 +543,7 @@ impl GMValueInterpolateVec2D {
         let start = start.into();
         let end = end.into();
 
-        debug!("GMValueInterpolateVec2D::new(), start: {}, end: {}, speed: {}", start, end, speed);
+        debug!("GMValueInterpolateVec2D::new(), start: '{}', end: '{}', speed: '{}'", start, end, speed);
 
         let interpolation = GMInterpolateVec2D::new(start, end, speed, 0.0);
 
@@ -557,7 +557,7 @@ impl GMValueInterpolateVec2D {
 
 impl fmt::Debug for GMValueInterpolateVec2D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "GMValueInterpolateVec2D, start: {}, end: {}, speed: {}", self.interpolation.start, self.interpolation.end, self.interpolation.speed)
+        write!(f, "GMValueInterpolateVec2D, start: '{}', end: '{}', speed: '{}'", self.interpolation.start, self.interpolation.end, self.interpolation.speed)
     }
 }
 
@@ -642,7 +642,7 @@ impl GMObjectT for GMValueInterpolateVec2D {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMValueInterpolateVec2D::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMValueInterpolateVec2D::send_message: '{:?}'", message))
             }
         }
 
@@ -672,7 +672,7 @@ pub struct GMMapMessage {
 impl GMMapMessage {
     pub fn new<T: Into<GMTarget>>(target: T, func: fn(message: GMMessage) -> GMMessage) -> Self {
         let target = target.into();
-        debug!("GMMapMessage::new(), target: {:?}", target);
+        debug!("GMMapMessage::new(), target: '{:?}'", target);
 
         Self {
             target,
@@ -683,7 +683,7 @@ impl GMMapMessage {
 
 impl fmt::Debug for GMMapMessage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "GMMapMessage, target: {:?}", self.target)
+        write!(f, "GMMapMessage, target: '{:?}'", self.target)
     }
 }
 
@@ -708,7 +708,7 @@ impl GMObjectT for GMMapMessage {
                         self.send_multi_message(messages, context, object_manager);
                     }
                     _ => {
-                        error_panic(&format!("Wrong message for GMMapMessage::send_message: {:?}", keep_message))
+                        error_panic(&format!("Wrong message for GMMapMessage::send_message: '{:?}'", keep_message))
                     }
                 }
             }
@@ -785,7 +785,7 @@ impl GMObjectT for GMCustomUpdate {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMCustomUpdate::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMCustomUpdate::send_message: '{:?}'", message))
             }
         }
 
@@ -831,7 +831,7 @@ impl GMObjectT for GMMultiPositionTarget {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMultiPositionTarget::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMultiPositionTarget::send_message: '{:?}'", message))
             }
         }
 
@@ -917,7 +917,7 @@ impl GMObjectT for GMCenterPosition {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMCenterPosition::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMCenterPosition::send_message: '{:?}'", message))
             }
         }
 
@@ -1003,7 +1003,7 @@ impl GMObjectT for GMRandomPosition {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMRandomPosition::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMRandomPosition::send_message: '{:?}'", message))
             }
         }
 
@@ -1077,7 +1077,7 @@ impl GMObjectT for GMRandomPositionOf {
                 self.send_multi_message(messages, context, object_manager);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMRandomPosition::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMRandomPosition::send_message: '{:?}'", message))
             }
         }
 

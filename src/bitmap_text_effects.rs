@@ -77,7 +77,7 @@ impl GMObjectT for GMTEWave {
                 self.offset += offset
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEWave::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTEWave::send_message: '{:?}'", message))
             }
         }
 
@@ -192,7 +192,7 @@ impl GMObjectT for GMTEShake {
                 self.speed += speed;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEShake::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTEShake::send_message: '{:?}'", message))
             }
         }
 
@@ -281,7 +281,7 @@ impl GMObjectT for GMTERotateChars {
                 self.offset += offset;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTERotateChars::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTERotateChars::send_message: '{:?}'", message))
             }
         }
 
@@ -386,7 +386,7 @@ impl GMObjectT for GMTEScale {
                 self.offset += offset;
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEScale::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMTEScale::send_message: '{:?}'", message))
             }
         }
 

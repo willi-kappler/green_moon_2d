@@ -307,41 +307,41 @@ impl GMObjectT for GMBitmapText {
                 return value
             }
             GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "add_spacing" => {
-                debug!("GMBitmapText::send_message(), add_spacing: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing: '{}'", value);
                 self.spacing += value;
             }
             GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "add_spacing2" => {
-                debug!("GMBitmapText::send_message(), add_spacing: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing: '{}'", value);
                 self.spacing += value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_x" => {
-                debug!("GMBitmapText::send_message(), add_spacing_x: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing_x: '{}'", value);
                 self.spacing.x += value;
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_x2" => {
-                debug!("GMBitmapText::send_message(), add_spacing_x: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing_x: '{}'", value);
                 self.spacing.x += value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_y" => {
-                debug!("GMBitmapText::send_message(), add_spacing_y: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing_y: '{}#", value);
                 self.spacing.y += value;
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "add_spacing_y2" => {
-                debug!("GMBitmapText::send_message(), add_spacing_y: {}", value);
+                debug!("GMBitmapText::send_message(), add_spacing_y: '{}'", value);
                 self.spacing.y += value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_align" => {
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
-                debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
+                debug!("GMBitmapText::send_message(), set_align: '{:?}'", self.align);
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_align2" => {
                 let align = value.downcast::<GMAlign>().unwrap();
                 self.align = *align;
-                debug!("GMBitmapText::send_message(), set_align: {:?}", self.align);
+                debug!("GMBitmapText::send_message(), set_align: '{:?}'", self.align);
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_font" => {
@@ -356,49 +356,49 @@ impl GMObjectT for GMBitmapText {
                 self.reset_chars()
             }
             GMMessage::Custom1(name, GMValue::String(value)) if name == "set_font" => {
-                debug!("GMBitmapText::send_message(), set_font, font_name: {}", value);
+                debug!("GMBitmapText::send_message(), set_font, font_name: '{}'", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
             }
             GMMessage::Custom1(name, GMValue::String(value)) if name == "set_font2" => {
-                debug!("GMBitmapText::send_message(), set_font2, font_name: {}", value);
+                debug!("GMBitmapText::send_message(), set_font2, font_name: '{}'", value);
                 let font = context.resources.get_font(&value);
                 self.font = font.clone();
                 self.reset_chars()
             }
             GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_horizontal" => {
-                debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
+                debug!("GMBitmapText::send_message(), set_horizontal: '{}'", value);
                 self.horizontal = value;
             }
             GMMessage::Custom1(name, GMValue::Bool(value)) if name == "set_horizontal2" => {
-                debug!("GMBitmapText::send_message(), set_horizontal: {}", value);
+                debug!("GMBitmapText::send_message(), set_horizontal: '{}'", value);
                 self.horizontal = value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "set_spacing" => {
-                debug!("GMBitmapText::send_message(), set_spacing: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing: '{}'", value);
                 self.spacing = value;
             }
             GMMessage::Custom1(name, GMValue::Vec2D(value)) if name == "set_spacing2" => {
-                debug!("GMBitmapText::send_message(), set_spacing: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing: '{}'", value);
                 self.spacing = value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_x" => {
-                debug!("GMBitmapText::send_message(), set_spacing_x: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing_x: '{}'", value);
                 self.spacing.x = value;
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_x2" => {
-                debug!("GMBitmapText::send_message(), set_spacing_x: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing_x: '{}'", value);
                 self.spacing.x = value;
                 self.reset_positions();
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_y" => {
-                debug!("GMBitmapText::send_message(), set_spacing_y: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing_y: '{}'", value);
                 self.spacing.y = value;
             }
             GMMessage::Custom1(name, GMValue::F32(value)) if name == "set_spacing_y2" => {
-                debug!("GMBitmapText::send_message(), set_spacing_y: {}", value);
+                debug!("GMBitmapText::send_message(), set_spacing_y: '{}'", value);
                 self.spacing.y = value;
                 self.reset_positions();
             }
@@ -515,7 +515,7 @@ impl GMObjectT for GMBitmapText {
                 }
             }
             _ => {
-                error_panic(&format!("Wrong message for GMBitmapText::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMBitmapText::send_message: '{:?}'", message))
             }
         }
 

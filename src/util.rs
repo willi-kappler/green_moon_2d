@@ -69,7 +69,7 @@ impl From<&str> for GMRepetition {
             "ping_pong_forward" => GMRepetition::PingPongForward,
             "ping_pong_backward" => GMRepetition::PingPongBackward,
             _ => {
-                error_panic(&format!("Unknown repetition: {}", value));
+                error_panic(&format!("Unknown repetition: '{}'", value));
             }
         }
     }

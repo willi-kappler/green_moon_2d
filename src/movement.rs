@@ -51,7 +51,7 @@ impl GMObjectT for GMMVVelocity {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVVelocity::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVVelocity::send_message: '{:?}'", message))
             }
         }
 
@@ -106,7 +106,7 @@ impl GMObjectT for GMMVAcceleration {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVAcceleration::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVAcceleration::send_message: '{:?}'", message))
             }
         }
 
@@ -172,7 +172,7 @@ impl GMObjectT for GMMVVelAccel {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVVelAccel::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVVelAccel::send_message: '{:?}'", message))
             }
         }
 
@@ -267,7 +267,7 @@ impl GMObjectT for GMMVCircle {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVCircle::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVCircle::send_message: '{:?}'", message))
             }
         }
 
@@ -401,7 +401,7 @@ impl GMObjectT for GMMVMultiCircle {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: '{:?}'", message))
             }
         }
 
@@ -570,7 +570,7 @@ impl GMObjectT for GMMVPath {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVPath::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVPath::send_message: '{:?}'", message))
             }
         }
 
@@ -652,7 +652,7 @@ impl GMObjectT for GMMVFollow {
                 return self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVFollow::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVFollow::send_message: '{:?}'", message))
             }
         }
 

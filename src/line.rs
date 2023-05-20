@@ -96,12 +96,12 @@ impl GMLine {
 
         // Now re-calculate the positions of all elements
         let mut result = Vec::new();
-    
+
         for i in 0..number {
             let new_position = self.start + (direction * (spacing * (i as f32)));
             result.push(new_position);
         }
-    
+
         result
     }
 }
@@ -118,7 +118,7 @@ impl GMObjectT for GMLine {
             }
             // TODO: more messages...
             _ => {
-                error_panic(&format!("Wrong message for GMMVFollow::send_message: {:?}", message))
+                error_panic(&format!("Wrong message for GMMVFollow::send_message: '{:?}'", message))
             }
 
         }

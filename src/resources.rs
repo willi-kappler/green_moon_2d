@@ -104,7 +104,7 @@ impl GMResources {
                 image
             }
             Err(e) => {
-                error_panic(&format!("Error while loading texture: {}", e));
+                error_panic(&format!("Error while loading texture: '{}'", e));
             }
         };
 
