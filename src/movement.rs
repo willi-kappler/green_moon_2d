@@ -450,9 +450,7 @@ impl GMMVPath {
 
     pub fn update_position(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         self.interpolation.update();
-
         let position = self.interpolation.get_current_value();
-
         object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
 
         if self.interpolation.is_finished() {
@@ -489,6 +487,10 @@ impl GMMVPath {
 impl GMObjectT for GMMVPath {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
+            GMMessage::Init => {
+                let position = self.interpolation.get_current_value();
+                object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
+            }
             GMMessage::GetTarget => {
                 return self.target.clone().into();
             }
@@ -594,11 +596,11 @@ pub struct GMMVFollow {
 }
 
 impl GMMVFollow {
-    pub fn new<E: Into<GMTarget>, F: Into<GMTarget>, U: Into<GMVec2D>, V: Into<GMVec2D>>(target: E, source: F, speed: f32, start: U, end: V) -> Self {
+    pub fn new<E: Into<GMTarget>, F: Into<GMTarget>, U: Into<GMVec2D>>(target: E, source: F, speed: f32, start: U) -> Self {
         Self {
             target: target.into(),
             source: source.into(),
-            interpolation: GMInterpolateVec2D::new(start.into(), end.into(), speed, 0.0),
+            interpolation: GMInterpolateVec2D::new(start.into(), (0.0, 0.0).into(), speed, 0.0),
         }
     }
 
@@ -618,6 +620,9 @@ impl GMMVFollow {
 impl GMObjectT for GMMVFollow {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
+            GMMessage::Init => {
+                self.update_source(context, object_manager);
+            }
             GMMessage::GetTarget => {
                 return self.target.clone().into();
             }

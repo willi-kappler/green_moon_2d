@@ -124,10 +124,12 @@ impl SpriteScene2 {
                 ((100.0, 700.0).into(), 0.01)]);
 
         object_manager.add_normal_object("ice_path", path, 0);
+        object_manager.initialize_object("ice_path");
 
         // Follow:
-        let follow = GMMVFollow::new("head_sprite1", "ice_sprite1", 0.01, (512.0, 600.0), (50.0, 600.0));
+        let follow = GMMVFollow::new("head_sprite1", "ice_sprite1", 0.01, (512.0, 600.0));
         object_manager.add_normal_object("follow_ice1", follow, 0);
+        object_manager.initialize_object("follow_ice1");
 
         // Timer update position:
         let timer = GMTimedMessage::new("update_source".into(), "follow_ice1", 1.0, true);

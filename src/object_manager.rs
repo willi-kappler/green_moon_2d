@@ -2,7 +2,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::cell::RefCell;
 
-use log::info;
+use log::{info, debug};
 
 use crate::value::GMValue;
 use crate::object::GMObjectT;
@@ -147,6 +147,8 @@ impl GMObjectManager {
     }
 
     pub fn initialize_object(&self, name: &str) {
+        debug!("Initialize object: {}", name);
+
         let mut init = self.init_objects.borrow_mut();
         init.push(name.to_string());
     }
@@ -163,7 +165,7 @@ impl GMObjectManager {
                 object.inner.borrow_mut().send_message(GMMessage::Init, context, self);
             } else {
                 error_panic(&format!("GMObjectManager::get_object: object {} not found", name));
-            }    
+            }
         }
 
         init.clear();
