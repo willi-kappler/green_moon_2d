@@ -271,3 +271,9 @@ impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMValue {
         Self::CustomM(name.to_string(), vec![value1, value2, value3, value4])
     }
 }
+
+impl From<Box<dyn GMObjectT>> for GMValue {
+    fn from(value: Box<dyn GMObjectT>) -> Self {
+        Self::Object(value)
+    }
+}
