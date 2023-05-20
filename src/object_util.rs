@@ -102,6 +102,7 @@ pub struct GMTimedMultiMessage {
 
 impl GMTimedMultiMessage {
     pub fn new(mut items: Vec<(f32, bool, GMTarget, GMMessage)>) -> Self {
+        debug!("GMTimedMultiMessage::new()");
 
         Self {
             items: items.drain(0..).map(|(duration, repeat, target, message)| (GMTimer::new(duration), repeat, target, message)).collect(),
@@ -170,6 +171,8 @@ pub struct GMTimedSeqMessage {
 
 impl GMTimedSeqMessage {
     pub fn new(mut items: Vec<(f32, GMTarget, GMMessage)>, repeat: bool) -> Self {
+        debug!("GMTimedSeqMessage::new()");
+
         Self {
             items: items.drain(0..).map(|(duration, target, message)| (GMTimer::new(duration), target, message)).collect(),
             index: 0,
@@ -542,7 +545,6 @@ impl GMValueInterpolateVec2D {
             context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
         let start = start.into();
         let end = end.into();
-
         debug!("GMValueInterpolateVec2D::new(), start: '{}', end: '{}', speed: '{}'", start, end, speed);
 
         let interpolation = GMInterpolateVec2D::new(start, end, speed, 0.0);
@@ -733,6 +735,8 @@ pub struct GMCustomSend {
 impl GMCustomSend {
     pub fn new(func: fn(message: GMMessage, context: &mut GMContext,
             object_manager: &GMObjectManager) -> GMValue) -> Self {
+        debug!("GMCustomSend::new()");
+
         Self {
             func,
         }
@@ -762,6 +766,8 @@ pub struct GMCustomUpdate {
 
 impl GMCustomUpdate {
     pub fn new(func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+        debug!("GMCustomUpdate::new()");
+
         Self {
             func,
         }
@@ -808,6 +814,8 @@ pub struct GMMultiPositionTarget {
 
 impl GMMultiPositionTarget {
     pub fn new(target: GMTarget) -> Self {
+        debug!("GMMultiPositionTarget::new()");
+
         Self {
             target,
         }
@@ -852,9 +860,13 @@ pub struct GMCenterPosition {
 
 impl GMCenterPosition {
     pub fn new<E: Into<GMTarget>, F: Into<GMTarget>>(target: E, source: F) -> Self {
+        let target = target.into();
+        let source = source.into();
+        debug!("GMCenterPosition::new(), target: '{:?}', source: '{:?}'", target, source);
+
         Self {
-            target: target.into(),
-            source: source.into(),
+            target,
+            source,
             auto_update: true,
         }
     }
@@ -940,8 +952,12 @@ pub struct GMRandomPosition {
 
 impl GMRandomPosition {
     pub fn new<T: Into<GMTarget>>(target: T, minx: f32, miny: f32, maxx: f32, maxy: f32) -> Self {
+        let target = target.into();
+        debug!("GMRandomPosition::new(), target: '{:?}', minx: '{}', miny: '{}', maxx: '{}', maxy: '{}'",
+            target, minx, miny, maxx, maxy);
+
         Self {
-            target: target.into(),
+            target,
             minx,
             miny,
             maxx,
@@ -1023,6 +1039,10 @@ pub struct GMRandomPositionOf {
 
 impl GMRandomPositionOf {
     pub fn new<E: Into<GMTarget>, F: Into<GMTarget>>(target: E, source: F) -> Self {
+        let target = target.into();
+        let source = source.into();
+        debug!("GMRandomPositionOf::new(), target: '{:?}', source: '{:?}'", target, source);
+
         Self {
             target: target.into(),
             source: source.into(),

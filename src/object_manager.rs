@@ -147,7 +147,7 @@ impl GMObjectManager {
     }
 
     pub fn initialize_object(&self, name: &str) {
-        debug!("Initialize object: {}", name);
+        debug!("Initialize object: '{}'", name);
 
         let mut init = self.init_objects.borrow_mut();
         init.push(name.to_string());

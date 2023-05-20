@@ -1,6 +1,8 @@
 
 use std::fmt::Debug;
 
+use log::debug;
+
 use crate::timer::GMTimer;
 use crate::util::{GMRepetition};
 
@@ -15,6 +17,8 @@ pub struct GMAnimation {
 
 impl GMAnimation {
     pub fn new(frames: &[(u32, f32)], repetition: GMRepetition) -> Self {
+        debug!("GMAnimation::new(), number of frames: {}, repetition: {:?}", frames.len(), repetition);
+
         Self {
             active: true,
             current_frame: 0,

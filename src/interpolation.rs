@@ -2,6 +2,8 @@
 use std::ops::{Add, Sub, Mul};
 use std::fmt::Debug;
 
+use log::debug;
+
 use crate::util::GMRepetition;
 use crate::math::GMVec2D;
 use crate::curve::{GMCurveT, GMCuLinear};
@@ -19,10 +21,12 @@ pub struct GMInterpolate<T> {
     pub curve: Box<dyn GMCurveT>,
 }
 
-impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy> GMInterpolate<T> {
+impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + Debug> GMInterpolate<T> {
     pub fn new(start: T, end: T, speed: f32, current_step: f32) -> Self {
         let diff = end - start;
         let current_value = start + (diff * current_step);
+        debug!("GMInterpolate::new(), start: '{:?}', end: '{:?}', diff: '{:?}', speed: '{}', current_step: '{}', current_value: '{:?}'",
+            start, end, diff, speed, current_step, current_value);
 
         Self {
             start,

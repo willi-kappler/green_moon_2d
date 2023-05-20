@@ -1,6 +1,8 @@
 
 use std::fmt::Debug;
 
+use log::debug;
+
 use crate::context::GMContext;
 use crate::math::GMVec2D;
 use crate::message::GMMessage;
@@ -26,9 +28,13 @@ pub struct GMLine {
 
 impl GMLine {
     pub fn new<T: Into<GMVec2D>, U: Into<GMVec2D>, V: Into<Box<dyn GMObjectT>>>(start: T, end: U, init_element: V, line_mode: GMLineMode) -> Self {
+        let start = start.into();
+        let end = end.into();
+        debug!("GMLine::new(), start: '{:?}', end: '{:?}', line_mode: '{:?}'", start, end, line_mode);
+
         Self {
-            start: start.into(),
-            end: end.into(),
+            start,
+            end,
             init_element: init_element.into(),
             elements: Vec::new(),
             line_mode,

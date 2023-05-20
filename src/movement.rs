@@ -1,6 +1,8 @@
 
 use std::fmt;
 
+use log::debug;
+
 use crate::context::GMContext;
 use crate::curve::GMCurveT;
 use crate::interpolation::GMInterpolateVec2D;
@@ -19,8 +21,10 @@ pub struct GMMVVelocity {
 }
 
 impl GMMVVelocity {
-    pub fn new<T: Into<GMTarget>>(target: T, v: GMVec2D) -> Self {
+    pub fn new<T: Into<GMTarget>, V: Into<GMVec2D>>(target: T, v: V) -> Self {
         let target = target.into();
+        let v = v.into();
+        debug!("GMMVVelocity::new(), target: '{:?}', v: '{:?}'", target, v);
 
         Self{
             target,
@@ -74,8 +78,10 @@ pub struct GMMVAcceleration {
 }
 
 impl GMMVAcceleration {
-    pub fn new<T: Into<GMTarget>>(target: T, a: GMVec2D) -> Self {
+    pub fn new<T: Into<GMTarget>, A: Into<GMVec2D>>(target: T, a: A) -> Self {
         let target = target.into();
+        let a = a.into();
+        debug!("GMMVAcceleration::new(), target: '{:?}', a: '{:?}'", target, a);
 
         Self {
             target,
@@ -130,8 +136,11 @@ pub struct GMMVVelAccel {
 }
 
 impl GMMVVelAccel {
-    pub fn new<T: Into<GMTarget>>(target: T, v: GMVec2D, a: GMVec2D) -> Self {
+    pub fn new<T: Into<GMTarget>, U: Into<GMVec2D>, V: Into<GMVec2D>>(target: T, v: U, a: V) -> Self {
         let target = target.into();
+        let v = v.into();
+        let a = a.into();
+        debug!("GMMVAcceleration::new(), target: '{:?}', v: '{:?}', a: '{:?}'", target, v, a);
 
         Self{
             target,
@@ -201,6 +210,7 @@ impl GMMVCircle {
     pub fn new<T: Into<GMTarget>, U: Into<GMVec2D>>(target: T, center: U, radius: f32) -> Self {
         let target = target.into();
         let circle = GMCircle::new(center, radius);
+        debug!("GMMVCircle::new(), target: '{:?}', center: '{:?}', radius: '{:?}'", target, circle.center, circle.radius);
 
         Self {
             target,
@@ -301,6 +311,7 @@ impl GMMVMultiCircle {
     pub fn new<T: Into<GMVec2D>>(center: T, radius: f32, angle_step: f32, count: usize, func: fn(value: Vec<GMVec2D>,
         context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
         let circle = GMCircle::new(center, radius);
+        debug!("GMMVMultiCircle::new(), center: '{:?}', radius: '{:?}', angle_step: '{:?}', count: '{:?}'", circle.center, circle.radius, angle_step, count);
 
         Self {
             circle,
@@ -437,9 +448,12 @@ impl GMMVPath {
         let start = positions[0].0;
         let end = positions[1].0;
         let speed = positions[0].1;
+        let target = target.into();
+
+        debug!("GMMVPath::new(), start: '{:?}', end: '{:?}', speed: '{:?}', target: '{:?}'", start, end, speed, target);
 
         Self {
-            target: target.into(),
+            target,
             positions,
             interpolation: GMInterpolateVec2D::new(start, end, speed, 0.0),
             index: 0,
@@ -597,10 +611,15 @@ pub struct GMMVFollow {
 
 impl GMMVFollow {
     pub fn new<E: Into<GMTarget>, F: Into<GMTarget>, U: Into<GMVec2D>>(target: E, source: F, speed: f32, start: U) -> Self {
+        let target = target.into();
+        let source = source.into();
+        let start = start.into();
+        debug!("GMMVFollow::new(), target: '{:?}', source: '{:?}', speed: '{:?}', start: '{:?}'", target, source, speed, start);
+
         Self {
-            target: target.into(),
-            source: source.into(),
-            interpolation: GMInterpolateVec2D::new(start.into(), (0.0, 0.0).into(), speed, 0.0),
+            target,
+            source,
+            interpolation: GMInterpolateVec2D::new(start, (0.0, 0.0).into(), speed, 0.0),
         }
     }
 

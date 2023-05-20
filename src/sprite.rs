@@ -3,7 +3,7 @@
 use std::rc::Rc;
 use std::fmt::Debug;
 
-// use log::debug;
+use log::debug;
 
 use crate::texture::{GMTexture};
 use crate::animation::GMAnimation;
@@ -31,8 +31,8 @@ pub struct GMSprite {
 impl GMSprite {
     pub fn new<T: Into<GMVec2D>>(position: T, texture: &Rc<GMTexture>, animation: GMAnimation) -> GMSprite {
         let position = position.into();
-
         let (width, height) = texture.get_unit_dimension();
+        debug!("GMSprite::new(), position: '{:?}', width: '{:?}', height: '{:?}", position, width, height);
 
         GMSprite {
             position,

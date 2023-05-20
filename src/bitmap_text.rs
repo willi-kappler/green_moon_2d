@@ -95,7 +95,6 @@ impl GMBitmapText {
     pub fn new<T: Into<GMVec2D>, S: Into<String>>(font: &Rc<GMBitmapFont>, position: T, text: S) -> Self {
         let position = position.into();
         let text = text.into();
-
         debug!("GMBitmapText::new(), position: '{}', text: '{}'", position, text);
 
         let mut text = Self {

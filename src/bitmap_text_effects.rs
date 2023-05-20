@@ -144,7 +144,6 @@ pub struct GMTEShake {
 impl GMTEShake {
     pub fn new<T: Into<GMTarget>>(target: T, radius: f32, speed: f32) -> Self {
         let target = target.into();
-
         debug!("GMTEShake::new(), target: '{:?}', radius: '{}', speed: '{}'", target, radius, speed);
 
         let seed = 1;
