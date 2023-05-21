@@ -21,6 +21,11 @@ https://github.com/rust-lang/hashbrown
 
 - Impl to GMValue from GMLineMode
 
+- Add BaseObjects
+    - use handle method on GMValue
+    - always return UnknownMessage
+    - handle UnknownMessage in object_manager
+
 - movement: GMMVWarp, GMMVBounce
 
 - GMLine (https://github.com/willi-kappler/green_moon_2d/blob/refactor4/src/line.rs)

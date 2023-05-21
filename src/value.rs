@@ -37,6 +37,7 @@ pub enum GMValue {
     U32(u32),
     U64(u64),
     U8(u8),
+    UnKnownMessage,
     USize(usize),
     Vec2D(GMVec2D),
 }
@@ -78,6 +79,17 @@ impl GMValue {
                         vec![self, other].into()
                     }
                 }
+            }
+        }
+    }
+
+    pub fn handle(self, func: fn () -> GMValue) -> GMValue {
+        match self {
+            Self::UnKnownMessage => {
+                (func)()
+            }
+            _ => {
+                self
             }
         }
     }
