@@ -1,23 +1,10 @@
 
 
 
-- Maybe move context to global static ?
-https://github.com/embassy-rs/static-cell
-https://docs.rs/once_cell/latest/once_cell/
 
-
-- Maybe replace std hashmap with a faster one ?
-https://github.com/tkaitchuck/ahash
-https://github.com/rust-lang/hashbrown
-
-
-- Maybe move child object to object manager ? (characters, line elements, ...)
-    - Random names needed
 
 - Implement Any conversion for other types as well:
     impl From<Rc<dyn Any>> for ...
-
-- Use GetRepetition, SetRepetition as message instead of Custom message
 
 - Impl to GMValue from GMLineMode
 
@@ -48,7 +35,20 @@ Future TODO:
 - procedural levels / maps
 
 
+
+- Maybe move child object to object manager ? (characters, line elements, ...)
+    - Random names needed
+
 - Error handling ?
 https://docs.rs/thiserror/1.0.40/thiserror/
 https://github.com/dtolnay/thiserror
+
+- Maybe move context to global static ?
+https://github.com/embassy-rs/static-cell
+https://docs.rs/once_cell/latest/once_cell/
+
+
+- Maybe replace std hashmap with a faster one ?
+https://github.com/tkaitchuck/ahash
+https://github.com/rust-lang/hashbrown
 

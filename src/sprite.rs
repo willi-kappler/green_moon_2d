@@ -7,7 +7,7 @@ use log::debug;
 
 use crate::texture::{GMTexture};
 use crate::animation::GMAnimation;
-use crate::util::{error_panic, GMRepetition};
+use crate::util::{GMFlipXY};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::object::GMObjectT;
@@ -22,8 +22,7 @@ pub struct GMSprite {
     pub animation: GMAnimation,
     pub angle: f32,
     pub scale: f32,
-    pub flip_x: bool,
-    pub flip_y: bool,
+    pub flipxy: GMFlipXY,
     texture: Rc<GMTexture>,
     size: GMSize,
 }
@@ -40,8 +39,7 @@ impl GMSprite {
             animation,
             angle: 0.0,
             scale: 1.0,
-            flip_x: false,
-            flip_y: false,
+            flipxy: GMFlipXY::new(),
             size: GMSize::new(width, height),
         }
     }
@@ -66,119 +64,52 @@ impl GMObjectT for GMSprite {
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
 
         match message {
-            GMMessage::AddPosition(vec) => {
-                self.position += vec;
-            }
-            GMMessage::AddX(x) => {
-                self.position.x += x;
-            }
-            GMMessage::AddY(y) => {
-                self.position.y += y;
-            }
-            GMMessage::SetPosition(vec) => {
-                self.position = vec;
-            }
-            GMMessage::SetX(x) => {
-                self.position.x = x;
-            }
-            GMMessage::SetY(y) => {
-                self.position.y = y;
-            }
-            GMMessage::GetPosition => {
-                return self.position.into()
-            }
-            GMMessage::GetX => {
-                return self.position.x.into()
-            }
-            GMMessage::GetY => {
-                return self.position.y.into()
-            }
-            // Custom animation messages:
-            GMMessage::Custom0(name) if name == "animation_finished" => {
-                let result = self.animation.finished();
-                return result.into()
-            }
-            GMMessage::Custom0(name) if name == "animation_reverse" => {
-                self.animation.reverse();
-            }
-            GMMessage::Custom1(name, GMValue::USize(frame)) if name == "animation_set_frame" => {
-                self.animation.current_frame = frame;
-            }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "animation_set_repetition" => {
-                let repetition = *value.downcast::<GMRepetition>().unwrap();
-                self.animation.repetition = repetition;
-            }
             // Custom sprite messages:
             GMMessage::Custom0(name) if name == "get_animation" => {
-                return GMValue::Any(Rc::new(self.animation.clone()))
+                GMValue::Any(Rc::new(self.animation.clone()))
             }
             GMMessage::Custom0(name) if name == "get_angle" => {
-                return self.angle.into()
+                self.angle.into()
             }
             GMMessage::Custom0(name) if name == "get_scale" => {
-                return self.scale.into()
-            }
-            GMMessage::Custom0(name) if name == "get_flip_x" => {
-                return self.flip_x.into()
-            }
-            GMMessage::Custom0(name) if name == "get_flip_y" => {
-                return self.flip_y.into()
-            }
-            GMMessage::Custom0(name) if name == "get_flip_xy" => {
-                return (self.flip_x, self.flip_y).into()
+                self.scale.into()
             }
             GMMessage::Custom0(name) if name == "get_texture" => {
-                return GMValue::Any(self.texture.clone())
+                GMValue::Any(self.texture.clone())
             }
             GMMessage::Custom0(name) if name == "get_size" => {
-                return GMValue::Any(Rc::new(self.size))
+                GMValue::Any(Rc::new(self.size))
             }
             GMMessage::Custom0(name) if name == "get_size2" => {
-                return (self.size.width, self.size.height).into()
-            }
-            GMMessage::Custom0(name) if name == "toggle_flip_x" => {
-                self.flip_x = !self.flip_x;
-            }
-            GMMessage::Custom0(name) if name == "toggle_flip_y" => {
-                self.flip_y = !self.flip_y;
+                (self.size.width, self.size.height).into()
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_animation" => {
                 let animation = (*value.downcast::<GMAnimation>().unwrap()).clone();
                 self.animation = animation;
+                GMValue::None
             }
             GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
                 self.angle = angle;
+                GMValue::None
             }
             GMMessage::Custom1(name, GMValue::F32(scale)) if name == "set_scale" => {
                 self.scale = scale;
-            }
-            GMMessage::Custom1(name, GMValue::Bool(flip_x)) if name == "set_flip_x" => {
-                self.flip_x = flip_x;
-            }
-            GMMessage::Custom1(name, GMValue::Bool(flip_y)) if name == "set_flip_y" => {
-                self.flip_y = flip_y;
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_flip_xy" => {
-                if let GMValue::Bool(fx) = values[0] {
-                    if let GMValue::Bool(fy) = values[1] {
-                        self.flip_x = fx;
-                        self.flip_y = fy;
-                    }
-                }
+                GMValue::None
             }
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_texture" => {
                 let texture = value.downcast::<GMTexture>().unwrap();
                 self.set_texture(&texture);
+                GMValue::None
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                self.send_multi_message(messages, context, object_manager)
             }
             _ => {
-                error_panic(&format!("Wrong message for GMSprite::send_message: '{:?}'", message))
+                self.position.send_message(message)
+                    .handle(|m| self.animation.send_message(m))
+                    .handle(|m| self.flipxy.send_message(m))
             }
         }
-
-        GMValue::None
     }
 
     fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
@@ -190,7 +121,8 @@ impl GMObjectT for GMSprite {
         let dx = self.position.x;
         let dy = self.position.y;
 
-        self.texture.draw_opt(dx, dy, index, self.angle, self.scale, self.flip_x, self.flip_y, context);
+        self.texture.draw_opt(dx, dy, index, self.angle,
+            self.scale, self.flipxy.x.value, self.flipxy.y.value, context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

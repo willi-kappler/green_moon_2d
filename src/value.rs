@@ -7,6 +7,7 @@ use crate::math::{GMVec2D, GMSize};
 use crate::message::GMMessage;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
+use crate::util::GMRepetition;
 
 
 #[derive(Clone, Debug)]
@@ -28,6 +29,7 @@ pub enum GMValue {
     None,
     Object(Box<dyn GMObjectT>),
     Position(GMVec2D),
+    Repetition(GMRepetition),
     Shared(Rc<GMValue>),
     SharedCell(Rc<RefCell<GMValue>>),
     Size(GMSize),
@@ -37,12 +39,16 @@ pub enum GMValue {
     U32(u32),
     U64(u64),
     U8(u8),
-    UnKnownMessage,
+    UnknownMessage(Box<GMMessage>),
     USize(usize),
     Vec2D(GMVec2D),
 }
 
 impl GMValue {
+    pub fn unknown(message: GMMessage) -> Self {
+        Self::UnknownMessage(Box::new(message))
+    }
+
     pub fn to_vec(self) -> Vec<GMValue> {
         match self {
             Self::Multiple(values) => {
@@ -83,10 +89,10 @@ impl GMValue {
         }
     }
 
-    pub fn handle(self, func: fn () -> GMValue) -> GMValue {
+    pub fn handle<F: FnOnce(GMMessage) -> GMValue>(self, func: F) -> GMValue {
         match self {
-            Self::UnKnownMessage => {
-                (func)()
+            Self::UnknownMessage(message) => {
+                (func)(*message)
             }
             _ => {
                 self
@@ -281,6 +287,12 @@ impl From<(&str, GMValue, GMValue, GMValue)> for GMValue {
 impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMValue {
     fn from((name, value1, value2, value3, value4): (&str, GMValue, GMValue, GMValue, GMValue)) -> Self {
         Self::CustomM(name.to_string(), vec![value1, value2, value3, value4])
+    }
+}
+
+impl From<GMRepetition> for GMValue {
+    fn from(value: GMRepetition) -> Self {
+        Self::Repetition(value)
     }
 }
 
