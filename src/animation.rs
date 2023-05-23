@@ -121,8 +121,14 @@ impl GMAnimation {
         }
     }
 
-    pub fn send_message(&mut self, message: &str, value: GMValue) -> GMValue {
-        match message {
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone().into()
+            }
+            "set" => {
+                *self = value.into_animation();
+            }
             "get_active" => {
                 return self.active.into()
             }
@@ -163,7 +169,7 @@ impl GMAnimation {
                 self.reverse();
             }
             _ => {
-                error_panic(&format!("GMAnimation::send_message, unknown message: '{}'", message));
+                error_panic(&format!("GMAnimation::send_message, unknown message: '{}'", method));
             }
         }
 

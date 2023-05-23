@@ -16,6 +16,7 @@ use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, GMRepetition, random_range_f32};
 use crate::value::GMValue;
+use crate::message::{GMMessage, msgt0};
 
 
 #[derive(Clone, Debug)]
@@ -770,11 +771,11 @@ impl GMObjectT for GMMapMessage {
 
 #[derive(Clone)]
 pub struct GMCustomSend {
-    pub func: fn(tag: &str, message: &str, value: GMValue, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue,
+    pub func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue,
 }
 
 impl GMCustomSend {
-    pub fn new(func: fn(tag: &str, message: &str, value: GMValue, context: &mut GMContext,
+    pub fn new(func: fn(message: GMMessage, context: &mut GMContext,
             object_manager: &GMObjectManager) -> GMValue) -> Self {
         debug!("GMCustomSend::new()");
 
@@ -791,8 +792,8 @@ impl fmt::Debug for GMCustomSend {
 }
 
 impl GMObjectT for GMCustomSend {
-    fn send_message(&mut self, tag: &str, message: &str, value: GMValue, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        (self.func)(tag, message, value, context, object_manager)
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        (self.func)(message, context, object_manager)
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -918,7 +919,7 @@ impl GMCenterPosition {
 
     pub fn calculate_center(&self, context: &mut GMContext, object_manager: &GMObjectManager) -> GMVec2D {
         let values = object_manager.send_message(&self.source,
-            "position", "get", GMValue::None, context);
+            msgt0("position", "get"), context);
 
         let mut positions = GMVec2D::new(0.0, 0.0);
 

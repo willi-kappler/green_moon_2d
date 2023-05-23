@@ -3,6 +3,9 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
+use crate::util::error_panic;
+use crate::value::GMValue;
+
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
@@ -83,6 +86,64 @@ impl GMVec2D {
         let dy= self.y - other.y;
 
         dx.hypot(dy)
+    }
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone().into();
+            }
+            "set" => {
+                *self = value.into_vec2d();
+            }
+            "add" => {
+                *self += value.into_vec2d();
+            }
+            "mul" => {
+                let factor = value.into_f32();
+                self.x *= factor;
+                self.y *= factor;
+            }
+            "get_x" => {
+                return self.x.into();
+            }
+            "set_x" => {
+                self.x = value.into_f32();
+            }
+            "add_x" =>{
+                self.x += value.into_f32();
+            }
+            "mul_x" => {
+                self.x *= value.into_f32();
+            }
+            "get_y" => {
+                return self.x.into();
+            }
+            "set_y" => {
+                self.x = value.into_f32();
+            }
+            "add_y" =>{
+                self.x += value.into_f32();
+            }
+            "mul_y" => {
+                self.x *= value.into_f32();
+            }
+            "get_xy" =>{
+                let x: GMValue = self.x.into();
+                let y: GMValue = self.y.into();
+                return x.chain(y)
+            }
+            "set_xy" => {
+                let mut values = value.to_vec_deque();
+                self.x = values.pop_front().unwrap().into_f32();
+                self.y = values.pop_front().unwrap().into_f32();
+            }
+            _ => {
+                error_panic(&format!("GMVec2D::send_message, unknown method: '{:?}'", method));
+            }
+        }
+
+        GMValue::None
     }
 }
 

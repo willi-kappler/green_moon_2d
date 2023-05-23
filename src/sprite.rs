@@ -13,6 +13,7 @@ use crate::object::GMObjectT;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::util::error_panic;
+use crate::message::GMMessage;
 
 
 #[derive(Clone, Debug)]
@@ -62,22 +63,26 @@ impl GMSprite {
 }
 
 impl GMObjectT for GMSprite {
-    fn send_message(&mut self, tag: &str, message: &str, value: GMValue, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match tag {
+    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let tag = &message.tag;
+        let method = &message.method;
+        let value = message.value;
+
+        match tag.as_str() {
             "" => {
 
             }
             "position" => {
-                // return self.position.send_message(message, value)
+                return self.position.send_message(method, value)
             }
             "animation" => {
-                return self.animation.send_message(message, value)
+                return self.animation.send_message(method, value)
             }
             "flipxy" => {
-                // return self.flipxy.send_message(message, value);
+                // return self.flipxy.send_message(method, value);
             }
             _ => {
-                error_panic(&format!("GMSprite::send_message: unknown tag '{}'", tag));
+                error_panic(&format!("GMSprite::send_message: unknown tag '{:?}'", tag));
             }
         }
 
@@ -89,9 +94,6 @@ impl GMObjectT for GMSprite {
 
         match message {
             // Custom sprite messages:
-            GMMessage::Custom0(name) if name == "get_animation" => {
-                GMValue::Any(Rc::new(self.animation.clone()))
-            }
             GMMessage::Custom0(name) if name == "get_angle" => {
                 self.angle.into()
             }
@@ -107,11 +109,6 @@ impl GMObjectT for GMSprite {
             GMMessage::Custom0(name) if name == "get_size2" => {
                 (self.size.width, self.size.height).into()
             }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_animation" => {
-                let animation = (*value.downcast::<GMAnimation>().unwrap()).clone();
-                self.animation = animation;
-                GMValue::None
-            }
             GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
                 self.angle = angle;
                 GMValue::None
@@ -123,15 +120,6 @@ impl GMObjectT for GMSprite {
             GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_texture" => {
                 let texture = value.downcast::<GMTexture>().unwrap();
                 self.set_texture(&texture);
-                GMValue::None
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager)
-            }
-            _ => {
-                // self.position.send_message(message)
-                //     .handle(|m| self.animation.send_message(m))
-                //    .handle(|m| self.flipxy.send_message(m))
                 GMValue::None
             }
         }

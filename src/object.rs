@@ -5,18 +5,19 @@ use std::collections::VecDeque;
 use crate::context::GMContext;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
+use crate::message::GMMessage;
 
 
 pub trait GMObjectT: Debug {
-    fn send_message(&mut self, _tag: &str, _message: &str, _value: GMValue, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
     }
 
-    fn send_message_multiple(&mut self, mut messages: Vec<(&str, &str, GMValue)>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn send_message_multiple(&mut self, mut messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         let mut result = VecDeque::new();
 
-        for (tag, message, value) in messages.drain(0..) {
-            result.push_back(self.send_message(tag, message, value, context, object_manager));
+        for message in messages.drain(0..) {
+            result.push_back(self.send_message(message, context, object_manager));
         }
 
         return result.into()

@@ -12,6 +12,7 @@ use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
 use crate::util::error_panic;
 use crate::math::GMVec2D;
+use crate::message::{GMMessage, msg0, msg1};
 
 #[derive(Debug, Clone)]
 pub struct GMTEWave {
@@ -87,9 +88,7 @@ impl GMObjectT for GMTEWave {
 */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let messages = vec![
-            ("", "get_horizontal", GMValue::None),
-            ("", "get_char_count", GMValue::None)];
+        let messages = vec![msg0("get_horizontal"), msg0("get_char_count")];
 
         let result = object_manager.send_message_multiple(&self.target, messages, context);
         let mut values = result.to_vec_deque();
@@ -106,7 +105,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_y));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, "", "add_chars_y", new_positions.into(), context);
+            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions.into()), context);
         } else {
             let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
@@ -115,7 +114,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_x));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, "", "add_chars_x", new_positions.into(), context);
+            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions.into()), context);
         }
 
         self.time += self.speed;

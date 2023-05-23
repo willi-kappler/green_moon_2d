@@ -9,6 +9,7 @@ use crate::object::GMObjectT;
 use crate::object_manager::{GMObjectInfo};
 use crate::target::GMTarget;
 use crate::util::{GMRepetition, error_panic};
+use crate::animation::GMAnimation;
 
 
 #[derive(Clone, Debug)]
@@ -131,12 +132,28 @@ impl GMValue {
         error_panic(&format!("GMValue::into_string, not a string variant: '{:?}'", self));
     }
 
+    pub fn into_vec2d(self) -> GMVec2D {
+        if let Self::Vec2D(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_vec2d, not a vec2d variant: '{:?}'", self));
+    }
+
     pub fn into_repetition(self) -> GMRepetition {
         if let Self::Repetition(value) = self {
             return value
         }
 
         error_panic(&format!("GMValue::into_repetition, not a repetition variant: '{:?}'", self));
+    }
+
+    pub fn into_animation(self) -> GMAnimation {
+        if let GMValue::Any(value) = self {
+            return value.downcast_ref::<GMAnimation>().unwrap().clone();
+        }
+
+        error_panic(&format!("GMValue::into_animation, not an any variant: '{:?}'", self));
     }
 
     pub fn into_object_info(self) -> GMObjectInfo {
@@ -371,6 +388,12 @@ impl From<(&str, GMValue, GMValue, GMValue, GMValue)> for GMValue {
 impl From<GMRepetition> for GMValue {
     fn from(value: GMRepetition) -> Self {
         Self::Repetition(value)
+    }
+}
+
+impl From<GMAnimation> for GMValue {
+    fn from(value: GMAnimation) -> Self {
+        Self::Any(Rc::new(value))
     }
 }
 
