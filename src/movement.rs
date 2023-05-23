@@ -7,7 +7,6 @@ use crate::context::GMContext;
 use crate::curve::GMCurveT;
 use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
-use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
@@ -34,6 +33,7 @@ impl GMMVVelocity {
 }
 
 impl GMObjectT for GMMVVelocity {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::GetTarget => {
@@ -52,7 +52,7 @@ impl GMObjectT for GMMVVelocity {
                 self.v += v;
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVVelocity::send_message: '{:?}'", message))
@@ -61,9 +61,10 @@ impl GMObjectT for GMMVVelocity {
 
         GMValue::None
     }
+*/
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
+        //object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -91,6 +92,7 @@ impl GMMVAcceleration {
 }
 
 impl GMObjectT for GMMVAcceleration {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::GetTarget => {
@@ -109,7 +111,7 @@ impl GMObjectT for GMMVAcceleration {
                 self.a += a;
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVAcceleration::send_message: '{:?}'", message))
@@ -118,9 +120,10 @@ impl GMObjectT for GMMVAcceleration {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        object_manager.send_custom_message1(&self.target, "add_velocity", self.a, context);
+        //object_manager.send_custom_message1(&self.target, "add_velocity", self.a, context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -151,6 +154,7 @@ impl GMMVVelAccel {
 }
 
 impl GMObjectT for GMMVVelAccel {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::GetTarget => {
@@ -178,7 +182,7 @@ impl GMObjectT for GMMVVelAccel {
                 self.a += a;
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVVelAccel::send_message: '{:?}'", message))
@@ -187,9 +191,10 @@ impl GMObjectT for GMMVVelAccel {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
+        // object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
         self.v += self.a;
     }
 
@@ -222,6 +227,7 @@ impl GMMVCircle {
 }
 
 impl GMObjectT for GMMVCircle {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::GetPosition => {
@@ -274,7 +280,7 @@ impl GMObjectT for GMMVCircle {
                 self.angle = angle;
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVCircle::send_message: '{:?}'", message))
@@ -283,11 +289,12 @@ impl GMObjectT for GMMVCircle {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         if self.auto_update {
             let new_pos = self.circle.position_from_deg(self.angle);
-            object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
+            //object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
         }
     }
 
@@ -343,6 +350,7 @@ impl fmt::Debug for GMMVMultiCircle {
 }
 
 impl GMObjectT for GMMVMultiCircle {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::GetPosition => {
@@ -409,7 +417,7 @@ impl GMObjectT for GMMVMultiCircle {
                 self.func = func;
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: '{:?}'", message))
@@ -418,6 +426,7 @@ impl GMObjectT for GMMVMultiCircle {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         if self.auto_update {
@@ -465,7 +474,7 @@ impl GMMVPath {
     pub fn update_position(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         self.interpolation.update();
         let position = self.interpolation.get_current_value();
-        object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
+        //object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
 
         if self.interpolation.is_finished() {
             self.index += 1;
@@ -499,6 +508,7 @@ impl GMMVPath {
 }
 
 impl GMObjectT for GMMVPath {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::Init => {
@@ -581,7 +591,7 @@ impl GMObjectT for GMMVPath {
                 }
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVPath::send_message: '{:?}'", message))
@@ -590,6 +600,7 @@ impl GMObjectT for GMMVPath {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         if self.auto_update {
@@ -624,6 +635,7 @@ impl GMMVFollow {
     }
 
     pub fn update_source(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        /*
         let value = object_manager.send_message(&self.source, GMMessage::GetPosition, context);
 
         if let GMValue::Vec2D(new_end) = value {
@@ -633,10 +645,12 @@ impl GMMVFollow {
             self.interpolation.calculate_diff();
             self.interpolation.reset();
         }
+        */
     }
 }
 
 impl GMObjectT for GMMVFollow {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::Init => {
@@ -668,7 +682,7 @@ impl GMObjectT for GMMVFollow {
                 self.update_source(context, object_manager);
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
                 error_panic(&format!("Wrong message for GMMVFollow::send_message: '{:?}'", message))
@@ -677,11 +691,12 @@ impl GMObjectT for GMMVFollow {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         self.interpolation.update();
         let pos = self.interpolation.get_current_value();
-        object_manager.send_message(&self.target, GMMessage::SetPosition(pos), context);
+        //object_manager.send_message(&self.target, GMMessage::SetPosition(pos), context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

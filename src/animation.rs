@@ -3,16 +3,14 @@ use std::fmt::Debug;
 
 use log::debug;
 
-use crate::message::GMMessage;
 use crate::timer::GMTimer;
-use crate::util::{GMRepetition};
+use crate::util::{GMRepetition, error_panic};
 use crate::value::GMValue;
-use crate::object_base::{GMValueBoolBase, GMValueUSizeBase};
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
-    pub active: GMValueBoolBase,
-    pub current_frame: GMValueUSizeBase,
+    pub active: bool,
+    pub current_frame: usize,
     pub repetition: GMRepetition,
     frames: Vec<(u32, f32)>, // (index, duration in seconds)
     timer: GMTimer,
@@ -23,8 +21,8 @@ impl GMAnimation {
         debug!("GMAnimation::new(), number of frames: {}, repetition: {:?}", frames.len(), repetition);
 
         Self {
-            active: GMValueBoolBase::new(true, "active"),
-            current_frame: GMValueUSizeBase::new(0, "current_frame"),
+            active: true,
+            current_frame: 0,
             repetition,
             frames: frames.to_vec(),
             timer: GMTimer::new(frames[0].1),
@@ -32,19 +30,19 @@ impl GMAnimation {
     }
 
     pub fn texture_index(&self) -> u32 {
-        self.frames[self.current_frame.value].0
+        self.frames[self.current_frame].0
     }
 
     pub fn frame_at_start(&self) -> bool {
-        self.current_frame.value == 0
+        self.current_frame == 0
     }
 
     pub fn frame_at_end(&self) -> bool {
-        self.current_frame.value >= self.frames.len() - 1
+        self.current_frame >= self.frames.len() - 1
     }
 
     fn set_new_timer_duration(&mut self) {
-        self.timer.duration = self.frames[self.current_frame.value].1;
+        self.timer.duration = self.frames[self.current_frame].1;
         self.timer.start();
     }
 
@@ -67,39 +65,39 @@ impl GMAnimation {
     }
 
     pub fn update(&mut self) {
-        if self.active.value && self.timer.finished() {
+        if self.active && self.timer.finished() {
             match self.repetition {
                 GMRepetition::OnceForward => {
                     if self.frame_at_end() {
-                        self.active.value = false;
+                        self.active = false;
                     } else {
-                        self.current_frame.value += 1;
+                        self.current_frame += 1;
                         self.set_new_timer_duration();
                     }
                 }
                 GMRepetition::OnceBackward => {
                     if self.frame_at_start() {
-                        self.active.value = false;
+                        self.active = false;
                     } else {
-                        self.current_frame.value -= 1;
+                        self.current_frame -= 1;
                         self.set_new_timer_duration();
                     }
                 }
                 GMRepetition::LoopForward => {
                     if self.frame_at_end() {
                         // Restart animation
-                        self.current_frame.value = 0;
+                        self.current_frame = 0;
                     } else {
-                        self.current_frame.value += 1;
+                        self.current_frame += 1;
                     }
                     self.set_new_timer_duration();
                 }
                 GMRepetition::LoopBackward => {
                     if self.frame_at_start() {
                         // Restart animation
-                        self.current_frame.value = self.frames.len() - 1;
+                        self.current_frame = self.frames.len() - 1;
                     } else {
-                        self.current_frame.value -= 1;
+                        self.current_frame -= 1;
                     }
                     self.set_new_timer_duration();
                 }
@@ -107,7 +105,7 @@ impl GMAnimation {
                     if self.frame_at_end() {
                         self.repetition.reverse();
                     } else {
-                        self.current_frame.value += 1;
+                        self.current_frame += 1;
                     }
                     self.set_new_timer_duration();
                 }
@@ -115,7 +113,7 @@ impl GMAnimation {
                     if self.frame_at_start() {
                         self.repetition.reverse();
                     } else {
-                        self.current_frame.value -= 1;
+                        self.current_frame -= 1;
                     }
                     self.set_new_timer_duration();
                 }
@@ -123,29 +121,52 @@ impl GMAnimation {
         }
     }
 
-    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
+    fn send_message(&mut self, message: &str, value: GMValue) -> GMValue {
         match message {
-            GMMessage::Update => {
-                self.update();
-                GMValue::None
+            "get_active" => {
+                return self.active.into()
             }
-            GMMessage::Custom0(name) if name == "get_texture_index" => {
-                self.texture_index().into()
+            "set_active" => {
+                self.active = value.into_bool();
             }
-            GMMessage::Custom0(name) if name == "frame_at_start" => {
-                self.frame_at_start().into()
+            "toggle_active" => {
+                self.active = !self.active;
             }
-            GMMessage::Custom0(name) if name == "frame_at_end" => {
-                self.frame_at_end().into()
+            "get_current_frame" => {
+                return self.current_frame.into()
             }
-            GMMessage::Custom0(name) if name == "finished" => {
-                self.finished().into()
+            "set_current_frame" => {
+                self.current_frame = value.into_usize();
+            }
+            "get_repetition" => {
+                return self.repetition.into()
+            }
+            "set_repetition" => {
+                self.repetition = value.into_repetition();
+            }
+            "texture_index" => {
+                return self.texture_index().into()
+            }
+            "frame_at_start" => {
+                return self.frame_at_start().into()
+            }
+            "frame_at_end" => {
+                return self.frame_at_end().into()
+            }
+            "finished" => {
+                return self.finished().into()
+            }
+            "reverse" => {
+                self.reverse();
+            }
+            "update" => {
+                self.reverse();
             }
             _ => {
-                self.active.send_message(message)
-                    .handle(|m| self.current_frame.send_message(m))
-                    .handle(|m| self.repetition.send_message(m))
+                error_panic(&format!("GMAnimation::send_message, unknown message: '{}'", message));
             }
         }
+
+        GMValue::None
     }
 }

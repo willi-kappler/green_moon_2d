@@ -5,10 +5,6 @@ use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
 
-use crate::message::GMMessage;
-use crate::object_base::GMValueBoolBase;
-use crate::value::GMValue;
-
 // const ALPHA_NUM: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // Not possible yet...
 // const ALPHA_NUM2: Vec<char> = ALPHA_NUM.chars().collect();
@@ -61,25 +57,6 @@ impl GMRepetition {
             }
         }
     }
-
-    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
-        match message {
-            GMMessage::GetRepetition => {
-                (*self).into()
-            }
-            GMMessage::SetRepetition(repetition) => {
-                *self = repetition;
-                GMValue::None
-            }
-            GMMessage::Custom0(name) if name == "reverse" => {
-                self.reverse();
-                GMValue::None
-            }
-            _ => {
-                GMValue::unknown(message)
-            }
-        }
-    }
 }
 
 impl From<&str> for GMRepetition {
@@ -93,43 +70,6 @@ impl From<&str> for GMRepetition {
             "ping_pong_backward" => GMRepetition::PingPongBackward,
             _ => {
                 error_panic(&format!("Unknown repetition: '{}'", value));
-            }
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMFlipXY {
-    pub x: GMValueBoolBase,
-    pub y: GMValueBoolBase,
-}
-
-impl GMFlipXY {
-    pub fn new() -> Self {
-        Self {
-            x: GMValueBoolBase::new(false, "flipx"),
-            y: GMValueBoolBase::new(false, "flipy"),
-        }
-    }
-
-    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
-        match message {
-            GMMessage::Custom0(name) if name == "get_flipxy" => {
-                (self.x.value, self.y.value).into()
-            }
-            GMMessage::Custom0(name) if name == "toggle_flipxy" => {
-                self.x.value = !self.x.value;
-                self.y.value = !self.y.value;
-                GMValue::None
-            }
-            GMMessage::Custom2(name, GMValue::Bool(x), GMValue::Bool(y)) if name == "set_flipxy" => {
-                self.x.value = x;
-                self.y.value = y;
-                GMValue::None
-            }
-            _ => {
-                self.x.send_message(message)
-                    .handle(|m| self.y.send_message(m))
             }
         }
     }

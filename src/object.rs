@@ -1,24 +1,22 @@
 
 use std::fmt::Debug;
+use std::collections::VecDeque;
 
 use crate::context::GMContext;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
-use crate::message::GMMessage;
 
-
-// TODO: Add pre-processing for messages: position, active, visible, ...
 
 pub trait GMObjectT: Debug {
-    fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, _tag: &str, _message: &str, value: GMValue, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
     }
 
-    fn send_multi_message(&mut self, messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        let mut result = Vec::new();
+    fn send_message_multiple(&mut self, mut messages: Vec<(&str, &str, GMValue)>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        let mut result = VecDeque::new();
 
-        for message in messages.iter() {
-            result.push(self.send_message(message.clone(), context, object_manager));
+        for (tag, message, value) in messages.drain(0..) {
+            result.push_back(self.send_message(tag, message, value, context, object_manager));
         }
 
         return result.into()

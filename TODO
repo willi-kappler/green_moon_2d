@@ -1,7 +1,7 @@
 
 
 
-- Add element to GMTarget and send_message(element: &str, ...)
+- Add tag to GMTarget and send_message(tag: &str, ...)
 
 - Implement Any conversion for other types as well:
     impl From<Rc<dyn Any>> for ...

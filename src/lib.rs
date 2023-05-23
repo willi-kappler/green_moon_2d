@@ -15,9 +15,7 @@ pub mod line;
 
 pub mod macros;
 pub mod math;
-pub mod message;
 pub mod movement;
-pub mod object_base;
 pub mod object_manager;
 pub mod object_util;
 pub mod object;

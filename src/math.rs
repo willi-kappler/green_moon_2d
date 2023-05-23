@@ -3,9 +3,6 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use crate::message::GMMessage;
-use crate::value::GMValue;
-
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
     pub x: f32,
@@ -86,60 +83,6 @@ impl GMVec2D {
         let dy= self.y - other.y;
 
         dx.hypot(dy)
-    }
-
-    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
-        match message {
-            GMMessage::AddPosition(value) => {
-                *self += value;
-                GMValue::None
-            }
-            GMMessage::AddX(x) => {
-                self.x += x;
-                GMValue::None
-            }
-            GMMessage::AddY(y) => {
-                self.y += y;
-                GMValue::None
-            }
-            GMMessage::GetPosition => {
-                (*self).into()
-            }
-            GMMessage::GetX => {
-                self.x.into()
-            }
-            GMMessage::GetY => {
-                self.y.into()
-            }
-            GMMessage::MulPosition(factor) => {
-                self.x *= factor;
-                self.y *= factor;
-                GMValue::None
-            }
-            GMMessage::MulX(factor) => {
-                self.x *= factor;
-                GMValue::None
-            }
-            GMMessage::MulY(factor) => {
-                self.y *= factor;
-                GMValue::None
-            }
-            GMMessage::SetPosition(value) => {
-                *self = value;
-                GMValue::None
-            }
-            GMMessage::SetX(x) => {
-                self.x = x;
-                GMValue::None
-            }
-            GMMessage::SetY(y) => {
-                self.y = y;
-                GMValue::None
-            }
-            _ => {
-                GMValue::unknown(message)
-            }
-        }
     }
 }
 

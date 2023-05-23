@@ -7,11 +7,9 @@ use log::debug;
 
 use crate::texture::{GMTexture};
 use crate::animation::GMAnimation;
-use crate::util::{GMFlipXY};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::object::GMObjectT;
-use crate::message::GMMessage;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 
@@ -22,7 +20,8 @@ pub struct GMSprite {
     pub animation: GMAnimation,
     pub angle: f32,
     pub scale: f32,
-    pub flipxy: GMFlipXY,
+    pub flipx: bool,
+    pub flipy: bool,
     texture: Rc<GMTexture>,
     size: GMSize,
 }
@@ -39,7 +38,8 @@ impl GMSprite {
             animation,
             angle: 0.0,
             scale: 1.0,
-            flipxy: GMFlipXY::new(),
+            flipx: false,
+            flipy: false,
             size: GMSize::new(width, height),
         }
     }
@@ -61,6 +61,7 @@ impl GMSprite {
 }
 
 impl GMObjectT for GMSprite {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
 
         match message {
@@ -102,15 +103,17 @@ impl GMObjectT for GMSprite {
                 GMValue::None
             }
             GMMessage::Multiple(messages) => {
-                self.send_multi_message(messages, context, object_manager)
+                self.send_message_multiple(messages, context, object_manager)
             }
             _ => {
-                self.position.send_message(message)
-                    .handle(|m| self.animation.send_message(m))
-                    .handle(|m| self.flipxy.send_message(m))
+                // self.position.send_message(message)
+                //     .handle(|m| self.animation.send_message(m))
+                //    .handle(|m| self.flipxy.send_message(m))
+                GMValue::None
             }
         }
     }
+    */
 
     fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
         self.animation.update();
@@ -122,7 +125,7 @@ impl GMObjectT for GMSprite {
         let dy = self.position.y;
 
         self.texture.draw_opt(dx, dy, index, self.angle,
-            self.scale, self.flipxy.x.value, self.flipxy.y.value, context);
+            self.scale, self.flipx, self.flipy, context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

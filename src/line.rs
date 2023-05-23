@@ -7,7 +7,6 @@ use log::debug;
 
 use crate::context::GMContext;
 use crate::math::GMVec2D;
-use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
@@ -128,6 +127,7 @@ impl GMLine {
 }
 
 impl GMObjectT for GMLine {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::Init => {
@@ -179,6 +179,7 @@ impl GMObjectT for GMLine {
 
         GMValue::None
     }
+    */
 
     fn draw(&self, context: &mut GMContext) {
         for element in self.elements.iter() {

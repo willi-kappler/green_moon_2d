@@ -1,12 +1,12 @@
 
 use std::f32::consts::TAU;
+use std::collections::VecDeque;
 
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
 use crate::context::GMContext;
 use crate::object::{GMObjectT};
-use crate::message::GMMessage;
 use crate::value::GMValue;
 use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
@@ -38,6 +38,7 @@ impl GMTEWave {
 }
 
 impl GMObjectT for GMTEWave {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
@@ -83,46 +84,43 @@ impl GMObjectT for GMTEWave {
 
         GMValue::None
     }
+*/
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let message1 = GMMessage::Custom0("get_horizontal".to_string());
-        let message2 = GMMessage::Custom0("get_char_count".to_string());
+        let messages = vec![
+            ("", "get_horizontal", GMValue::None),
+            ("", "get_char_count", GMValue::None)];
 
-        let result = object_manager.send_message(&self.target, (message1, message2).into(), context);
+        let result = object_manager.send_message_multiple(&self.target, messages, context);
+        let mut values = result.to_vec_deque();
+        let horizontal = values.pop_front().unwrap().into_bool();
+        let num_of_chars = values.pop_front().unwrap().into_usize();
 
-        if let GMValue::Multiple(values) = result {
-            if let GMValue::Bool(horizontal) = values[0] {
-                if let GMValue::USize(num_of_chars) = values[1] {
-                    let mut offset = 0.0;
+        let mut offset = 0.0;
 
-                    if horizontal {
-                        let mut new_positions = Vec::with_capacity(num_of_chars);
+        if horizontal {
+            let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
-                        for _ in 0..num_of_chars {
-                            let new_y = (self.time + offset).sin() * self.amplitude;
-                            new_positions.push(GMValue::F32(new_y));
-                            offset += self.offset;
-                        }
-                        let add_chars_y = ("add_chars_y", new_positions.into()).into();
-                        object_manager.send_message(&self.target, add_chars_y, context);
-                    } else {
-                        let mut new_positions = Vec::with_capacity(num_of_chars);
-
-                        for _ in 0..num_of_chars {
-                            let new_x = (self.time + offset).sin() * self.amplitude;
-                            new_positions.push(GMValue::F32(new_x));
-                            offset += self.offset;
-                        }
-                        let add_chars_x = ("add_chars_x", new_positions.into()).into();
-                        object_manager.send_message(&self.target, add_chars_x, context);
-                    }
-
-                    self.time += self.speed;
-                    if self.time > TAU {
-                        self.time -= TAU;
-                    }
-                }
+            for _ in 0..num_of_chars {
+                let new_y = (self.time + offset).sin() * self.amplitude;
+                new_positions.push_back(GMValue::F32(new_y));
+                offset += self.offset;
             }
+            object_manager.send_message(&self.target, "", "add_chars_y", new_positions.into(), context);
+        } else {
+            let mut new_positions = VecDeque::with_capacity(num_of_chars);
+
+            for _ in 0..num_of_chars {
+                let new_x = (self.time + offset).sin() * self.amplitude;
+                new_positions.push_back(GMValue::F32(new_x));
+                offset += self.offset;
+            }
+            object_manager.send_message(&self.target, "", "add_chars_x", new_positions.into(), context);
+        }
+
+        self.time += self.speed;
+        if self.time > TAU {
+            self.time -= TAU;
         }
     }
 
@@ -161,6 +159,7 @@ impl GMTEShake {
 }
 
 impl GMObjectT for GMTEShake {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
@@ -170,7 +169,7 @@ impl GMObjectT for GMTEShake {
                 return self.target.clone().into()
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             GMMessage::Custom0(name) if name == "get_radius" => {
                 return self.radius.into()
@@ -197,8 +196,10 @@ impl GMObjectT for GMTEShake {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        /*
         let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
@@ -220,6 +221,7 @@ impl GMObjectT for GMTEShake {
             self.time = 0.0;
             self.seed += 1;
         }
+        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -250,6 +252,7 @@ impl GMTERotateChars {
 }
 
 impl GMObjectT for GMTERotateChars {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
@@ -259,7 +262,7 @@ impl GMObjectT for GMTERotateChars {
                 return self.target.clone().into()
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             GMMessage::Custom0(name) if name == "get_speed" => {
                 return self.speed.into()
@@ -286,8 +289,10 @@ impl GMObjectT for GMTERotateChars {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        /*
         let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
@@ -303,6 +308,7 @@ impl GMObjectT for GMTERotateChars {
         }
 
         self.time += self.speed;
+        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -337,6 +343,7 @@ impl GMTEScale {
 }
 
 impl GMObjectT for GMTEScale {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
             GMMessage::SetTarget(target) => {
@@ -346,7 +353,7 @@ impl GMObjectT for GMTEScale {
                 return self.target.clone().into()
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             GMMessage::Custom0(name) if name == "get_amplitude" => {
                 return self.amplitude.into()
@@ -391,8 +398,10 @@ impl GMObjectT for GMTEScale {
 
         GMValue::None
     }
+    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+        /*
         let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
 
         if let GMValue::USize(num_of_chars) = result {
@@ -408,6 +417,7 @@ impl GMObjectT for GMTEScale {
         }
 
         self.time += self.speed;
+        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

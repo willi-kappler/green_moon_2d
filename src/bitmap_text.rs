@@ -11,7 +11,6 @@ use crate::util::{error_panic, GMAlign};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::object::GMObjectT;
-use crate::message::GMMessage;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 
@@ -225,6 +224,7 @@ impl GMBitmapText {
 }
 
 impl GMObjectT for GMBitmapText {
+    /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
 
         match message {
@@ -259,7 +259,7 @@ impl GMObjectT for GMBitmapText {
                 return GMValue::F32(self.position.y)
             }
             GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+                return self.send_message_multiple(messages, context, object_manager)
             }
             GMMessage::Custom0(name) if name == "get_char_count" => {
                 return GMValue::USize(self.chars.len())
@@ -520,6 +520,7 @@ impl GMObjectT for GMBitmapText {
 
         GMValue::None
     }
+*/
 
     fn draw(&self, context: &mut GMContext) {
         for c in self.chars.iter() {

@@ -2,12 +2,13 @@
 use std::rc::Rc;
 use std::any::Any;
 use std::cell::RefCell;
+use std::collections::VecDeque;
 
 use crate::math::{GMVec2D, GMSize};
-use crate::message::GMMessage;
 use crate::object::GMObjectT;
+use crate::object_manager::{GMObjectInfo};
 use crate::target::GMTarget;
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, error_panic};
 
 
 #[derive(Clone, Debug)]
@@ -24,11 +25,11 @@ pub enum GMValue {
     I32(i32),
     I64(i64),
     I8(i8),
-    Message(Box<GMMessage>),
-    Multiple(Vec<GMValue>),
+    Message(String, String, Box<GMValue>),
+    Multiple(VecDeque<GMValue>),
     None,
     Object(Box<dyn GMObjectT>),
-    Position(GMVec2D),
+    ObjectInfo(GMObjectInfo),
     Repetition(GMRepetition),
     Shared(Rc<GMValue>),
     SharedCell(Rc<RefCell<GMValue>>),
@@ -39,23 +40,20 @@ pub enum GMValue {
     U32(u32),
     U64(u64),
     U8(u8),
-    UnknownMessage(Box<GMMessage>),
     USize(usize),
     Vec2D(GMVec2D),
 }
 
 impl GMValue {
-    pub fn unknown(message: GMMessage) -> Self {
-        Self::UnknownMessage(Box::new(message))
-    }
-
-    pub fn to_vec(self) -> Vec<GMValue> {
+    pub fn to_vec_deque(self) -> VecDeque<GMValue> {
         match self {
             Self::Multiple(values) => {
                 values
             }
             _ => {
-                vec![self]
+                let mut vec_deque = VecDeque::new();
+                vec_deque.push_back(self);
+                vec_deque
             }
         }
     }
@@ -69,7 +67,7 @@ impl GMValue {
                         left_values.into()
                     }
                     _ => {
-                        left_values.push(other);
+                        left_values.push_back(other);
                         left_values.into()
                     }
                 }
@@ -77,28 +75,86 @@ impl GMValue {
             _ => {
                 match other {
                     Self::Multiple(right_values) => {
-                        let mut left_values = vec![self];
+                        let mut left_values = VecDeque::new();
+                        left_values.push_back(self);
                         left_values.extend(right_values);
                         left_values.into()
                     }
                     _ => {
-                        vec![self, other].into()
+                        let mut left_values = VecDeque::new();
+                        left_values.push_back(self);
+                        left_values.push_back(other);
+                        left_values.into()
                     }
                 }
             }
         }
     }
 
-    pub fn handle<F: FnOnce(GMMessage) -> GMValue>(self, func: F) -> GMValue {
-        match self {
-            Self::UnknownMessage(message) => {
-                (func)(*message)
-            }
-            _ => {
-                self
-            }
+    pub fn into_bool(self) -> bool {
+        if let Self::Bool(value) = self {
+            return value
         }
+
+        error_panic(&format!("GMValue::into_bool, not a boolean variant: '{:?}'", self));
     }
+
+    pub fn into_i32(self) -> i32 {
+        if let Self::I32(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_i32, not an i32variant: '{:?}'", self));
+    }
+
+    pub fn into_usize(self) -> usize {
+        if let Self::USize(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_usize, not an usize variant: '{:?}'", self));
+    }
+
+    pub fn into_f32(self) -> f32 {
+        if let Self::F32(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_f32, not a f32 variant: '{:?}'", self));
+    }
+
+    pub fn into_string(self) -> String {
+        if let Self::String(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_string, not a string variant: '{:?}'", self));
+    }
+
+    pub fn into_repetition(self) -> GMRepetition {
+        if let Self::Repetition(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_repetition, not a repetition variant: '{:?}'", self));
+    }
+
+    pub fn into_object_info(self) -> GMObjectInfo {
+        if let Self::ObjectInfo(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_object_info, not an object info variant: '{:?}'", self));
+    }
+
+    pub fn into_object(self) -> Box<dyn GMObjectT> {
+        if let Self::Object(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_object, not an object variant: '{:?}'", self));
+    }
+
 }
 
 impl From<()> for GMValue {
@@ -193,25 +249,35 @@ impl From<String> for GMValue {
 
 impl From<(bool, bool)> for GMValue {
     fn from((v1, v2): (bool, bool)) -> Self {
-        vec![GMValue::Bool(v1), v2.into()].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(GMValue::Bool(v1));
+        vec_deque.push_back(GMValue::Bool(v2));
+        vec_deque.into()
     }
 }
 
 impl From<(f32, f32)> for GMValue {
     fn from((v1, v2): (f32, f32)) -> Self {
-        vec![GMValue::F32(v1), v2.into()].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(GMValue::F32(v1));
+        vec_deque.push_back(GMValue::F32(v2));
+        vec_deque.into()
     }
 }
 
 impl From<(f32, f32, f32)> for GMValue {
     fn from((v1, v2, v3): (f32, f32, f32)) -> Self {
-        vec![GMValue::F32(v1), v2.into(), v3.into()].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(GMValue::F32(v1));
+        vec_deque.push_back(GMValue::F32(v2));
+        vec_deque.push_back(GMValue::F32(v3));
+        vec_deque.into()
     }
 }
 
-impl From<GMMessage> for GMValue {
-    fn from(value: GMMessage) -> Self {
-        Self::Message(Box::new(value))
+impl From<(String, String, GMValue)> for GMValue {
+    fn from((tag, message, value): (String, String, GMValue)) -> Self {
+        Self::Message(tag, message, Box::new(value))
     }
 }
 
@@ -223,45 +289,57 @@ impl From<GMTarget> for GMValue {
 
 impl From<(GMValue, GMValue)> for GMValue {
     fn from((v1, v2): (GMValue, GMValue)) -> Self {
-        vec![v1, v2].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(v1);
+        vec_deque.push_back(v2);
+        vec_deque.into()
     }
 }
 
 impl From<(GMValue, GMValue, GMValue)> for GMValue {
     fn from((v1, v2, v3): (GMValue, GMValue, GMValue)) -> Self {
-        vec![v1, v2, v3].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(v1);
+        vec_deque.push_back(v2);
+        vec_deque.push_back(v3);
+        vec_deque.into()
     }
 }
 
 impl From<(GMValue, GMValue, GMValue, GMValue)> for GMValue {
     fn from((v1, v2, v3, v4): (GMValue, GMValue, GMValue, GMValue)) -> Self {
-        vec![v1, v2, v3, v4].into()
+        let mut vec_deque = VecDeque::new();
+        vec_deque.push_back(v1);
+        vec_deque.push_back(v2);
+        vec_deque.push_back(v3);
+        vec_deque.push_back(v4);
+        vec_deque.into()
     }
 }
 
-impl From<Vec<GMVec2D>> for GMValue {
-    fn from(values: Vec<GMVec2D>) -> Self {
-        let values: Vec<GMValue> = values.iter().map(|v| GMValue::Vec2D(*v)).collect();
+impl From<VecDeque<GMVec2D>> for GMValue {
+    fn from(values: VecDeque<GMVec2D>) -> Self {
+        let values: VecDeque<GMValue> = values.iter().map(|v| GMValue::Vec2D(*v)).collect();
         Self::Multiple(values)
     }
 }
 
-impl From<Vec<f32>> for GMValue {
-    fn from(values: Vec<f32>) -> Self {
-        let values: Vec<GMValue> = values.iter().map(|v| GMValue::F32(*v)).collect();
+impl From<VecDeque<f32>> for GMValue {
+    fn from(values: VecDeque<f32>) -> Self {
+        let values: VecDeque<GMValue> = values.iter().map(|v| GMValue::F32(*v)).collect();
         Self::Multiple(values)
     }
 }
 
-impl From<Vec<GMTarget>> for GMValue {
-    fn from(mut values: Vec<GMTarget>) -> Self {
-        let values: Vec<GMValue> = values.drain(0..).map(|v| GMValue::Target(v)).collect();
+impl From<VecDeque<GMTarget>> for GMValue {
+    fn from(mut values: VecDeque<GMTarget>) -> Self {
+        let values: VecDeque<GMValue> = values.drain(0..).map(|v| GMValue::Target(v)).collect();
         Self::Multiple(values)
     }
 }
 
-impl From<Vec<GMValue>> for GMValue {
-    fn from(value: Vec<GMValue>) -> Self {
+impl From<VecDeque<GMValue>> for GMValue {
+    fn from(value: VecDeque<GMValue>) -> Self {
         Self::Multiple(value)
     }
 }
