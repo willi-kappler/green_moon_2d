@@ -8,7 +8,7 @@ use crate::object_manager::GMObjectManager;
 
 
 pub trait GMObjectT: Debug {
-    fn send_message(&mut self, _tag: &str, _message: &str, value: GMValue, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, _tag: &str, _message: &str, _value: GMValue, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
     }
 

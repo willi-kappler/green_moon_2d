@@ -121,7 +121,7 @@ impl GMAnimation {
         }
     }
 
-    fn send_message(&mut self, message: &str, value: GMValue) -> GMValue {
+    pub fn send_message(&mut self, message: &str, value: GMValue) -> GMValue {
         match message {
             "get_active" => {
                 return self.active.into()

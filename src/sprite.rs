@@ -12,6 +12,7 @@ use crate::context::GMContext;
 use crate::object::GMObjectT;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
+use crate::util::error_panic;
 
 
 #[derive(Clone, Debug)]
@@ -61,6 +62,28 @@ impl GMSprite {
 }
 
 impl GMObjectT for GMSprite {
+    fn send_message(&mut self, tag: &str, message: &str, value: GMValue, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+        match tag {
+            "" => {
+
+            }
+            "position" => {
+                // return self.position.send_message(message, value)
+            }
+            "animation" => {
+                return self.animation.send_message(message, value)
+            }
+            "flipxy" => {
+                // return self.flipxy.send_message(message, value);
+            }
+            _ => {
+                error_panic(&format!("GMSprite::send_message: unknown tag '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
+
     /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
 
