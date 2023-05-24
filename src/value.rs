@@ -4,12 +4,14 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 
-use crate::math::{GMVec2D, GMSize};
+use crate::math::{GMVec2D, GMSize, GMFlipXY};
 use crate::object::GMObjectT;
 use crate::object_manager::{GMObjectInfo};
 use crate::target::GMTarget;
 use crate::util::{GMRepetition, error_panic};
 use crate::animation::GMAnimation;
+use crate::texture::GMTexture;
+use crate::sprite::GMSprite;
 
 
 #[derive(Clone, Debug)]
@@ -22,6 +24,7 @@ pub enum GMValue {
     CustomM(String, Vec<GMValue>),
     F32(f32),
     F64(f64),
+    FlipXY(GMFlipXY),
     I16(i16),
     I32(i32),
     I64(i64),
@@ -140,6 +143,22 @@ impl GMValue {
         error_panic(&format!("GMValue::into_vec2d, not a vec2d variant: '{:?}'", self));
     }
 
+    pub fn into_size(self) -> GMSize {
+        if let Self::Size(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_size, not a size variant: '{:?}'", self));
+    }
+
+    pub fn into_flipxy(self) -> GMFlipXY {
+        if let Self::FlipXY(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_flipxy, not a flipxy variant: '{:?}'", self));
+    }
+
     pub fn into_repetition(self) -> GMRepetition {
         if let Self::Repetition(value) = self {
             return value
@@ -154,6 +173,22 @@ impl GMValue {
         }
 
         error_panic(&format!("GMValue::into_animation, not an any variant: '{:?}'", self));
+    }
+
+    pub fn into_texture(self) -> Rc<GMTexture> {
+        if let Self::Any(value) = self {
+            return value.downcast_ref::<Rc<GMTexture>>().unwrap().clone();
+        }
+
+        error_panic(&format!("GMValue::into_texture, not an any variant: '{:?}'", self));
+    }
+
+    pub fn into_sprite(self) -> GMSprite {
+        if let Self::Any(value) = self {
+            return value.downcast_ref::<GMSprite>().unwrap().clone();
+        }
+
+        error_panic(&format!("GMValue::into_sprite, not an any variant: '{:?}'", self));
     }
 
     pub fn into_object_info(self) -> GMObjectInfo {
@@ -249,6 +284,18 @@ impl From<f32> for GMValue {
 impl From<GMVec2D> for GMValue {
     fn from(value: GMVec2D) -> Self {
         Self::Vec2D(value)
+    }
+}
+
+impl From<GMSize> for GMValue {
+    fn from(value: GMSize) -> Self {
+        Self::Size(value)
+    }
+}
+
+impl From<GMFlipXY> for GMValue {
+    fn from(value: GMFlipXY) -> Self {
+        Self::FlipXY(value)
     }
 }
 
@@ -394,6 +441,18 @@ impl From<GMRepetition> for GMValue {
 impl From<GMAnimation> for GMValue {
     fn from(value: GMAnimation) -> Self {
         Self::Any(Rc::new(value))
+    }
+}
+
+impl From<GMSprite> for GMValue {
+    fn from(value: GMSprite) -> Self {
+        Self::Any(Rc::new(value))
+    }
+}
+
+impl From<Rc<GMTexture>> for GMValue {
+    fn from(value: Rc<GMTexture>) -> Self {
+        Self::Any(value)
     }
 }
 

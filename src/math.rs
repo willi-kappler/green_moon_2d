@@ -5,6 +5,7 @@ use std::f32::consts::TAU;
 
 use crate::util::error_panic;
 use crate::value::GMValue;
+use crate::message::GMMessage;
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMVec2D {
@@ -139,7 +140,7 @@ impl GMVec2D {
                 self.y = values.pop_front().unwrap().into_f32();
             }
             _ => {
-                error_panic(&format!("GMVec2D::send_message, unknown method: '{:?}'", method));
+                error_panic(&format!("GMVec2D::send_message, unknown method: '{}'", method));
             }
         }
 
@@ -229,6 +230,74 @@ impl GMSize {
             height,
         }
     }
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone().into();
+            }
+            "set" => {
+                *self = value.into_size();
+            }
+            "add" => {
+                let mut vec_deque = value.to_vec_deque();
+                let width = vec_deque.pop_front().unwrap().into_f32();
+                let height = vec_deque.pop_front().unwrap().into_f32();
+                self.width += width;
+                self.height += height;
+            }
+            "mul" => {
+                let factor = value.into_f32();
+                self.width *= factor;
+                self.height *= factor;
+            }
+            "get_width" => {
+                return self.width.into();
+            }
+            "set_width" => {
+                self.width = value.into_f32();
+            }
+            "add_width" => {
+                let width = value.into_f32();
+                self.width += width;
+            }
+            "mul_width" => {
+                let factor = value.into_f32();
+                self.width *= factor;
+            }
+            "get_height" => {
+                return self.height.into();
+            }
+            "set_height" => {
+                self.height = value.into_f32();
+            }
+            "add_height" => {
+                let height = value.into_f32();
+                self.height += height;
+            }
+            "mul_height" => {
+                let factor = value.into_f32();
+                self.height *= factor;
+            }
+            "set_wh" => {
+                let mut vec_deque = value.to_vec_deque();
+                let width = vec_deque.pop_front().unwrap().into_f32();
+                let height = vec_deque.pop_front().unwrap().into_f32();
+                self.width = width;
+                self.height = height;
+            }
+            "get_wh" => {
+                let width: GMValue = self.width.into();
+                let height: GMValue = self.height.into();
+                return width.chain(height)
+            }
+            _ => {
+                error_panic(&format!("GMSize::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
+    }
 }
 
 impl Default for GMSize {
@@ -306,6 +375,25 @@ impl GMRectangle {
     }
 
     // TODO: return intersect points
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                // TODO:
+                todo!();
+            }
+            "set" => {
+                // TODO:
+                todo!();
+            }
+            _ => {
+                error_panic(&format!("GMRectangle::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
+    }
+
 }
 
 impl From<(f32, f32, f32, f32)> for GMRectangle {
@@ -364,6 +452,106 @@ impl GMCircle {
         let x = self.center.x + (rad.cos() * self.radius);
         let y = self.center.y + (rad.sin() * self.radius);
         GMVec2D::new(x, y)
+    }
+
+    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "" => {
+                match method {
+                    "get_radius" => {
+                        return self.radius.into();
+                    }
+                    "set_radius" => {
+                        self.radius = value.into_f32();
+                    }
+                    "add_radius" => {
+                        self.radius += value.into_f32();
+                    }
+                    "mul_radius" => {
+                        self.radius *= value.into_f32();
+                    }
+                    // TODO: Add more methods
+                    _ => {
+                        error_panic(&format!("GMCircle::send_message, unknown method: '{}'", method));
+                    }
+                }
+            }
+            "position" => {
+                return self.center.send_message(method, value);
+            }
+            _ => {
+                error_panic(&format!("GMCircle::send_message, unknown tag: '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct GMFlipXY {
+    pub x: bool,
+    pub y: bool,
+}
+
+impl GMFlipXY {
+    pub fn new() -> Self {
+        Self {
+            x: false,
+            y: false,
+        }
+    }
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone().into();
+            }
+            "set" => {
+                *self = value.into_flipxy();
+            }
+            "toggle" => {
+                self.x = !self.x;
+                self.y = !self.y;
+            }
+            "get_x" => {
+                return self.x.into();
+            }
+            "set_x" => {
+                self.x = value.into_bool();
+            }
+            "toggle_x" => {
+                self.x = !self.x;
+            }
+            "get_y" => {
+                return self.y.into();
+            }
+            "set_y" => {
+                self.y = value.into_bool();
+            }
+            "toggle_y" => {
+                self.y = !self.y;
+            }
+            "get_xy" => {
+                let x: GMValue = self.x.into();
+                let y: GMValue = self.y.into();
+                return x.chain(y);
+            }
+            "set_xy" => {
+                let mut vec_deque = value.to_vec_deque();
+                self.x = vec_deque.pop_front().unwrap().into_bool();
+                self.y = vec_deque.pop_front().unwrap().into_bool();
+            }
+            _ => {
+                error_panic(&format!("GMFlipXY::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
     }
 }
 

@@ -7,7 +7,7 @@ use log::debug;
 
 use crate::texture::{GMTexture};
 use crate::animation::GMAnimation;
-use crate::math::{GMVec2D, GMSize};
+use crate::math::{GMVec2D, GMSize, GMFlipXY};
 use crate::context::GMContext;
 use crate::object::GMObjectT;
 use crate::value::GMValue;
@@ -22,8 +22,7 @@ pub struct GMSprite {
     pub animation: GMAnimation,
     pub angle: f32,
     pub scale: f32,
-    pub flipx: bool,
-    pub flipy: bool,
+    pub flipxy: GMFlipXY,
     texture: Rc<GMTexture>,
     size: GMSize,
 }
@@ -32,7 +31,7 @@ impl GMSprite {
     pub fn new<T: Into<GMVec2D>>(position: T, texture: &Rc<GMTexture>, animation: GMAnimation) -> GMSprite {
         let position = position.into();
         let (width, height) = texture.get_unit_dimension();
-        debug!("GMSprite::new(), position: '{:?}', width: '{:?}', height: '{:?}", position, width, height);
+        debug!("GMSprite::new(), position: '{:?}', width: '{}', height: '{}", position, width, height);
 
         GMSprite {
             position,
@@ -40,8 +39,7 @@ impl GMSprite {
             animation,
             angle: 0.0,
             scale: 1.0,
-            flipx: false,
-            flipy: false,
+            flipxy: GMFlipXY::new(),
             size: GMSize::new(width, height),
         }
     }
@@ -49,8 +47,7 @@ impl GMSprite {
     pub fn set_texture(&mut self, texture: &Rc<GMTexture>) {
         self.texture = texture.clone();
 
-        let (width, height) = self.texture.get_unit_dimension();
-        self.size = GMSize::new(width, height);
+        self.reset_size();
     }
 
     pub fn get_texture(&self) -> &Rc<GMTexture> {
@@ -60,17 +57,64 @@ impl GMSprite {
     pub fn get_size(&self) -> GMSize {
         self.size
     }
+
+    pub fn reset_size(&mut self) {
+        let (width, height) = self.texture.get_unit_dimension();
+        self.size.width = width;
+        self.size.height = height;
+    }
 }
 
 impl GMObjectT for GMSprite {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        let tag = &message.tag;
-        let method = &message.method;
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
         let value = message.value;
 
-        match tag.as_str() {
+        match tag {
             "" => {
-
+                match method {
+                    "get" => {
+                        return self.clone().into();
+                    }
+                    "set" => {
+                        *self = value.into_sprite();
+                    }
+                    "get_angle" => {
+                        return self.angle.into();
+                    }
+                    "set_angle" => {
+                        self.angle = value.into_f32();
+                    }
+                    "get_scale" => {
+                        return self.scale.into();
+                    }
+                    "add_angle" => {
+                        self.angle += value.into_f32();
+                    }
+                    "mul_angle" => {
+                        self.angle *= value.into_f32();
+                    }
+                    "set_scale" => {
+                        self.scale = value.into_f32();
+                    }
+                    "add_scale" => {
+                        self.scale += value.into_f32();
+                    }
+                    "mul_scale" => {
+                        self.scale *= value.into_f32();
+                    }
+                    "get_texture" => {
+                        return self.texture.clone().into();
+                    }
+                    "set_texture" => {
+                        self.texture = value.into_texture();
+                        self.reset_size();
+                    }
+                    _ => {
+                        error_panic(&format!("GMSprite::send_message: unknown method '{}'", method));
+                    }
+                }
             }
             "position" => {
                 return self.position.send_message(method, value)
@@ -79,52 +123,18 @@ impl GMObjectT for GMSprite {
                 return self.animation.send_message(method, value)
             }
             "flipxy" => {
-                // return self.flipxy.send_message(method, value);
+                return self.flipxy.send_message(method, value);
+            }
+            "size" => {
+                return self.size.send_message(method, value);
             }
             _ => {
-                error_panic(&format!("GMSprite::send_message: unknown tag '{:?}'", tag));
+                error_panic(&format!("GMSprite::send_message: unknown tag '{}'", tag));
             }
         }
 
         GMValue::None
     }
-
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-
-        match message {
-            // Custom sprite messages:
-            GMMessage::Custom0(name) if name == "get_angle" => {
-                self.angle.into()
-            }
-            GMMessage::Custom0(name) if name == "get_scale" => {
-                self.scale.into()
-            }
-            GMMessage::Custom0(name) if name == "get_texture" => {
-                GMValue::Any(self.texture.clone())
-            }
-            GMMessage::Custom0(name) if name == "get_size" => {
-                GMValue::Any(Rc::new(self.size))
-            }
-            GMMessage::Custom0(name) if name == "get_size2" => {
-                (self.size.width, self.size.height).into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
-                self.angle = angle;
-                GMValue::None
-            }
-            GMMessage::Custom1(name, GMValue::F32(scale)) if name == "set_scale" => {
-                self.scale = scale;
-                GMValue::None
-            }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_texture" => {
-                let texture = value.downcast::<GMTexture>().unwrap();
-                self.set_texture(&texture);
-                GMValue::None
-            }
-        }
-    }
-    */
 
     fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
         self.animation.update();
@@ -136,7 +146,7 @@ impl GMObjectT for GMSprite {
         let dy = self.position.y;
 
         self.texture.draw_opt(dx, dy, index, self.angle,
-            self.scale, self.flipx, self.flipy, context);
+            self.scale, self.flipxy.x, self.flipxy.y, context);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
