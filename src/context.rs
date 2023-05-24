@@ -1,5 +1,6 @@
 
 use std::collections::VecDeque;
+use std::fmt;
 
 use sdl2::video::{self, Window, WindowContext};
 use sdl2::render::{Texture, TextureCreator, Canvas};
@@ -167,5 +168,11 @@ impl GMContext {
             self.canvas.window_mut().set_fullscreen(video::FullscreenType::Off)
                 .expect("GMContext::set_fullscreen(), could not set fullscreen off");
         }
+    }
+}
+
+impl fmt::Debug for GMContext {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GMContext")
     }
 }

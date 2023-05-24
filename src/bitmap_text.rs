@@ -2,6 +2,7 @@
 
 use std::collections::{HashMap};
 use std::rc::Rc;
+use std::cell::RefMut;
 use std::fmt::Debug;
 
 use log::debug;
@@ -522,7 +523,7 @@ impl GMObjectT for GMBitmapText {
     }
 */
 
-    fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut RefMut<&mut GMContext>) {
         for c in self.chars.iter() {
             let dx = self.position.x + c.position.x;
             let dy = self.position.y + c.position.y;

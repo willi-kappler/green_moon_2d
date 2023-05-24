@@ -5,7 +5,6 @@ use std::collections::VecDeque;
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
-use crate::context::GMContext;
 use crate::object::{GMObjectT};
 use crate::value::GMValue;
 use crate::target::GMTarget;
@@ -39,7 +38,7 @@ impl GMTEWave {
 }
 
 impl GMObjectT for GMTEWave {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.tag.as_str();
         let method = message.method.as_str();
         let value = message.value;
@@ -63,10 +62,10 @@ impl GMObjectT for GMTEWave {
         }
     }
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         let messages = vec![msg0("get_horizontal"), msg0("get_char_count")];
 
-        let result = object_manager.send_message_multiple(&self.target, messages, context);
+        let result = object_manager.send_message_multiple(&self.target, messages);
         let mut values = result.to_vec_deque();
         let horizontal = values.pop_front().unwrap().into_bool();
         let num_of_chars = values.pop_front().unwrap().into_usize();
@@ -81,7 +80,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_y));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions), context);
+            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions));
         } else {
             let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
@@ -90,7 +89,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_x));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions), context);
+            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions));
         }
 
         self.time += self.speed;
@@ -134,7 +133,7 @@ impl GMTEShake {
 }
 
 impl GMObjectT for GMTEShake {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.tag.as_str();
         let method = message.method.as_str();
         let value = message.value;
@@ -155,8 +154,8 @@ impl GMObjectT for GMTEShake {
         }
     }
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+    fn update(&mut self, object_manager: &GMObjectManager) {
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"));
         let num_of_chars = result.into_usize();
 
         self.time += self.speed;
@@ -170,7 +169,7 @@ impl GMObjectT for GMTEShake {
             new_positions.push_back(GMValue::Vec2D(GMVec2D::new(dx, dy)));
         }
 
-        object_manager.send_message(&self.target, msg1("add_chars_position", new_positions), context);
+        object_manager.send_message(&self.target, msg1("add_chars_position", new_positions));
 
         if self.time > 1.0 {
             self.time = 0.0;
@@ -206,7 +205,7 @@ impl GMTERotateChars {
 }
 
 impl GMObjectT for GMTERotateChars {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.tag.as_str();
         let method = message.method.as_str();
         let value = message.value;
@@ -227,8 +226,8 @@ impl GMObjectT for GMTERotateChars {
         }
     }
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+    fn update(&mut self, object_manager: &GMObjectManager) {
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"));
         let num_of_chars = result.into_usize();
 
         let mut delta = 0.0;
@@ -239,7 +238,7 @@ impl GMObjectT for GMTERotateChars {
             delta += self.offset;
         }
 
-        object_manager.send_message(&self.target, msg1("set_chars_angle", new_angles), context);
+        object_manager.send_message(&self.target, msg1("set_chars_angle", new_angles));
 
         self.time += self.speed;
     }
@@ -276,7 +275,7 @@ impl GMTEScale {
 }
 
 impl GMObjectT for GMTEScale {
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.tag.as_str();
         let method = message.method.as_str();
         let value = message.value;
@@ -303,8 +302,8 @@ impl GMObjectT for GMTEScale {
         }
     }
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+    fn update(&mut self, object_manager: &GMObjectManager) {
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"));
         let num_of_chars = result.into_usize();
 
         let mut offset = 0.0;
@@ -315,7 +314,7 @@ impl GMObjectT for GMTEScale {
             offset += self.offset;
         }
 
-        object_manager.send_message(&self.target, msg1("set_chars_scale", new_scales), context);
+        object_manager.send_message(&self.target, msg1("set_chars_scale", new_scales));
 
         self.time += self.speed;
     }

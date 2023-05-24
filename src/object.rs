@@ -1,6 +1,7 @@
 
 use std::fmt::Debug;
 use std::collections::VecDeque;
+use std::cell::RefMut;
 
 use crate::context::GMContext;
 use crate::value::GMValue;
@@ -9,24 +10,24 @@ use crate::message::GMMessage;
 
 
 pub trait GMObjectT: Debug {
-    fn send_message(&mut self, _message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, _message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         GMValue::None
     }
 
-    fn send_message_multiple(&mut self, mut messages: Vec<GMMessage>, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
+    fn send_message_multiple(&mut self, mut messages: Vec<GMMessage>, object_manager: &GMObjectManager) -> GMValue {
         let mut result = VecDeque::new();
 
         for message in messages.drain(0..) {
-            result.push_back(self.send_message(message, context, object_manager));
+            result.push_back(self.send_message(message, object_manager));
         }
 
         return result.into()
     }
 
-    fn update(&mut self, _context: &mut GMContext, _object_manager: &GMObjectManager) {
+    fn update(&mut self, _object_manager: &GMObjectManager) {
     }
 
-    fn draw(&self, _context: &mut GMContext) {
+    fn draw(&self, _context: &mut RefMut<&mut GMContext>) {
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;

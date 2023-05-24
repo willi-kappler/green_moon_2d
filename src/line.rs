@@ -1,6 +1,7 @@
 
 use std::fmt::Debug;
 use std::rc::Rc;
+use std::cell::RefMut;
 use std::any::Any;
 
 use log::debug;
@@ -181,7 +182,7 @@ impl GMObjectT for GMLine {
     }
     */
 
-    fn draw(&self, context: &mut GMContext) {
+    fn draw(&self, context: &mut RefMut<&mut GMContext>) {
         for element in self.elements.iter() {
             element.draw(context);
         }

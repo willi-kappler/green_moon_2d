@@ -63,7 +63,7 @@ impl GMObjectT for GMMVVelocity {
     }
 */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         //object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
     }
 
@@ -122,7 +122,7 @@ impl GMObjectT for GMMVAcceleration {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         //object_manager.send_custom_message1(&self.target, "add_velocity", self.a, context);
     }
 
@@ -193,7 +193,7 @@ impl GMObjectT for GMMVVelAccel {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         // object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
         self.v += self.a;
     }
@@ -291,7 +291,7 @@ impl GMObjectT for GMMVCircle {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.auto_update {
             let new_pos = self.circle.position_from_deg(self.angle);
             //object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
@@ -311,12 +311,12 @@ pub struct GMMVMultiCircle {
     pub angle_step: f32,
     pub count: usize,
     pub auto_update: bool,
-    pub func: fn(value: Vec<GMVec2D>, context: &mut GMContext, object_manager: &GMObjectManager),
+    pub func: fn(value: Vec<GMVec2D>, object_manager: &GMObjectManager),
 }
 
 impl GMMVMultiCircle {
     pub fn new<T: Into<GMVec2D>>(center: T, radius: f32, angle_step: f32, count: usize, func: fn(value: Vec<GMVec2D>,
-        context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+        object_manager: &GMObjectManager)) -> Self {
         let circle = GMCircle::new(center, radius);
         debug!("GMMVMultiCircle::new(), center: '{:?}', radius: '{:?}', angle_step: '{:?}', count: '{:?}'", circle.center, circle.radius, angle_step, count);
 
@@ -428,10 +428,10 @@ impl GMObjectT for GMMVMultiCircle {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.auto_update {
             let positions = self.multi_pos();
-            (self.func)(positions, context, object_manager);
+            (self.func)(positions, object_manager);
         }
     }
 
@@ -471,7 +471,7 @@ impl GMMVPath {
         }
     }
 
-    pub fn update_position(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    pub fn update_position(&mut self, object_manager: &GMObjectManager) {
         self.interpolation.update();
         let position = self.interpolation.get_current_value();
         //object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
@@ -602,9 +602,9 @@ impl GMObjectT for GMMVPath {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.auto_update {
-            self.update_position(context, object_manager);
+            self.update_position(object_manager);
         }
     }
 
@@ -693,7 +693,7 @@ impl GMObjectT for GMMVFollow {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         self.interpolation.update();
         let pos = self.interpolation.get_current_value();
         //object_manager.send_message(&self.target, GMMessage::SetPosition(pos), context);

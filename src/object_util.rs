@@ -106,7 +106,7 @@ impl GMObjectT for GMTimedMessage {
     }
 */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.timed_base.timer.finished() {
             if self.timed_base.repeat {
                 self.timed_base.timer.start();
@@ -175,7 +175,7 @@ impl GMObjectT for GMTimedMultiMessage {
     }
 */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         for (timer, repeat, target, tag, message, value) in self.items.iter_mut() {
             if timer.finished() {
                 if *repeat {
@@ -256,7 +256,7 @@ impl GMObjectT for GMTimedSeqMessage {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.index < self.items.len() {
             let (timer, target, tag, message, value) = &mut self.items[self.index];
 
@@ -280,13 +280,12 @@ impl GMObjectT for GMTimedSeqMessage {
 
 #[derive(Clone)]
 pub struct GMTimedFunc {
-    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
+    pub func: fn(object_manager: &GMObjectManager),
     pub timed_base: GMTimedBase,
 }
 
 impl GMTimedFunc {
-    pub fn new(timeout: f32, repeat: bool, func: fn(context: &mut GMContext,
-            object_manager: &GMObjectManager)) -> Self {
+    pub fn new(timeout: f32, repeat: bool, func: fn(object_manager: &GMObjectManager)) -> Self {
         debug!("GMTimedFunc::new(), timeout: '{}', repeat: '{}'", timeout, repeat);
 
         let timer = GMTimer::new(timeout);
@@ -327,13 +326,13 @@ impl GMObjectT for GMTimedFunc {
     }
     */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager) {
         if self.timed_base.timer.finished() {
             if self.timed_base.repeat {
                 self.timed_base.timer.start();
             }
 
-            (self.func)(context, object_manager);
+            (self.func)(object_manager);
         }
     }
 
@@ -771,12 +770,11 @@ impl GMObjectT for GMMapMessage {
 
 #[derive(Clone)]
 pub struct GMCustomSend {
-    pub func: fn(message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue,
+    pub func: fn(message: GMMessage, object_manager: &GMObjectManager) -> GMValue,
 }
 
 impl GMCustomSend {
-    pub fn new(func: fn(message: GMMessage, context: &mut GMContext,
-            object_manager: &GMObjectManager) -> GMValue) -> Self {
+    pub fn new(func: fn(message: GMMessage, object_manager: &GMObjectManager) -> GMValue) -> Self {
         debug!("GMCustomSend::new()");
 
         Self {
@@ -792,8 +790,8 @@ impl fmt::Debug for GMCustomSend {
 }
 
 impl GMObjectT for GMCustomSend {
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        (self.func)(message, context, object_manager)
+    fn send_message(&mut self, message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        (self.func)(message, object_manager)
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -803,11 +801,11 @@ impl GMObjectT for GMCustomSend {
 
 #[derive(Clone)]
 pub struct GMCustomUpdate {
-    pub func: fn(context: &mut GMContext, object_manager: &GMObjectManager),
+    pub func: fn(object_manager: &GMObjectManager),
 }
 
 impl GMCustomUpdate {
-    pub fn new(func: fn(context: &mut GMContext, object_manager: &GMObjectManager)) -> Self {
+    pub fn new(func: fn(object_manager: &GMObjectManager)) -> Self {
         debug!("GMCustomUpdate::new()");
 
         Self {
@@ -842,8 +840,8 @@ impl GMObjectT for GMCustomUpdate {
     }
 */
 
-    fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        (self.func)(context, object_manager);
+    fn update(&mut self, object_manager: &GMObjectManager) {
+        (self.func)(object_manager);
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -917,9 +915,9 @@ impl GMCenterPosition {
         }
     }
 
-    pub fn calculate_center(&self, context: &mut GMContext, object_manager: &GMObjectManager) -> GMVec2D {
+    pub fn calculate_center(&self, object_manager: &GMObjectManager) -> GMVec2D {
         let values = object_manager.send_message(&self.source,
-            msgt0("position", "get"), context);
+            msgt0("position", "get"));
 
         let mut positions = GMVec2D::new(0.0, 0.0);
 

@@ -38,18 +38,20 @@ impl GMObjectInfo {
 }
 
 #[derive(Debug)]
-pub struct GMObjectManager {
+pub struct GMObjectManager<'a> {
     objects: HashMap<String, GMObjectInfo>,
     manager_messages: RefCell<VecDeque<(String, GMValue)>>,
     init_objects: RefCell<Vec<String>>,
+    pub context: RefCell<&'a mut GMContext>,
 }
 
-impl GMObjectManager {
-    pub fn new() -> Self {
+impl<'a> GMObjectManager<'a> {
+    pub fn new(context: &'a mut GMContext) -> Self {
         Self {
             objects: HashMap::new(),
             manager_messages: RefCell::new(VecDeque::new()),
             init_objects: RefCell::new(Vec::new()),
+            context: RefCell::new(context),
         }
     }
 
@@ -153,7 +155,7 @@ impl GMObjectManager {
         init.push(name.to_string());
     }
 
-    fn process_initialization(&self, context: &mut GMContext) {
+    fn process_initialization(&self) {
         let mut init = self.init_objects.borrow_mut();
 
         if init.is_empty() {
@@ -162,7 +164,7 @@ impl GMObjectManager {
 
         for name in init.iter() {
             if let Some(object) = self.objects.get(name) {
-                object.inner.borrow_mut().send_message(msg0("init"), context, self);
+                object.inner.borrow_mut().send_message(msg0("init"),self);
             } else {
                 error_panic(&format!("GMObjectManager::get_object: object '{}' not found", name));
             }
@@ -171,27 +173,28 @@ impl GMObjectManager {
         init.clear();
     }
 
-    fn update_objects(&self, context: &mut GMContext) {
+    fn update_objects(&self) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
         objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
 
         for o in objects {
-            o.inner.borrow_mut().update(context, &self);
+            o.inner.borrow_mut().update(&self);
         }
     }
 
-    pub fn update(&mut self, context: &mut GMContext) {
-        self.process_initialization(context);
-        self.update_objects(context);
+    pub fn update(&mut self) {
+        self.process_initialization();
+        self.update_objects();
         self.process_manager_messages();
     }
 
-    pub fn draw(&self, context: &mut GMContext) {
+    pub fn draw(&self) {
+        let mut context = self.context.borrow_mut();
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.visible).collect();
         objects.sort_by(|a, b| a.draw_index.cmp(&b.draw_index));
 
         for o in objects {
-            o.inner.borrow().draw(context);
+            o.inner.borrow().draw(&mut context);
         }
     }
 
@@ -423,11 +426,11 @@ impl GMObjectManager {
         }
     }
 
-    pub fn send_message_object(&self, name: &str, message: GMMessage, context: &mut GMContext) -> GMValue {
+    pub fn send_message_object(&self, name: &str, message: GMMessage) -> GMValue {
         if let Some(object) = self.objects.get(name) {
             if object.active {
                 let mut borrowed_object = object.inner.borrow_mut();
-                return borrowed_object.send_message(message, context, &self);
+                return borrowed_object.send_message(message, &self);
             }
         } else {
             error_panic(&format!("GMObjectManager::send_message_object: object '{}' not found", name));
@@ -436,26 +439,26 @@ impl GMObjectManager {
         GMValue::None
     }
 
-    pub fn send_message_object_multiple(&self, name: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_object_multiple(&self, name: &str, messages: Vec<GMMessage>) -> GMValue {
 
         if let Some(object) = self.objects.get(name) {
             if object.active {
                 let mut borrowed_object = object.inner.borrow_mut();
-                return borrowed_object.send_message_multiple(messages, context, &self)
+                return borrowed_object.send_message_multiple(messages, &self)
             }
         }
 
         GMValue::None
     }
 
-    pub fn send_message_object_zip(&self, names: &Vec<&str>, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_object_zip(&self, names: &Vec<&str>, messages: Vec<GMMessage>) -> GMValue {
         let mut result = VecDeque::new();
 
         for (name, message) in names.iter().zip(messages) {
             if let Some(object) = self.objects.get(*name) {
                 if object.active {
                     let mut borrowed_object = object.inner.borrow_mut();
-                    let value = borrowed_object.send_message(message, context, &self);
+                    let value = borrowed_object.send_message(message, &self);
                     result.push_back(value);
                 }
             }
@@ -464,7 +467,7 @@ impl GMObjectManager {
         return result.into();
     }
 
-    pub fn send_message_group(&self, group: &str, message: GMMessage, context: &mut GMContext) -> GMValue {
+    pub fn send_message_group(&self, group: &str, message: GMMessage) -> GMValue {
         let mut result = VecDeque::new();
 
         let objects = self.objects.iter()
@@ -473,14 +476,14 @@ impl GMObjectManager {
 
         for object in objects {
             let mut borrowed_object = object.inner.borrow_mut();
-            let value = borrowed_object.send_message(message.clone(), context, &self);
+            let value = borrowed_object.send_message(message.clone(), &self);
             result.push_back(value);
         }
 
         return result.into();
     }
 
-    pub fn send_message_group_multiple(&self, group: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_group_multiple(&self, group: &str, messages: Vec<GMMessage>) -> GMValue {
         let mut result = VecDeque::new();
 
         let objects = self.objects.iter()
@@ -489,14 +492,14 @@ impl GMObjectManager {
 
         for object in objects {
             let mut borrowed_object = object.inner.borrow_mut();
-            let value = borrowed_object.send_message_multiple(messages.clone(), context, &self);
+            let value = borrowed_object.send_message_multiple(messages.clone(), &self);
             result.push_back(value);
         }
 
         return result.into();
     }
 
-    pub fn send_message_group_zip(&self, group: &str, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_group_zip(&self, group: &str, messages: Vec<GMMessage>) -> GMValue {
         let mut result = VecDeque::new();
 
         let objects = self.objects.iter()
@@ -505,20 +508,20 @@ impl GMObjectManager {
 
         for (object, message) in objects.zip(messages) {
             let mut borrowed_object = object.inner.borrow_mut();
-            let value = borrowed_object.send_message(message, context, &self);
+            let value = borrowed_object.send_message(message,&self);
             result.push_back(value);
         }
 
         return result.into();
     }
 
-    pub fn send_message(&self, target: &GMTarget, message: GMMessage, context: &mut GMContext) -> GMValue {
+    pub fn send_message(&self, target: &GMTarget, message: GMMessage) -> GMValue {
         match target {
             GMTarget::Object(name) => {
-                return self.send_message_object(name, message, context)
+                return self.send_message_object(name, message)
             }
             GMTarget::Group(group) => {
-                return self.send_message_group(group, message, context)
+                return self.send_message_group(group, message)
             }
             GMTarget::ObjectManager => {
                 let mut messages = self.manager_messages.borrow_mut();
@@ -528,7 +531,7 @@ impl GMObjectManager {
                 let mut result = VecDeque::new();
 
                 for target in targets {
-                    result.push_back(self.send_message(target, message.clone(), context));
+                    result.push_back(self.send_message(target, message.clone()));
                 }
 
                 return result.into();
@@ -538,14 +541,14 @@ impl GMObjectManager {
         GMValue::None
     }
 
-    pub fn send_message_zip(&self, target: &GMTarget, messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_zip(&self, target: &GMTarget, messages: Vec<GMMessage>) -> GMValue {
         match target {
             GMTarget::Object(name) => {
                 let message = messages[0].clone();
-                return self.send_message_object(name, message, context)
+                return self.send_message_object(name, message)
             }
             GMTarget::Group(group) => {
-                return self.send_message_group_zip(group, messages, context)
+                return self.send_message_group_zip(group, messages)
             }
             GMTarget::ObjectManager => {
                 let message = messages[0].clone();
@@ -556,7 +559,7 @@ impl GMObjectManager {
                 let mut result = VecDeque::new();
 
                 for (target, message) in targets.iter().zip(messages) {
-                    result.push_back(self.send_message(target, message, context));
+                    result.push_back(self.send_message(target, message));
                 }
 
                 return result.into();
@@ -566,13 +569,13 @@ impl GMObjectManager {
         GMValue::None
     }
 
-    pub fn send_message_multiple(&self, target: &GMTarget, mut messages: Vec<GMMessage>, context: &mut GMContext) -> GMValue {
+    pub fn send_message_multiple(&self, target: &GMTarget, mut messages: Vec<GMMessage>) -> GMValue {
         match target {
             GMTarget::Object(name) => {
-                return self.send_message_object_multiple(name, messages, context);
+                return self.send_message_object_multiple(name, messages);
             }
             GMTarget::Group(group) => {
-                return self.send_message_group_multiple(group, messages, context);
+                return self.send_message_group_multiple(group, messages);
             }
             GMTarget::ObjectManager => {
                 let mut manager_messages = self.manager_messages.borrow_mut();
@@ -585,7 +588,7 @@ impl GMObjectManager {
                 let mut result = VecDeque::new();
 
                 for target in targets.iter() {
-                    result.push_back(self.send_message_multiple(target, messages.clone(), context));
+                    result.push_back(self.send_message_multiple(target, messages.clone()));
                 }
 
                 return result.into();
@@ -600,7 +603,6 @@ impl GMObjectManager {
 
         while let Some((method, value)) = messages.pop_front() {
             match method.as_str() {
-                //GMMessage::OMAddCustomObject(object_name, object_info) => {
                 "add_custom_object" => {
                     let mut values = value.to_vec_deque();
                     let object_name = values.pop_front().unwrap().into_string();
