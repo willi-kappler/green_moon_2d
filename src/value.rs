@@ -135,6 +135,14 @@ impl GMValue {
         error_panic(&format!("GMValue::into_string, not a string variant: '{:?}'", self));
     }
 
+    pub fn into_target(self) -> GMTarget {
+        if let Self::Target(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_target, not a target variant: '{:?}'", self));
+    }
+
     pub fn into_vec2d(self) -> GMVec2D {
         if let Self::Vec2D(value) = self {
             return value

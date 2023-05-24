@@ -16,27 +16,27 @@ pub fn msg0(method: &str) -> GMMessage {
     }
 }
 
-pub fn msg1(method: &str, value: GMValue) -> GMMessage {
+pub fn msg1<V: Into<GMValue>>(method: &str, value: V) -> GMMessage {
     GMMessage {
         tag: "".to_string(),
         method: method.to_string(),
-        value,
+        value: value.into(),
     }
 }
 
-pub fn msg2(method: &str, value1: GMValue, value2: GMValue) -> GMMessage {
+pub fn msg2<V1: Into<GMValue>, V2: Into<GMValue>>(method: &str, value1: V1, value2: V2) -> GMMessage {
     GMMessage {
         tag: "".to_string(),
         method: method.to_string(),
-        value: value1.chain(value2),
+        value: value1.into().chain(value2.into()),
     }
 }
 
-pub fn msg3(method: &str, value1: GMValue, value2: GMValue, value3: GMValue) -> GMMessage {
+pub fn msg3<V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
     GMMessage {
         tag: "".to_string(),
         method: method.to_string(),
-        value: value1.chain(value2).chain(value3),
+        value: value1.into().chain(value2.into()).chain(value3.into()),
     }
 }
 
@@ -48,26 +48,26 @@ pub fn msgt0(tag: &str, method: &str) -> GMMessage {
     }
 }
 
-pub fn msgt1(tag: &str, method: &str, value: GMValue) -> GMMessage {
+pub fn msgt1<V: Into<GMValue>>(tag: &str, method: &str, value: V) -> GMMessage {
     GMMessage {
         tag: tag.to_string(),
         method: method.to_string(),
-        value,
+        value: value.into(),
     }
 }
 
-pub fn msgt2(tag: &str, method: &str, value1: GMValue, value2: GMValue) -> GMMessage {
+pub fn msgt2<V1: Into<GMValue>, V2: Into<GMValue>>(tag: &str, method: &str, value1: V1, value2: V2) -> GMMessage {
     GMMessage {
         tag: tag.to_string(),
         method: method.to_string(),
-        value: value1.chain(value2),
+        value: value1.into().chain(value2.into()),
     }
 }
 
-pub fn msgt3(tag: &str, method: &str, value1: GMValue, value2: GMValue, value3: GMValue) -> GMMessage {
+pub fn msgt3<V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(tag: &str, method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
     GMMessage {
         tag: tag.to_string(),
         method: method.to_string(),
-        value: value1.chain(value2).chain(value3),
+        value: value1.into().chain(value2.into()).chain(value3.into()),
     }
 }

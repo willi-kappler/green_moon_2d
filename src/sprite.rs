@@ -12,7 +12,7 @@ use crate::context::GMContext;
 use crate::object::GMObjectT;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
-use crate::util::error_panic;
+use crate::util::{error_panic, send_message_f32};
 use crate::message::GMMessage;
 
 
@@ -80,30 +80,6 @@ impl GMObjectT for GMSprite {
                     "set" => {
                         *self = value.into_sprite();
                     }
-                    "get_angle" => {
-                        return self.angle.into();
-                    }
-                    "set_angle" => {
-                        self.angle = value.into_f32();
-                    }
-                    "get_scale" => {
-                        return self.scale.into();
-                    }
-                    "add_angle" => {
-                        self.angle += value.into_f32();
-                    }
-                    "mul_angle" => {
-                        self.angle *= value.into_f32();
-                    }
-                    "set_scale" => {
-                        self.scale = value.into_f32();
-                    }
-                    "add_scale" => {
-                        self.scale += value.into_f32();
-                    }
-                    "mul_scale" => {
-                        self.scale *= value.into_f32();
-                    }
                     "get_texture" => {
                         return self.texture.clone().into();
                     }
@@ -115,6 +91,12 @@ impl GMObjectT for GMSprite {
                         error_panic(&format!("GMSprite::send_message: unknown method '{}'", method));
                     }
                 }
+            }
+            "angle" => {
+                return send_message_f32(&mut self.angle, method, value)
+            }
+            "scale" => {
+                return send_message_f32(&mut self.scale, method, value)
             }
             "position" => {
                 return self.position.send_message(method, value)

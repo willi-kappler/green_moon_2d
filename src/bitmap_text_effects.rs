@@ -10,7 +10,7 @@ use crate::object::{GMObjectT};
 use crate::value::GMValue;
 use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
-use crate::util::error_panic;
+use crate::util::{error_panic, send_message_f32};
 use crate::math::GMVec2D;
 use crate::message::{GMMessage, msg0, msg1};
 
@@ -39,53 +39,29 @@ impl GMTEWave {
 }
 
 impl GMObjectT for GMTEWave {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetTarget(target) => {
-                self.target = target
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
+            "amplitude" => {
+                return send_message_f32(&mut self.amplitude, method, value);
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_multi_message(messages, context, object_manager)
+            "speed" => {
+                return send_message_f32(&mut self.speed, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_ampitude" => {
-                return self.amplitude.into()
-            }
-            GMMessage::Custom0(name) if name == "get_speed" => {
-                return self.speed.into()
-            }
-            GMMessage::Custom0(name) if name == "get_offset" => {
-                return self.offset.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(amplitude)) if name == "set_amplitude" => {
-                self.amplitude = amplitude
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
-                self.speed = speed
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "set_offset" => {
-                self.offset = offset
-            }
-            GMMessage::Custom1(name, GMValue::F32(amplitude)) if name == "add_amplitude" => {
-                self.amplitude += amplitude
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "add_speed" => {
-                self.speed += speed
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "add_offset" => {
-                self.offset += offset
+            "offset" => {
+                return send_message_f32(&mut self.offset, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEWave::send_message: '{:?}'", message))
+                error_panic(&format!("GMTEWave::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-*/
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
         let messages = vec![msg0("get_horizontal"), msg0("get_char_count")];
@@ -105,7 +81,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_y));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions.into()), context);
+            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions), context);
         } else {
             let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
@@ -114,7 +90,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_x));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions.into()), context);
+            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions), context);
         }
 
         self.time += self.speed;
@@ -158,69 +134,48 @@ impl GMTEShake {
 }
 
 impl GMObjectT for GMTEShake {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetTarget(target) => {
-                self.target = target
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
+            "radius" => {
+                return send_message_f32(&mut self.radius, method, value);
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
-            }
-            GMMessage::Custom0(name) if name == "get_radius" => {
-                return self.radius.into()
-            }
-            GMMessage::Custom0(name) if name == "get_speed" => {
-                return self.speed.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(radius)) if name == "set_radius" => {
-                self.radius = radius;
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
-                self.speed = speed;
-            }
-            GMMessage::Custom1(name, GMValue::F32(radius)) if name == "add_radius" => {
-                self.radius += radius;
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "add_speed" => {
-                self.speed += speed;
+            "speed" => {
+                return send_message_f32(&mut self.speed, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEShake::send_message: '{:?}'", message))
+                error_panic(&format!("GMTEShake::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        /*
-        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+        let num_of_chars = result.into_usize();
 
-        if let GMValue::USize(num_of_chars) = result {
-            self.time += self.speed;
-            self.rng.reseed(u64::to_ne_bytes(self.seed));
+        self.time += self.speed;
+        self.rng.reseed(u64::to_ne_bytes(self.seed));
 
-            let mut new_positions = Vec::with_capacity(num_of_chars);
+        let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
-            for _ in 0..num_of_chars {
-                let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-                let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-                new_positions.push(GMValue::Vec2D(GMVec2D::new(dx, dy)));
-            }
-
-            object_manager.send_custom_message1(&self.target, "add_chars_position", new_positions, context);
+        for _ in 0..num_of_chars {
+            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            new_positions.push_back(GMValue::Vec2D(GMVec2D::new(dx, dy)));
         }
+
+        object_manager.send_message(&self.target, msg1("add_chars_position", new_positions), context);
 
         if self.time > 1.0 {
             self.time = 0.0;
             self.seed += 1;
         }
-        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -251,63 +206,42 @@ impl GMTERotateChars {
 }
 
 impl GMObjectT for GMTERotateChars {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetTarget(target) => {
-                self.target = target
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
+            "speed" => {
+                return send_message_f32(&mut self.speed, method, value);
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
-            }
-            GMMessage::Custom0(name) if name == "get_speed" => {
-                return self.speed.into()
-            }
-            GMMessage::Custom0(name) if name == "get_offset" => {
-                return self.offset.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
-                self.speed = speed;
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "set_offset" => {
-                self.offset = offset;
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "add_speed" => {
-                self.speed += speed;
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "add_offset" => {
-                self.offset += offset;
+            "offset" => {
+                return send_message_f32(&mut self.offset, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTERotateChars::send_message: '{:?}'", message))
+                error_panic(&format!("GMTERotateChars::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        /*
-        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+        let num_of_chars = result.into_usize();
 
-        if let GMValue::USize(num_of_chars) = result {
-            let mut delta = 0.0;
-            let mut new_angles = Vec::with_capacity(num_of_chars);
+        let mut delta = 0.0;
+        let mut new_angles = VecDeque::with_capacity(num_of_chars);
 
-            for _ in 0..num_of_chars {
-                new_angles.push(GMValue::F32(self.time + delta));
-                delta += self.offset;
-            }
-
-            object_manager.send_custom_message1(&self.target, "set_chars_angle", new_angles, context);
+        for _ in 0..num_of_chars {
+            new_angles.push_back(GMValue::F32(self.time + delta));
+            delta += self.offset;
         }
 
+        object_manager.send_message(&self.target, msg1("set_chars_angle", new_angles), context);
+
         self.time += self.speed;
-        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -342,81 +276,48 @@ impl GMTEScale {
 }
 
 impl GMObjectT for GMTEScale {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetTarget(target) => {
-                self.target = target
+    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
+            "amplitude" => {
+                return send_message_f32(&mut self.amplitude, method, value);
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "base" => {
+                return send_message_f32(&mut self.base, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_amplitude" => {
-                return self.amplitude.into()
+            "speed" => {
+                return send_message_f32(&mut self.speed, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_base" => {
-                return self.base.into()
-            }
-            GMMessage::Custom0(name) if name == "get_speed" => {
-                return self.speed.into()
-            }
-            GMMessage::Custom0(name) if name == "get_offset" => {
-                return self.offset.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(amplitude)) if name == "set_amplitude" => {
-                self.amplitude = amplitude;
-            }
-            GMMessage::Custom1(name, GMValue::F32(base)) if name == "set_base" => {
-                self.base = base;
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
-                self.speed = speed;
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "set_offset" => {
-                self.offset = offset;
-            }
-            GMMessage::Custom1(name, GMValue::F32(amplitude)) if name == "add_amplitude" => {
-                self.amplitude += amplitude;
-            }
-            GMMessage::Custom1(name, GMValue::F32(base)) if name == "add_base" => {
-                self.base += base;
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "add_speed" => {
-                self.speed += speed;
-            }
-            GMMessage::Custom1(name, GMValue::F32(offset)) if name == "add_offset" => {
-                self.offset += offset;
+            "offset" => {
+                return send_message_f32(&mut self.offset, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTEScale::send_message: '{:?}'", message))
+                error_panic(&format!("GMTEScale::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 
     fn update(&mut self, context: &mut GMContext, object_manager: &GMObjectManager) {
-        /*
-        let result = object_manager.send_message(&self.target, GMMessage::Custom0("get_char_count".to_string()), context);
+        let result = object_manager.send_message(&self.target, msg0("get_char_count"), context);
+        let num_of_chars = result.into_usize();
 
-        if let GMValue::USize(num_of_chars) = result {
-            let mut offset = 0.0;
-            let mut new_scales = Vec::with_capacity(num_of_chars);
+        let mut offset = 0.0;
+        let mut new_scales = VecDeque::with_capacity(num_of_chars);
 
-            for _ in 0..num_of_chars {
-                new_scales.push(GMValue::F32(self.base + (self.amplitude * (self.time + offset).sin())));
-                offset += self.offset;
-            }
-
-            object_manager.send_custom_message1(&self.target, "set_chars_scale", new_scales, context);
+        for _ in 0..num_of_chars {
+            new_scales.push_back(GMValue::F32(self.base + (self.amplitude * (self.time + offset).sin())));
+            offset += self.offset;
         }
 
+        object_manager.send_message(&self.target, msg1("set_chars_scale", new_scales), context);
+
         self.time += self.speed;
-        */
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {

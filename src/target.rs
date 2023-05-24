@@ -1,5 +1,7 @@
 
 
+use crate::value::GMValue;
+use crate::util::error_panic;
 
 #[derive(Clone, Debug)]
 pub enum GMTarget {
@@ -37,6 +39,22 @@ impl GMTarget {
                 }
             }
         }
+    }
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone().into();
+            }
+            "set" => {
+                *self = value.into_target();
+            }
+            _ => {
+                error_panic(&format!("GMTarget::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
     }
 }
 

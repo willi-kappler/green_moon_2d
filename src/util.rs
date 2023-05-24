@@ -4,6 +4,7 @@
 use nanorand::{WyRand, Rng};
 use log::{error, debug};
 
+use crate::value::GMValue;
 
 // const ALPHA_NUM: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // Not possible yet...
@@ -105,3 +106,44 @@ pub fn random_string(len: usize) -> String {
     String::from_iter(vec)
 }
 */
+
+pub fn send_message_f32(v: &mut f32, method: &str, value: GMValue) -> GMValue {
+    match method {
+        "get" => {
+            return (*v).into();
+        }
+        "set" => {
+            *v = value.into_f32();
+        }
+        "add" => {
+            *v += value.into_f32();
+        }
+        "mul" => {
+            *v *= value.into_f32();
+        }
+        _ => {
+            error_panic(&format!("send_message_f32, unknown method: '{}'", method));
+        }
+    }
+
+    GMValue::None
+}
+
+pub fn send_message_bool(v: &mut bool, method: &str, value: GMValue) -> GMValue {
+    match method {
+        "get" => {
+            return (*v).into();
+        }
+        "set" => {
+            *v = value.into_bool();
+        }
+        "toggle" => {
+            *v = !(*v);
+        }
+        _ => {
+            error_panic(&format!("send_message_bool, unknown method: '{}'", method));
+        }
+    }
+
+    GMValue::None
+}
