@@ -4,18 +4,20 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 
-use crate::math::{GMVec2D, GMSize, GMFlipXY};
-use crate::object::GMObjectT;
-use crate::object_manager::{GMObjectInfo};
-use crate::target::GMTarget;
-use crate::util::{GMRepetition, error_panic};
 use crate::animation::GMAnimation;
-use crate::texture::GMTexture;
+use crate::bitmap_text::GMBitmapFont;
+use crate::math::{GMVec2D, GMSize, GMFlipXY};
+use crate::object_manager::{GMObjectInfo};
+use crate::object::GMObjectT;
 use crate::sprite::GMSprite;
+use crate::target::GMTarget;
+use crate::texture::GMTexture;
+use crate::util::{GMRepetition, GMAlign, error_panic};
 
 
 #[derive(Clone, Debug)]
 pub enum GMValue {
+    Align(GMAlign),
     Any(Rc<dyn Any>),
     Binary(Vec<u8>),
     Bool(bool),
@@ -49,6 +51,14 @@ pub enum GMValue {
 }
 
 impl GMValue {
+    pub fn is_none(&self) -> bool {
+        if let Self::None = self {
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn to_vec_deque(self) -> VecDeque<GMValue> {
         match self {
             Self::Multiple(values) => {
@@ -175,6 +185,14 @@ impl GMValue {
         error_panic(&format!("GMValue::into_repetition, not a repetition variant: '{:?}'", self));
     }
 
+    pub fn into_align(self) -> GMAlign {
+        if let Self::Align(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_align, not an align variant: '{:?}'", self));
+    }
+
     pub fn into_animation(self) -> GMAnimation {
         if let GMValue::Any(value) = self {
             return value.downcast_ref::<GMAnimation>().unwrap().clone();
@@ -189,6 +207,14 @@ impl GMValue {
         }
 
         error_panic(&format!("GMValue::into_texture, not an any variant: '{:?}'", self));
+    }
+
+    pub fn into_font(self) -> Rc<GMBitmapFont> {
+        if let Self::Any(value) = self {
+            return value.downcast_ref::<Rc<GMBitmapFont>>().unwrap().clone();
+        }
+
+        error_panic(&format!("GMValue::into_font, not an any variant: '{:?}'", self));
     }
 
     pub fn into_sprite(self) -> GMSprite {
@@ -446,6 +472,12 @@ impl From<GMRepetition> for GMValue {
     }
 }
 
+impl From<GMAlign> for GMValue {
+    fn from(value: GMAlign) -> Self {
+        Self::Align(value)
+    }
+}
+
 impl From<GMAnimation> for GMValue {
     fn from(value: GMAnimation) -> Self {
         Self::Any(Rc::new(value))
@@ -460,6 +492,12 @@ impl From<GMSprite> for GMValue {
 
 impl From<Rc<GMTexture>> for GMValue {
     fn from(value: Rc<GMTexture>) -> Self {
+        Self::Any(value)
+    }
+}
+
+impl From<Rc<GMBitmapFont>> for GMValue {
+    fn from(value: Rc<GMBitmapFont>) -> Self {
         Self::Any(value)
     }
 }

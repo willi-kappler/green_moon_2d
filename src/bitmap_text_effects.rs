@@ -11,7 +11,7 @@ use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
 use crate::util::{error_panic, send_message_f32};
 use crate::math::GMVec2D;
-use crate::message::{GMMessage, msg0, msg1};
+use crate::message::{GMMessage, msg0, msgt1};
 
 #[derive(Debug, Clone)]
 pub struct GMTEWave {
@@ -80,7 +80,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_y));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_y", new_positions));
+            object_manager.send_message(&self.target, msgt1("chars", "add_y", new_positions));
         } else {
             let mut new_positions = VecDeque::with_capacity(num_of_chars);
 
@@ -89,7 +89,7 @@ impl GMObjectT for GMTEWave {
                 new_positions.push_back(GMValue::F32(new_x));
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msg1("add_chars_x", new_positions));
+            object_manager.send_message(&self.target, msgt1("chars", "add_x", new_positions));
         }
 
         self.time += self.speed;
@@ -169,7 +169,7 @@ impl GMObjectT for GMTEShake {
             new_positions.push_back(GMValue::Vec2D(GMVec2D::new(dx, dy)));
         }
 
-        object_manager.send_message(&self.target, msg1("add_chars_position", new_positions));
+        object_manager.send_message(&self.target, msgt1("chars", "add_position", new_positions));
 
         if self.time > 1.0 {
             self.time = 0.0;
@@ -238,7 +238,7 @@ impl GMObjectT for GMTERotateChars {
             delta += self.offset;
         }
 
-        object_manager.send_message(&self.target, msg1("set_chars_angle", new_angles));
+        object_manager.send_message(&self.target, msgt1("chars", "set_angle", new_angles));
 
         self.time += self.speed;
     }
@@ -314,7 +314,7 @@ impl GMObjectT for GMTEScale {
             offset += self.offset;
         }
 
-        object_manager.send_message(&self.target, msg1("set_chars_scale", new_scales));
+        object_manager.send_message(&self.target, msgt1("chars", "set_scale", new_scales));
 
         self.time += self.speed;
     }

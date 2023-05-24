@@ -12,6 +12,7 @@ use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
 use crate::value::GMValue;
+use crate::message::{GMMessage, msg1};
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -131,38 +132,8 @@ impl GMObjectT for GMLine {
     /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::Init => {
-                let positions = self.point_changed();
-
-                for (element, position) in self.elements.iter_mut().zip(positions) {
-                    element.send_message(GMMessage::SetPosition(position), context, object_manager);
-                }
-            }
-            GMMessage::Custom0(name) if name == "get_start" => {
-                return self.start.into()
-            }
-            GMMessage::Custom0(name) if name == "get_end" => {
-                return self.end.into()
-            }
-            GMMessage::Custom0(name) if name == "get_init_element" => {
-                return self.init_element.clone().into()
-            }
             GMMessage::Custom0(name) if name == "get_line_mode" => {
                 return GMValue::Any(Rc::new(self.line_mode.clone()))
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start" => {
-                self.start = start;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(start)) if name == "set_start2" => {
-                self.start = start;
-                self.point_changed();
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(end)) if name == "set_end" => {
-                self.end = end;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(end)) if name == "set_end2" => {
-                self.end = end;
-                self.point_changed();
             }
             GMMessage::Custom1(name, GMValue::Object(init_element)) if name == "set_init_element" => {
                 self.init_element = init_element;
@@ -181,6 +152,73 @@ impl GMObjectT for GMLine {
         GMValue::None
     }
     */
+
+    fn send_message(&mut self, message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.tag.as_str();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag {
+            "" => {
+                match method {
+                    "init" => {
+                        let positions = self.point_changed();
+
+                        for (element, position) in self.elements.iter_mut().zip(positions) {
+                            element.send_message(msg1("set_position", position), object_manager);
+                        }
+                    }
+                    "get_line_mode" => {
+                        // TODO:
+                        todo!();
+                    }
+                    "set_line_mode" => {
+                        // TODO:
+                        todo!();
+                    }
+                    "get_init_element" => {
+                        return self.init_element.clone().into();
+                    }
+                    "set_init_element" => {
+                        // TODO:
+                        todo!();
+                    }
+                    _ => {
+                        error_panic(&format!("GMLine::send_message: Unknown method '{}', no tag", method));
+                    }
+                }
+            }
+            "start" => {
+                return self.start.send_message(method, value);
+            }
+            "start2" => {
+                let result = self.start.send_message(method, value);
+
+                if result.is_none() {
+                    self.point_changed();
+                }
+
+                return result;
+            }
+            "end" => {
+                return self.end.send_message(method, value);
+            }
+            "end2" => {
+                let result = self.end.send_message(method, value);
+
+                if result.is_none() {
+                    self.point_changed();
+                }
+
+                return result;
+            }
+            _ => {
+                error_panic(&format!("GMLine::send_message: Unknown tag '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
 
     fn draw(&self, context: &mut RefMut<&mut GMContext>) {
         for element in self.elements.iter() {

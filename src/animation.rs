@@ -169,7 +169,7 @@ impl GMAnimation {
                 self.reverse();
             }
             _ => {
-                error_panic(&format!("GMAnimation::send_message, unknown message: '{}'", method));
+                error_panic(&format!("GMAnimation::send_message, unknown method: '{}'", method));
             }
         }
 

@@ -89,7 +89,7 @@ impl GMObjectT for GMSprite {
                         self.reset_size();
                     }
                     _ => {
-                        error_panic(&format!("GMSprite::send_message: unknown method '{}'", method));
+                        error_panic(&format!("GMSprite::send_message: unknown method '{}', no tag", method));
                     }
                 }
             }

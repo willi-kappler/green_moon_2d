@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use crate::util::error_panic;
+use crate::util::{error_panic, send_message_f32};
 use crate::value::GMValue;
 use crate::message::GMMessage;
 
@@ -462,23 +462,14 @@ impl GMCircle {
         match tag {
             "" => {
                 match method {
-                    "get_radius" => {
-                        return self.radius.into();
-                    }
-                    "set_radius" => {
-                        self.radius = value.into_f32();
-                    }
-                    "add_radius" => {
-                        self.radius += value.into_f32();
-                    }
-                    "mul_radius" => {
-                        self.radius *= value.into_f32();
-                    }
                     // TODO: Add more methods
                     _ => {
-                        error_panic(&format!("GMCircle::send_message, unknown method: '{}'", method));
+                        error_panic(&format!("GMCircle::send_message, unknown method: '{}', no tag", method));
                     }
                 }
+            }
+            "radius" => {
+                return send_message_f32(&mut self.radius, method, value);
             }
             "position" => {
                 return self.center.send_message(method, value);
@@ -507,6 +498,7 @@ impl GMFlipXY {
     }
 
     pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        // TODO: use full message, with tag
         match method {
             "get" => {
                 return self.clone().into();
