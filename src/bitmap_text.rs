@@ -225,123 +225,6 @@ impl GMBitmapText {
 }
 
 impl GMObjectT for GMBitmapText {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            // Messages for character manipulation:
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_position" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::Vec2D(position) = values[i] {
-                        c.position += position;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_position2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::Vec2D(position) = values[i] {
-                        c.position += position;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_position" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::Vec2D(position) = values[i] {
-                        c.position = position;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_position2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::Vec2D(position) = values[i] {
-                        c.position = position;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_x" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(x) = values[i] {
-                        c.position.x += x;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_x2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(x) = values[i] {
-                        c.position.x += x;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_y" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(y) = values[i] {
-                        c.position.y += y;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "add_chars_y2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(y) = values[i] {
-                        c.position.y += y;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_x" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(x) = values[i] {
-                        c.position.x = x;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_x2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(x) = values[i] {
-                        c.position.x = x;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_y" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(y) = values[i] {
-                        c.position.y = y;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_y2" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(y) = values[i] {
-                        c.position.y = y;
-                    }
-                }
-                self.reset_positions();
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_angle" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(angle) = values[i] {
-                        c.angle = angle;
-                    }
-                }
-            }
-            GMMessage::Custom1(name, GMValue::Multiple(values)) if name == "set_chars_scale" => {
-                for (i, c) in self.chars.iter_mut().enumerate() {
-                    if let GMValue::F32(scale) = values[i] {
-                        c.scale = scale;
-                    }
-                }
-            }
-            _ => {
-                error_panic(&format!("Wrong message for GMBitmapText::send_message: '{:?}'", message))
-            }
-        }
-
-        GMValue::None
-    }
-*/
-
     fn send_message(&mut self, mut message: crate::message::GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
@@ -364,6 +247,10 @@ impl GMObjectT for GMBitmapText {
                     }
                     "set_align" => {
                         self.align = value.into_align();
+                    }
+                    "set_align2" => {
+                        self.align = value.into_align();
+                        self.reset_positions();
                     }
                     "get_font" => {
                         return self.font.clone().into();
@@ -434,48 +321,116 @@ impl GMObjectT for GMBitmapText {
                 return result
             }
             "chars" => {
+                let mut values = value.to_vec_deque();
+
                 match method {
                     "add_position" => {
-
+                        for c in self.chars.iter_mut() {
+                            let position = values.pop_front().unwrap().into_vec2d();
+                            c.position += position;
+                        }
                     }
                     "add_position2" => {
+                        for c in self.chars.iter_mut() {
+                            let position = values.pop_front().unwrap().into_vec2d();
+                            c.position += position;
+                        }
 
+                        self.reset_positions();
                     }
                     "set_position" => {
-
+                        for c in self.chars.iter_mut() {
+                            let position = values.pop_front().unwrap().into_vec2d();
+                            c.position = position;
+                        }
                     }
                     "set_position2" => {
+                        for c in self.chars.iter_mut() {
+                            let position = values.pop_front().unwrap().into_vec2d();
+                            c.position = position;
+                        }
 
+                        self.reset_positions();
                     }
                     "add_x" => {
-
+                        for c in self.chars.iter_mut() {
+                            let x = values.pop_front().unwrap().into_f32();
+                            c.position.x += x;
+                        }
                     }
                     "add_x2" => {
+                        for c in self.chars.iter_mut() {
+                            let x = values.pop_front().unwrap().into_f32();
+                            c.position.x += x;
+                        }
 
+                        self.reset_positions();
                     }
                     "add_y" => {
-
+                        for c in self.chars.iter_mut() {
+                            let y = values.pop_front().unwrap().into_f32();
+                            c.position.y += y;
+                        }
                     }
                     "add_y2" => {
+                        for c in self.chars.iter_mut() {
+                            let y = values.pop_front().unwrap().into_f32();
+                            c.position.y += y;
+                        }
 
+                        self.reset_positions();
                     }
                     "set_x" => {
-
+                        for c in self.chars.iter_mut() {
+                            let x = values.pop_front().unwrap().into_f32();
+                            c.position.x = x;
+                        }
                     }
                     "set_x2" => {
+                        for c in self.chars.iter_mut() {
+                            let x = values.pop_front().unwrap().into_f32();
+                            c.position.x = x;
+                        }
 
+                        self.reset_positions();
                     }
                     "set_y" => {
-
+                        for c in self.chars.iter_mut() {
+                            let y = values.pop_front().unwrap().into_f32();
+                            c.position.y = y;
+                        }
                     }
                     "set_y2" => {
+                        for c in self.chars.iter_mut() {
+                            let y = values.pop_front().unwrap().into_f32();
+                            c.position.y = y;
+                        }
 
+                        self.reset_positions();
+                    }
+                    "add_angle" => {
+                        for c in self.chars.iter_mut() {
+                            let angle = values.pop_front().unwrap().into_f32();
+                            c.angle += angle;
+                        }
                     }
                     "set_angle" => {
-
+                        for c in self.chars.iter_mut() {
+                            let angle = values.pop_front().unwrap().into_f32();
+                            c.angle = angle;
+                        }
+                    }
+                    "add_scale" => {
+                        for c in self.chars.iter_mut() {
+                            let scale = values.pop_front().unwrap().into_f32();
+                            c.scale += scale;
+                        }
                     }
                     "set_scale" => {
-
+                        for c in self.chars.iter_mut() {
+                            let scale = values.pop_front().unwrap().into_f32();
+                            c.scale = scale;
+                        }
                     }
                     _ => {
                         error_panic(&format!("GMBitmapText::send_message, unknown method: '{}', tag: 'chars'", method));
