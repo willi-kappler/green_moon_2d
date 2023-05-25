@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 
 use crate::animation::GMAnimation;
 use crate::bitmap_text::GMBitmapFont;
-use crate::math::{GMVec2D, GMSize, GMFlipXY};
+use crate::math::{GMVec2D, GMSize, GMRectangle, GMFlipXY};
 use crate::object_manager::{GMObjectInfo};
 use crate::object::GMObjectT;
 use crate::sprite::GMSprite;
@@ -37,6 +37,7 @@ pub enum GMValue {
     None,
     Object(Box<dyn GMObjectT>),
     ObjectInfo(GMObjectInfo),
+    Rectangle(GMRectangle),
     Repetition(GMRepetition),
     Shared(Rc<GMValue>),
     SharedCell(Rc<RefCell<GMValue>>),
@@ -168,6 +169,14 @@ impl GMValue {
         }
 
         error_panic(&format!("GMValue::into_size, not a size variant: '{:?}'", self));
+    }
+
+    pub fn into_rectangle(self) -> GMRectangle {
+        if let Self::Rectangle(value) = self {
+            return value
+        }
+
+        error_panic(&format!("GMValue::into_rectangle, not a rectangle variant: '{:?}'", self));
     }
 
     pub fn into_flipxy(self) -> GMFlipXY {
@@ -338,6 +347,12 @@ impl From<GMSize> for GMValue {
 impl From<GMFlipXY> for GMValue {
     fn from(value: GMFlipXY) -> Self {
         Self::FlipXY(value)
+    }
+}
+
+impl From<GMRectangle> for GMValue {
+    fn from(value: GMRectangle) -> Self {
+        Self::Rectangle(value)
     }
 }
 
