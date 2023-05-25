@@ -12,7 +12,7 @@ use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
 use crate::value::GMValue;
-use crate::message::{GMMessage, msg1v};
+use crate::message::{GMMessage, msgt1v};
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -165,23 +165,21 @@ impl GMObjectT for GMLine {
                         let positions = self.point_changed();
 
                         for (element, position) in self.elements.iter_mut().zip(positions) {
-                            element.send_message(msg1v("set_position", position), object_manager);
+                            element.send_message(msgt1v("position", "set", position), object_manager);
                         }
                     }
                     "get_line_mode" => {
-                        // TODO:
-                        todo!();
+                        return self.line_mode.clone().into();
                     }
                     "set_line_mode" => {
-                        // TODO:
-                        todo!();
+                        self.line_mode = value.into_line_mode();
                     }
                     "get_init_element" => {
                         return self.init_element.clone().into();
                     }
                     "set_init_element" => {
-                        // TODO:
-                        todo!();
+                        let object = value.into_object();
+                        self.init_element = object;
                     }
                     _ => {
                         error_panic(&format!("GMLine::send_message: Unknown method '{}', no tag", method));

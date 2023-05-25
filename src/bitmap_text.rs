@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::texture::{GMTexture};
-use crate::util::{error_panic, GMAlign, send_message_f32, send_message_bool};
+use crate::util::{error_panic, GMAlign, send_message_bool};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
 use crate::object::GMObjectT;

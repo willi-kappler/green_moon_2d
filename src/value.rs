@@ -13,6 +13,7 @@ use crate::sprite::GMSprite;
 use crate::target::GMTarget;
 use crate::texture::GMTexture;
 use crate::util::{GMRepetition, GMAlign, error_panic};
+use crate::line::GMLineMode;
 
 
 #[derive(Clone, Debug)]
@@ -193,6 +194,14 @@ impl GMValue {
         error_panic(&format!("GMValue::into_align, not an align variant: '{:?}'", self));
     }
 
+    pub fn into_line_mode(self) -> GMLineMode {
+        if let Self::Any(value) = self {
+            return value.downcast_ref::<GMLineMode>().unwrap().clone();
+        }
+
+        error_panic(&format!("GMValue::into_line_mode, not an any variant: '{:?}'", self));
+    }
+
     pub fn into_animation(self) -> GMAnimation {
         if let GMValue::Any(value) = self {
             return value.downcast_ref::<GMAnimation>().unwrap().clone();
@@ -240,7 +249,6 @@ impl GMValue {
 
         error_panic(&format!("GMValue::into_object, not an object variant: '{:?}'", self));
     }
-
 }
 
 impl From<()> for GMValue {
@@ -475,6 +483,12 @@ impl From<GMRepetition> for GMValue {
 impl From<GMAlign> for GMValue {
     fn from(value: GMAlign) -> Self {
         Self::Align(value)
+    }
+}
+
+impl From<GMLineMode> for GMValue {
+    fn from(value: GMLineMode) -> Self {
+        Self::Any(Rc::new(value))
     }
 }
 
