@@ -129,30 +129,6 @@ impl GMLine {
 }
 
 impl GMObjectT for GMLine {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::Custom0(name) if name == "get_line_mode" => {
-                return GMValue::Any(Rc::new(self.line_mode.clone()))
-            }
-            GMMessage::Custom1(name, GMValue::Object(init_element)) if name == "set_init_element" => {
-                self.init_element = init_element;
-            }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_line_mode" => {
-                self.line_mode = value.into();
-            }
-
-            // TODO: more messages...
-            _ => {
-                error_panic(&format!("Wrong message for GMMVFollow::send_message: '{:?}'", message))
-            }
-
-        }
-
-        GMValue::None
-    }
-    */
-
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
