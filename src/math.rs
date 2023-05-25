@@ -371,13 +371,24 @@ impl GMRectangle {
         let value = message.value;
 
         match tag.as_str() {
-            "get" => {
-                // TODO:
-                todo!();
+            "" => {
+                match method {
+                    "get" => {
+                        return self.clone().into()
+                    }
+                    "set" => {
+                        *self = value.into_rectangle();
+                    }
+                    _ => {
+                        error_panic(&format!("GMRectangle::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
-            "set" => {
-                // TODO:
-                todo!();
+            "top_left" => {
+
+            }
+            "bottom_right" => {
+
             }
             _ => {
                 error_panic(&format!("GMRectangle::send_message, unknown tag: '{}'", tag));
