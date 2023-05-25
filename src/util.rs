@@ -58,6 +58,25 @@ impl GMRepetition {
             }
         }
     }
+
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return (*self).into();
+            }
+            "set" => {
+                *self = value.into_repetition();
+            }
+            "reverse" => {
+                self.reverse();
+            }
+            _ => {
+                error_panic(&format!("GMRepetition::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
+    }
 }
 
 impl From<&str> for GMRepetition {
@@ -123,6 +142,28 @@ pub fn send_message_f32(v: &mut f32, method: &str, value: GMValue) -> GMValue {
         }
         _ => {
             error_panic(&format!("send_message_f32, unknown method: '{}'", method));
+        }
+    }
+
+    GMValue::None
+}
+
+pub fn send_message_usize(v: &mut usize, method: &str, value: GMValue) -> GMValue {
+    match method {
+        "get" => {
+            return (*v).into();
+        }
+        "set" => {
+            *v = value.into_usize();
+        }
+        "add" => {
+            *v += value.into_usize();
+        }
+        "mul" => {
+            *v *= value.into_usize();
+        }
+        _ => {
+            error_panic(&format!("send_message_usize, unknown method: '{}'", method));
         }
     }
 

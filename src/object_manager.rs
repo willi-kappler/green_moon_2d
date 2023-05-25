@@ -10,7 +10,7 @@ use crate::util::error_panic;
 use crate::context::GMContext;
 use crate::target::GMTarget;
 use crate::state::GMState;
-use crate::message::{GMMessage, msg0};
+use crate::message::{GMMessage, msg0v};
 
 #[derive(Clone, Debug)]
 pub struct GMObjectInfo {
@@ -164,7 +164,7 @@ impl<'a> GMObjectManager<'a> {
 
         for name in init.iter() {
             if let Some(object) = self.objects.get(name) {
-                object.inner.borrow_mut().send_message(msg0("init"),self);
+                object.inner.borrow_mut().send_message(msg0v("init"),self);
             } else {
                 error_panic(&format!("GMObjectManager::get_object: object '{}' not found", name));
             }

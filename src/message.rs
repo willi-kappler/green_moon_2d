@@ -1,73 +1,121 @@
 
+use std::collections::VecDeque;
+
 use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
 pub struct GMMessage {
-    pub tag: String,
+    pub tags: VecDeque<String>,
     pub method: String,
     pub value: GMValue,
 }
 
-pub fn msg0(method: &str) -> GMMessage {
-    GMMessage {
-        tag: "".to_string(),
-        method: method.to_string(),
-        value: GMValue::None,
+impl GMMessage {
+    pub fn new(method: &str) -> Self {
+        Self {
+            tags: VecDeque::new(),
+            method: method.to_string(),
+            value: GMValue::None,
+        }
+    }
+
+    pub fn new2<V: Into<GMValue>>(method: &str, value: V) -> Self {
+        Self {
+            tags: VecDeque::new(),
+            method: method.to_string(),
+            value: value.into(),
+        }
+    }
+
+    pub fn new3<T: Into<GMTags>>(tag: T, method: &str) -> Self {
+        Self {
+            tags: tag.into().tags,
+            method: method.to_string(),
+            value: GMValue::None,
+        }
+    }
+
+    pub fn new4<T: Into<GMTags>, V: Into<GMValue>>(tag: T, method: &str, value: V) -> Self {
+        Self {
+            tags: tag.into().tags,
+            method: method.to_string(),
+            value: value.into(),
+        }
+    }
+
+    pub fn next_tag(&mut self) -> String {
+        if self.tags.is_empty() {
+            String::new()
+        } else {
+            self.tags.pop_front().unwrap()
+        }
     }
 }
 
-pub fn msg1<V: Into<GMValue>>(method: &str, value: V) -> GMMessage {
-    GMMessage {
-        tag: "".to_string(),
-        method: method.to_string(),
-        value: value.into(),
+pub struct GMTags {
+    pub tags: VecDeque<String>,
+}
+
+impl From<&str> for GMTags {
+    fn from(tag: &str) -> Self {
+        Self {
+            tags: VecDeque::from([tag.to_string()]),
+        }
     }
 }
 
-pub fn msg2<V1: Into<GMValue>, V2: Into<GMValue>>(method: &str, value1: V1, value2: V2) -> GMMessage {
-    GMMessage {
-        tag: "".to_string(),
-        method: method.to_string(),
-        value: value1.into().chain(value2.into()),
+impl From<(&str, &str)> for GMTags {
+    fn from((tag1, tag2): (&str, &str)) -> Self {
+        Self {
+            tags: VecDeque::from([tag1.to_string(), tag2.to_string()]),
+        }
     }
 }
 
-pub fn msg3<V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
-    GMMessage {
-        tag: "".to_string(),
-        method: method.to_string(),
-        value: value1.into().chain(value2.into()).chain(value3.into()),
+impl From<(&str, &str, &str)> for GMTags {
+    fn from((tag1, tag2, tag3): (&str, &str, &str)) -> Self {
+        Self {
+            tags: VecDeque::from([tag1.to_string(), tag2.to_string(), tag3.to_string()]),
+        }
     }
 }
 
-pub fn msgt0(tag: &str, method: &str) -> GMMessage {
-    GMMessage {
-        tag: tag.to_string(),
-        method: method.to_string(),
-        value: GMValue::None,
+impl From<&[&str]> for GMTags {
+    fn from(tags: &[&str]) -> Self {
+        Self {
+            tags: VecDeque::from(tags.iter().map(|s| s.to_string()).collect::<Vec<String>>()),
+        }
     }
 }
 
-pub fn msgt1<V: Into<GMValue>>(tag: &str, method: &str, value: V) -> GMMessage {
-    GMMessage {
-        tag: tag.to_string(),
-        method: method.to_string(),
-        value: value.into(),
-    }
+pub fn msg0v(method: &str) -> GMMessage {
+    GMMessage::new(method)
 }
 
-pub fn msgt2<V1: Into<GMValue>, V2: Into<GMValue>>(tag: &str, method: &str, value1: V1, value2: V2) -> GMMessage {
-    GMMessage {
-        tag: tag.to_string(),
-        method: method.to_string(),
-        value: value1.into().chain(value2.into()),
-    }
+pub fn msg1v<V: Into<GMValue>>(method: &str, value: V) -> GMMessage {
+    GMMessage::new2(method, value)
 }
 
-pub fn msgt3<V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(tag: &str, method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
-    GMMessage {
-        tag: tag.to_string(),
-        method: method.to_string(),
-        value: value1.into().chain(value2.into()).chain(value3.into()),
-    }
+pub fn msg2v<V1: Into<GMValue>, V2: Into<GMValue>>(method: &str, value1: V1, value2: V2) -> GMMessage {
+    GMMessage::new2(method, value1.into().chain(value2.into()))
+}
+
+pub fn msg3v<V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
+    GMMessage::new2(method, value1.into().chain(value2.into()).chain(value3.into()))
+}
+
+pub fn msgt0v<T: Into<GMTags>>(tag: T, method: &str) -> GMMessage {
+    GMMessage::new3(tag, method)
+}
+
+pub fn msgt1v<T: Into<GMTags>, V: Into<GMValue>>(tag: T, method: &str, value: V) -> GMMessage {
+    GMMessage::new4(tag, method, value)
+}
+
+pub fn msgt2v<T: Into<GMTags>, V1: Into<GMValue>, V2: Into<GMValue>>(tag: T, method: &str, value1: V1, value2: V2) -> GMMessage {
+    GMMessage::new4(tag, method, value1.into().chain(value2.into()))
+}
+
+pub fn msgt3v<T: Into<GMTags>, V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(tag: T, method: &str, value1: V1, value2: V2, value3: V3) -> GMMessage {
+    GMMessage::new4(tag, method, value1.into().chain(value2.into()).chain(value3.into()))
 }

@@ -16,7 +16,7 @@ use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, GMRepetition, random_range_f32};
 use crate::value::GMValue;
-use crate::message::{GMMessage, msgt0};
+use crate::message::{GMMessage, msgt0v};
 
 
 #[derive(Clone, Debug)]
@@ -917,7 +917,7 @@ impl GMCenterPosition {
 
     pub fn calculate_center(&self, object_manager: &GMObjectManager) -> GMVec2D {
         let values = object_manager.send_message(&self.source,
-            msgt0("position", "get"));
+            msgt0v("position", "get"));
 
         let mut positions = GMVec2D::new(0.0, 0.0);
 

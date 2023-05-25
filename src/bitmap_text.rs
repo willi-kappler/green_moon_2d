@@ -342,12 +342,12 @@ impl GMObjectT for GMBitmapText {
     }
 */
 
-    fn send_message(&mut self, message: crate::message::GMMessage, _object_manager: &GMObjectManager) -> GMValue {
-        let tag = message.tag.as_str();
+    fn send_message(&mut self, mut message: crate::message::GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
         let method = message.method.as_str();
         let value = message.value;
 
-        match tag {
+        match tag.as_str() {
             "" => {
                 match method {
                     "get_char_count" => {

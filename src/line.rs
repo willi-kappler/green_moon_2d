@@ -12,7 +12,7 @@ use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
 use crate::value::GMValue;
-use crate::message::{GMMessage, msg1};
+use crate::message::{GMMessage, msg1v};
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -153,19 +153,19 @@ impl GMObjectT for GMLine {
     }
     */
 
-    fn send_message(&mut self, message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
-        let tag = message.tag.as_str();
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
         let method = message.method.as_str();
         let value = message.value;
 
-        match tag {
+        match tag.as_str() {
             "" => {
                 match method {
                     "init" => {
                         let positions = self.point_changed();
 
                         for (element, position) in self.elements.iter_mut().zip(positions) {
-                            element.send_message(msg1("set_position", position), object_manager);
+                            element.send_message(msg1v("set_position", position), object_manager);
                         }
                     }
                     "get_line_mode" => {
@@ -230,62 +230,3 @@ impl GMObjectT for GMLine {
         Box::new(self.clone())
     }
 }
-
-
-/*
-
-impl GMUpdateT for GMLine {
-    fn update(&mut self) {
-        if self.active {
-            for element in &mut self.elements {
-                element.update();
-            }
-        }
-    }
-}
-
-impl GMDrawT for GMLine {
-    fn draw(&self, context: &mut GMContext) {
-        if self.visible {
-            for element in &self.elements {
-                element.draw(context);
-            }
-        }
-    }
-}
-
-impl GMPositionMultipleT for GMLine {
-    fn set_position_x_n(&mut self, x: f32, index: usize) {
-        if index == 0 {
-            self.start.x = x;
-        } else {
-            self.end.x = x;
-        }
-    }
-
-    fn set_position_y_n(&mut self, y: f32, index: usize) {
-        if index == 0 {
-            self.start.y = y;
-        } else {
-            self.end.y = y;
-
-        }
-    }
-
-    fn get_position_x_n(&self, index: usize) -> f32 {
-        if index == 0 {
-            self.start.x
-        } else {
-            self.end.x
-        }
-    }
-
-    fn get_position_y_n(&self, index: usize) -> f32 {
-        if index == 0 {
-            self.start.y
-        } else {
-            self.end.y
-        }
-    }
-}
-*/

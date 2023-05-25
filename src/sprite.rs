@@ -67,12 +67,12 @@ impl GMSprite {
 }
 
 impl GMObjectT for GMSprite {
-    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
-        let tag = message.tag.as_str();
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value;
+        let value = message.value.clone();
 
-        match tag {
+        match tag.as_str() {
             "" => {
                 match method {
                     "get" => {
@@ -103,13 +103,13 @@ impl GMObjectT for GMSprite {
                 return self.position.send_message(method, value)
             }
             "animation" => {
-                return self.animation.send_message(method, value)
+                return self.animation.send_message(message)
             }
             "flipxy" => {
                 return self.flipxy.send_message(method, value);
             }
             "size" => {
-                return self.size.send_message(method, value);
+                return self.size.send_message(message);
             }
             _ => {
                 error_panic(&format!("GMSprite::send_message: unknown tag '{}'", tag));

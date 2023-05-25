@@ -4,8 +4,9 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::timer::GMTimer;
-use crate::util::{GMRepetition, error_panic};
+use crate::util::{GMRepetition, error_panic, send_message_bool, send_message_usize};
 use crate::value::GMValue;
+use crate::message::GMMessage;
 
 #[derive(Clone, Debug)]
 pub struct GMAnimation {
@@ -58,10 +59,6 @@ impl GMAnimation {
                 false
             }
         }
-    }
-
-    pub fn reverse(&mut self) {
-        self.repetition.reverse();
     }
 
     pub fn update(&mut self) {
@@ -121,55 +118,51 @@ impl GMAnimation {
         }
     }
 
-    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
-        match method {
-            "get" => {
-                return self.clone().into()
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "get" => {
+                        return self.clone().into()
+                    }
+                    "set" => {
+                        *self = value.into_animation();
+                    }
+                    "texture_index" => {
+                        return self.texture_index().into()
+                    }
+                    "frame_at_start" => {
+                        return self.frame_at_start().into()
+                    }
+                    "frame_at_end" => {
+                        return self.frame_at_end().into()
+                    }
+                    "finished" => {
+                        return self.finished().into()
+                    }
+                    "update" => {
+                        self.update();
+                    }
+                    _ => {
+                        error_panic(&format!("GMAnimation::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
-            "set" => {
-                *self = value.into_animation();
+            "active" => {
+                return send_message_bool(&mut self.active, method, value);
             }
-            "get_active" => {
-                return self.active.into()
+            "frame" => {
+                return send_message_usize(&mut self.current_frame, method, value);
             }
-            "set_active" => {
-                self.active = value.into_bool();
-            }
-            "toggle_active" => {
-                self.active = !self.active;
-            }
-            "get_current_frame" => {
-                return self.current_frame.into()
-            }
-            "set_current_frame" => {
-                self.current_frame = value.into_usize();
-            }
-            "get_repetition" => {
-                return self.repetition.into()
-            }
-            "set_repetition" => {
-                self.repetition = value.into_repetition();
-            }
-            "texture_index" => {
-                return self.texture_index().into()
-            }
-            "frame_at_start" => {
-                return self.frame_at_start().into()
-            }
-            "frame_at_end" => {
-                return self.frame_at_end().into()
-            }
-            "finished" => {
-                return self.finished().into()
-            }
-            "reverse" => {
-                self.reverse();
-            }
-            "update" => {
-                self.reverse();
+            "repetition" => {
+                return self.repetition.send_message(method, value);
             }
             _ => {
-                error_panic(&format!("GMAnimation::send_message, unknown method: '{}'", method));
+                error_panic(&format!("GMAnimation::send_message, unknown tag: '{}'", tag));
             }
         }
 
