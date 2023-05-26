@@ -7,11 +7,13 @@ use crate::context::GMContext;
 use crate::curve::GMCurveT;
 use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
+use crate::message::msgt1v;
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
-use crate::util::{error_panic};
+use crate::util::{error_panic, send_message_f32, send_message_bool, send_message_usize};
 use crate::value::GMValue;
+use crate::message::GMMessage;
 
 #[derive(Clone, Debug)]
 pub struct GMMVVelocity {
@@ -33,38 +35,26 @@ impl GMMVVelocity {
 }
 
 impl GMObjectT for GMMVVelocity {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method;
+        let value = message.value;
+
+        match tag.as_str() {
+            "target" => {
+                return self.target.send_message(&method, value);
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
-            GMMessage::Custom0(name) if name == "get_velocity" => {
-                return self.v.into();
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(v)) if name == "set_velocity" => {
-                self.v = v;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(v)) if name == "add_velocity" => {
-                self.v += v;
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "velocity" => {
+                return self.v.send_message(&method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVVelocity::send_message: '{:?}'", message))
+                error_panic(&format!("GMMVVelocity::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-*/
 
     fn update(&mut self, object_manager: &GMObjectManager) {
-        //object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
+        object_manager.send_message(&self.target, msgt1v("position", "add", self.v));
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -92,38 +82,26 @@ impl GMMVAcceleration {
 }
 
 impl GMObjectT for GMMVAcceleration {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method;
+        let value = message.value;
+
+        match tag.as_str() {
+            "target" => {
+                return self.target.send_message(&method, value);
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
-            GMMessage::Custom0(name) if name == "get_acceleration" => {
-                return self.a.into();
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "set_acceleration" => {
-                self.a = a;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "add_acceleration" => {
-                self.a += a;
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "acceleration" => {
+                return self.a.send_message(&method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVAcceleration::send_message: '{:?}'", message))
+                error_panic(&format!("GMMVAcceleration::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 
     fn update(&mut self, object_manager: &GMObjectManager) {
-        //object_manager.send_custom_message1(&self.target, "add_velocity", self.a, context);
+        object_manager.send_message(&self.target, msgt1v("velocity", "add", self.a));
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
@@ -154,47 +132,29 @@ impl GMMVVelAccel {
 }
 
 impl GMObjectT for GMMVVelAccel {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method;
+        let value = message.value;
+
+        match tag.as_str() {
+            "target" => {
+                return self.target.send_message(&method, value);
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
+            "velocity" => {
+                return self.v.send_message(&method, value);
             }
-            GMMessage::Custom0(name) if name == "get_velocity" => {
-                return self.v.into();
-            }
-            GMMessage::Custom0(name) if name == "get_acceleration" => {
-                return self.a.into();
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(v)) if name == "set_velocity" => {
-                self.v = v;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(v)) if name == "add_velocity" => {
-                self.v += v;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "set_acceleration" => {
-                self.a = a;
-            }
-            GMMessage::Custom1(name, GMValue::Vec2D(a)) if name == "add_acceleration" => {
-                self.a += a;
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "acceleration" => {
+                return self.a.send_message(&method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVVelAccel::send_message: '{:?}'", message))
+                error_panic(&format!("GMMVVelAccel::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 
     fn update(&mut self, object_manager: &GMObjectManager) {
-        // object_manager.send_message(&self.target, GMMessage::AddPosition(self.v), context);
+        object_manager.send_message(&self.target, msgt1v("position", "add", self.v));
         self.v += self.a;
     }
 
@@ -227,74 +187,47 @@ impl GMMVCircle {
 }
 
 impl GMObjectT for GMMVCircle {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetPosition => {
-                return self.circle.center.into()
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "update" => {
+                        let new_pos = self.circle.position_from_deg(self.angle);
+                        object_manager.send_message(&self.target, msgt1v("position", "set", new_pos));
+                    }
+                    _ => {
+                        error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
+                    }    
+                }
             }
-            GMMessage::GetX => {
-                return self.circle.center.x.into()
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::GetY => {
-                return self.circle.center.y.into()
+            "circle" => {
+                return self.circle.send_message(message);
             }
-            GMMessage::AddPosition(pos) => {
-                self.circle.center += pos;
+            "angle" => {
+                return send_message_f32(&mut self.angle, method, value);
             }
-            GMMessage::AddX(x) => {
-                self.circle.center.x += x;
-            }
-            GMMessage::AddY(y) => {
-                self.circle.center.y += y;
-            }
-            GMMessage::SetPosition(pos) => {
-                self.circle.center = pos;
-            }
-            GMMessage::SetX(x) => {
-                self.circle.center.x = x;
-            }
-            GMMessage::SetY(y) => {
-                self.circle.center.y = y;
-            }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
-            }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
-            GMMessage::Update => {
-                let new_pos = self.circle.position_from_deg(self.angle);
-                object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
-            }
-            GMMessage::Custom0(name) if name == "get_radius" => {
-                return self.circle.radius.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(radius)) if name == "set_radius" => {
-                self.circle.radius = radius;
-            }
-            GMMessage::Custom0(name) if name == "get_angle" => {
-                return self.angle.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
-                self.angle = angle;
-            }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "auto_update" => {
+                return send_message_bool(&mut self.auto_update, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVCircle::send_message: '{:?}'", message))
+                error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-    */
 
     fn update(&mut self, object_manager: &GMObjectManager) {
         if self.auto_update {
             let new_pos = self.circle.position_from_deg(self.angle);
-            //object_manager.send_message(&self.target, GMMessage::SetPosition(new_pos), context);
+            object_manager.send_message(&self.target, msgt1v("position", "set", new_pos));
         }
     }
 
@@ -353,80 +286,62 @@ impl GMObjectT for GMMVMultiCircle {
     /*
     fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::GetPosition => {
-                return self.circle.center.into()
-            }
-            GMMessage::GetMultiPosition => {
-                return self.multi_pos().into()
-            }
-            GMMessage::GetX => {
-                return self.circle.center.x.into()
-            }
-            GMMessage::GetY => {
-                return self.circle.center.y.into()
-            }
-            GMMessage::AddPosition(pos) => {
-                self.circle.center += pos;
-            }
-            GMMessage::AddX(x) => {
-                self.circle.center.x += x;
-            }
-            GMMessage::AddY(y) => {
-                self.circle.center.y += y;
-            }
-            GMMessage::SetPosition(pos) => {
-                self.circle.center = pos;
-            }
-            GMMessage::SetX(x) => {
-                self.circle.center.x = x;
-            }
-            GMMessage::SetY(y) => {
-                self.circle.center.y = y;
-            }
-            GMMessage::Update => {
-                let positions = self.multi_pos();
-                (self.func)(positions, context, object_manager);
-            }
-            GMMessage::Custom0(name) if name == "get_radius" => {
-                return self.circle.radius.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(radius)) if name == "set_radius" => {
-                self.circle.radius = radius;
-            }
-            GMMessage::Custom0(name) if name == "get_angle" => {
-                return self.angle.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(angle)) if name == "set_angle" => {
-                self.angle = angle;
-            }
-            GMMessage::Custom0(name) if name == "get_angle_step" => {
-                return self.angle_step.into()
-            }
-            GMMessage::Custom1(name, GMValue::F32(angle_step)) if name == "set_angle_step" => {
-                self.angle_step = angle_step;
-            }
             GMMessage::Custom0(name) if name == "get_count" => {
                 return self.count.into()
             }
             GMMessage::Custom1(name, GMValue::USize(count)) if name == "set_count" => {
                 self.count = count;
             }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(value: Vec<GMVec2D>, context: &mut GMContext,
-                    object_manager: &GMObjectManager)>().unwrap();
-                self.func = func;
+        }
+    }
+    */
+
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "update" => {
+                        let positions = self.multi_pos();
+                        (self.func)(positions, object_manager);
+                    }
+                    "set_func" => {
+                        if let GMValue::Any(any) = value {
+                            let func = any.downcast_ref::<fn(value: Vec<GMVec2D>,
+                                object_manager: &GMObjectManager)>().unwrap();
+                            self.func = *func;
+                        }
+                    }
+                    _ => {
+                        error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
+                    }    
+                }
             }
-            GMMessage::Multiple(messages) => {
-                return self.send_message_multiple(messages, context, object_manager)
+            "circle" => {
+                return self.circle.send_message(message);
+            }
+            "angle" => {
+                return send_message_f32(&mut self.angle, method, value);
+            }
+            "angle_step" => {
+                return send_message_f32(&mut self.angle_step, method, value);
+            }
+            "count" => {
+                return send_message_usize(&mut self.count, method, value);
+            }
+            "auto_update" => {
+                return send_message_bool(&mut self.auto_update, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMMVMultiCircle::send_message: '{:?}'", message))
+                error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-    */
 
     fn update(&mut self, object_manager: &GMObjectManager) {
         if self.auto_update {
@@ -474,7 +389,7 @@ impl GMMVPath {
     pub fn update_position(&mut self, object_manager: &GMObjectManager) {
         self.interpolation.update();
         let position = self.interpolation.get_current_value();
-        //object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
+        object_manager.send_message(&self.target, msgt1v("position", "set", position));
 
         if self.interpolation.is_finished() {
             self.index += 1;

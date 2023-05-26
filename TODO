@@ -1,12 +1,7 @@
 
 
 
-- Add tag to GMTarget and send_message(tag: &str, ...)
-
-- Implement Any conversion for other types as well:
-    impl From<Rc<dyn Any>> for ...
-
-- Impl to GMValue from GMLineMode
+- Make tags and methods configurable inside some objects (GMMVCircle for example)
 
 - movement: GMMVWarp, GMMVBounce
 

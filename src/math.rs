@@ -385,10 +385,14 @@ impl GMRectangle {
                 }
             }
             "top_left" => {
-
+                let v = value.into_vec2d();
+                self.x1 = v.x;
+                self.y1 = v.y;
             }
             "bottom_right" => {
-
+                let v = value.into_vec2d();
+                self.x2 = v.x;
+                self.y2 = v.y;
             }
             _ => {
                 error_panic(&format!("GMRectangle::send_message, unknown tag: '{}'", tag));
