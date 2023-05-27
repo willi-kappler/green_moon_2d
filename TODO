@@ -1,5 +1,6 @@
 
 
+- Add context back as parameter for update(). Remove it from GMObjectManager.
 
 - Make tags and methods configurable inside some objects (GMMVCircle for example)
 
