@@ -601,6 +601,7 @@ impl<'a> GMObjectManager<'a> {
     fn process_manager_messages(&mut self) {
         let mut messages = self.manager_messages.take();
 
+        // TODO: refactor, use into_generic()
         while let Some((method, value)) = messages.pop_front() {
             match method.as_str() {
                 "add_custom_object" => {

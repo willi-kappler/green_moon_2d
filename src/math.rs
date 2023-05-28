@@ -135,9 +135,9 @@ impl GMVec2D {
                 return x.chain(y)
             }
             "set_xy" => {
-                let mut values = value.to_vec_deque();
-                self.x = values.pop_front().unwrap().into_f32();
-                self.y = values.pop_front().unwrap().into_f32();
+                let (x, y) = value.into_generic::<(f32, f32)>();
+                self.x = x;
+                self.y = y;
             }
             _ => {
                 error_panic(&format!("GMVec2D::send_message, unknown method: '{}'", method));
@@ -246,9 +246,7 @@ impl GMSize {
                         *self = value.into_size();
                     }
                     "add" => {
-                        let mut vec_deque = value.to_vec_deque();
-                        let width = vec_deque.pop_front().unwrap().into_f32();
-                        let height = vec_deque.pop_front().unwrap().into_f32();
+                        let (width, height) = value.into_generic::<(f32, f32)>();
                         self.width += width;
                         self.height += height;
                     }
@@ -258,9 +256,7 @@ impl GMSize {
                         self.height *= factor;
                     }
                     "set_wh" => {
-                        let mut vec_deque = value.to_vec_deque();
-                        let width = vec_deque.pop_front().unwrap().into_f32();
-                        let height = vec_deque.pop_front().unwrap().into_f32();
+                        let (width, height) = value.into_generic::<(f32, f32)>();
                         self.width = width;
                         self.height = height;
                     }
@@ -524,9 +520,9 @@ impl GMFlipXY {
                 return x.chain(y);
             }
             "set_xy" => {
-                let mut vec_deque = value.to_vec_deque();
-                self.x = vec_deque.pop_front().unwrap().into_bool();
-                self.y = vec_deque.pop_front().unwrap().into_bool();
+                let (x, y) = value.into_generic::<(bool, bool)>();
+                self.x = x;
+                self.y = y;
             }
 
             "get_x" => {

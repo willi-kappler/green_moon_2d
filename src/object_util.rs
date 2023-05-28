@@ -73,14 +73,13 @@ impl GMObjectT for GMTimedMessage {
     fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "message" => {
                 return self.message.send_message(message);
             }
             "target" => {
-                self.target.send_message(method, value);
+                self.target.send_message(method, message.value);
             }
             _ => {
                 return self.timed_base.send_message(message);
@@ -133,7 +132,6 @@ impl GMObjectT for GMTimedMultiMessage {
     fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag1 = message.next_tag();
         let tag2 = message.next_tag();
-        let value = message.take_value();
         let method = message.method.as_str();
 
         match tag1.as_str() {
@@ -145,7 +143,7 @@ impl GMObjectT for GMTimedMultiMessage {
                         }
                     }
                     "set_items" => {
-                        let items = value.into_generic::<Vec<(f32, bool, GMTarget, GMMessage)>>();
+                        let items = message.value.into_generic::<Vec<(f32, bool, GMTarget, GMMessage)>>();
                         self.set_items(items);
                     }
                     _ => {
@@ -154,22 +152,22 @@ impl GMObjectT for GMTimedMultiMessage {
                 }
             }
             "timer" => {
-                let (index, timer_value) = value.into_generic::<(usize, GMValue)>();
+                let (index, timer_value) = message.value.into_generic::<(usize, GMValue)>();
 
                 return self.items[index].0.send_message(msgt1v(tag2, method, timer_value));
             }
             "repeat" => {
-                let (index, repeat_value) = value.into_generic::<(usize, GMValue)>();
+                let (index, repeat_value) = message.value.into_generic::<(usize, GMValue)>();
 
                 return send_message_bool(&mut self.items[index].1, method, repeat_value);
             }
             "target" => {
-                let (index, target_value) = value.into_generic::<(usize, GMValue)>();
+                let (index, target_value) = message.value.into_generic::<(usize, GMValue)>();
 
                 return self.items[index].2.send_message(method, target_value);
             }
             "message" => {
-                let (index, msg_value) = value.into_generic::<(usize, GMValue)>();
+                let (index, msg_value) = message.value.into_generic::<(usize, GMValue)>();
 
                 return self.items[index].3.send_message(msgt1v(tag2, method, msg_value));
             }

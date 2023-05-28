@@ -321,6 +321,7 @@ impl GMObjectT for GMBitmapText {
                 return result
             }
             "chars" => {
+                // TODO: change to into_generic()
                 let mut values = value.to_vec_deque();
 
                 match method {

@@ -189,7 +189,6 @@ impl GMObjectT for GMMVCircle {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -204,16 +203,16 @@ impl GMObjectT for GMMVCircle {
                 }
             }
             "target" => {
-                return self.target.send_message(method, value);
+                return self.target.send_message(method, message.value);
             }
             "circle" => {
                 return self.circle.send_message(message);
             }
             "angle" => {
-                return send_message_f32(&mut self.angle, method, value);
+                return send_message_f32(&mut self.angle, method, message.value);
             }
             "auto_update" => {
-                return send_message_bool(&mut self.auto_update, method, value);
+                return send_message_bool(&mut self.auto_update, method, message.value);
             }
             _ => {
                 error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
@@ -285,7 +284,6 @@ impl GMObjectT for GMMVMultiCircle {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -295,7 +293,7 @@ impl GMObjectT for GMMVMultiCircle {
                         (self.func)(positions, object_manager);
                     }
                     "set_func" => {
-                        self.func = value.into_generic::<fn(value: Vec<GMVec2D>, object_manager: &GMObjectManager)>();
+                        self.func = message.value.into_generic::<fn(value: Vec<GMVec2D>, object_manager: &GMObjectManager)>();
                     }
                     _ => {
                         error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
@@ -306,16 +304,16 @@ impl GMObjectT for GMMVMultiCircle {
                 return self.circle.send_message(message);
             }
             "angle" => {
-                return send_message_f32(&mut self.angle, method, value);
+                return send_message_f32(&mut self.angle, method, message.value);
             }
             "angle_step" => {
-                return send_message_f32(&mut self.angle_step, method, value);
+                return send_message_f32(&mut self.angle_step, method, message.value);
             }
             "count" => {
-                return send_message_usize(&mut self.count, method, value);
+                return send_message_usize(&mut self.count, method, message.value);
             }
             "auto_update" => {
-                return send_message_bool(&mut self.auto_update, method, value);
+                return send_message_bool(&mut self.auto_update, method, message.value);
             }
             _ => {
                 error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
@@ -409,7 +407,6 @@ impl GMObjectT for GMMVPath {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -422,25 +419,21 @@ impl GMObjectT for GMMVPath {
                         object_manager.send_message(&self.target, msgt1v("position", "set", position));
                     }
                     "get_tuple_at" => {
-                        let index = value.into_usize();
+                        let index = message.value.into_usize();
                         let position: GMValue = self.positions[index].0.into();
                         let speed: GMValue = self.positions[index].1.into();
 
                         return position.chain(speed);
                     }
                     "set_tuple_at" => {
-                        let mut values = value.to_vec_deque();
-                        let index = values.pop_front().unwrap().into_usize();
-                        let position = values.pop_front().unwrap().into_vec2d();
-                        let speed = values.pop_front().unwrap().into_f32();
-
+                        let (index, position, speed) = message.value.into_generic::<(usize, GMVec2D, f32)>();
                         self.positions[index] = (position, speed);
                     }
                     "set_positions" => {
-                        self.positions = value.into_generic::<Vec<(GMVec2D, f32)>>();
+                        self.positions = message.value.into_generic::<Vec<(GMVec2D, f32)>>();
                     }
                     "set_curve" => {
-                        self.interpolation.curve = value.into_generic::<Box<dyn GMCurveT>>();
+                        self.interpolation.curve = message.value.into_generic::<Box<dyn GMCurveT>>();
                     }
                     "is_finished" => {
                         if self.repeat {
@@ -457,48 +450,46 @@ impl GMObjectT for GMMVPath {
                 }
             }
             "target" => {
-                return self.target.send_message(method, value);
+                return self.target.send_message(method, message.value);
             }
             "index" => {
-                return send_message_usize(&mut self.index, method, value);
+                return send_message_usize(&mut self.index, method, message.value);
             }
             "auto_update" => {
-                return send_message_bool(&mut self.auto_update, method, value);
+                return send_message_bool(&mut self.auto_update, method, message.value);
             }
             "repeat" => {
-                return send_message_bool(&mut self.repeat, method, value);
+                return send_message_bool(&mut self.repeat, method, message.value);
             }
             "position" => {
-                match value {
+                match message.value {
                     GMValue::USize(index) => {
                         // No other value needed
                         return self.positions[index].0.send_message(method, GMValue::None);
                     }
-                    GMValue::Multiple(mut values) => {
-                        let index = values.pop_front().unwrap().into_usize();
-                        let new_value = values.pop_front().unwrap();
+                    GMValue::Any(any) => {
+                        let (index, new_value) = any.downcast_ref::<(usize, GMValue)>().unwrap().clone();
 
                         return self.positions[index].0.send_message(method, new_value);
                     }
                     _ => {
-                        error_panic(&format!("GMPath::send_message, tag: 'position', invalid value: '{:?}'", value));
+                        error_panic(&format!("GMPath::send_message, tag: 'position', invalid value: '{:?}'", message.value));
                     }
                 }
             }
             "speed" => {
-                match value {
+                match message.value {
                     GMValue::USize(index) => {
                         // No other value needed
                         return send_message_f32(&mut self.positions[index].1, method, GMValue::None);
                     }
-                    GMValue::Multiple(mut values) => {
-                        let index = values.pop_front().unwrap().into_usize();
-                        let new_value = values.pop_front().unwrap();
+                    GMValue::Any(any) => {
+                        let (index, new_value) = any.downcast_ref::<(usize, GMValue)>().unwrap().clone();
 
                         return send_message_f32(&mut self.positions[index].1, method, new_value);
                     }
                     _ => {
-                        error_panic(&format!("GMPath::send_message, tag: 'speed', invalid value: '{:?}'", value));
+                        error_panic(&format!("GMPath::send_message, tag: 'speed', invalid value: '{:?}'", message.value));
                     }
                 }
             }
@@ -558,7 +549,6 @@ impl GMObjectT for GMMVFollow {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -575,10 +565,10 @@ impl GMObjectT for GMMVFollow {
                 }
             }
             "target" => {
-                return self.target.send_message(method, value);
+                return self.target.send_message(method, message.value);
             }
             "source" => {
-                return self.source.send_message(method, value);
+                return self.source.send_message(method, message.value);
             }
             "interpolation" => {
                 return self.interpolation.send_message(message);

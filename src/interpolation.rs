@@ -132,13 +132,12 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
     pub fn send_message_base(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
                 match method {
                     "set_curve" => {
-                        self.curve = value.into_generic::<Box<dyn GMCurveT>>();
+                        self.curve = message.value.into_generic::<Box<dyn GMCurveT>>();
                     }
                     "calculate_diff" => {
                         self.calculate_diff();
@@ -158,13 +157,13 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
                 }
             }
             "speed" => {
-                return send_message_f32(&mut self.speed, method, value);
+                return send_message_f32(&mut self.speed, method, message.value);
             }
             "repetition" => {
-                return self.repetition.send_message(method, value);
+                return self.repetition.send_message(method, message.value);
             }
             "step" => {
-                return send_message_f32(&mut self.current_step, method, value);
+                return send_message_f32(&mut self.current_step, method, message.value);
             }
             _ => {
                 error_panic(&format!("GMInterpolate::send_message, unknown tag: '{}'", tag));
@@ -181,7 +180,6 @@ impl GMInterpolateF32 {
     pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -195,10 +193,10 @@ impl GMInterpolateF32 {
                 }
             }
             "start" => {
-                return send_message_f32(&mut self.start, method, value);
+                return send_message_f32(&mut self.start, method, message.value);
             }
             "end" => {
-                return send_message_f32(&mut self.end, method, value);
+                return send_message_f32(&mut self.end, method, message.value);
             }
             _ => {
                 return self.send_message_base(message);
@@ -213,7 +211,6 @@ impl GMInterpolateVec2D {
     pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -227,10 +224,10 @@ impl GMInterpolateVec2D {
                 }
             }
             "start" => {
-                return self.start.send_message(method, value);
+                return self.start.send_message(method, message.value);
             }
             "end" => {
-                return self.end.send_message(method, value);
+                return self.end.send_message(method, message.value);
             }
             _ => {
                 return self.send_message_base(message);

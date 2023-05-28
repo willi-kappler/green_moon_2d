@@ -60,15 +60,13 @@ impl GMMessage {
     pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
+        let value = message.value;
 
         match tag.as_str() {
             "tags" => {
                 match method {
                     "set" => {
-                        let mut values = value.to_vec_deque();
-                        let index = values.pop_front().unwrap().into_usize();
-                        let new_tag = values.pop_front().unwrap().into_string();
+                        let (index, new_tag) = value.into_generic::<(usize, String)>();
                         self.tags[index] = new_tag;
                     }
                     "get" => {

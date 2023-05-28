@@ -43,7 +43,7 @@ impl GMTimer {
     pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
+        let value = message.value;
 
         match tag.as_str() {
             "" => {

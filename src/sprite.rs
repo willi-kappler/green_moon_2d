@@ -70,7 +70,6 @@ impl GMObjectT for GMSprite {
     fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
 
         match tag.as_str() {
             "" => {
@@ -79,13 +78,13 @@ impl GMObjectT for GMSprite {
                         return self.clone().into();
                     }
                     "set" => {
-                        *self = value.into_sprite();
+                        *self = message.value.into_sprite();
                     }
                     "get_texture" => {
                         return self.texture.clone().into();
                     }
                     "set_texture" => {
-                        self.texture = value.into_texture();
+                        self.texture = message.value.into_texture();
                         self.reset_size();
                     }
                     _ => {
@@ -94,19 +93,19 @@ impl GMObjectT for GMSprite {
                 }
             }
             "angle" => {
-                return send_message_f32(&mut self.angle, method, value)
+                return send_message_f32(&mut self.angle, method, message.value)
             }
             "scale" => {
-                return send_message_f32(&mut self.scale, method, value)
+                return send_message_f32(&mut self.scale, method, message.value)
             }
             "position" => {
-                return self.position.send_message(method, value)
+                return self.position.send_message(method, message.value)
             }
             "animation" => {
                 return self.animation.send_message(message)
             }
             "flipxy" => {
-                return self.flipxy.send_message(method, value);
+                return self.flipxy.send_message(method, message.value);
             }
             "size" => {
                 return self.size.send_message(message);
