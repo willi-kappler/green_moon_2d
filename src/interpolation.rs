@@ -129,7 +129,7 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
         }
     }
 
-    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+    pub fn send_message_base(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
         let value = message.value.clone();
@@ -139,6 +139,18 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
                 match method {
                     "set_curve" => {
                         self.curve = value.into_generic::<Box<dyn GMCurveT>>();
+                    }
+                    "calculate_diff" => {
+                        self.calculate_diff();
+                    }
+                    "calculate_value" => {
+                        self.calculate_value();
+                    }
+                    "reset" => {
+                        self.reset();
+                    }
+                    "is_finished" => {
+                        return self.is_finished().into();
                     }
                     _ => {
                         error_panic(&format!("GMInterpolate::send_message, unknown method: '{}', no tag", method));
@@ -165,7 +177,6 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
 
 pub type GMInterpolateF32 = GMInterpolate<f32>;
 
-/*
 impl GMInterpolateF32 {
     pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
         let tag = message.next_tag();
@@ -174,13 +185,56 @@ impl GMInterpolateF32 {
 
         match tag.as_str() {
             "" => {
-                error_panic(&format!("GMInterpolateF32::send_message, unknown tag: '{}'", tag));
+                match method {
+                    "get_value" => {
+                        return self.get_current_value().into();
+                    }
+                    _ => {
+                        return self.send_message_base(message);
+                    }
+                }
+            }
+            "start" => {
+                return send_message_f32(&mut self.start, method, value);
+            }
+            "end" => {
+                return send_message_f32(&mut self.end, method, value);
+            }
+            _ => {
+                return self.send_message_base(message);
             }
         }
-
-        GMValue::None
     }
 }
-*/
 
 pub type GMInterpolateVec2D = GMInterpolate<GMVec2D>;
+
+impl GMInterpolateVec2D {
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "get_value" => {
+                        return self.get_current_value().into();
+                    }
+                    _ => {
+                        return self.send_message_base(message);
+                    }
+                }
+            }
+            "start" => {
+                return self.start.send_message(method, value);
+            }
+            "end" => {
+                return self.end.send_message(method, value);
+            }
+            _ => {
+                return self.send_message_base(message);
+            }
+        }
+    }
+}

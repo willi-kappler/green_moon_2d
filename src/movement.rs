@@ -602,8 +602,7 @@ impl GMObjectT for GMMVFollow {
                 return self.source.send_message(method, value);
             }
             "interpolation" => {
-                // TODO:
-                // return self.interpolation.send_message();
+                return self.interpolation.send_message(message);
             }
             _ => {
                 error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
