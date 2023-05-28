@@ -1,6 +1,8 @@
 
 use std::collections::VecDeque;
+use std::mem;
 
+use crate::util::{error_panic, send_message_str};
 use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
@@ -50,6 +52,55 @@ impl GMMessage {
             self.tags.pop_front().unwrap()
         }
     }
+
+    pub fn take_value(&mut self) -> GMValue {
+        mem::take(&mut self.value)
+    }
+
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "tags" => {
+                match method {
+                    "set" => {
+                        let mut values = value.to_vec_deque();
+                        let index = values.pop_front().unwrap().into_usize();
+                        let new_tag = values.pop_front().unwrap().into_string();
+                        self.tags[index] = new_tag;
+                    }
+                    "get" => {
+                        let index = value.into_usize();
+                        return self.tags[index].clone().into();
+                    }
+                    "push_back" => {
+                        let new_tag = value.into_string();
+                        self.tags.push_back(new_tag);
+                    }
+                    "push_front" => {
+                        let new_tag = value.into_string();
+                        self.tags.push_front(new_tag);
+                    }
+                    _ => {
+                        error_panic(&format!("GMMessage::send_message, tag: 'tags' unknown method: '{}'", method));
+                    }
+                }
+            }
+            "method" => {
+                return send_message_str(&mut self.method, method, value);
+            }
+            "value" => {
+                return self.value.send_message(method, value);
+            }
+            _ => {
+                error_panic(&format!("GMMessage::send_message, unknown tag: '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
 }
 
 pub struct GMTags {
@@ -84,6 +135,14 @@ impl From<&[&str]> for GMTags {
     fn from(tags: &[&str]) -> Self {
         Self {
             tags: VecDeque::from(tags.iter().map(|s| s.to_string()).collect::<Vec<String>>()),
+        }
+    }
+}
+
+impl From<String> for GMTags {
+    fn from(tag: String) -> Self {
+        Self {
+            tags: VecDeque::from([tag]),
         }
     }
 }

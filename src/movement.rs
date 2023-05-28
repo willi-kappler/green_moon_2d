@@ -469,7 +469,6 @@ impl GMObjectT for GMMVPath {
                 return send_message_bool(&mut self.repeat, method, value);
             }
             "position" => {
-                // TODO: refactor into function
                 match value {
                     GMValue::USize(index) => {
                         // No other value needed
@@ -482,12 +481,11 @@ impl GMObjectT for GMMVPath {
                         return self.positions[index].0.send_message(method, new_value);
                     }
                     _ => {
-                        error_panic(&format!("GMPath::send_message, invalid value: '{:?}'", value));
+                        error_panic(&format!("GMPath::send_message, tag: 'position', invalid value: '{:?}'", value));
                     }
                 }
             }
             "speed" => {
-                // TODO: refactor into function
                 match value {
                     GMValue::USize(index) => {
                         // No other value needed
@@ -500,7 +498,7 @@ impl GMObjectT for GMMVPath {
                         return send_message_f32(&mut self.positions[index].1, method, new_value);
                     }
                     _ => {
-                        error_panic(&format!("GMPath::send_message, invalid value: '{:?}'", value));
+                        error_panic(&format!("GMPath::send_message, tag: 'speed', invalid value: '{:?}'", value));
                     }
                 }
             }
@@ -557,25 +555,6 @@ impl GMMVFollow {
 }
 
 impl GMObjectT for GMMVFollow {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::Custom0(name) if name == "get_speed" => {
-                return self.interpolation.speed.into();
-            }
-            GMMessage::Custom1(name, GMValue::F32(speed)) if name == "set_speed" => {
-                self.interpolation.speed = speed;
-            }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_curve" => {
-                let curve = (*value.downcast::<Box<dyn GMCurveT>>().unwrap()).clone();
-                self.interpolation.curve = curve;
-            }
-        }
-
-        GMValue::None
-    }
-    */
-
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();

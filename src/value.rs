@@ -107,6 +107,26 @@ impl GMValue {
         }
     }
 
+    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
+        match method {
+            "get" => {
+                return self.clone();
+            }
+            "set" => {
+                *self = value;
+            }
+            _ => {
+                error_panic(&format!("GMValue::send_message, unknown method: '{}'", method));
+            }
+        }
+
+        GMValue::None
+    }
+
+    pub fn from_any<T: Any>(any: T) -> GMValue {
+        Self::Any(Rc::new(any))
+    }
+
     pub fn into_bool(self) -> bool {
         if let Self::Bool(value) = self {
             return value
@@ -266,6 +286,12 @@ impl GMValue {
         }
 
         error_panic(&format!("GMValue::into_generic, not an any variant: '{:?}'", self));
+    }
+}
+
+impl Default for GMValue {
+    fn default() -> Self {
+        Self::None
     }
 }
 

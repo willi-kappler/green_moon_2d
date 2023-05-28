@@ -14,9 +14,9 @@ use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
-use crate::util::{error_panic, GMRepetition, random_range_f32};
+use crate::util::{error_panic, GMRepetition, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
 use crate::value::GMValue;
-use crate::message::{GMMessage, msgt0v};
+use crate::message::{GMMessage, msgt0v, msgt1v};
 
 
 #[derive(Clone, Debug)]
@@ -26,43 +26,35 @@ pub struct GMTimedBase {
 }
 
 impl GMTimedBase {
-    /*
-    pub fn send_message(&mut self, message: GMMessage) -> GMValue {
-        match message {
-            GMMessage::Custom0(name) if name == "get_timeout" => {
-                let value = self.timer.duration.into();
-                return value
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "timeout" => {
+                return self.timer.send_message(message);
             }
-            GMMessage::Custom0(name) if name == "get_repeat" => {
-                let value = self.repeat.into();
-                return value
-            }
-            GMMessage::Custom1(name, GMValue::F32(duration)) if name == "set_timeout" => {
-                self.timer.duration = duration;
-            }
-            GMMessage::Custom1(name, GMValue::Bool(repeat)) if name == "set_repeat" => {
-                self.repeat = repeat;
+            "repeat" => {
+                return send_message_bool(&mut self.repeat, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMTimedBase::send_message: '{:?}'", message))
+                error_panic(&format!("GMTimedBase::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
-    */
 }
 
 
 #[derive(Clone, Debug)]
 pub struct GMTimedMessage {
-    //pub message: GMMessage,
+    pub message: GMMessage,
     pub target: GMTarget,
     pub timed_base: GMTimedBase,
 }
 
 impl GMTimedMessage {
-    pub fn new<T: Into<GMTarget>>(tag: &str, message: &str, value: GMValue, target: T, timeout: f32, repeat: bool) -> Self {
+    pub fn new<T: Into<GMTarget>>(target: T, timeout: f32, repeat: bool, message: GMMessage) -> Self {
         let target = target.into();
         debug!("GMTimedMessage::new(), target: '{:?}', timeout: '{}', repeat: '{}', message: '{:?}'", target, timeout, repeat, message);
 
@@ -70,7 +62,7 @@ impl GMTimedMessage {
         let timed_base = GMTimedBase { timer, repeat };
 
         Self {
-            //message,
+            message,
             target,
             timed_base,
         }
@@ -78,33 +70,25 @@ impl GMTimedMessage {
 }
 
 impl GMObjectT for GMTimedMessage {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetMessage(message) => {
-                self.message = *message;
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "message" => {
+                return self.message.send_message(message);
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
-            GMMessage::GetMessage => {
-                return self.message.clone().into()
-            }
-            GMMessage::GetTarget => {
-                return self.target.clone().into()
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
+            "target" => {
+                self.target.send_message(method, value);
             }
             _ => {
-                // Delegate all other messages to the base object
                 return self.timed_base.send_message(message);
             }
         }
 
         GMValue::None
     }
-*/
 
     fn update(&mut self, object_manager: &GMObjectManager) {
         if self.timed_base.timer.finished() {
@@ -112,7 +96,7 @@ impl GMObjectT for GMTimedMessage {
                 self.timed_base.timer.start();
             }
 
-            //object_manager.send_message(&self.target, self.message.clone(), context);
+            object_manager.send_message(&self.target, self.message.clone());
         }
     }
 
@@ -123,66 +107,88 @@ impl GMObjectT for GMTimedMessage {
 
 #[derive(Clone, Debug)]
 pub struct GMTimedMultiMessage {
-    pub items: Vec<(GMTimer, bool, GMTarget, String, String, GMValue)>,
+    pub items: Vec<(GMTimer, bool, GMTarget, GMMessage)>,
 }
 
 impl GMTimedMultiMessage {
-    pub fn new(mut items: Vec<(f32, bool, GMTarget, String, String, GMValue)>) -> Self {
+    pub fn new(items: Vec<(f32, bool, GMTarget, GMMessage)>) -> Self {
         debug!("GMTimedMultiMessage::new()");
 
-        Self {
-            items: items.drain(0..).map(|(duration, repeat, target,
-                tag, message, value)| (GMTimer::new(duration), repeat,
-                target, tag, message, value)).collect(),
-        }
+        let mut result = Self {
+            items: Vec::new(),
+        };
+
+        result.set_items(items);
+
+        result
+    }
+
+    pub fn set_items(&mut self, mut items: Vec<(f32, bool, GMTarget, GMMessage)>) {
+        self.items = items.drain(0..).map(|(duration, repeat, target,
+            message)| (GMTimer::new(duration), repeat, target, message)).collect();
     }
 }
 
 impl GMObjectT for GMTimedMultiMessage {
-    /*
-    fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::Custom0(name) if name == "reset_all_timers" => {
-                for item in self.items.iter_mut() {
-                    item.0.start();
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag1 = message.next_tag();
+        let tag2 = message.next_tag();
+        let value = message.take_value();
+        let method = message.method.as_str();
+
+        match tag1.as_str() {
+            "" => {
+                match method {
+                    "reset_all_timers" => {
+                        for item in self.items.iter_mut() {
+                            item.0.start();
+                        }
+                    }
+                    "set_items" => {
+                        let items = value.into_generic::<Vec<(f32, bool, GMTarget, GMMessage)>>();
+                        self.set_items(items);
+                    }
+                    _ => {
+                        error_panic(&format!("GMTimedMultiMessage::send_message, method: '{}', no tag", method));
+                    }
                 }
             }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_items" => {
-                let mut items = (*value.downcast::<Vec<(f32, bool, GMTarget, GMMessage)>>().unwrap()).clone();
-                self.items = items.drain(0..).map(|(duration, repeat, target, message)| (GMTimer::new(duration), repeat, target, message)).collect();
+            "timer" => {
+                let (index, timer_value) = value.into_generic::<(usize, GMValue)>();
+
+                return self.items[index].0.send_message(msgt1v(tag2, method, timer_value));
             }
-            GMMessage::Custom1(name, GMValue::USize(index)) if name == "reset_timer" => {
-                self.items[index].0.start();
+            "repeat" => {
+                let (index, repeat_value) = value.into_generic::<(usize, GMValue)>();
+
+                return send_message_bool(&mut self.items[index].1, method, repeat_value);
             }
-            GMMessage::Custom2(name, GMValue::F32(duration), GMValue::USize(index)) if name == "set_timeout" => {
-                self.items[index].0.duration = duration;
+            "target" => {
+                let (index, target_value) = value.into_generic::<(usize, GMValue)>();
+
+                return self.items[index].2.send_message(method, target_value);
             }
-            GMMessage::Custom2(name, GMValue::Bool(repeat), GMValue::USize(index)) if name == "set_repeat" => {
-                self.items[index].1 = repeat;
+            "message" => {
+                let (index, msg_value) = value.into_generic::<(usize, GMValue)>();
+
+                return self.items[index].3.send_message(msgt1v(tag2, method, msg_value));
             }
-            GMMessage::Custom2(name, GMValue::Target(target), GMValue::USize(index)) if name == "set_target" => {
-                self.items[index].2 = target;
-            }
-            GMMessage::Custom2(name, GMValue::Message(message), GMValue::USize(index)) if name == "set_message" => {
-                self.items[index].3 = *message;
-            }
-            _ => {
-                error_panic(&format!("Wrong message for GMTimedMultiMessage::send_message: '{:?}'", message))
+            _=> {
+                error_panic(&format!("GMTimedMultiMessage::send_message, unknown tag: '{}'", tag1));
             }
         }
 
         GMValue::None
     }
-*/
 
     fn update(&mut self, object_manager: &GMObjectManager) {
-        for (timer, repeat, target, tag, message, value) in self.items.iter_mut() {
+        for (timer, repeat, target, message) in self.items.iter_mut() {
             if timer.finished() {
                 if *repeat {
                     timer.start();
                 }
 
-                //object_manager.send_message(&target, message.clone(), context);
+                object_manager.send_message(&target, message.clone());
             }
         }
     }
@@ -194,18 +200,18 @@ impl GMObjectT for GMTimedMultiMessage {
 
 #[derive(Clone, Debug)]
 pub struct GMTimedSeqMessage {
-    pub items: Vec<(GMTimer, GMTarget, String, String, GMValue)>,
+    pub items: Vec<(GMTimer, GMTarget, GMMessage)>,
     pub index: usize,
     pub repeat: bool,
 }
 
 impl GMTimedSeqMessage {
-    pub fn new(mut items: Vec<(f32, GMTarget, String, String, GMValue)>, repeat: bool) -> Self {
+    pub fn new(mut items: Vec<(f32, GMTarget, GMMessage)>, repeat: bool) -> Self {
         debug!("GMTimedSeqMessage::new()");
 
         Self {
-            items: items.drain(0..).map(|(duration, target, tag,
-                message, value)| (GMTimer::new(duration), target, tag, message, value)).collect(),
+            items: items.drain(0..).map(|(duration, target, message)|
+                (GMTimer::new(duration), target, message)).collect(),
             index: 0,
             repeat,
         }
@@ -216,39 +222,12 @@ impl GMObjectT for GMTimedSeqMessage {
     /*
     fn send_message(&mut self, message: GMMessage, _context: &mut GMContext, _object_manager: &GMObjectManager) -> GMValue {
         match message {
-            GMMessage::Custom0(name) if name == "get_repeat" => {
-                return self.repeat.into()
-            }
-            GMMessage::Custom0(name) if name == "get_index" => {
-                return self.index.into()
-            }
             GMMessage::Custom0(name) if name == "get_items" => {
                 return GMValue::Any(Rc::new(self.items.clone()))
-            }
-            GMMessage::Custom1(name, GMValue::Bool(repeat)) if name == "set_repeat" => {
-                self.repeat = repeat;
-            }
-            GMMessage::Custom1(name, GMValue::USize(index)) if name == "set_index" => {
-                self.index = index;
             }
             GMMessage::Custom1(name, GMValue::Any(items)) if name == "set_items" => {
                 let mut items: Vec<(f32, GMTarget, GMMessage)> = (*items.downcast::<Vec<(f32, GMTarget, GMMessage)>>().unwrap()).clone();
                 self.items = items.drain(0..).map(|(duration, target, message)| (GMTimer::new(duration), target, message)).collect();
-            }
-            GMMessage::Custom1(name, GMValue::USize(index)) if name == "reset_timer" => {
-                self.items[index].0.start();
-            }
-            GMMessage::Custom2(name, GMValue::F32(duration), GMValue::USize(index)) if name == "set_duration" => {
-                self.items[index].0 = GMTimer::new(duration);
-            }
-            GMMessage::Custom2(name, GMValue::Target(target), GMValue::USize(index)) if name == "set_target" => {
-                self.items[index].1 = target;
-            }
-            GMMessage::Custom2(name, GMValue::Message(message), GMValue::USize(index)) if name == "set_message" => {
-                self.items[index].2 = *message;
-            }
-            _ => {
-                error_panic(&format!("Wrong message for GMTimedSeqMessage::send_message: '{:?}'", message))
             }
         }
 
@@ -256,12 +235,65 @@ impl GMObjectT for GMTimedSeqMessage {
     }
     */
 
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag1 = message.next_tag();
+        let tag2 = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag1.as_str() {
+            "" => {
+                match method {
+                    "reset_timer" => {
+                        // Resets the current timer
+                        self.items[self.index].0.start();
+                    }
+                    _ => {
+                        error_panic(&format!("GMTimedMultiMessage::send_message, method: '{}', no tag", method));
+                    }
+                }
+            }
+            "index" => {
+                return send_message_usize(&mut self.index, method, value);
+            }
+            "repeat" => {
+                return send_message_bool(&mut self.repeat, method, value);
+            }
+            "timer" => {
+                let mut values = value.to_vec_deque();
+                let index = values.pop_front().unwrap().into_usize();
+                let timer_value = values.pop_front().unwrap();
+
+                return self.items[index].0.send_message(msgt1v(tag2, method, timer_value));
+            }
+            "target" => {
+                let mut values = value.to_vec_deque();
+                let index = values.pop_front().unwrap().into_usize();
+                let target_value = values.pop_front().unwrap();
+
+                return self.items[index].1.send_message(method, target_value);
+            }
+            "message" => {
+                let mut values = value.to_vec_deque();
+                let index = values.pop_front().unwrap().into_usize();
+                let msg_value = values.pop_front().unwrap();
+
+                return self.items[index].2.send_message(msgt1v(tag2, method, msg_value));
+            }
+            _=> {
+                error_panic(&format!("GMTimedMultiMessage::send_message, unknown tag: '{}'", tag1));
+            }
+        }
+
+        GMValue::None
+    }
+
     fn update(&mut self, object_manager: &GMObjectManager) {
         if self.index < self.items.len() {
-            let (timer, target, tag, message, value) = &mut self.items[self.index];
+            let (timer, target, message) = &mut self.items[self.index];
 
             if timer.finished() {
-                //object_manager.send_message(target, message.clone(), context);
+                object_manager.send_message(target, message.clone());
                 self.index += 1;
 
                 if self.index < self.items.len() {

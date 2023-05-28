@@ -188,3 +188,19 @@ pub fn send_message_bool(v: &mut bool, method: &str, value: GMValue) -> GMValue 
 
     GMValue::None
 }
+
+pub fn send_message_str(v: &mut String, method: &str, value: GMValue) -> GMValue {
+    match method {
+        "get" => {
+            return (*v).clone().into();
+        }
+        "set" => {
+            *v = value.into_string();
+        }
+        _ => {
+            error_panic(&format!("send_message_str, unknown method: '{}'", method));
+        }
+    }
+
+    GMValue::None
+}
