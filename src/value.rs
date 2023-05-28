@@ -258,6 +258,15 @@ impl GMValue {
 
         error_panic(&format!("GMValue::into_object, not an object variant: '{:?}'", self));
     }
+
+    pub fn into_generic<T: Clone + 'static>(self) -> T {
+        if let Self::Any(value) = self {
+            let result = value.downcast_ref::<T>().unwrap();
+            return (*result).clone();
+        }
+
+        error_panic(&format!("GMValue::into_generic, not an any variant: '{:?}'", self));
+    }
 }
 
 impl From<()> for GMValue {

@@ -295,11 +295,7 @@ impl GMObjectT for GMMVMultiCircle {
                         (self.func)(positions, object_manager);
                     }
                     "set_func" => {
-                        if let GMValue::Any(any) = value {
-                            let func = any.downcast_ref::<fn(value: Vec<GMVec2D>,
-                                object_manager: &GMObjectManager)>().unwrap();
-                            self.func = *func;
-                        }
+                        self.func = value.into_generic::<fn(value: Vec<GMVec2D>, object_manager: &GMObjectManager)>();
                     }
                     _ => {
                         error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
@@ -441,16 +437,10 @@ impl GMObjectT for GMMVPath {
                         self.positions[index] = (position, speed);
                     }
                     "set_positions" => {
-                        if let GMValue::Any(any) = value {
-                            let positions = any.downcast_ref::<Vec<(GMVec2D, f32)>>().unwrap();
-                            self.positions = positions.clone();
-                        }
+                        self.positions = value.into_generic::<Vec<(GMVec2D, f32)>>();
                     }
                     "set_curve" => {
-                        if let GMValue::Any(any) = value {
-                            let curve = any.downcast_ref::<Box<dyn GMCurveT>>().unwrap();
-                            self.interpolation.curve = curve.clone();
-                        }
+                        self.interpolation.curve = value.into_generic::<Box<dyn GMCurveT>>();
                     }
                     "is_finished" => {
                         if self.repeat {

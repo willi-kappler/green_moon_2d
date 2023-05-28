@@ -4,9 +4,11 @@ use std::fmt::Debug;
 
 use log::debug;
 
-use crate::util::GMRepetition;
+use crate::util::{GMRepetition, send_message_f32, error_panic};
 use crate::math::GMVec2D;
 use crate::curve::{GMCurveT, GMCuLinear};
+use crate::value::GMValue;
+use crate::message::GMMessage;
 
 
 #[derive(Debug, Clone)]
@@ -126,8 +128,59 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
             }
         }
     }
+
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "set_curve" => {
+                        self.curve = value.into_generic::<Box<dyn GMCurveT>>();
+                    }
+                    _ => {
+                        error_panic(&format!("GMInterpolate::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
+            "speed" => {
+                return send_message_f32(&mut self.speed, method, value);
+            }
+            "repetition" => {
+                return self.repetition.send_message(method, value);
+            }
+            "step" => {
+                return send_message_f32(&mut self.current_step, method, value);
+            }
+            _ => {
+                error_panic(&format!("GMInterpolate::send_message, unknown tag: '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
 }
 
 pub type GMInterpolateF32 = GMInterpolate<f32>;
+
+/*
+impl GMInterpolateF32 {
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value.clone();
+
+        match tag.as_str() {
+            "" => {
+                error_panic(&format!("GMInterpolateF32::send_message, unknown tag: '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
+}
+*/
 
 pub type GMInterpolateVec2D = GMInterpolate<GMVec2D>;
