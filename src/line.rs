@@ -1,8 +1,6 @@
 
 use std::fmt::Debug;
-use std::rc::Rc;
 use std::cell::RefMut;
-use std::any::Any;
 
 use log::debug;
 
@@ -23,13 +21,6 @@ pub enum GMLineMode {
 impl GMObjectT for GMLineMode {
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
-    }
-}
-
-impl From<Rc<dyn Any>> for GMLineMode {
-    fn from(object: Rc<dyn Any>) -> Self {
-        let line_mode = object.downcast::<GMLineMode>().unwrap();
-        (*line_mode).clone()
     }
 }
 
@@ -130,11 +121,12 @@ impl GMLine {
 
 impl GMObjectT for GMLine {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
-        let tag = message.next_tag();
+        let tag1 = message.next_tag();
+        let tag2 = message.next_tag();
         let method = message.method.as_str();
         let value = message.value;
 
-        match tag.as_str() {
+        match tag1.as_str() {
             "" => {
                 match method {
                     "init" => {
@@ -186,8 +178,31 @@ impl GMObjectT for GMLine {
 
                 return result;
             }
+            "object" => {
+                let (index, new_value) = value.into_generic::<(usize, GMValue)>();
+                self.elements[index].send_message(msgt1v(tag2, method, new_value), object_manager);
+            }
+            "some_objects" => {
+                let mut new_values = value.into_generic::<Vec<(usize, GMValue)>>();
+
+                for (index, new_value) in new_values.drain(0..) {
+                    self.elements[index].send_message(msgt1v(tag2.as_str(), method, new_value), object_manager);
+                }
+            }
+            "all_objects" => {
+                for element in self.elements.iter_mut() {
+                    element.send_message(msgt1v(tag2.as_str(), method, value.clone()), object_manager);
+                }
+            }
+            "all_objects2" => {
+                let new_values = value.into_generic::<Vec<GMValue>>();
+
+                for (element, new_value) in self.elements.iter_mut().zip(new_values) {
+                    element.send_message(msgt1v(tag2.as_str(), method, new_value), object_manager);
+                }
+            }
             _ => {
-                error_panic(&format!("GMLine::send_message: Unknown tag '{}'", tag));
+                error_panic(&format!("GMLine::send_message: Unknown tag '{}'", tag1));
             }
         }
 
