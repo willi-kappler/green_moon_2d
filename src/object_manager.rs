@@ -605,30 +605,20 @@ impl<'a> GMObjectManager<'a> {
         while let Some((method, value)) = messages.pop_front() {
             match method.as_str() {
                 "add_custom_object" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let object_info = values.pop_front().unwrap().into_object_info();
+                    let (object_name, object_info) = value.into_generic::<(String, GMObjectInfo)>();
                     self.add_custom_object(&object_name, object_info);
                 }
                 "add_draw_object" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let object = values.pop_front().unwrap().into_object();
-                    let update_index = values.pop_front().unwrap().into_i32();
-                    let draw_index = values.pop_front().unwrap().into_i32();
+                    let (object_name, object, update_index, draw_index) =
+                        value.into_generic::<(String, Box<dyn GMObjectT>, i32, i32)>();
                     self.add_draw_object(&object_name, object, update_index, draw_index);
                 }
                 "add_group" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let group = values.pop_front().unwrap().into_string();
+                    let (object_name, group) = value.into_generic::<(String, String)>();
                     self.add_group(&object_name, &group);
                 }
                 "add_normal_object" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let object = values.pop_front().unwrap().into_object();
-                    let update_index = values.pop_front().unwrap().into_i32();
+                    let (object_name, object, update_index) = value.into_generic::<(String, Box<dyn GMObjectT>, i32)>();
                     self.add_normal_object(&object_name, object, update_index);
                 }
                 "clear_groups" => {
@@ -636,9 +626,7 @@ impl<'a> GMObjectManager<'a> {
                     self.clear_groups(&object_name);
                 }
                 "remove_group" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let group = values.pop_front().unwrap().into_string();
+                    let (object_name, group) = value.into_generic::<(String, String)>();
                     self.remove_group(&object_name, &group);
                 }
                 "remove_object" => {
@@ -646,33 +634,23 @@ impl<'a> GMObjectManager<'a> {
                     self.remove_object(&object_name);
                 }
                 "replace_object" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let object = values.pop_front().unwrap().into_object();
+                    let (object_name, object) = value.into_generic::<(String, Box<dyn GMObjectT>)>();
                     self.replace_object(&object_name, object);
                 }
                 "set_active" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let active = values.pop_front().unwrap().into_bool();
+                    let (object_name, active) = value.into_generic::<(String, bool)>();
                     self.set_active(&object_name, active);
                 }
                 "set_draw_index" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let draw_index = values.pop_front().unwrap().into_i32();
+                    let (object_name, draw_index) = value.into_generic::<(String, i32)>();
                     self.set_draw_index(&object_name, draw_index);
                 }
                 "set_update_index" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let update_index = values.pop_front().unwrap().into_i32();
+                    let (object_name, update_index) = value.into_generic::<(String, i32)>();
                     self.set_update_index(&object_name, update_index);
                 }
                 "set_visible" => {
-                    let mut values = value.to_vec_deque();
-                    let object_name = values.pop_front().unwrap().into_string();
-                    let visible = values.pop_front().unwrap().into_bool();
+                    let (object_name, visible) = value.into_generic::<(String, bool)>();
                     self.set_visible(&object_name, visible);
                 }
                 "toggle_active" => {
