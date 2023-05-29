@@ -66,9 +66,7 @@ impl GMObjectT for GMTEWave {
         let messages = vec![msg0v("get_horizontal"), msg0v("get_char_count")];
 
         let result = object_manager.send_message_multiple(&self.target, messages);
-        let mut values = result.to_vec_deque();
-        let horizontal = values.pop_front().unwrap().into_bool();
-        let num_of_chars = values.pop_front().unwrap().into_usize();
+        let (horizontal, num_of_chars) = result.into_generic::<(bool, usize)>();
 
         let mut offset = 0.0;
 

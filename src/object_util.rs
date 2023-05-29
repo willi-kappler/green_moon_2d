@@ -153,22 +153,18 @@ impl GMObjectT for GMTimedMultiMessage {
             }
             "timer" => {
                 let (index, timer_value) = message.value.into_generic::<(usize, GMValue)>();
-
                 return self.items[index].0.send_message(msgt1v(tag2, method, timer_value));
             }
             "repeat" => {
                 let (index, repeat_value) = message.value.into_generic::<(usize, GMValue)>();
-
                 return send_message_bool(&mut self.items[index].1, method, repeat_value);
             }
             "target" => {
                 let (index, target_value) = message.value.into_generic::<(usize, GMValue)>();
-
                 return self.items[index].2.send_message(method, target_value);
             }
             "message" => {
                 let (index, msg_value) = message.value.into_generic::<(usize, GMValue)>();
-
                 return self.items[index].3.send_message(msgt1v(tag2, method, msg_value));
             }
             _=> {
@@ -237,7 +233,7 @@ impl GMObjectT for GMTimedSeqMessage {
         let tag1 = message.next_tag();
         let tag2 = message.next_tag();
         let method = message.method.as_str();
-        let value = message.value.clone();
+        //let value = message.value.clone();
 
         match tag1.as_str() {
             "" => {
@@ -252,30 +248,21 @@ impl GMObjectT for GMTimedSeqMessage {
                 }
             }
             "index" => {
-                return send_message_usize(&mut self.index, method, value);
+                return send_message_usize(&mut self.index, method, message.value);
             }
             "repeat" => {
-                return send_message_bool(&mut self.repeat, method, value);
+                return send_message_bool(&mut self.repeat, method, message.value);
             }
             "timer" => {
-                let mut values = value.to_vec_deque();
-                let index = values.pop_front().unwrap().into_usize();
-                let timer_value = values.pop_front().unwrap();
-
+                let (index, timer_value) = message.value.into_generic::<(usize, GMValue)>();
                 return self.items[index].0.send_message(msgt1v(tag2, method, timer_value));
             }
             "target" => {
-                let mut values = value.to_vec_deque();
-                let index = values.pop_front().unwrap().into_usize();
-                let target_value = values.pop_front().unwrap();
-
+                let (index, target_value) = message.value.into_generic::<(usize, GMValue)>();
                 return self.items[index].1.send_message(method, target_value);
             }
             "message" => {
-                let mut values = value.to_vec_deque();
-                let index = values.pop_front().unwrap().into_usize();
-                let msg_value = values.pop_front().unwrap();
-
+                let (index, msg_value) = message.value.into_generic::<(usize, GMValue)>();
                 return self.items[index].2.send_message(msgt1v(tag2, method, msg_value));
             }
             _=> {

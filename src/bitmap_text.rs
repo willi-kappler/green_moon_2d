@@ -321,116 +321,129 @@ impl GMObjectT for GMBitmapText {
                 return result
             }
             "chars" => {
-                // TODO: change to into_generic()
-                let mut values = value.to_vec_deque();
-
                 match method {
                     "add_position" => {
-                        for c in self.chars.iter_mut() {
-                            let position = values.pop_front().unwrap().into_vec2d();
-                            c.position += position;
+                        let positions = value.into_generic::<Vec<GMVec2D>>();
+
+                        for (c, new_pos) in self.chars.iter_mut().zip(positions) {
+                            c.position += new_pos;
                         }
                     }
                     "add_position2" => {
-                        for c in self.chars.iter_mut() {
-                            let position = values.pop_front().unwrap().into_vec2d();
-                            c.position += position;
+                        let positions = value.into_generic::<Vec<GMVec2D>>();
+
+                        for (c, new_pos) in self.chars.iter_mut().zip(positions) {
+                            c.position += new_pos;
                         }
 
                         self.reset_positions();
                     }
                     "set_position" => {
-                        for c in self.chars.iter_mut() {
-                            let position = values.pop_front().unwrap().into_vec2d();
-                            c.position = position;
+                        let positions = value.into_generic::<Vec<GMVec2D>>();
+
+                        for (c, new_pos) in self.chars.iter_mut().zip(positions) {
+                            c.position = new_pos;
                         }
                     }
                     "set_position2" => {
-                        for c in self.chars.iter_mut() {
-                            let position = values.pop_front().unwrap().into_vec2d();
-                            c.position = position;
+                        let positions = value.into_generic::<Vec<GMVec2D>>();
+
+                        for (c, new_pos) in self.chars.iter_mut().zip(positions) {
+                            c.position = new_pos;
                         }
 
                         self.reset_positions();
                     }
                     "add_x" => {
-                        for c in self.chars.iter_mut() {
-                            let x = values.pop_front().unwrap().into_f32();
-                            c.position.x += x;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_x) in self.chars.iter_mut().zip(values) {
+                            c.position.x += new_x;
                         }
                     }
                     "add_x2" => {
-                        for c in self.chars.iter_mut() {
-                            let x = values.pop_front().unwrap().into_f32();
-                            c.position.x += x;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_x) in self.chars.iter_mut().zip(values) {
+                            c.position.x += new_x;
                         }
 
                         self.reset_positions();
                     }
                     "add_y" => {
-                        for c in self.chars.iter_mut() {
-                            let y = values.pop_front().unwrap().into_f32();
-                            c.position.y += y;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_y) in self.chars.iter_mut().zip(values) {
+                            c.position.y += new_y;
                         }
                     }
                     "add_y2" => {
-                        for c in self.chars.iter_mut() {
-                            let y = values.pop_front().unwrap().into_f32();
-                            c.position.y += y;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_y) in self.chars.iter_mut().zip(values) {
+                            c.position.y += new_y;
                         }
 
                         self.reset_positions();
                     }
                     "set_x" => {
-                        for c in self.chars.iter_mut() {
-                            let x = values.pop_front().unwrap().into_f32();
-                            c.position.x = x;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_x) in self.chars.iter_mut().zip(values) {
+                            c.position.x = new_x;
                         }
                     }
                     "set_x2" => {
-                        for c in self.chars.iter_mut() {
-                            let x = values.pop_front().unwrap().into_f32();
-                            c.position.x = x;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_x) in self.chars.iter_mut().zip(values) {
+                            c.position.x = new_x;
                         }
 
                         self.reset_positions();
                     }
                     "set_y" => {
-                        for c in self.chars.iter_mut() {
-                            let y = values.pop_front().unwrap().into_f32();
-                            c.position.y = y;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_y) in self.chars.iter_mut().zip(values) {
+                            c.position.y = new_y;
                         }
                     }
                     "set_y2" => {
-                        for c in self.chars.iter_mut() {
-                            let y = values.pop_front().unwrap().into_f32();
-                            c.position.y = y;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_y) in self.chars.iter_mut().zip(values) {
+                            c.position.y = new_y;
                         }
 
                         self.reset_positions();
                     }
                     "add_angle" => {
-                        for c in self.chars.iter_mut() {
-                            let angle = values.pop_front().unwrap().into_f32();
-                            c.angle += angle;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_angle) in self.chars.iter_mut().zip(values) {
+                            c.angle += new_angle;
                         }
                     }
                     "set_angle" => {
-                        for c in self.chars.iter_mut() {
-                            let angle = values.pop_front().unwrap().into_f32();
-                            c.angle = angle;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_angle) in self.chars.iter_mut().zip(values) {
+                            c.angle = new_angle;
                         }
                     }
                     "add_scale" => {
-                        for c in self.chars.iter_mut() {
-                            let scale = values.pop_front().unwrap().into_f32();
-                            c.scale += scale;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_scale) in self.chars.iter_mut().zip(values) {
+                            c.scale += new_scale;
                         }
                     }
                     "set_scale" => {
-                        for c in self.chars.iter_mut() {
-                            let scale = values.pop_front().unwrap().into_f32();
-                            c.scale = scale;
+                        let values = value.into_generic::<Vec<f32>>();
+
+                        for (c, new_scale) in self.chars.iter_mut().zip(values) {
+                            c.scale = new_scale;
                         }
                     }
                     _ => {
