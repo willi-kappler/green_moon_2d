@@ -665,12 +665,11 @@ impl GMObjectT for GMValueInterpolateVec2D {
 #[derive(Clone)]
 pub struct GMMapMessage {
     pub target: GMTarget,
-    pub func: fn(tag: &str, message: &str, value: GMValue) -> (String, String, GMValue),
+    pub func: fn(message: GMMessage) -> GMMessage,
 }
 
 impl GMMapMessage {
-    pub fn new<T: Into<GMTarget>>(target: T,
-            func: fn(tag: &str, message: &str, value: GMValue) -> (String, String, GMValue)) -> Self {
+    pub fn new<T: Into<GMTarget>>(target: T, func: fn(message: GMMessage) -> GMMessage) -> Self {
         let target = target.into();
         debug!("GMMapMessage::new(), target: '{:?}'", target);
 
@@ -688,39 +687,39 @@ impl fmt::Debug for GMMapMessage {
 }
 
 impl GMObjectT for GMMapMessage {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::Keep(keep_message) => {
-                match *keep_message {
-                    GMMessage::GetTarget => {
-                        return self.target.clone().into();
-                    }
-                    GMMessage::SetTarget(target) => {
-                        self.target = target;
-                    }
-                    GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                        let func = *value.downcast::<fn(message: GMMessage) -> GMMessage>().unwrap();
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+
+        match tag.as_str() {
+            // Message for GMMapMessage
+            "self" => {
+                match method {
+                    "set_func" => {
+                        let func = message.value.into_generic::<fn(message: GMMessage) -> GMMessage>();
                         self.func = func;
                     }
-                    GMMessage::Multiple(mut messages) => {
-                        // Wrap all messages in "keep" messages and use recursive call:
-                        let messages: Vec<GMMessage> = messages.drain(0..).map(|m| GMMessage::Keep(Box::new(m))).collect();
-                        self.send_message_multiple(messages, context, object_manager);
-                    }
                     _ => {
-                        error_panic(&format!("Wrong message for GMMapMessage::send_message: '{:?}'", keep_message))
+                        error_panic(&format!("GMMapMessage::send_message, unknown method: '{}', no tag", method));
                     }
                 }
             }
+            // Message for GMMapMessage
+            "self_target" => {
+                return self.target.send_message(method, message.value);
+            }
+            // Message for target object
             _ => {
+                // Put back the tag...
+                message.tags.push_front(tag);
+
                 let new_message = (self.func)(message);
-                object_manager.send_message(&self.target, new_message, context);
+                return object_manager.send_message(&self.target, new_message);
             }
         }
+
         GMValue::None
     }
-*/
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
@@ -750,6 +749,7 @@ impl fmt::Debug for GMCustomSend {
 
 impl GMObjectT for GMCustomSend {
     fn send_message(&mut self, message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        // Maybe allow to change func ?
         (self.func)(message, object_manager)
     }
 
@@ -780,74 +780,35 @@ impl fmt::Debug for GMCustomUpdate {
 }
 
 impl GMObjectT for GMCustomUpdate {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_func" => {
-                let func = *value.downcast::<fn(context: &mut GMContext, object_manager: &GMObjectManager)>().unwrap();
-                self.func = func;
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "set_func" => {
+                        let func = value.into_generic::<fn(object_manager: &GMObjectManager)>();
+                        self.func = func;
+                    }
+                    _ => {
+                        error_panic(&format!("GMCustomUpdate::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
             _ => {
-                error_panic(&format!("Wrong message for GMCustomUpdate::send_message: '{:?}'", message))
+                error_panic(&format!("GMCustomUpdate::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-*/
+
 
     fn update(&mut self, object_manager: &GMObjectManager) {
         (self.func)(object_manager);
     }
-
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
-        Box::new(self.clone())
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct GMMultiPositionTarget {
-    target: GMTarget,
-}
-
-impl GMMultiPositionTarget {
-    pub fn new(target: GMTarget) -> Self {
-        debug!("GMMultiPositionTarget::new()");
-
-        Self {
-            target,
-        }
-    }
-}
-
-impl GMObjectT for GMMultiPositionTarget {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::SetMultiPosition(mut positions) => {
-                let messages: Vec<GMMessage> = positions.drain(0..).map(|p| GMMessage::SetPosition(p)).collect();
-                object_manager.send_message_zip(&self.target, messages, context);
-            }
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
-            }
-            GMMessage::SetTarget(target) => {
-                self.target = target
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
-            }
-            _ => {
-                error_panic(&format!("Wrong message for GMMultiPositionTarget::send_message: '{:?}'", message))
-            }
-        }
-
-        GMValue::None
-    }
-    */
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
