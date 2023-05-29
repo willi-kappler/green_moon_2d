@@ -1,21 +1,17 @@
 
 use std::fmt;
-use std::rc::Rc;
-use std::ops::{Sub, Add, Mul};
 use std::collections::VecDeque;
 
 use log::debug;
 use nanorand::{WyRand, Rng};
 
-use crate::context::GMContext;
-use crate::curve::GMCurveT;
-use crate::interpolation::{GMInterpolate, GMInterpolateF32, GMInterpolateVec2D};
+use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D};
 use crate::math::GMVec2D;
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
-use crate::util::{error_panic, GMRepetition, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
+use crate::util::{error_panic, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
 use crate::value::GMValue;
 use crate::message::{GMMessage, msgt0v, msgt1v};
 
@@ -866,42 +862,46 @@ impl GMCenterPosition {
 }
 
 impl GMObjectT for GMCenterPosition {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "update" => {
+                        let position = self.calculate_center(object_manager);
+                        object_manager.send_message(&self.target, msgt1v("position", "set", position));
+                    }
+                    _ => {
+                        error_panic(&format!("GMCenterPosition::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::Custom0(name) if name == "get_source" => {
-                return self.source.clone().into();
+            "source" => {
+                return self.source.send_message(method, value);
             }
-            GMMessage::Custom1(name, GMValue::Target(source)) if name == "set_source" => {
-                self.source = source;
-            }
-            GMMessage::Custom0(name) if name == "get_auto_update" => {
-                return self.auto_update.into()
-            }
-            GMMessage::Custom1(name, GMValue::Bool(auto_update)) if name == "set_auto_update" => {
-                self.auto_update = auto_update;
-            }
-            GMMessage::Update => {
-                let position = self.calculate_center(context, object_manager);
-                object_manager.send_message(&self.target, GMMessage::SetPosition(position), context);
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
+            "auto_update" => {
+                return send_message_bool(&mut self.auto_update, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMCenterPosition::send_message: '{:?}'", message))
+                error_panic(&format!("GMCenterPosition::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-    */
+
+    fn update(&mut self, object_manager: &GMObjectManager) {
+        if self.auto_update {
+            let position = self.calculate_center(object_manager);
+            object_manager.send_message(&self.target, msgt1v("position", "set", position));
+        }
+    }
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
@@ -934,66 +934,56 @@ impl GMRandomPosition {
 }
 
 impl GMObjectT for GMRandomPosition {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "get_bounds" => {
+                        return GMValue::from_any((self.minx, self.miny, self.maxx, self.maxy));
+                    }
+                    "set_bounds" => {
+                        let (minx, miny, maxx, maxy) = value.into_generic::<(f32, f32, f32, f32)>();
+                        self.minx = minx;
+                        self.miny = miny;
+                        self.maxx = maxx;
+                        self.maxy = maxy;
+                    }
+                    "update" => {
+                        let x = random_range_f32(self.minx, self.maxx);
+                        let y = random_range_f32(self.miny, self.maxy);
+                        object_manager.send_message(&self.target, msgt1v("position", "set", GMVec2D::new(x, y)));
+                    }
+                    _ => {
+                        error_panic(&format!("GMRandomPosition::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
+            "target" => {
+                return self.target.send_message(method, value);
             }
-            GMMessage::Custom0(name) if name == "get_minx" => {
-                return self.minx.into()
+            "minx" => {
+                return send_message_f32(&mut self.minx, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_miny" => {
-                return self.miny.into()
+            "miny" => {
+                return send_message_f32(&mut self.miny, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_maxx" => {
-                return self.maxx.into()
+            "maxx" => {
+                return send_message_f32(&mut self.maxx, method, value);
             }
-            GMMessage::Custom0(name) if name == "get_maxy" => {
-                return self.maxy.into()
-            }
-            GMMessage::Custom0(name) if name == "get_bounds" => {
-                let bounds = Rc::new((self.minx, self.miny, self.maxx, self.maxy));
-                return GMValue::Any(bounds);
-            }
-            GMMessage::Custom1(name, GMValue::F32(minx)) if name == "set_minx" => {
-                self.minx = minx;
-            }
-            GMMessage::Custom1(name, GMValue::F32(miny)) if name == "set_miny" => {
-                self.miny = miny;
-            }
-            GMMessage::Custom1(name, GMValue::F32(maxx)) if name == "set_maxx" => {
-                self.maxx = maxx;
-            }
-            GMMessage::Custom1(name, GMValue::F32(maxy)) if name == "set_maxy" => {
-                self.maxy = maxy;
-            }
-            GMMessage::Custom1(name, GMValue::Any(value)) if name == "set_bounds" => {
-                let (minx, miny, maxx, maxy) = (*value.downcast::<(f32, f32, f32, f32)>().unwrap()).clone();
-                self.minx = minx;
-                self.miny = miny;
-                self.maxx = maxx;
-                self.maxy = maxy;
-            }
-            GMMessage::Update => {
-                let x = random_range_f32(self.minx, self.maxx);
-                let y = random_range_f32(self.miny, self.maxy);
-                object_manager.send_message(&self.target, GMMessage::SetPosition(GMVec2D::new(x, y)), context);
-            }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
+            "maxy" => {
+                return send_message_f32(&mut self.maxy, method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMRandomPosition::send_message: '{:?}'", message))
+                error_panic(&format!("GMRandomPosition::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-    */
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
@@ -1020,60 +1010,60 @@ impl GMRandomPositionOf {
 }
 
 impl GMObjectT for GMRandomPositionOf {
-    /*
-    fn send_message(&mut self, message: GMMessage, context: &mut GMContext, object_manager: &GMObjectManager) -> GMValue {
-        match message {
-            GMMessage::GetTarget => {
-                return self.target.clone().into();
-            }
-            GMMessage::SetTarget(target) => {
-                self.target = target;
-            }
-            GMMessage::Custom0(name) if name == "get_source" => {
-                return self.source.clone().into();
-            }
-            GMMessage::Custom1(name, GMValue::Target(source)) if name == "set_source" => {
-                self.source = source;
-            }
-            GMMessage::Update => {
-                let value = object_manager.send_message(&self.source, GMMessage::GetPosition, context);
-                let mut positions: Vec<GMVec2D> = Vec::new();
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
 
-                match value {
-                    GMValue::Position(position) => {
-                        positions.push(position)
-                    }
-                    GMValue::Multiple(values) => {
-                        for value in values {
-                            if let GMValue::Position(position) = value {
-                                positions.push(position);
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "update" => {
+                        let value = object_manager.send_message(&self.source, msgt0v("position", "get"));
+                        let mut positions: Vec<GMVec2D> = Vec::new();
+
+                        match value {
+                            GMValue::Vec2D(position) => {
+                                positions.push(position)
                             }
+                            GMValue::Multiple(values) => {
+                                for value in values {
+                                    if let GMValue::Vec2D(position) = value {
+                                        positions.push(position);
+                                    }
+                                }
+                            }
+                            _ => {
+                                // No positions given
+                            }
+                        }
+
+                        let num_elements = positions.len();
+
+                        if num_elements > 0 {
+                            let mut rng = WyRand::new();
+                            let index = rng.generate_range(0..num_elements);
+                            return positions[index].into();
                         }
                     }
                     _ => {
-                        // No positions given
+                        error_panic(&format!("GMRandomPositionOf::send_message, unknown method: '{}', no tag", method));
                     }
                 }
-
-                let num_elements = positions.len();
-
-                if num_elements > 0 {
-                    let mut rng = WyRand::new();
-                    let index = rng.generate_range(0..num_elements);
-                    return positions[index].into();
-                }
             }
-            GMMessage::Multiple(messages) => {
-                self.send_message_multiple(messages, context, object_manager);
+            "target" => {
+                return self.target.send_message(method, value);
+            }
+            "source" => {
+                return self.source.send_message(method, value);
             }
             _ => {
-                error_panic(&format!("Wrong message for GMRandomPosition::send_message: '{:?}'", message))
+                error_panic(&format!("GMRandomPositionOf::send_message, unknown tag: '{}'", tag));
             }
         }
 
         GMValue::None
     }
-    */
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
