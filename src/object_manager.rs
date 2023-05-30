@@ -38,20 +38,18 @@ impl GMObjectInfo {
 }
 
 #[derive(Debug)]
-pub struct GMObjectManager<'a> {
+pub struct GMObjectManager {
     objects: HashMap<String, GMObjectInfo>,
     manager_messages: RefCell<VecDeque<(String, GMValue)>>,
     init_objects: RefCell<Vec<String>>,
-    pub context: RefCell<&'a mut GMContext>,
 }
 
-impl<'a> GMObjectManager<'a> {
-    pub fn new(context: &'a mut GMContext) -> Self {
+impl GMObjectManager {
+    pub fn new() -> Self {
         Self {
             objects: HashMap::new(),
             manager_messages: RefCell::new(VecDeque::new()),
             init_objects: RefCell::new(Vec::new()),
-            context: RefCell::new(context),
         }
     }
 
@@ -188,13 +186,12 @@ impl<'a> GMObjectManager<'a> {
         self.process_manager_messages();
     }
 
-    pub fn draw(&self) {
-        let mut context = self.context.borrow_mut();
+    pub fn draw(&self, context: &mut GMContext) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.visible).collect();
         objects.sort_by(|a, b| a.draw_index.cmp(&b.draw_index));
 
         for o in objects {
-            o.inner.borrow().draw(&mut context);
+            o.inner.borrow().draw(context);
         }
     }
 

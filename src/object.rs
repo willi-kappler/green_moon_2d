@@ -1,7 +1,6 @@
 
 use std::fmt::Debug;
 use std::collections::VecDeque;
-use std::cell::RefMut;
 
 use crate::context::GMContext;
 use crate::value::GMValue;
@@ -27,7 +26,7 @@ pub trait GMObjectT: Debug {
     fn update(&mut self, _object_manager: &GMObjectManager) {
     }
 
-    fn draw(&self, _context: &mut RefMut<&mut GMContext>) {
+    fn draw(&self, _context: &mut GMContext) {
     }
 
     fn clone_box(&self) -> Box<dyn GMObjectT>;

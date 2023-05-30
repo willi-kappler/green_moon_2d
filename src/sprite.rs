@@ -1,7 +1,6 @@
 
 
 use std::rc::Rc;
-use std::cell::RefMut;
 use std::fmt::Debug;
 
 use log::debug;
@@ -118,14 +117,11 @@ impl GMObjectT for GMSprite {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, _object_manager: &GMObjectManager) {
         self.animation.update();
-
-        let mut ctx = object_manager.context.borrow_mut();
-        ctx.change_fps(100);
     }
 
-    fn draw(&self, context: &mut RefMut<&mut GMContext>) {
+    fn draw(&self, context: &mut GMContext) {
         let index = self.animation.texture_index();
         let dx = self.position.x;
         let dy = self.position.y;

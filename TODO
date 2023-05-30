@@ -1,6 +1,6 @@
 
 
-- Add context back as parameter for update(). Remove it from GMObjectManager.
+- split Context into GMContext and GMDrawContext ?
 
 - Make tags and methods configurable inside some objects (GMMVCircle for example)
 
@@ -33,11 +33,6 @@ Future TODO:
 - Error handling ?
 https://docs.rs/thiserror/1.0.40/thiserror/
 https://github.com/dtolnay/thiserror
-
-- Maybe move context to global static ?
-https://github.com/embassy-rs/static-cell
-https://docs.rs/once_cell/latest/once_cell/
-
 
 - Maybe replace std hashmap with a faster one ?
 https://github.com/tkaitchuck/ahash

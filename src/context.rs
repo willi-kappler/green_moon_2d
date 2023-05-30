@@ -7,7 +7,6 @@ use sdl2::render::{Texture, TextureCreator, Canvas};
 use sdl2::pixels;
 use sdl2::rect::Rect;
 
-
 use log::debug;
 
 use crate::configuration::GMConfiguration;
@@ -17,7 +16,6 @@ use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::state::GMState;
 use crate::value::GMValue;
-
 
 pub struct GMContext {
     engine_messages: VecDeque<GMEngineMessage>,

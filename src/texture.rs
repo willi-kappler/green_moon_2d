@@ -1,5 +1,4 @@
 
-use std::cell::RefMut;
 use std::fmt::{self, Debug, Formatter};
 
 use sdl2::render::Texture;
@@ -36,11 +35,11 @@ impl GMTexture {
         }
     }
 
-    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut RefMut<&mut GMContext>) {
+    pub fn draw(&self, dx: f32, dy: f32, index: u32, context: &mut GMContext) {
         self.draw_opt(dx, dy, index, 0.0, 1.0, false, false, context);
     }
 
-    pub fn draw_opt(&self, dx: f32, dy: f32, index: u32, angle: f32, scale: f32, flip_x: bool, flip_y: bool, context: &mut RefMut<&mut GMContext>) {
+    pub fn draw_opt(&self, dx: f32, dy: f32, index: u32, angle: f32, scale: f32, flip_x: bool, flip_y: bool, context: &mut GMContext) {
         let yi = index / self.cols;
         let xi = index - (yi * self.cols);
 

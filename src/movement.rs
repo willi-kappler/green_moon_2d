@@ -3,7 +3,6 @@ use std::fmt;
 
 use log::debug;
 
-use crate::context::GMContext;
 use crate::curve::GMCurveT;
 use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
