@@ -23,7 +23,7 @@ pub trait GMObjectT: Debug {
         return result.into()
     }
 
-    fn update(&mut self, _object_manager: &GMObjectManager) {
+    fn update(&mut self, _object_manager: &GMObjectManager, _context: &mut GMContext) {
     }
 
     fn draw(&self, _context: &mut GMContext) {

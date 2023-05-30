@@ -171,18 +171,18 @@ impl GMObjectManager {
         init.clear();
     }
 
-    fn update_objects(&self) {
+    fn update_objects(&self, context: &mut GMContext) {
         let mut objects: Vec<&GMObjectInfo> = self.objects.values().filter(|o| o.active).collect();
         objects.sort_by(|a, b| a.update_index.cmp(&b.update_index));
 
         for o in objects {
-            o.inner.borrow_mut().update(&self);
+            o.inner.borrow_mut().update(&self, context);
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self,context: &mut GMContext) {
         self.process_initialization();
-        self.update_objects();
+        self.update_objects(context);
         self.process_manager_messages();
     }
 

@@ -117,7 +117,7 @@ impl GMObjectT for GMSprite {
         GMValue::None
     }
 
-    fn update(&mut self, _object_manager: &GMObjectManager) {
+    fn update(&mut self, _object_manager: &GMObjectManager, _context: &mut GMContext) {
         self.animation.update();
     }
 

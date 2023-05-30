@@ -12,6 +12,7 @@ use crate::object_manager::GMObjectManager;
 use crate::util::{error_panic, send_message_f32};
 use crate::math::GMVec2D;
 use crate::message::{GMMessage, msg0v, msgt1v};
+use crate::context::GMContext;
 
 #[derive(Debug, Clone)]
 pub struct GMTEWave {
@@ -62,7 +63,7 @@ impl GMObjectT for GMTEWave {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         let messages = vec![msg0v("get_horizontal"), msg0v("get_char_count")];
 
         let result = object_manager.send_message_multiple(&self.target, messages);
@@ -152,7 +153,7 @@ impl GMObjectT for GMTEShake {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 
@@ -224,7 +225,7 @@ impl GMObjectT for GMTERotateChars {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 
@@ -300,7 +301,7 @@ impl GMObjectT for GMTEScale {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 

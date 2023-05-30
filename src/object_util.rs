@@ -14,7 +14,7 @@ use crate::timer::GMTimer;
 use crate::util::{error_panic, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
 use crate::value::GMValue;
 use crate::message::{GMMessage, msgt0v, msgt1v};
-
+use crate::context::GMContext;
 
 #[derive(Clone, Debug)]
 pub struct GMTimedBase {
@@ -87,7 +87,7 @@ impl GMObjectT for GMTimedMessage {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.timed_base.timer.finished() {
             if self.timed_base.repeat {
                 self.timed_base.timer.start();
@@ -182,7 +182,7 @@ impl GMObjectT for GMTimedMultiMessage {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         for (timer, repeat, target, message) in self.items.iter_mut() {
             if timer.finished() {
                 if *repeat {
@@ -280,7 +280,7 @@ impl GMObjectT for GMTimedSeqMessage {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.index < self.items.len() {
             let (timer, target, message) = &mut self.items[self.index];
 
@@ -356,7 +356,7 @@ impl GMObjectT for GMTimedFunc {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.timed_base.timer.finished() {
             if self.timed_base.repeat {
                 self.timed_base.timer.start();
@@ -563,7 +563,7 @@ impl GMObjectT for GMValueInterpolateF32 {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             self.interpolation.update();
             let value = self.interpolation.get_current_value();
@@ -642,7 +642,7 @@ impl GMObjectT for GMValueInterpolateVec2D {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             self.interpolation.update();
             let value = self.interpolation.get_current_value();
@@ -802,7 +802,7 @@ impl GMObjectT for GMCustomUpdate {
     }
 
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         (self.func)(object_manager);
     }
 
@@ -896,7 +896,7 @@ impl GMObjectT for GMCenterPosition {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             let position = self.calculate_center(object_manager);
             object_manager.send_message(&self.target, msgt1v("position", "set", position));

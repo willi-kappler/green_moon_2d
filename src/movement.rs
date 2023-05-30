@@ -12,6 +12,7 @@ use crate::object::GMObjectT;
 use crate::target::GMTarget;
 use crate::util::{error_panic, send_message_f32, send_message_bool, send_message_usize};
 use crate::value::GMValue;
+use crate::context::GMContext;
 
 #[derive(Clone, Debug)]
 pub struct GMMVVelocity {
@@ -51,7 +52,7 @@ impl GMObjectT for GMMVVelocity {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         object_manager.send_message(&self.target, msgt1v("position", "add", self.v));
     }
 
@@ -98,7 +99,7 @@ impl GMObjectT for GMMVAcceleration {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         object_manager.send_message(&self.target, msgt1v("velocity", "add", self.a));
     }
 
@@ -151,7 +152,7 @@ impl GMObjectT for GMMVVelAccel {
         }
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         object_manager.send_message(&self.target, msgt1v("position", "add", self.v));
         self.v += self.a;
     }
@@ -221,7 +222,7 @@ impl GMObjectT for GMMVCircle {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             let new_pos = self.circle.position_from_deg(self.angle);
             object_manager.send_message(&self.target, msgt1v("position", "set", new_pos));
@@ -322,7 +323,7 @@ impl GMObjectT for GMMVMultiCircle {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             let positions = self.multi_pos();
             (self.func)(positions, object_manager);
@@ -500,7 +501,7 @@ impl GMObjectT for GMMVPath {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             self.update_position(object_manager);
         }
@@ -580,7 +581,7 @@ impl GMObjectT for GMMVFollow {
         GMValue::None
     }
 
-    fn update(&mut self, object_manager: &GMObjectManager) {
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         self.interpolation.update();
         let pos = self.interpolation.get_current_value();
         object_manager.send_message(&self.target, msgt1v("position", "set", pos));
@@ -590,4 +591,3 @@ impl GMObjectT for GMMVFollow {
         Box::new(self.clone())
     }
 }
-
