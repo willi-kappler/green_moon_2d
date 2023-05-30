@@ -12,6 +12,7 @@ use log::debug;
 use crate::configuration::GMConfiguration;
 use crate::engine::GMEngineMessage;
 use crate::input::{GMInput, GMEventCode};
+use crate::message::GMMessage;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
 use crate::state::GMState;
@@ -123,6 +124,10 @@ impl GMContext {
 
     pub fn init_scene<S: Into<String>>(&mut self, name: S) {
         self.scene_messages.push_back(GMSceneManagerMessage::InitScene(name.into()));
+    }
+
+    pub fn custom_scene_message(&mut self, message: GMMessage) {
+        self.scene_messages.push_back(GMSceneManagerMessage::Custom(message));
     }
 
     // Update context, called by engine once per frame

@@ -5,6 +5,7 @@ use log::debug;
 
 use crate::context::{GMContext};
 use crate::util::error_panic;
+use crate::message::GMMessage;
 
 
 // TODO: Allow lower scene to draw() and / or update() first
@@ -25,6 +26,7 @@ pub(crate) enum GMSceneManagerMessage {
     RemoveScene(String),
     ReplaceScene(String, Box<dyn GMSceneT>),
     InitScene(String),
+    Custom(GMMessage),
 }
 
 pub trait GMSceneT: Debug {
@@ -40,6 +42,9 @@ pub trait GMSceneT: Debug {
     fn update(&mut self, context: &mut GMContext);
 
     fn draw(&self, context: &mut GMContext);
+
+    fn custom_message(&mut self, _message: GMMessage, context: &mut GMContext) {
+    }
 }
 
 pub struct GMSceneManager {
@@ -183,6 +188,10 @@ impl GMSceneManager {
         self.scenes[self.current_scene_index].1.init(context);
     }
 
+    pub fn custom_message(&mut self, message: GMMessage, context: &mut GMContext) {
+        self.scenes[self.current_scene_index].1.custom_message(message, context);
+    }
+
     pub(crate) fn enter_scene(&mut self, index: usize, context: &mut GMContext) {
         self.scenes[index].1.enter(context);
     }
@@ -212,6 +221,9 @@ impl GMSceneManager {
                 }
                 InitScene(name) => {
                     self.init_scene_name(&name, context);
+                }
+                Custom(message) => {
+                    self.custom_message(message, context);
                 }
             }
         }
