@@ -43,7 +43,7 @@ pub trait GMSceneT: Debug {
 
     fn draw(&self, context: &mut GMContext);
 
-    fn custom_message(&mut self, _message: GMMessage, context: &mut GMContext) {
+    fn custom_message(&mut self, _message: GMMessage, _context: &mut GMContext) {
     }
 }
 
