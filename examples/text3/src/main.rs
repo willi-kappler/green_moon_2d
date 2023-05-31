@@ -8,6 +8,8 @@ use green_moon_2d::util::{GMAlign, error_panic};
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::bitmap_text_effects::{GMTEWave, GMTEShake, GMTERotateChars, GMTEScale};
+use green_moon_2d::target::GMTarget;
+use green_moon_2d::message::{msg0v, msg1v, msgt1v};
 
 
 #[derive(Debug)]
@@ -114,79 +116,86 @@ impl TextScene3 {
         }
     }
 
-    fn change_effect(&mut self, effect: CurrentEffect, context: &mut GMContext) {
+    fn change_effect(&mut self, effect: CurrentEffect) {
         self.current_effect = effect;
         // Disable all text effects:
         self.object_manager.set_active_in_group("text_effects", false);
+
+        let demo_target = GMTarget::Object("demo_text".to_string());
 
         // Enable only specific text effects:
         match self.current_effect {
             CurrentEffect::Wave => {
                 self.object_manager.set_active("wave1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "---<<< SINE WAVE >>>---", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", "---<<< SINE WAVE >>>---"));
             }
             CurrentEffect::Shake => {
                 self.object_manager.set_active("shake1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "..... SHAKE .....", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", "..... SHAKE ....."));
             }
             CurrentEffect::Rotate => {
                 self.object_manager.set_active("rotate1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", ">>>>> ROTATE <<<<<", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", ">>>>> ROTATE <<<<<"));
             }
             CurrentEffect::Scale => {
                 self.object_manager.set_active("scale1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--<>() SCALE ()<>--", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", "--<>() SCALE ()<>--"));
             }
             CurrentEffect::WaveRotate => {
                 self.object_manager.set_active("wave1", true);
                 self.object_manager.set_active("rotate1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SINE WAVE ROTATE ---", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", "--- SINE WAVE ROTATE ---"));
             }
             CurrentEffect::ShakeScale => {
                 self.object_manager.set_active("shake1", true);
                 self.object_manager.set_active("scale1", true);
-                self.object_manager.send_custom_message1(&"demo_text".into(), "set_text2", "--- SHAKE AND SCALE ---", context);
+                self.object_manager.send_message(&demo_target, msg1v("set_text2", "--- SHAKE AND SCALE ---"));
             }
         }
     }
 
-    fn change_property(&mut self, property: u8, amount: f32, context: &mut GMContext) {
+    fn change_property(&mut self, property: u8, amount: f32) {
+        let wave_target = GMTarget::Object("wave1".to_string());
+        let shake_target = GMTarget::Object("shake1".to_string());
+        let rotate_target = GMTarget::Object("rotate1".to_string());
+        let scale_target = GMTarget::Object("scale1".to_string());
+
         match (&self.current_effect, property) {
             (CurrentEffect::Wave, 1) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", amount * 0.5, context);
+                self.object_manager.send_message(&wave_target, msgt1v("amplitude", "add", amount * 0.5));
             }
             (CurrentEffect::Wave, 2) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_offset", amount * 0.01, context);
+                self.object_manager.send_message(&wave_target, msgt1v("offset", "add", amount * 0.01));
             }
             (CurrentEffect::Shake, 1) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", amount * 0.1, context);
+                self.object_manager.send_message(&shake_target, msgt1v("radius", "add", amount * 0.1));
             }
             (CurrentEffect::Shake, 2) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_speed", amount * 0.01, context);
+                self.object_manager.send_message(&shake_target, msgt1v("speed", "add", amount * 0.01));
             }
             (CurrentEffect::Rotate, 1) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", amount * 0.1, context);
+                self.object_manager.send_message(&rotate_target, msgt1v("speed", "add", amount * 0.1));
             }
             (CurrentEffect::Rotate, 2) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_offset", amount * 0.1, context);
+                self.object_manager.send_message(&rotate_target, msgt1v("offset", "add", amount * 0.1));
             }
             (CurrentEffect::Scale, 1) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", amount * 0.1, context);
+                self.object_manager.send_message(&rotate_target, msgt1v("speed", "add", amount * 0.1));
             }
             (CurrentEffect::Scale, 2) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_amplitude", amount * 0.1, context);
+                self.object_manager.send_message(&scale_target, msgt1v("amplitude", "add", amount * 0.1));
             }
             (CurrentEffect::WaveRotate, 1) => {
-                self.object_manager.send_custom_message1(&"wave1".into(), "add_amplitude", amount * 0.5, context);
+                self.object_manager.send_message(&wave_target, msgt1v("amplitude", "add", amount * 0.5));
             }
             (CurrentEffect::WaveRotate, 2) => {
-                self.object_manager.send_custom_message1(&"rotate1".into(), "add_speed", amount * 0.1, context);
+                self.object_manager.send_message(&rotate_target, msgt1v("speed", "add", amount * 0.1));
             }
             (CurrentEffect::ShakeScale, 1) => {
-                self.object_manager.send_custom_message1(&"shake1".into(), "add_radius", amount * 0.1, context);
+                self.object_manager.send_message(&shake_target, msgt1v("radius", "add", amount * 0.1));
             }
             (CurrentEffect::ShakeScale, 2) => {
-                self.object_manager.send_custom_message1(&"scale1".into(), "add_speed", amount * 0.1, context);
+                self.object_manager.send_message(&scale_target, msgt1v("speed", "add", amount * 0.1));
             }
             _ => {
                 error_panic(&format!("Unknown property id: {}", property));
@@ -204,47 +213,47 @@ impl GMSceneT for TextScene3 {
         }
 
         if context.event(GMEventCode::Key1Up) {
-            self.change_effect(CurrentEffect::Wave, context);
+            self.change_effect(CurrentEffect::Wave);
         }
 
         if context.event(GMEventCode::Key2Up) {
-            self.change_effect(CurrentEffect::Shake, context);
+            self.change_effect(CurrentEffect::Shake);
         }
 
         if context.event(GMEventCode::Key3Up) {
-            self.change_effect(CurrentEffect::Rotate, context);
+            self.change_effect(CurrentEffect::Rotate);
         }
 
         if context.event(GMEventCode::Key4Up) {
-            self.change_effect(CurrentEffect::Scale, context);
+            self.change_effect(CurrentEffect::Scale);
         }
 
         if context.event(GMEventCode::Key5Up) {
-            self.change_effect(CurrentEffect::WaveRotate, context);
+            self.change_effect(CurrentEffect::WaveRotate);
         }
 
         if context.event(GMEventCode::Key6Up) {
-            self.change_effect(CurrentEffect::ShakeScale, context);
+            self.change_effect(CurrentEffect::ShakeScale);
         }
 
         if context.event(GMEventCode::KeyUpUp) {
-            self.change_property(1, 1.0, context)
+            self.change_property(1, 1.0)
         }
 
         if context.event(GMEventCode::KeyDownUp) {
-            self.change_property(1, -1.0, context)
+            self.change_property(1, -1.0)
         }
 
         if context.event(GMEventCode::KeyLeftUp) {
-            self.change_property(2, -1.0, context)
+            self.change_property(2, -1.0)
         }
 
         if context.event(GMEventCode::KeyRightUp) {
-            self.change_property(2, 1.0, context)
+            self.change_property(2, 1.0)
         }
 
         // Reset positions each frame, so that the effects can work on a clean state:
-        self.object_manager.send_custom_message0(&"demo_text".into(), "reset_positions", context);
+        self.object_manager.send_message(&"demo_text".into(), msg0v("reset_positions"));
         self.object_manager.update(context);
     }
 
