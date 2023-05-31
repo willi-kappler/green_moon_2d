@@ -136,7 +136,6 @@ impl SpriteScene2 {
         object_manager.initialize_object("follow_ice1");
 
         // Timer update position:
-        // let timer = GMTimedMessage::new("update_source".into(), "follow_ice1", 1.0, true);
         let timer = GMTimedMessage::new("follow_ice1", 1.0, true, msg0v("update_source"));
         object_manager.add_normal_object("follow_timer", timer, 0);
 
