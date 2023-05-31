@@ -8,6 +8,7 @@ use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::GMAlign;
 use green_moon_2d::target::GMTarget;
 use green_moon_2d::object_manager::GMObjectManager;
+use green_moon_2d::message::{msg1v};
 
 
 #[derive(Debug)]
@@ -64,10 +65,10 @@ impl TextScene1 {
         }
     }
 
-    fn change_text_and_font(&mut self, text1: &str, text2: &str, font: &str, context: &mut GMContext) {
-        self.object_manager.send_custom_message1(&self.target_d3, "set_text", text1, context);
-        self.object_manager.send_custom_message1(&self.target_d4, "set_text", text2, context);
-        self.object_manager.send_custom_message1(&self.target_group, "set_font2", font, context);
+    fn change_text_and_font(&mut self, text1: &str, text2: &str, font: &str) {
+        self.object_manager.send_message(&self.target_d3, msg1v("set_text", text1));
+        self.object_manager.send_message(&self.target_d4, msg1v("set_text", text2));
+        self.object_manager.send_message(&self.target_group, msg1v("set_font3", font));
     }
 }
 
@@ -80,15 +81,15 @@ impl GMSceneT for TextScene1 {
         }
 
         if context.event(GMEventCode::Key1Up) {
-            self.change_text_and_font("THIS IS FONT 1", "CUDDLY", "font_cuddly", context);
+            self.change_text_and_font("THIS IS FONT 1", "CUDDLY", "font_cuddly");
         }
 
         if context.event(GMEventCode::Key2Up) {
-            self.change_text_and_font("THIS IS FONT 2", "BLAGGER", "font_blagger", context);
+            self.change_text_and_font("THIS IS FONT 2", "BLAGGER", "font_blagger");
         }
 
         if context.event(GMEventCode::Key3Up) {
-            self.change_text_and_font("THIS IS FONT 3", "BBC", "font_bbc", context);
+            self.change_text_and_font("THIS IS FONT 3", "BBC", "font_bbc");
         }
 
         self.object_manager.update(context);
