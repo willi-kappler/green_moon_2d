@@ -8,9 +8,8 @@ use green_moon_2d::util::{GMAlign, GMRepetition};
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::object_util::{GMValueInterpolateF32, GMTimedMessage};
-use green_moon_2d::message::GMMessage;
-use green_moon_2d::movement::{GMMVCircle, GMMVMultiCircle, GMMVPath, GMMVFollow};
-use green_moon_2d::target::GMTarget;
+use green_moon_2d::message::{msgt1v, msg0v};
+use green_moon_2d::movement::{GMMVCircle, GMMVCircleFunc, GMMVMultiCircle, GMMVPath, GMMVFollow};
 
 
 #[derive(Debug)]
@@ -47,25 +46,30 @@ impl SpriteScene2 {
         object_manager.add_draw_object("ghost_sprite1", sprite.clone(), 0, 1);
 
         // Big outer circle:
-        let target: GMTarget = ("ghost_sprite1", "small_circle").into();
-        let mut circle = GMMVCircle::new(target, (250.0, 250.0), 100.0);
+        // let target: GMTarget = ("ghost_sprite1", "small_circle").into();
+        let circle = GMMVCircleFunc::new((250.0, 250.0), 100.0,
+            |position, object_manager| {
+                object_manager.send_message_object("ghost_sprite1", msgt1v("position", "set", position));
+                object_manager.send_message_object("small_circle", msgt1v(("circle", "position"), "set", position));
+            }
+        );
         object_manager.add_normal_object("big_circle", circle, 0);
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.001,
-            |value, context, object_manager| {
-                object_manager.send_custom_message1(&"big_circle".into(), "set_angle", value, context);
+            |value, object_manager| {
+                object_manager.send_message_object("big_circle", msgt1v("angle", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
         object_manager.add_normal_object("big_angle", interpolate, 0);
 
         // Small inner circle:
-        circle = GMMVCircle::new("ghost_text1", (0.0, 0.0), 50.0);
+        let circle = GMMVCircle::new("ghost_text1", (0.0, 0.0), 50.0);
         object_manager.add_normal_object("small_circle", circle, 0);
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.01,
-            |value, context, object_manager| {
-                object_manager.send_custom_message1(&"small_circle".into(), "set_angle", value, context);
+            |value, object_manager| {
+                object_manager.send_message_object("small_circle", msgt1v("angle", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -78,26 +82,26 @@ impl SpriteScene2 {
         object_manager.add_draw_object("multi_sprite4", sprite.clone(), 0, 0);
 
         let multi_circle = GMMVMultiCircle::new( (600.0, 250.0), 100.0, 90.0, 4,
-            |positions, context, object_manager| {
-                object_manager.send_message_object("multi_sprite1", GMMessage::SetPosition(positions[0]), context);
-                object_manager.send_message_object("multi_sprite2", GMMessage::SetPosition(positions[1]), context);
-                object_manager.send_message_object("multi_sprite3", GMMessage::SetPosition(positions[2]), context);
-                object_manager.send_message_object("multi_sprite4", GMMessage::SetPosition(positions[3]), context);
+            |positions, object_manager| {
+                object_manager.send_message_object("multi_sprite1", msgt1v("position", "set", positions[0]));
+                object_manager.send_message_object("multi_sprite2", msgt1v("position", "set", positions[1]));
+                object_manager.send_message_object("multi_sprite3", msgt1v("position", "set", positions[2]));
+                object_manager.send_message_object("multi_sprite4", msgt1v("position", "set", positions[3]));
             }
         );
         object_manager.add_normal_object("multi_circle", multi_circle, 0);
 
         let mut interpolate = GMValueInterpolateF32::new(0.0, 360.0, 0.005,
-            |value, context, object_manager| {
-                object_manager.send_custom_message1(&"multi_circle".into(), "set_angle", value, context);
+            |value, object_manager| {
+                object_manager.send_message_object("multi_circle", msgt1v("angle", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
         object_manager.add_normal_object("multi_angle", interpolate, 0);
 
         let mut interpolate = GMValueInterpolateF32::new(50.0, 100.0, 0.02,
-            |value, context, object_manager| {
-                object_manager.send_custom_message1(&"multi_circle".into(), "set_radius", value, context);
+            |value, object_manager| {
+                object_manager.send_message_object("multi_circle", msgt1v(("circle", "radius"), "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -132,7 +136,8 @@ impl SpriteScene2 {
         object_manager.initialize_object("follow_ice1");
 
         // Timer update position:
-        let timer = GMTimedMessage::new("update_source".into(), "follow_ice1", 1.0, true);
+        // let timer = GMTimedMessage::new("update_source".into(), "follow_ice1", 1.0, true);
+        let timer = GMTimedMessage::new("follow_ice1", 1.0, true, msg0v("update_source"));
         object_manager.add_normal_object("follow_timer", timer, 0);
 
         Self {
