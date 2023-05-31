@@ -1,6 +1,5 @@
 
 use std::fs::File;
-use std::rc::Rc;
 
 use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
@@ -9,7 +8,7 @@ use green_moon_2d::bitmap_text::{GMBitmapText};
 use green_moon_2d::util::GMAlign;
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::target::GMTarget;
-use green_moon_2d::value::GMValue;
+use green_moon_2d::message::{msgt0v, msg1v};
 
 #[derive(Debug)]
 struct TextScene2 {
@@ -62,8 +61,9 @@ impl TextScene2 {
         }
     }
 
-    fn change_alignment(&mut self, align: GMAlign, context: &mut GMContext) {
-        self.object_manager.send_custom_message1(&self.target, "set_align2", GMValue::Any(Rc::new(align)), context);
+    fn change_alignment(&mut self, align: GMAlign) {
+        // self.object_manager.send_message(&self.target, "set_align2", GMValue::Any(Rc::new(align)), context);
+        self.object_manager.send_message(&self.target, msg1v("set_align2", align));
     }
 }
 
@@ -76,43 +76,43 @@ impl GMSceneT for TextScene2 {
         }
 
         if context.event(GMEventCode::Key1Up) {
-            self.change_alignment(GMAlign::TopLeft, context);
+            self.change_alignment(GMAlign::TopLeft);
         }
 
         if context.event(GMEventCode::Key2Up) {
-            self.change_alignment(GMAlign::TopCenter, context);
+            self.change_alignment(GMAlign::TopCenter);
         }
 
         if context.event(GMEventCode::Key3Up) {
-            self.change_alignment(GMAlign::TopRight, context);
+            self.change_alignment(GMAlign::TopRight);
         }
 
         if context.event(GMEventCode::Key4Up) {
-            self.change_alignment(GMAlign::MiddleLeft, context);
+            self.change_alignment(GMAlign::MiddleLeft);
         }
 
         if context.event(GMEventCode::Key5Up) {
-            self.change_alignment(GMAlign::MiddleCenter, context);
+            self.change_alignment(GMAlign::MiddleCenter);
         }
 
         if context.event(GMEventCode::Key6Up) {
-            self.change_alignment(GMAlign::MiddleRight, context);
+            self.change_alignment(GMAlign::MiddleRight);
         }
 
         if context.event(GMEventCode::Key7Up) {
-            self.change_alignment(GMAlign::BottomLeft, context);
+            self.change_alignment(GMAlign::BottomLeft);
         }
 
         if context.event(GMEventCode::Key8Up) {
-            self.change_alignment(GMAlign::BottomCenter, context);
+            self.change_alignment(GMAlign::BottomCenter);
         }
 
         if context.event(GMEventCode::Key9Up) {
-            self.change_alignment(GMAlign::BottomRight, context);
+            self.change_alignment(GMAlign::BottomRight);
         }
 
         if context.event(GMEventCode::KeyHUp) {
-            self.object_manager.send_custom_message0(&self.target, "toggle_horizontal2", context);
+            self.object_manager.send_message(&self.target, msgt0v("horizontal2", "toggle"));
         }
 
         self.object_manager.update(context);
