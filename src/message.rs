@@ -142,6 +142,14 @@ impl From<(&str, &str, &str)> for GMTags {
     }
 }
 
+impl From<(&str, &str, &str, &str)> for GMTags {
+    fn from((tag1, tag2, tag3, tag4): (&str, &str, &str, &str)) -> Self {
+        Self {
+            tags: VecDeque::from([tag1.to_string(), tag2.to_string(), tag3.to_string(), tag4.to_string()]),
+        }
+    }
+}
+
 impl From<&[&str]> for GMTags {
     fn from(tags: &[&str]) -> Self {
         Self {
