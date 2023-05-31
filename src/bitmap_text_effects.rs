@@ -1,6 +1,5 @@
 
 use std::f32::consts::TAU;
-use std::collections::VecDeque;
 
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
@@ -243,7 +242,7 @@ impl GMObjectT for GMTERotateChars {
             delta += self.offset;
         }
 
-        object_manager.send_message(&self.target, 
+        object_manager.send_message(&self.target,
             msgt1v("chars", "set_angle", GMValue::from_any(new_angles)));
 
         self.time += self.speed;
@@ -320,7 +319,7 @@ impl GMObjectT for GMTEScale {
             offset += self.offset;
         }
 
-        object_manager.send_message(&self.target, 
+        object_manager.send_message(&self.target,
             msgt1v("chars", "set_scale", GMValue::from_any(new_scales)));
 
         self.time += self.speed;
