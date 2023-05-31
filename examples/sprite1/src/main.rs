@@ -57,7 +57,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateVec2D::new((100.0, 300.0), (900.0, 300.0), 0.007,
             |value, object_manager| {
-                object_manager.send_message(&"ice1".into(), msgt1v("position", "set", value));
+                object_manager.send_message_object("ice1", msgt1v("position", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -65,7 +65,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(-30.0, 30.0, 0.05,
             |value, object_manager| {
-                object_manager.send_message(&"ice1".into(), msgt1v("angle", "set", value));
+                object_manager.send_message_object("ice1", msgt1v("angle", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -82,7 +82,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(90.0-60.0, 90.0+60.0, 0.02,
             |value, object_manager| {
-                object_manager.send_message(&"circle_head1".into(), msgt1v("angle", "set", value));
+                object_manager.send_message_object("circle_head1", msgt1v("angle", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
@@ -96,7 +96,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateVec2D::new((100.0, 600.0), (900.0, 600.0), 0.002,
             |value, object_manager| {
-                object_manager.send_message(&"ice_troll1".into(), msgt1v("position", "set", value));
+                object_manager.send_message_object("ice_troll1", msgt1v("position", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::LoopForward;
@@ -104,7 +104,7 @@ impl SpriteScene1 {
 
         let mut interpolate = GMValueInterpolateF32::new(0.5, 4.0, 0.01,
             |value, object_manager| {
-                object_manager.send_message(&"ice_troll1".into(), msgt1v("scale", "set", value));
+                object_manager.send_message_object("ice_troll1", msgt1v("scale", "set", value));
             }
         );
         interpolate.interpolation.repetition = GMRepetition::PingPongForward;
