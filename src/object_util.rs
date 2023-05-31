@@ -8,7 +8,7 @@ use nanorand::{WyRand, Rng};
 use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D};
 use crate::math::GMVec2D;
 use crate::object_manager::GMObjectManager;
-use crate::object::{GMObjectT, self};
+use crate::object::{GMObjectT};
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
