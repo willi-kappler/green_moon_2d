@@ -62,7 +62,6 @@ impl TextScene2 {
     }
 
     fn change_alignment(&mut self, align: GMAlign) {
-        // self.object_manager.send_message(&self.target, "set_align2", GMValue::Any(Rc::new(align)), context);
         self.object_manager.send_message(&self.target, msg1v("set_align2", align));
     }
 }
