@@ -83,6 +83,7 @@ pub struct GMBitmapText {
     pub align: GMAlign,
     pub chars: Vec<GMBitmapChar>,
     pub font: Rc<GMBitmapFont>,
+    set_font_name: String,
     pub horizontal: bool,
     pub position: GMVec2D,
     pub spacing: GMVec2D,
@@ -100,6 +101,7 @@ impl GMBitmapText {
             align: GMAlign::BottomLeft,
             chars: Vec::new(),
             font: font.clone(),
+            set_font_name: "".to_string(),
             horizontal: true,
             position,
             size: GMSize::new(0.0, 0.0),
@@ -260,6 +262,9 @@ impl GMObjectT for GMBitmapText {
                     "set_font2" => {
                         self.font = value.into_font();
                         self.reset_chars();
+                    }
+                    "set_font3" => {
+                        self.set_font_name = value.into_string();
                     }
                     "get_text" => {
                         return self.text.clone().into();
@@ -456,6 +461,14 @@ impl GMObjectT for GMBitmapText {
         }
 
         GMValue::None
+    }
+
+    fn update(&mut self, _object_manager: &GMObjectManager, context: &mut GMContext) {
+        if self.set_font_name.len() > 0 {
+            self.font = context.resources.get_font(&self.set_font_name).clone();
+            self.set_font_name = "".to_string();
+            self.reset_chars();
+        }
     }
 
     fn draw(&self, context: &mut GMContext) {
