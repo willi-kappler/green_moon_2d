@@ -584,7 +584,10 @@ pub struct GMValueInterpolateVec2D {
 }
 
 impl GMValueInterpolateVec2D {
-    pub fn new(start: GMVec2D, end: GMVec2D, speed: f32, func: fn(value: GMVec2D, object_manager: &GMObjectManager)) -> Self {
+    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>>(start: U, end: V, speed: f32, func: fn(value: GMVec2D, object_manager: &GMObjectManager)) -> Self {
+        let start = start.into();
+        let end = end.into();
+
         debug!("GMValueInterpolateVec2D::new(), start: '{}', end: '{}', speed: '{}'", start, end, speed);
 
         let interpolation = GMInterpolateVec2D::new(start, end, speed, 0.0);
