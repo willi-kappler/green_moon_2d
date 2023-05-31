@@ -248,6 +248,83 @@ impl GMObjectT for GMMVCircle {
 
 
 #[derive(Clone)]
+pub struct GMMVCircleFunc {
+    pub circle: GMCircle,
+    pub angle: f32,
+    pub auto_update: bool,
+    pub func: fn(position: GMVec2D, object_manager: &GMObjectManager),
+}
+
+impl GMMVCircleFunc {
+    pub fn new<U: Into<GMVec2D>>(center: U, radius: f32, func: fn(position: GMVec2D, object_manager: &GMObjectManager)) -> Self {
+        let circle = GMCircle::new(center, radius);
+        debug!("GMMVCircleFunc::new(), enter: '{:?}', radius: '{:?}'", circle.center, circle.radius);
+
+        Self {
+            circle,
+            angle: 0.0,
+            auto_update: true,
+            func,
+        }
+    }
+}
+
+impl fmt::Debug for GMMVCircleFunc {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "GMMVMultiCircleFunc, center: '{}', radius: '{}'", self.circle.center, self.circle.radius)
+    }
+}
+
+impl GMObjectT for GMMVCircleFunc {
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "update" => {
+                        let new_pos = self.circle.position_from_deg(self.angle);
+                        (self.func)(new_pos, object_manager);
+                    }
+                    "set_func" => {
+                        self.func = message.value.into_generic::<fn(position: GMVec2D, object_manager: &GMObjectManager)>();
+                    }
+                    _ => {
+                        error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
+            "circle" => {
+                return self.circle.send_message(message);
+            }
+            "angle" => {
+                return send_message_f32(&mut self.angle, method, message.value);
+            }
+            "auto_update" => {
+                return send_message_bool(&mut self.auto_update, method, message.value);
+            }
+            _ => {
+                error_panic(&format!("GMMVCircle::send_message, unknown tag: '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
+        if self.auto_update {
+            let new_pos = self.circle.position_from_deg(self.angle);
+            (self.func)(new_pos, object_manager);
+        }
+    }
+
+    fn clone_box(&self) -> Box<dyn GMObjectT> {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Clone)]
 pub struct GMMVMultiCircle {
     pub circle: GMCircle,
     pub angle: f32,
