@@ -45,6 +45,19 @@ impl GMMessage {
         }
     }
 
+    pub fn set_tags<T: Into<GMTags>>(&mut self, tag: T) {
+        self.tags = tag.into().tags;
+    }
+
+    pub fn add_tag(&mut self, tag: &str) {
+        self.tags.push_back(tag.to_string());
+    }
+
+    pub fn set_value<T: Into<GMValue>>(&mut self, value: T) {
+        self.value = value.into();
+
+    }
+
     pub fn next_tag(&mut self) -> String {
         if self.tags.is_empty() {
             String::new()

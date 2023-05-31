@@ -8,7 +8,7 @@ use nanorand::{WyRand, Rng};
 use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D};
 use crate::math::GMVec2D;
 use crate::object_manager::GMObjectManager;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, self};
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
@@ -819,6 +819,7 @@ pub struct GMCenterPosition {
     pub target: GMTarget,
     pub source: GMTarget,
     pub auto_update: bool,
+    pub message: GMMessage,
 }
 
 impl GMCenterPosition {
@@ -831,6 +832,7 @@ impl GMCenterPosition {
             target,
             source,
             auto_update: true,
+            message: msgt0v("position", "set"),
         }
     }
 
@@ -902,7 +904,8 @@ impl GMObjectT for GMCenterPosition {
     fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
             let position = self.calculate_center(object_manager);
-            object_manager.send_message(&self.target, msgt1v("position", "set", position));
+            self.message.set_value(position);
+            object_manager.send_message(&self.target, self.message.clone());
         }
     }
 
@@ -918,6 +921,7 @@ pub struct GMRandomPosition {
     pub miny: f32,
     pub maxx: f32,
     pub maxy: f32,
+    pub message: GMMessage,
 }
 
 impl GMRandomPosition {
@@ -932,6 +936,7 @@ impl GMRandomPosition {
             miny,
             maxx,
             maxy,
+            message: msgt0v("position", "set"),
         }
     }
 }
@@ -958,7 +963,8 @@ impl GMObjectT for GMRandomPosition {
                     "update" => {
                         let x = random_range_f32(self.minx, self.maxx);
                         let y = random_range_f32(self.miny, self.maxy);
-                        object_manager.send_message(&self.target, msgt1v("position", "set", GMVec2D::new(x, y)));
+                        self.message.set_value(GMVec2D::new(x, y));
+                        object_manager.send_message(&self.target, self.message.clone());
                     }
                     _ => {
                         error_panic(&format!("GMRandomPosition::send_message, unknown method: '{}', no tag", method));
@@ -997,6 +1003,7 @@ impl GMObjectT for GMRandomPosition {
 pub struct GMRandomPositionOf {
     pub target: GMTarget,
     pub source: GMTarget,
+    pub message: GMMessage,
 }
 
 impl GMRandomPositionOf {
@@ -1008,6 +1015,7 @@ impl GMRandomPositionOf {
         Self {
             target: target.into(),
             source: source.into(),
+            message: msgt0v("position", "set"),
         }
     }
 }
@@ -1046,7 +1054,8 @@ impl GMObjectT for GMRandomPositionOf {
                         if num_elements > 0 {
                             let mut rng = WyRand::new();
                             let index = rng.generate_range(0..num_elements);
-                            return positions[index].into();
+                            self.message.set_value(positions[index]);
+                            object_manager.send_message(&self.target, self.message.clone());
                         }
                     }
                     _ => {
