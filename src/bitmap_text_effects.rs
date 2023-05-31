@@ -11,7 +11,7 @@ use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
 use crate::util::{error_panic, send_message_f32};
 use crate::math::GMVec2D;
-use crate::message::{GMMessage, msg0v, msgt1v};
+use crate::message::{GMMessage, msg0v, msgt0v, msgt1v};
 use crate::context::GMContext;
 
 #[derive(Debug, Clone)]
@@ -64,31 +64,36 @@ impl GMObjectT for GMTEWave {
     }
 
     fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
-        let messages = vec![msg0v("get_horizontal"), msg0v("get_char_count")];
+        let messages = vec![msgt0v("horizontal", "get"), msg0v("get_char_count")];
 
         let result = object_manager.send_message_multiple(&self.target, messages);
-        let (horizontal, num_of_chars) = result.into_generic::<(bool, usize)>();
+        let mut values = result.to_vec_deque();
+        let horizontal = values.pop_front().unwrap().into_bool();
+        let num_of_chars = values.pop_front().unwrap().into_usize();
+        // let (horizontal, num_of_chars) = result.into_generic::<(bool, usize)>();
 
         let mut offset = 0.0;
 
         if horizontal {
-            let mut new_positions = VecDeque::with_capacity(num_of_chars);
+            let mut new_positions = Vec::with_capacity(num_of_chars);
 
             for _ in 0..num_of_chars {
                 let new_y = (self.time + offset).sin() * self.amplitude;
-                new_positions.push_back(GMValue::F32(new_y));
+                new_positions.push(new_y);
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msgt1v("chars", "add_y", new_positions));
+            object_manager.send_message(&self.target,
+                msgt1v("chars", "add_y", GMValue::from_any(new_positions)));
         } else {
-            let mut new_positions = VecDeque::with_capacity(num_of_chars);
+            let mut new_positions = Vec::with_capacity(num_of_chars);
 
             for _ in 0..num_of_chars {
                 let new_x = (self.time + offset).sin() * self.amplitude;
-                new_positions.push_back(GMValue::F32(new_x));
+                new_positions.push(new_x);
                 offset += self.offset;
             }
-            object_manager.send_message(&self.target, msgt1v("chars", "add_x", new_positions));
+            object_manager.send_message(&self.target,
+                msgt1v("chars", "add_x", GMValue::from_any(new_positions)));
         }
 
         self.time += self.speed;
@@ -160,15 +165,16 @@ impl GMObjectT for GMTEShake {
         self.time += self.speed;
         self.rng.reseed(u64::to_ne_bytes(self.seed));
 
-        let mut new_positions = VecDeque::with_capacity(num_of_chars);
+        let mut new_positions = Vec::with_capacity(num_of_chars);
 
         for _ in 0..num_of_chars {
             let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
             let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-            new_positions.push_back(GMValue::Vec2D(GMVec2D::new(dx, dy)));
+            new_positions.push(GMVec2D::new(dx, dy));
         }
 
-        object_manager.send_message(&self.target, msgt1v("chars", "add_position", new_positions));
+        object_manager.send_message(&self.target,
+            msgt1v("chars", "add_position", GMValue::from_any(new_positions)));
 
         if self.time > 1.0 {
             self.time = 0.0;
@@ -230,14 +236,15 @@ impl GMObjectT for GMTERotateChars {
         let num_of_chars = result.into_usize();
 
         let mut delta = 0.0;
-        let mut new_angles = VecDeque::with_capacity(num_of_chars);
+        let mut new_angles = Vec::with_capacity(num_of_chars);
 
         for _ in 0..num_of_chars {
-            new_angles.push_back(GMValue::F32(self.time + delta));
+            new_angles.push(self.time + delta);
             delta += self.offset;
         }
 
-        object_manager.send_message(&self.target, msgt1v("chars", "set_angle", new_angles));
+        object_manager.send_message(&self.target, 
+            msgt1v("chars", "set_angle", GMValue::from_any(new_angles)));
 
         self.time += self.speed;
     }
@@ -306,14 +313,15 @@ impl GMObjectT for GMTEScale {
         let num_of_chars = result.into_usize();
 
         let mut offset = 0.0;
-        let mut new_scales = VecDeque::with_capacity(num_of_chars);
+        let mut new_scales = Vec::with_capacity(num_of_chars);
 
         for _ in 0..num_of_chars {
-            new_scales.push_back(GMValue::F32(self.base + (self.amplitude * (self.time + offset).sin())));
+            new_scales.push(self.base + (self.amplitude * (self.time + offset).sin()));
             offset += self.offset;
         }
 
-        object_manager.send_message(&self.target, msgt1v("chars", "set_scale", new_scales));
+        object_manager.send_message(&self.target, 
+            msgt1v("chars", "set_scale", GMValue::from_any(new_scales)));
 
         self.time += self.speed;
     }
