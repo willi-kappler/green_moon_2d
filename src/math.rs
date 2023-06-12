@@ -118,16 +118,16 @@ impl GMVec2D {
                 self.x *= value.into_f32();
             }
             "get_y" => {
-                return self.x.into();
+                return self.y.into();
             }
             "set_y" => {
-                self.x = value.into_f32();
+                self.y = value.into_f32();
             }
             "add_y" =>{
-                self.x += value.into_f32();
+                self.y += value.into_f32();
             }
             "mul_y" => {
-                self.x *= value.into_f32();
+                self.y *= value.into_f32();
             }
             "get_xy" =>{
                 let x: GMValue = self.x.into();
