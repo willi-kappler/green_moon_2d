@@ -46,7 +46,6 @@ impl SpriteScene2 {
         object_manager.add_draw_object("ghost_sprite1", sprite.clone(), 0, 1);
 
         // Big outer circle:
-        // let target: GMTarget = ("ghost_sprite1", "small_circle").into();
         let circle = GMMVCircleFunc::new((250.0, 250.0), 100.0,
             |position, object_manager| {
                 object_manager.send_message_object("ghost_sprite1", msgt1v("position", "set", position));
