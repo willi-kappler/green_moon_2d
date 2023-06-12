@@ -1,18 +1,14 @@
 
 
-- split Context into GMContext and GMDrawContext ?
 
 - movement: GMMVWarp, GMMVBounce
-
-- GMLine (https://github.com/willi-kappler/green_moon_2d/blob/refactor4/src/line.rs)
 
 - GMBorder
 - GMParticleManager
 - GMBulletManager
 - GMScore
-- GMTileMap
-- GMMenuItem
-- GMMenu
+- GMTileMap, GMTileSet, GMTileView
+- GMMenu, GMMenuItem
 - GMHealthbar
 
 
@@ -22,7 +18,14 @@ Future TODO:
 - procedural graphics
 - procedural sound
 - procedural levels / maps
+- GMInventory
 
+
+
+
+
+
+Maybe:
 
 - Make context a public global static ?
 
@@ -37,3 +40,4 @@ https://github.com/dtolnay/thiserror
 https://github.com/tkaitchuck/ahash
 https://github.com/rust-lang/hashbrown
 
+- split Context into GMContext and GMDrawContext ?

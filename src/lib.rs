@@ -2,7 +2,7 @@
 pub mod animation;
 pub mod bitmap_text_effects;
 pub mod bitmap_text;
-// pub mod border;
+pub mod border;
 pub mod collision;
 pub mod configuration;
 
