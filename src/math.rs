@@ -165,6 +165,22 @@ impl Add for GMVec2D {
     }
 }
 
+impl Add<(f32, f32)> for GMVec2D {
+    type Output = Self;
+
+    fn add(self, rhs: (f32, f32)) -> Self::Output {
+        GMVec2D::new(self.x + rhs.0, self.y + rhs.1)
+    }
+}
+
+impl Add<GMSize> for GMVec2D {
+    type Output = Self;
+
+    fn add(self, rhs: GMSize) -> Self::Output {
+        GMVec2D::new(self.x + rhs.width, self.y + rhs.height)
+    }
+}
+
 impl AddAssign for GMVec2D {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
@@ -308,26 +324,22 @@ impl Display for GMSize {
 
 #[derive(Copy, Clone, Debug)]
 pub struct GMRectangle {
-    // TODO: use Vec2D
-    pub x1: f32,
-    pub x2: f32,
-    pub y1: f32,
-    pub y2: f32,
+    pub top_left: GMVec2D,
+    pub bottom_right: GMVec2D,
 }
 
 impl GMRectangle {
     pub fn new(x1: f32, x2: f32, y1: f32, y2: f32) -> Self {
         Self {
-            x1, x2, y1, y2,
+            top_left: GMVec2D::new(x1, y1),
+            bottom_right: GMVec2D::new(x2, y2),
         }
     }
 
-    pub fn new2(point: &GMVec2D, size: &GMSize) -> Self {
+    pub fn new2(point: &GMVec2D, size: GMSize) -> Self {
         Self {
-            x1: point.x,
-            x2: point.x + size.width,
-            y1: point.y,
-            y2: point.y + size.width,
+            top_left: point.clone(),
+            bottom_right: point.clone() + size,
         }
     }
 
@@ -337,15 +349,18 @@ impl GMRectangle {
         let h2 = size.height / 2.0;
 
         Self {
-            x1: point.x - w2,
-            x2: point.x + w2,
-            y1: point.y - h2,
-            y2: point.y + h2,
+            top_left: point.clone() - GMVec2D::new(w2, h2),
+            bottom_right: point.clone() + GMVec2D::new(w2, h2),
         }
     }
 
     pub fn point_inside(&self, x: f32, y: f32) -> bool {
-        (self.x1 <= x) && (x <= self.x2) && (self.y1 <= y) && (y <= self.y2)
+        let x1 = self.top_left.x;
+        let x2 = self.bottom_right.x;
+        let y1 = self.top_left.y;
+        let y2 = self.bottom_right.y;
+
+        (x1 <= x) && (x <= x2) && (y1 <= y) && (y <= y2)
     }
 
     pub fn point_inside2(&self, point: &GMVec2D) -> bool {
@@ -353,10 +368,27 @@ impl GMRectangle {
     }
 
     pub fn rect_intersect(&self, other: &GMRectangle) -> bool {
-        self.point_inside(other.x1, other.y1) ||
-        self.point_inside(other.x1, other.y2) ||
-        self.point_inside(other.x2, other.y1) ||
-        self.point_inside(other.x2, other.y2)
+        let x1 = other.top_left.x;
+        let x2 = other.bottom_right.x;
+        let y1 = other.top_left.y;
+        let y2 = other.bottom_right.y;
+
+        if self.point_inside(x1, y1) { return true }
+        if self.point_inside(x1, y2) { return true }
+        if self.point_inside(x2, y1) { return true }
+        if self.point_inside(x2, y2) { return true }
+
+        let x3 = self.top_left.x;
+        let x4 = self.bottom_right.x;
+        let y3 = self.top_left.y;
+        let y4 = self.bottom_right.y;
+
+        if other.point_inside(x3, y3) { return true }
+        if other.point_inside(x3, y4) { return true }
+        if other.point_inside(x4, y3) { return true }
+        if other.point_inside(x4, y4) { return true }
+
+        false
     }
 
     // TODO: return intersect points
@@ -381,14 +413,10 @@ impl GMRectangle {
                 }
             }
             "top_left" => {
-                let v = value.into_vec2d();
-                self.x1 = v.x;
-                self.y1 = v.y;
+                return self.top_left.send_message(method, value);
             }
             "bottom_right" => {
-                let v = value.into_vec2d();
-                self.x2 = v.x;
-                self.y2 = v.y;
+                return self.bottom_right.send_message(method, value);
             }
             _ => {
                 error_panic(&format!("GMRectangle::send_message, unknown tag: '{}'", tag));
@@ -402,13 +430,13 @@ impl GMRectangle {
 
 impl From<(f32, f32, f32, f32)> for GMRectangle {
     fn from((x1, x2, y1, y2): (f32, f32, f32, f32)) -> Self {
-        GMRectangle { x1, x2, y1, y2 }
+        GMRectangle::new(x1, x2, y1, y2)
     }
 }
 
 impl Display for GMRectangle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(x1: {}, y1: {}, x2: {}, y2: {})", self.x1, self.y1, self.x2, self.y2)
+        write!(f, "top_left: {}, bottom_right: {}", self.top_left, self.bottom_right)
     }
 }
 
@@ -441,7 +469,8 @@ impl GMCircle {
 
     // Point on circle border
     pub fn circ_point<T: Into<GMVec2D>>(&self, position: T) -> GMVec2D {
-        let mut vec = position.into();
+        let p = position.into();
+        let mut vec = p - self.center;
         vec.norm();
         vec.mul2(self.radius);
         vec.add2(self.center);
@@ -466,7 +495,26 @@ impl GMCircle {
         match tag.as_str() {
             "" => {
                 match method {
-                    // TODO: Add more methods
+                    "point_inside" => {
+                        let p = value.into_vec2d();
+                        return self.point_inside(p).into();
+                    }
+                    "circ_intersect" => {
+                        let other = value.into_generic::<GMCircle>();
+                        return self.circ_intersect(&other).into();
+                    }
+                    "circ_point" => {
+                        let p = value.into_vec2d();
+                        return self.circ_point(p).into();
+                    }
+                    "position_from_deg" => {
+                        let deg = value.into_f32();
+                        return self.position_from_deg(deg).into();
+                    }
+                    "position_from_rad" => {
+                        let rad = value.into_f32();
+                        return self.position_from_rad(rad).into();
+                    }
                     _ => {
                         error_panic(&format!("GMCircle::send_message, unknown method: '{}', no tag", method));
                     }
@@ -482,8 +530,6 @@ impl GMCircle {
                 error_panic(&format!("GMCircle::send_message, unknown tag: '{}'", tag));
             }
         }
-
-        GMValue::None
     }
 }
 
