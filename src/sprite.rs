@@ -104,7 +104,7 @@ impl GMObjectT for GMSprite {
                 return self.animation.send_message(message)
             }
             "flipxy" => {
-                return self.flipxy.send_message(method, message.value);
+                return self.flipxy.send_message(message);
             }
             "size" => {
                 return self.size.send_message(message);

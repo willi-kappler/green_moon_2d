@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use crate::util::{error_panic, send_message_f32};
+use crate::util::{error_panic, send_message_f32, send_message_bool};
 use crate::value::GMValue;
 use crate::message::GMMessage;
 
@@ -547,50 +547,47 @@ impl GMFlipXY {
         }
     }
 
-    pub fn send_message(&mut self, method: &str, value: GMValue) -> GMValue {
-        // TODO: use full message, with tag
-        match method {
-            "get" => {
-                return self.clone().into();
-            }
-            "set" => {
-                *self = value.into_flipxy();
-            }
-            "toggle" => {
-                self.x = !self.x;
-                self.y = !self.y;
-            }
-            "get_xy" => {
-                let x: GMValue = self.x.into();
-                let y: GMValue = self.y.into();
-                return x.chain(y);
-            }
-            "set_xy" => {
-                let (x, y) = value.into_generic::<(bool, bool)>();
-                self.x = x;
-                self.y = y;
-            }
+    pub fn send_message(&mut self, mut message: GMMessage) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+        let value = message.value;
 
-            "get_x" => {
-                return self.x.into();
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "get" => {
+                        return self.clone().into();
+                    }
+                    "set" => {
+                        *self = value.into_flipxy();
+                    }
+                    "toggle" => {
+                        self.x = !self.x;
+                        self.y = !self.y;
+                    }
+                    "get_xy" => {
+                        let x: GMValue = self.x.into();
+                        let y: GMValue = self.y.into();
+                        return x.chain(y);
+                    }
+                    "set_xy" => {
+                        let (x, y) = value.into_generic::<(bool, bool)>();
+                        self.x = x;
+                        self.y = y;
+                    }
+                            _ => {
+                        error_panic(&format!("GMFlipXY::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
             }
-            "set_x" => {
-                self.x = value.into_bool();
+            "x" => {
+                return send_message_bool(&mut self.x, method, value);
             }
-            "toggle_x" => {
-                self.x = !self.x;
-            }
-            "get_y" => {
-                return self.y.into();
-            }
-            "set_y" => {
-                self.y = value.into_bool();
-            }
-            "toggle_y" => {
-                self.y = !self.y;
+            "y" => {
+                return send_message_bool(&mut self.y, method, value);
             }
             _ => {
-                error_panic(&format!("GMFlipXY::send_message, unknown method: '{}'", method));
+                error_panic(&format!("GMFlipXY::send_message, unknown tag: '{}'", tag));
             }
         }
 
