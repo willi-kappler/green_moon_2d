@@ -9,7 +9,7 @@ use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
 use crate::value::GMValue;
-use crate::message::{GMMessage, msgt1v};
+use crate::message::{GMMessage, msgt1v, msgt0v};
 
 #[derive(Debug, Clone)]
 pub enum GMLineMode {
@@ -96,15 +96,17 @@ impl GMLine {
     pub fn set_elements(&mut self, number: u32, spacing: f32, mut direction: GMVec2D) -> Vec<GMVec2D> {
         direction.norm();
 
-        // If more elements are needed just add them
         let diff = ((number as i32) - (self.elements.len() as i32)) as i32;
 
-        for _ in 0..diff {
-            self.elements.push(self.init_element.clone());
+        if diff > 0 {
+            // If more elements are needed just add them
+            for _ in 0..diff {
+                self.elements.push(self.init_element.clone());
+            }
+        } else if diff < 0 {
+            // Remove unneeded elements:
+            self.elements.truncate(number as usize);
         }
-
-        // Remove unneeded elements:
-        self.elements.truncate(number as usize);
 
         // Now re-calculate the positions of all elements
         let mut result = Vec::new();
@@ -115,6 +117,12 @@ impl GMLine {
         }
 
         result
+    }
+
+    pub fn set_positions(&mut self, positions: Vec<GMVec2D>, object_manager: &GMObjectManager) {
+        for (element, position) in self.elements.iter_mut().zip(positions) {
+            element.send_message(msgt1v("position", "set", position), object_manager);
+        }
     }
 }
 
@@ -130,10 +138,7 @@ impl GMObjectT for GMLine {
                 match method {
                     "init" => {
                         let positions = self.point_changed();
-
-                        for (element, position) in self.elements.iter_mut().zip(positions) {
-                            element.send_message(msgt1v("position", "set", position), object_manager);
-                        }
+                        self.set_positions(positions, object_manager);
                     }
                     "get_line_mode" => {
                         return self.line_mode.clone().into();
@@ -145,8 +150,28 @@ impl GMObjectT for GMLine {
                         return self.init_element.clone().into();
                     }
                     "set_init_element" => {
-                        let object = value.into_object();
-                        self.init_element = object;
+                        self.init_element = value.into_object();
+                    }
+                    "set_all_elements" => {
+                        self.elements.clear();
+
+                        let positions = self.point_changed();
+                        self.set_positions(positions, object_manager);
+                    }
+                    "set_some_elements" => {
+                        let indices = value.into_generic::<Vec<usize>>();
+
+                        for index in indices {
+                            let position = self.elements[index].send_message(msgt0v("position", "get"), object_manager);
+                            self.elements[index] = self.init_element.clone();
+                            self.elements[index].send_message(msgt1v("position", "set", position), object_manager);
+                        }
+                    }
+                    "set_one_element" => {
+                        let index = value.into_usize();
+                        let position = self.elements[index].send_message(msgt0v("position", "get"), object_manager);
+                        self.elements[index] = self.init_element.clone();
+                        self.elements[index].send_message(msgt1v("position", "set", position), object_manager);
                     }
                     _ => {
                         error_panic(&format!("GMLine::send_message: Unknown method '{}', no tag", method));
@@ -160,7 +185,8 @@ impl GMObjectT for GMLine {
                 let result = self.start.send_message(method, value);
 
                 if result.is_none() {
-                    self.point_changed();
+                    let positions = self.point_changed();
+                    self.set_positions(positions, object_manager);
                 }
 
                 return result;
@@ -172,7 +198,8 @@ impl GMObjectT for GMLine {
                 let result = self.end.send_message(method, value);
 
                 if result.is_none() {
-                    self.point_changed();
+                    let positions = self.point_changed();
+                    self.set_positions(positions, object_manager);
                 }
 
                 return result;
