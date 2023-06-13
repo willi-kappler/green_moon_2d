@@ -14,6 +14,7 @@ use crate::target::GMTarget;
 use crate::texture::GMTexture;
 use crate::util::{GMRepetition, GMAlign, error_panic};
 use crate::line::GMLineMode;
+use crate::message::{GMMessage, msgt1v};
 
 
 #[derive(Clone, Debug)]
@@ -32,7 +33,7 @@ pub enum GMValue {
     I32(i32),
     I64(i64),
     I8(i8),
-    Message(String, String, Box<GMValue>),
+    Message(Box<GMMessage>),
     Multiple(VecDeque<GMValue>),
     None,
     Object(Box<dyn GMObjectT>),
@@ -279,6 +280,14 @@ impl GMValue {
         error_panic(&format!("GMValue::into_object, not an object variant: '{:?}'", self));
     }
 
+    pub fn into_message(self) -> GMMessage {
+        if let Self::Message(value) = self {
+            return *value
+        }
+
+        error_panic(&format!("GMValue::into_message, not an message variant: '{:?}'", self));
+    }
+
     pub fn into_generic<T: Clone + 'static>(self) -> T {
         if let Self::Any(value) = self {
             let result = value.downcast_ref::<T>().unwrap();
@@ -432,8 +441,9 @@ impl From<(f32, f32, f32)> for GMValue {
 }
 
 impl From<(String, String, GMValue)> for GMValue {
-    fn from((tag, message, value): (String, String, GMValue)) -> Self {
-        Self::Message(tag, message, Box::new(value))
+    fn from((tag, method, value): (String, String, GMValue)) -> Self {
+        let msg = msgt1v(tag.as_str(), method.as_str(), value);
+        Self::Message(Box::new(msg))
     }
 }
 
