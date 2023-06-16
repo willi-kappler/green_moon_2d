@@ -51,6 +51,8 @@ pub enum GMValue {
     U8(u8),
     USize(usize),
     Vec2D(GMVec2D),
+    UnknownTag(String), // Maybe used in the future
+    UnknownMethod(String), // Maybe used in the future
 }
 
 impl GMValue {
