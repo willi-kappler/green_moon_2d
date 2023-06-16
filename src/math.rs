@@ -354,6 +354,13 @@ impl GMRectangle {
         }
     }
 
+    pub fn new4<U: Into<GMVec2D>, V: Into<GMVec2D>>(top_left: U, bottom_right: V) -> Self {
+        Self {
+            top_left: top_left.into(),
+            bottom_right: bottom_right.into(),
+        }
+    }
+
     pub fn point_inside(&self, x: f32, y: f32) -> bool {
         let x1 = self.top_left.x;
         let x2 = self.bottom_right.x;
