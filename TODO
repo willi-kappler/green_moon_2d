@@ -27,6 +27,9 @@ Future TODO:
 
 Maybe:
 
+- If tag is unknown return GMValue::UnknownTag(String)
+- If method is unknown return GMValue::UnknownMethod(String)
+
 - Make context a public global static ?
 
 - Maybe move child object to object manager ? (characters, line elements, ...)
