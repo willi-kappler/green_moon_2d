@@ -235,6 +235,12 @@ impl GMObjectT for GMLine {
         GMValue::None
     }
 
+    fn update(&mut self, object_manager: &GMObjectManager, context: &mut GMContext) {
+        for element in self.elements.iter_mut() {
+            element.update(object_manager, context);
+        }
+    }
+
     fn draw(&self, context: &mut GMContext) {
         for element in self.elements.iter() {
             element.draw(context);
