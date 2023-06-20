@@ -361,6 +361,14 @@ impl GMRectangle {
         }
     }
 
+    pub fn get_width(&self) -> f32 {
+        self.bottom_right.x - self.top_left.x
+    }
+
+    pub fn get_height(&self) -> f32 {
+        self.bottom_right.y - self.top_left.y
+    }
+
     pub fn point_inside(&self, x: f32, y: f32) -> bool {
         let x1 = self.top_left.x;
         let x2 = self.bottom_right.x;

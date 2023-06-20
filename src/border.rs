@@ -151,6 +151,12 @@ impl GMObjectT for GMBorderSimple {
                         self.set_8_objects(objects);
                         self.init_objects();
                     }
+                    "get_width" => {
+                        return self.base.rectangle.get_width().into();
+                    }
+                    "get_height" => {
+                        return self.base.rectangle.get_height().into();
+                    }
                     _ => {
                         error_panic(&format!("GMBorderSimple::send_message: Unknown method '{}', no tag", method));
                     }
