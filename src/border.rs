@@ -151,6 +151,38 @@ impl GMObjectT for GMBorderSimple {
                         self.set_8_objects(objects);
                         self.init_objects();
                     }
+                    "set_top_left" => {
+                        let object = message.value.into_object();
+                        self.top_left = object;
+                    }
+                    "set_top" => {
+                        let object = message.value.into_object();
+                        self.top.init_element = object;
+                    }
+                    "set_top_right" => {
+                        let object = message.value.into_object();
+                        self.top_right = object;
+                    }
+                    "set_right" => {
+                        let object = message.value.into_object();
+                        self.right.init_element = object;
+                    }
+                    "set_bottom_right" => {
+                        let object = message.value.into_object();
+                        self.bottom_right = object;
+                    }
+                    "set_bottom" => {
+                        let object = message.value.into_object();
+                        self.bottom.init_element = object;
+                    }
+                    "set_bottom_left" => {
+                        let object = message.value.into_object();
+                        self.bottom_left = object;
+                    }
+                    "set_left" => {
+                        let object = message.value.into_object();
+                        self.left.init_element = object;
+                    }
                     "get_width" => {
                         return self.base.rectangle.get_width().into();
                     }
