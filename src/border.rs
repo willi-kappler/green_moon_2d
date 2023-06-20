@@ -143,7 +143,9 @@ impl GMObjectT for GMBorderSimple {
                         self.init_objects();
                     }
                     "set_4_objects" => {
-                        // TODO:
+                        let (top, right, bottom, left) =
+                            message.value.into_generic::<(Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>)>();
+                        self.set_4_objects(top, right, bottom, left);
                         self.init_objects();
                     }
                     "set_8_objects" => {
