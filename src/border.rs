@@ -131,7 +131,7 @@ impl GMBorderSimple {
         let x2 = x1 + w1;
         let x4 = self.base.rectangle.bottom_right.x - w3;
         let x3 = x4 - w2;
-        let x5 = x4 - w4;
+        // let x5 = x4 - w4;
 
 
         let h1 = self.top_left.send_message(get_height.clone(), object_manager).into_f32();
@@ -143,9 +143,31 @@ impl GMBorderSimple {
         let y2 = y1 + h1;
         let y4 = self.base.rectangle.bottom_right.y - h3;
         let y3 = y4 - h2;
-        let y5 = y4 - h4;
+        // let y5 = y4 - h4;
 
         self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
+        self.top.start.x = x2;
+        self.top.start.y = y1;
+        self.top.end.x = x3;
+        self.top.end.y = y1;
+        self.top_right.send_message(msg_set_position((x4, y1)), object_manager);
+
+        self.right.start.x = x4;
+        self.right.start.y = y2;
+        self.right.end.x = x4;
+        self.right.end.y = y3;
+
+        self.bottom_left.send_message(msg_set_position((x1, y3)), object_manager);
+        self.bottom.start.x = x2;
+        self.bottom.start.y = y3;
+        self.bottom.end.x = x3;
+        self.bottom.end.y = y3;
+        self.bottom_right.send_message(msg_set_position((x4, y3)), object_manager);
+
+        self.left.start.x = x1;
+        self.left.start.y = y2;
+        self.left.end.x = x1;
+        self.left.end.y = y3;
 
         self.top.set_spacing(w2);
         self.right.set_spacing(h4);
@@ -278,7 +300,6 @@ impl GMObjectT for GMBorderSimple {
         self.bottom_left.draw(context);
         self.left.draw(context);
     }
-
 
     fn clone_box(&self) -> Box<dyn GMObjectT> {
         Box::new(self.clone())
