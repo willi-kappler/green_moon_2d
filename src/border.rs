@@ -172,13 +172,53 @@ impl GMObjectT for GMBorderSimple {
                         self.init_objects(object_manager);
                     }
                     "set_4_objects" => {
-                        // TODO:
+                        let (top, right, bottom, left) =
+                            message.value.into_generic::<(Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>)>();
+                        self.set_4_objects(top, right, bottom, left);
                         self.init_objects(object_manager);
                     }
                     "set_8_objects" => {
                         let objects = message.value.into_generic::<Vec<Box<dyn GMObjectT>>>();
                         self.set_8_objects(objects);
                         self.init_objects(object_manager);
+                    }
+                    "set_top_left" => {
+                        let object = message.value.into_object();
+                        self.top_left = object;
+                    }
+                    "set_top" => {
+                        let object = message.value.into_object();
+                        self.top.init_element = object;
+                    }
+                    "set_top_right" => {
+                        let object = message.value.into_object();
+                        self.top_right = object;
+                    }
+                    "set_right" => {
+                        let object = message.value.into_object();
+                        self.right.init_element = object;
+                    }
+                    "set_bottom_right" => {
+                        let object = message.value.into_object();
+                        self.bottom_right = object;
+                    }
+                    "set_bottom" => {
+                        let object = message.value.into_object();
+                        self.bottom.init_element = object;
+                    }
+                    "set_bottom_left" => {
+                        let object = message.value.into_object();
+                        self.bottom_left = object;
+                    }
+                    "set_left" => {
+                        let object = message.value.into_object();
+                        self.left.init_element = object;
+                    }
+                    "get_width" => {
+                        return self.base.rectangle.get_width().into();
+                    }
+                    "get_height" => {
+                        return self.base.rectangle.get_height().into();
                     }
                     _ => {
                         error_panic(&format!("GMBorderSimple::send_message: Unknown method '{}', no tag", method));

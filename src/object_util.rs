@@ -659,8 +659,6 @@ impl GMObjectT for GMValueInterpolateVec2D {
 }
 
 
-
-
 #[derive(Clone)]
 pub struct GMMapMessage {
     pub target: GMTarget,

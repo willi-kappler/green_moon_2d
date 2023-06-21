@@ -173,6 +173,14 @@ impl GMObjectT for GMLine {
                         self.elements[index] = self.init_element.clone();
                         self.elements[index].send_message(msgt1v("position", "set", position), object_manager);
                     }
+                    "get_width" => {
+                        let width = self.end.x - self.start.x;
+                        return width.abs().into();
+                    }
+                    "get_height" => {
+                        let height = self.end.y - self.start.y;
+                        return height.abs().into();
+                    }
                     _ => {
                         error_panic(&format!("GMLine::send_message: Unknown method '{}', no tag", method));
                     }
