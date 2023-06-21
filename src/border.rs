@@ -1,7 +1,7 @@
 
 
 use crate::object::GMObjectT;
-use crate::message::GMMessage;
+use crate::message::{GMMessage, msg0v};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::context::GMContext;
@@ -118,10 +118,39 @@ impl GMBorderSimple {
 
     }
 
-    pub fn init_objects(&mut self) {
-        let x1 = self.base.rectangle.top_left.x;
-        let y1 = self.base.rectangle.top_left.y;
+    pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
+        let get_width = msg0v("get_width");
+        let get_height = msg0v("get_height");
 
+        let w1 = self.top_left.send_message(get_width.clone(), object_manager).into_f32();
+        let w2 = self.top.init_element.send_message(get_width.clone(), object_manager).into_f32();
+        let w3 = self.top_right.send_message(get_width.clone(), object_manager).into_f32();
+        let w4 = self.bottom.init_element.send_message(get_width, object_manager).into_f32();
+
+        let x1 = self.base.rectangle.top_left.x;
+        let x2 = x1 + w1;
+        let x4 = self.base.rectangle.bottom_right.x - w3;
+        let x3 = x4 - w2;
+        let x5 = x4 - w4;
+
+
+        let h1 = self.top_left.send_message(get_height.clone(), object_manager).into_f32();
+        let h2 = self.left.init_element.send_message(get_height.clone(), object_manager).into_f32();
+        let h3 = self.bottom_left.send_message(get_height.clone(), object_manager).into_f32();
+        let h4 = self.right.init_element.send_message(get_height.clone(), object_manager).into_f32();
+
+        let y1 = self.base.rectangle.top_left.y;
+        let y2 = y1 + h1;
+        let y4 = self.base.rectangle.bottom_right.y - h3;
+        let y3 = y4 - h2;
+        let y5 = y4 - h4;
+
+        // self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
+
+        self.top.set_spacing(w2);
+        self.right.set_spacing(h4);
+        self.bottom.set_spacing(w4);
+        self.left.set_spacing(h2);
 
     }
 }
@@ -135,21 +164,21 @@ impl GMObjectT for GMBorderSimple {
             "" => {
                 match method {
                     "init" => {
-                        self.init_objects();
+                        self.init_objects(object_manager);
                     }
                     "set_object" => {
                         let object = message.value.into_object();
                         self.set_object(object);
-                        self.init_objects();
+                        self.init_objects(object_manager);
                     }
                     "set_4_objects" => {
                         // TODO:
-                        self.init_objects();
+                        self.init_objects(object_manager);
                     }
                     "set_8_objects" => {
                         let objects = message.value.into_generic::<Vec<Box<dyn GMObjectT>>>();
                         self.set_8_objects(objects);
-                        self.init_objects();
+                        self.init_objects(object_manager);
                     }
                     _ => {
                         error_panic(&format!("GMBorderSimple::send_message: Unknown method '{}', no tag", method));
