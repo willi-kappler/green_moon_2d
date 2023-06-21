@@ -200,3 +200,7 @@ pub fn msgt2v<T: Into<GMTags>, S: Into<String>, V1: Into<GMValue>, V2: Into<GMVa
 pub fn msgt3v<T: Into<GMTags>, S: Into<String>, V1: Into<GMValue>, V2: Into<GMValue>, V3: Into<GMValue>>(tag: T, method: S, value1: V1, value2: V2, value3: V3) -> GMMessage {
     GMMessage::new4(tag, method, value1.into().chain(value2.into()).chain(value3.into()))
 }
+
+pub fn msg_set_position<V: Into<GMValue>>(value: V) -> GMMessage {
+    GMMessage::new4("position", "set", value)
+}

@@ -29,7 +29,7 @@ pub mod resources;
 pub mod scene;
 // pub mod score;
 pub mod sprite;
-pub mod state;
+pub mod property;
 pub mod target;
 pub mod texture;
 

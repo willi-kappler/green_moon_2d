@@ -15,7 +15,7 @@ use crate::input::{GMInput, GMEventCode};
 use crate::message::GMMessage;
 use crate::resources::GMResources;
 use crate::scene::{GMSceneT, GMSceneManagerMessage};
-use crate::state::GMState;
+use crate::property::GMProperty;
 use crate::value::GMValue;
 
 pub struct GMContext {
@@ -24,7 +24,7 @@ pub struct GMContext {
     canvas: Canvas<Window>,
     input: GMInput,
     pub resources: GMResources,
-    custom_properties: GMState,
+    custom_properties: GMProperty,
     pub window_width: f32,
     pub window_height: f32,
 }
@@ -41,10 +41,21 @@ impl GMContext {
             canvas,
             input,
             resources,
-            custom_properties: GMState::new(),
+            custom_properties: GMProperty::new(),
             window_width: configuration.screen_width as f32,
             window_height: configuration.screen_height as f32,
         }
+    }
+
+    // Serialize, Deserialize:
+    pub fn serialize(&self, _filename: &str) {
+        // TODO: use serde
+        todo!("Implement serialize");
+    }
+
+    pub fn deserialize(&self, _filename: &str) {
+        // TODO: use serde
+        todo!("Implement deserialize");
     }
 
     // Custom properties:

@@ -9,7 +9,7 @@ use crate::object::GMObjectT;
 use crate::util::error_panic;
 use crate::context::GMContext;
 use crate::target::GMTarget;
-use crate::state::GMState;
+use crate::property::GMProperty;
 use crate::message::{GMMessage, msg0v};
 
 #[derive(Clone, Debug)]
@@ -18,7 +18,7 @@ pub struct GMObjectInfo {
     pub draw_index: i32,
     pub groups: HashSet<String>,
     pub inner: RefCell<Box<dyn GMObjectT>>,
-    pub state: RefCell<GMState>,
+    pub state: RefCell<GMProperty>,
     pub update_index: i32,
     pub visible: bool,
 }
@@ -30,7 +30,7 @@ impl GMObjectInfo {
             draw_index: 0,
             groups: HashSet::new(),
             inner: RefCell::new(object.into()),
-            state: RefCell::new(GMState::new()),
+            state: RefCell::new(GMProperty::new()),
             update_index: 0,
             visible: true,
         }
@@ -407,7 +407,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn get_state(&self, name: &str) -> &RefCell<GMState> {
+    pub fn get_state(&self, name: &str) -> &RefCell<GMProperty> {
         if let Some(object) = self.objects.get(name) {
             return &object.state;
         } else {
@@ -415,7 +415,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn set_state(&self, name: &str, state: GMState) -> GMState {
+    pub fn set_state(&self, name: &str, state: GMProperty) -> GMProperty {
         if let Some(object) = self.objects.get(name) {
             return object.state.replace(state)
         } else {

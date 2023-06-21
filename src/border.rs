@@ -1,7 +1,7 @@
 
 
 use crate::object::GMObjectT;
-use crate::message::{GMMessage, msg0v};
+use crate::message::{GMMessage, msg0v, msg_set_position};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::context::GMContext;
@@ -145,7 +145,7 @@ impl GMBorderSimple {
         let y3 = y4 - h2;
         let y5 = y4 - h4;
 
-        // self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
+        self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
 
         self.top.set_spacing(w2);
         self.right.set_spacing(h4);

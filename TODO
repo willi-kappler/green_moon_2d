@@ -2,7 +2,7 @@
 
 
 - movement: GMMVWarp, GMMVBounce
-
+- GMObjectFactory
 - GMBorder
 - GMParticleManager
 - GMBulletManager
@@ -10,6 +10,11 @@
 - GMTileMap, GMTileSet, GMTileView
 - GMMenu, GMMenuItem
 - GMHealthbar
+
+- serialize / deserialize, JSON or binary JSON
+    - GMObjectT
+    - GMSceneT
+    - custom_properties in GMContext
 
 
 

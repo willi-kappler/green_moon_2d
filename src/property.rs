@@ -4,11 +4,11 @@ use std::collections::HashMap;
 use crate::value::GMValue;
 
 #[derive(Clone, Debug)]
-pub struct GMState {
+pub struct GMProperty {
     pub state: HashMap<String, GMValue>,
 }
 
-impl GMState {
+impl GMProperty {
     pub fn new() -> Self {
         Self {
             state: HashMap::new(),
