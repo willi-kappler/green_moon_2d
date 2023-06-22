@@ -7,6 +7,7 @@ use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
 use crate::value::GMValue;
 use crate::target::GMTarget;
+use crate::util::error_panic;
 
 #[derive(Debug, Clone)]
 pub struct GMObjectFactory {
@@ -68,7 +69,23 @@ impl GMObjectFactory {
 }
 
 impl GMObjectT for GMObjectFactory {
-    fn send_message(&mut self, _message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    _ => {
+                        error_panic(&format!("GMObjectFactory::send_message: Unknown method '{}', no tag", method));
+                    }
+                }
+            }
+            _ => {
+                error_panic(&format!("GMObjectFactory::send_message: Unknown tag '{}'", tag));
+            }
+        }
+
         GMValue::None
     }
 
