@@ -119,31 +119,21 @@ impl GMBorderSimple {
     }
 
     pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
-        let get_width = msg0v("get_width");
-        let get_height = msg0v("get_height");
-
-        let w1 = self.top_left.send_message(get_width.clone(), object_manager).into_f32();
-        let w2 = self.top.init_element.send_message(get_width.clone(), object_manager).into_f32();
-        let w3 = self.top_right.send_message(get_width.clone(), object_manager).into_f32();
-        let w4 = self.bottom.init_element.send_message(get_width, object_manager).into_f32();
+        // All objects must have the same width and height
+        let width = self.top_left.send_message(msg0v("get_width"), object_manager).into_f32();
+        let height = self.top_left.send_message(msg0v("get_height"), object_manager).into_f32();
 
         let x1 = self.base.rectangle.top_left.x;
-        let x2 = x1 + w1;
-        let x4 = self.base.rectangle.bottom_right.x - w3;
-        let x3 = x4 - w2;
-        // let x5 = x4 - w4;
-
-
-        let h1 = self.top_left.send_message(get_height.clone(), object_manager).into_f32();
-        let h2 = self.left.init_element.send_message(get_height.clone(), object_manager).into_f32();
-        let h3 = self.bottom_left.send_message(get_height.clone(), object_manager).into_f32();
-        let h4 = self.right.init_element.send_message(get_height.clone(), object_manager).into_f32();
+        let x2 = x1 + width;
+        let x5 = self.base.rectangle.bottom_right.x;
+        let x4 = x5 - width;
+        let x3 = x4 - width;
 
         let y1 = self.base.rectangle.top_left.y;
-        let y2 = y1 + h1;
-        let y4 = self.base.rectangle.bottom_right.y - h3;
-        let y3 = y4 - h2;
-        // let y5 = y4 - h4;
+        let y2 = y1 + height;
+        let y5 = self.base.rectangle.bottom_right.y;
+        let y4 = y5 - height;
+        let y3 = y4 - height;
 
         self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
         self.top.start.x = x2;
@@ -169,10 +159,10 @@ impl GMBorderSimple {
         self.left.end.x = x1;
         self.left.end.y = y3;
 
-        self.top.set_spacing(w2);
-        self.right.set_spacing(h4);
-        self.bottom.set_spacing(w4);
-        self.left.set_spacing(h2);
+        self.top.set_spacing(width);
+        self.right.set_spacing(height);
+        self.bottom.set_spacing(width);
+        self.left.set_spacing(height);
 
     }
 }
