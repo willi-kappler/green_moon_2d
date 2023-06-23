@@ -10,7 +10,7 @@ use crate::line::{GMLine, GMLineMode};
 use crate::util::error_panic;
 
 #[derive(Debug, Clone)]
-pub struct GMBorderSimple {
+pub struct GMBorder {
     pub rectangle: GMRectangle,
     pub top_left: Box<dyn GMObjectT>,
     pub top: GMLine,
@@ -23,29 +23,19 @@ pub struct GMBorderSimple {
 
 }
 
-impl GMBorderSimple {
-    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>>(top_left: U, bottom_right: V, object: Box<dyn GMObjectT>) -> Self {
+impl GMBorder {
+    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>, O: Into<Box<dyn GMObjectT>>>(top_left: U, bottom_right: V, object: O) -> Self {
         let rectangle = GMRectangle::new4(top_left, bottom_right);
 
-        let x1 = rectangle.top_left.x;
-        let y1 = rectangle.top_left.y;
-
-        let x2 = rectangle.bottom_right.x;
-        let y2 = rectangle.bottom_right.y;
-
-        // TODO: Get width and height from object
-        let width = 16.0;
-        let height = 16.0;
-
-        // TODO: Make left and right line shorter, they overlap with top and bottom line
+        let object = object.into();
         let top_left = object.clone();
-        let top = GMLine::new((x1 + width, y1), (x2 - width, y1), object.clone(), GMLineMode::Spacing(width));
+        let top = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
         let top_right = object.clone();
-        let right = GMLine::new((x2, y1 + height), (x2, y2 - height), object.clone(), GMLineMode::Spacing(height));
+        let right = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
         let bottom_right = object.clone();
-        let bottom = GMLine::new((x1 + width, y2), (x2 - width, y2), object.clone(), GMLineMode::Spacing(width));
+        let bottom = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
         let bottom_left = object.clone();
-        let left = GMLine::new((x1, y1 + height), (x1, y2 - height), object, GMLineMode::Spacing(height));
+        let left = GMLine::new((0.0, 0.0), (1.0, 1.0), object, GMLineMode::Number(1));
 
 
         Self {
@@ -62,7 +52,15 @@ impl GMBorderSimple {
         }
     }
 
-    pub fn set_object(&mut self, object: Box<dyn GMObjectT>) {
+    pub fn new2<U: Into<GMVec2D>, O: Into<Box<dyn GMObjectT>>>(top_left: U, width: f32, height: f32, object: O) -> Self {
+        let top_left = top_left.into();
+        let bottom_left = GMVec2D::new(top_left.x + width, top_left.y + height);
+        Self::new(top_left, bottom_left, object)
+    }
+
+    pub fn set_object<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+        let object = object.into();
+
         self.top_left = object.clone();
         self.top.init_element = object.clone();
         self.top_right = object.clone();
@@ -71,6 +69,20 @@ impl GMBorderSimple {
         self.bottom.init_element = object.clone();
         self.bottom_left = object.clone();
         self.left.init_element = object;
+    }
+
+    pub fn set_2_objects<U: Into<Box<dyn GMObjectT>>, V: Into<Box<dyn GMObjectT>>>(&mut self, corner: U, side: V) {
+        let corner = corner.into();
+        let side = side.into();
+
+        self.top_left = corner.clone();
+        self.top.init_element = side.clone();
+        self.top_right = corner.clone();
+        self.right.init_element = side.clone();
+        self.bottom_right = corner.clone();
+        self.bottom.init_element = side.clone();
+        self.bottom_left = corner.clone();
+        self.left.init_element = side;
     }
 
     pub fn set_4_objects(&mut self, top: Box<dyn GMObjectT>, right: Box<dyn GMObjectT>, bottom: Box<dyn GMObjectT>, left: Box<dyn GMObjectT>) {
@@ -100,6 +112,24 @@ impl GMBorderSimple {
 
     }
 
+    pub fn set_corners<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top_left = object.clone();
+        self.top_right = object.clone();
+        self.bottom_right = object.clone();
+        self.bottom_left = object.clone();
+    }
+
+    pub fn set_sides<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top.init_element = object.clone();
+        self.right.init_element = object.clone();
+        self.bottom.init_element = object.clone();
+        self.left.init_element = object.clone();
+    }
+
     pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
         // All objects must have the same width and height
         let size = self.top_left.send_message(msgt0v("size", "get"), object_manager).into_size();
@@ -107,27 +137,27 @@ impl GMBorderSimple {
         let height = size.height;
 
         let x1 = self.rectangle.top_left.x;
-        let x2 = x1 + width;
-        let x5 = self.rectangle.bottom_right.x;
-        let x4 = x5 - width;
-        let x3 = x4 - width;
+        let x3 = self.rectangle.bottom_right.x;
+        let nw = ((x3 - x1) / width).floor();
+        let dx = (x3 - x1) / nw;
+        let x2 = x1 + dx;
 
         let y1 = self.rectangle.top_left.y;
-        let y2 = y1 + height;
-        let y5 = self.rectangle.bottom_right.y;
-        let y4 = y5 - height;
-        let y3 = y4 - height;
+        let y3 = self.rectangle.bottom_right.y;
+        let nh = ((y3 - y1) / height).floor();
+        let dy = (y3 - y1) / nh;
+        let y2 = y1 + dy;
 
         self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
         self.top.start.x = x2;
         self.top.start.y = y1;
         self.top.end.x = x3;
         self.top.end.y = y1;
-        self.top_right.send_message(msg_set_position((x4, y1)), object_manager);
+        self.top_right.send_message(msg_set_position((x3, y1)), object_manager);
 
-        self.right.start.x = x4;
+        self.right.start.x = x3;
         self.right.start.y = y2;
-        self.right.end.x = x4;
+        self.right.end.x = x3;
         self.right.end.y = y3;
 
         self.bottom_left.send_message(msg_set_position((x1, y3)), object_manager);
@@ -135,22 +165,22 @@ impl GMBorderSimple {
         self.bottom.start.y = y3;
         self.bottom.end.x = x3;
         self.bottom.end.y = y3;
-        self.bottom_right.send_message(msg_set_position((x4, y3)), object_manager);
+        self.bottom_right.send_message(msg_set_position((x3, y3)), object_manager);
 
         self.left.start.x = x1;
         self.left.start.y = y2;
         self.left.end.x = x1;
         self.left.end.y = y3;
 
-        self.top.set_spacing(width);
-        self.right.set_spacing(height);
-        self.bottom.set_spacing(width);
-        self.left.set_spacing(height);
+        self.top.set_number2((nw as u32) - 1, object_manager);
+        self.right.set_number2((nh as u32) - 1, object_manager);
+        self.bottom.set_number2((nw as u32) - 1, object_manager);
+        self.left.set_number2((nh as u32) - 1, object_manager);
 
     }
 }
 
-impl GMObjectT for GMBorderSimple {
+impl GMObjectT for GMBorder {
     fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
