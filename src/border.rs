@@ -1,7 +1,7 @@
 
 
 use crate::object::GMObjectT;
-use crate::message::{GMMessage, msg0v, msg_set_position};
+use crate::message::{GMMessage, msgt0v, msg_set_position};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::context::GMContext;
@@ -120,8 +120,9 @@ impl GMBorderSimple {
 
     pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
         // All objects must have the same width and height
-        let width = self.top_left.send_message(msg0v("get_width"), object_manager).into_f32();
-        let height = self.top_left.send_message(msg0v("get_height"), object_manager).into_f32();
+        let size = self.top_left.send_message(msgt0v("size", "get"), object_manager).into_size();
+        let width = size.width;
+        let height = size.height;
 
         let x1 = self.base.rectangle.top_left.x;
         let x2 = x1 + width;
@@ -225,12 +226,6 @@ impl GMObjectT for GMBorderSimple {
                     "set_left" => {
                         let object = message.value.into_object();
                         self.left.init_element = object;
-                    }
-                    "get_width" => {
-                        return self.base.rectangle.get_width().into();
-                    }
-                    "get_height" => {
-                        return self.base.rectangle.get_height().into();
                     }
                     _ => {
                         error_panic(&format!("GMBorderSimple::send_message: Unknown method '{}', no tag", method));

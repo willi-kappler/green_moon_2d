@@ -276,12 +276,6 @@ impl GMObjectT for GMBitmapText {
                         self.text = value.into_string();
                         self.reset_chars();
                     }
-                    "get_width" => {
-                        return self.size.width.into();
-                    }
-                    "get_height" => {
-                        return self.size.height.into();
-                    }
                     _ => {
                         error_panic(&format!("GMBitmapText::send_message, unknown method: '{}', no tag", method));
                     }

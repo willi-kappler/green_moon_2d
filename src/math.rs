@@ -433,6 +433,19 @@ impl GMRectangle {
             "bottom_right" => {
                 return self.bottom_right.send_message(method, value);
             }
+            "size" => {
+                match method {
+                    "get" => {
+                        let width = (self.top_left.x - self.bottom_right.x).abs();
+                        let height = (self.top_left.y - self.bottom_right.y).abs();
+                        let size = GMSize::new(width, height);
+                        return size.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMRectangle::send_message, unknown method: '{}', tag: 'size'", method));
+                    }
+                }
+            }
             _ => {
                 error_panic(&format!("GMRectangle::send_message, unknown tag: '{}'", tag));
             }
@@ -540,6 +553,19 @@ impl GMCircle {
             }
             "position" => {
                 return self.center.send_message(method, value);
+            }
+            "size" => {
+                match method {
+                    "get" => {
+                        let width = self.radius * 2.0;
+                        let height = self.radius * 2.0;
+                        let size = GMSize::new(width, height);
+                        return size.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMCircle::send_message, unknown method: '{}', tag: 'size'", method));
+                    }
+                }
             }
             _ => {
                 error_panic(&format!("GMCircle::send_message, unknown tag: '{}'", tag));

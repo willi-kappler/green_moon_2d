@@ -4,6 +4,7 @@ use std::mem;
 
 use crate::util::{error_panic, send_message_str};
 use crate::value::GMValue;
+use crate::math::{GMVec2D};
 
 #[derive(Clone, Debug)]
 pub struct GMMessage {
@@ -201,6 +202,6 @@ pub fn msgt3v<T: Into<GMTags>, S: Into<String>, V1: Into<GMValue>, V2: Into<GMVa
     GMMessage::new4(tag, method, value1.into().chain(value2.into()).chain(value3.into()))
 }
 
-pub fn msg_set_position<V: Into<GMValue>>(value: V) -> GMMessage {
-    GMMessage::new4("position", "set", value)
+pub fn msg_set_position<V: Into<GMVec2D>>(value: V) -> GMMessage {
+    GMMessage::new4("position", "set", value.into())
 }

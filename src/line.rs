@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use log::debug;
 
 use crate::context::GMContext;
-use crate::math::GMVec2D;
+use crate::math::{GMVec2D, GMSize};
 use crate::object_manager::GMObjectManager;
 use crate::object::GMObjectT;
 use crate::util::error_panic;
@@ -173,14 +173,6 @@ impl GMObjectT for GMLine {
                         self.elements[index] = self.init_element.clone();
                         self.elements[index].send_message(msgt1v("position", "set", position), object_manager);
                     }
-                    "get_width" => {
-                        let width = self.end.x - self.start.x;
-                        return width.abs().into();
-                    }
-                    "get_height" => {
-                        let height = self.end.y - self.start.y;
-                        return height.abs().into();
-                    }
                     _ => {
                         error_panic(&format!("GMLine::send_message: Unknown method '{}', no tag", method));
                     }
@@ -233,6 +225,19 @@ impl GMObjectT for GMLine {
 
                 for (element, new_value) in self.elements.iter_mut().zip(new_values) {
                     element.send_message(msgt1v(tag2.as_str(), method, new_value), object_manager);
+                }
+            }
+            "size" => {
+                match method {
+                    "get" => {
+                        let width = (self.end.x - self.start.x).abs();
+                        let height = (self.end.y - self.start.y).abs();
+                        let size = GMSize::new(width, height);
+                        return size.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMLine::send_message: Unknown method '{}', tag: 'size'", method));
+                    }
                 }
             }
             _ => {

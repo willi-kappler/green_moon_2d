@@ -86,12 +86,6 @@ impl GMObjectT for GMSprite {
                         self.texture = message.value.into_texture();
                         self.reset_size();
                     }
-                    "get_width" => {
-                        return self.size.width.into();
-                    }
-                    "get_height" => {
-                        return self.size.height.into();
-                    }
                     _ => {
                         error_panic(&format!("GMSprite::send_message: unknown method '{}', no tag", method));
                     }
