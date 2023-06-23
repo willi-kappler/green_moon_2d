@@ -49,6 +49,9 @@ impl GMAnimation {
 
     pub fn finished(&self) -> bool {
         match self.repetition {
+            GMRepetition::Fixed => {
+                true
+            }
             GMRepetition::OnceForward => {
                 self.frame_at_end()
             }
@@ -64,6 +67,9 @@ impl GMAnimation {
     pub fn update(&mut self) {
         if self.active && self.timer.finished() {
             match self.repetition {
+                GMRepetition::Fixed =>{
+                    // Nothing to do
+                }
                 GMRepetition::OnceForward => {
                     if self.frame_at_end() {
                         self.active = false;

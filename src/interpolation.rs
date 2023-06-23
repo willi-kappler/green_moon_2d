@@ -62,6 +62,9 @@ impl<T: Sub<T, Output = T> + Add<T, Output = T> + Mul<f32, Output = T> + Copy + 
 
     pub fn update(&mut self) {
         match self.repetition {
+            GMRepetition::Fixed => {
+                // Nothing to do
+            }
             GMRepetition::OnceForward => {
                 if self.current_step < 1.0 {
                     self.current_step += self.speed;

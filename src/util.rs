@@ -26,6 +26,7 @@ pub enum GMAlign {
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub enum GMRepetition {
+    Fixed,
     OnceForward,
     OnceBackward,
     LoopForward,
@@ -38,6 +39,9 @@ pub enum GMRepetition {
 impl GMRepetition {
     pub fn reverse(&mut self) {
         match self {
+            GMRepetition::Fixed => {
+                *self = GMRepetition::Fixed;
+            }
             GMRepetition::OnceForward => {
                 *self = GMRepetition::OnceBackward;
             }
@@ -82,6 +86,7 @@ impl GMRepetition {
 impl From<&str> for GMRepetition {
     fn from(value: &str) -> Self {
         match value {
+            "fixed" => GMRepetition::Fixed,
             "once_forward" => GMRepetition::OnceForward,
             "once_backward" => GMRepetition::OnceBackward,
             "loop_forward" => GMRepetition::LoopForward,

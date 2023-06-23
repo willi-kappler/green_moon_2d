@@ -83,6 +83,11 @@ impl GMLine {
         self.set_elements(number, spacing, direction)
     }
 
+    pub fn set_number2(&mut self, number: u32, object_manager: &GMObjectManager) {
+        let positions = self.set_number(number);
+        self.set_positions(positions, object_manager);
+    }
+
     pub fn set_spacing(&mut self, spacing: f32) -> Vec<GMVec2D> {
         self.line_mode = GMLineMode::Spacing(spacing);
 
@@ -91,6 +96,11 @@ impl GMLine {
         let number = (length / spacing).floor() as u32;
 
         self.set_elements(number, spacing, direction)
+    }
+
+    pub fn set_spacing2(&mut self, spacing: f32, object_manager: &GMObjectManager) {
+        let positions = self.set_spacing(spacing);
+        self.set_positions(positions, object_manager);
     }
 
     pub fn set_elements(&mut self, number: u32, spacing: f32, mut direction: GMVec2D) -> Vec<GMVec2D> {
