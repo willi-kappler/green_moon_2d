@@ -9,25 +9,9 @@ use crate::math::{GMVec2D, GMRectangle};
 use crate::line::{GMLine, GMLineMode};
 use crate::util::error_panic;
 
-
-#[derive(Debug, Clone)]
-pub struct GMBorderBase {
-    pub rectangle: GMRectangle,
-}
-
-impl GMObjectT for GMBorderBase {
-    fn send_message(&mut self, message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
-        self.rectangle.send_message(message)
-    }
-
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
-        Box::new(self.clone())
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct GMBorderSimple {
-    pub base: GMBorderBase,
+    pub rectangle: GMRectangle,
     pub top_left: Box<dyn GMObjectT>,
     pub top: GMLine,
     pub top_right: Box<dyn GMObjectT>,
@@ -41,15 +25,13 @@ pub struct GMBorderSimple {
 
 impl GMBorderSimple {
     pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>>(top_left: U, bottom_right: V, object: Box<dyn GMObjectT>) -> Self {
-        let base = GMBorderBase {
-            rectangle: GMRectangle::new4(top_left, bottom_right),
-        };
+        let rectangle = GMRectangle::new4(top_left, bottom_right);
 
-        let x1 = base.rectangle.top_left.x;
-        let y1 = base.rectangle.top_left.y;
+        let x1 = rectangle.top_left.x;
+        let y1 = rectangle.top_left.y;
 
-        let x2 = base.rectangle.bottom_right.x;
-        let y2 = base.rectangle.bottom_right.y;
+        let x2 = rectangle.bottom_right.x;
+        let y2 = rectangle.bottom_right.y;
 
         // TODO: Get width and height from object
         let width = 16.0;
@@ -67,7 +49,7 @@ impl GMBorderSimple {
 
 
         Self {
-            base,
+            rectangle,
             top_left,
             top,
             top_right,
@@ -124,15 +106,15 @@ impl GMBorderSimple {
         let width = size.width;
         let height = size.height;
 
-        let x1 = self.base.rectangle.top_left.x;
+        let x1 = self.rectangle.top_left.x;
         let x2 = x1 + width;
-        let x5 = self.base.rectangle.bottom_right.x;
+        let x5 = self.rectangle.bottom_right.x;
         let x4 = x5 - width;
         let x3 = x4 - width;
 
-        let y1 = self.base.rectangle.top_left.y;
+        let y1 = self.rectangle.top_left.y;
         let y2 = y1 + height;
-        let y5 = self.base.rectangle.bottom_right.y;
+        let y5 = self.rectangle.bottom_right.y;
         let y4 = y5 - height;
         let y3 = y4 - height;
 
@@ -258,7 +240,7 @@ impl GMObjectT for GMBorderSimple {
             }
             _ => {
                 message.pre_tag(tag);
-                return self.base.send_message(message, object_manager);
+                return self.rectangle.send_message(message);
             }
         }
 
