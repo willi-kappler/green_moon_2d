@@ -69,20 +69,30 @@ impl GMObjectFactory {
 }
 
 impl GMObjectT for GMObjectFactory {
-    fn send_message(&mut self, mut message: GMMessage, _object_manager: &GMObjectManager) -> GMValue {
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
         let tag = message.next_tag();
         let method = message.method.as_str();
 
         match tag.as_str() {
             "" => {
                 match method {
+                    "set_object" => {
+                        self.object = message.value.into_object();
+                    }
+                    "get_object" => {
+                        return self.object.clone().into();
+                    }
+                    "new_object" => {
+                        self.new_object(object_manager)
+                    }
                     _ => {
                         error_panic(&format!("GMObjectFactory::send_message: Unknown method '{}', no tag", method));
                     }
                 }
             }
             _ => {
-                error_panic(&format!("GMObjectFactory::send_message: Unknown tag '{}'", tag));
+                message.pre_tag(tag);
+                return self.object.send_message(message, object_manager);
             }
         }
 

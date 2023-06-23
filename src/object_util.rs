@@ -708,7 +708,7 @@ impl GMObjectT for GMMapMessage {
             // Message for target object
             _ => {
                 // Put back the tag...
-                message.tags.push_front(tag);
+                message.pre_tag(tag);
 
                 let new_message = (self.func)(message);
                 return object_manager.send_message(&self.target, new_message);

@@ -257,6 +257,7 @@ impl GMObjectT for GMBorderSimple {
                 return self.bottom_right.send_message(message, object_manager);
             }
             _ => {
+                message.pre_tag(tag);
                 return self.base.send_message(message, object_manager);
             }
         }

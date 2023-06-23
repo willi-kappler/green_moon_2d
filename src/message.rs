@@ -67,6 +67,10 @@ impl GMMessage {
         }
     }
 
+    pub fn pre_tag<S: Into<String>>(&mut self, tag: S) {
+        self.tags.push_front(tag.into());
+    }
+
     pub fn take_value(&mut self) -> GMValue {
         mem::take(&mut self.value)
     }

@@ -267,7 +267,7 @@ impl GMObjectT for GMMVCircle {
                 return self.message.send_message(new_message);
             }
             _ => {
-                message.tags.push_front(tag);
+                message.pre_tag(tag);
                 return self.base.send_message(message, object_manager);
             }
         }
@@ -335,7 +335,7 @@ impl GMObjectT for GMMVCircleFunc {
                 }
             }
             _ => {
-                message.tags.push_front(tag);
+                message.pre_tag(tag);
                 return self.base.send_message(message, object_manager);
             }
         }
@@ -428,7 +428,7 @@ impl GMObjectT for GMMVMultiCircle {
                 return send_message_usize(&mut self.count, method, message.value);
             }
             _ => {
-                message.tags.push_front(tag);
+                message.pre_tag(tag);
                 return self.base.send_message(message, object_manager);
             }
         }
