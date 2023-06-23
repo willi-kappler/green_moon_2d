@@ -1,4 +1,5 @@
 
+use std::rc::Rc;
 
 use crate::object::GMObjectT;
 use crate::message::{GMMessage, msgt0v, msg_set_position};
@@ -7,7 +8,9 @@ use crate::object_manager::GMObjectManager;
 use crate::context::GMContext;
 use crate::math::{GMVec2D, GMRectangle};
 use crate::line::{GMLine, GMLineMode};
-use crate::util::error_panic;
+use crate::sprite::GMSprite;
+use crate::texture::GMTexture;
+use crate::util::{error_panic};
 
 #[derive(Debug, Clone)]
 pub struct GMBorder {
@@ -71,7 +74,7 @@ impl GMBorder {
         self.left.init_element = object;
     }
 
-    pub fn set_2_objects<U: Into<Box<dyn GMObjectT>>, V: Into<Box<dyn GMObjectT>>>(&mut self, corner: U, side: V) {
+    pub fn set_2_objects<O: Into<Box<dyn GMObjectT>>>(&mut self, corner: O, side: O) {
         let corner = corner.into();
         let side = side.into();
 
@@ -85,7 +88,12 @@ impl GMBorder {
         self.left.init_element = side;
     }
 
-    pub fn set_4_objects(&mut self, top: Box<dyn GMObjectT>, right: Box<dyn GMObjectT>, bottom: Box<dyn GMObjectT>, left: Box<dyn GMObjectT>) {
+    pub fn set_4_objects<O: Into<Box<dyn GMObjectT>>>(&mut self, top: O, right: O, bottom: O, left: O) {
+        let top = top.into();
+        let right = right.into();
+        let bottom = bottom.into();
+        let left = left.into();
+
         self.top_left = top.clone();
         self.top.init_element = top.clone();
         self.top_right = top;
@@ -128,6 +136,42 @@ impl GMBorder {
         self.right.init_element = object.clone();
         self.bottom.init_element = object.clone();
         self.left.init_element = object.clone();
+    }
+
+    pub fn use_texture(&mut self, texture: &Rc<GMTexture>, indices: &[u32]) {
+        let len = indices.len();
+
+        match len {
+            1 => {
+                let sprite = GMSprite::new2(texture, indices[0]);
+                self.set_object(sprite);
+            }
+            2 => {
+                let sprite1 = GMSprite::new2(texture, indices[0]);
+                let sprite2 = GMSprite::new2(texture, indices[1]);
+                self.set_2_objects(sprite1, sprite2);
+            }
+            4 => {
+                let top = GMSprite::new2(texture, indices[0]);
+                let right = GMSprite::new2(texture, indices[1]);
+                let bottom = GMSprite::new2(texture, indices[2]);
+                let left = GMSprite::new2(texture, indices[3]);
+                self.set_4_objects(top, right, bottom, left);
+            }
+            8 => {
+                let mut objects: Vec<Box<dyn GMObjectT>> = Vec::with_capacity(8);
+
+                for index in indices.iter() {
+                    let sprite = GMSprite::new2(texture, *index);
+                    objects.push(Box::new(sprite));
+                }
+
+                self.set_8_objects(objects);
+            }
+            _ => {
+                error_panic(&format!("GMBorderSimple::use_texture: number of indices not supported: '{}'", len));
+            }
+        }
     }
 
     pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
