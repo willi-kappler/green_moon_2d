@@ -36,22 +36,40 @@ impl BorderScene1 {
 
         // Border 1
         let texture = resources.get_texture("tex_border1");
-        let mut animation = resources.get_animation("anim_border1");
-        let sprite1 = GMSprite::new((0.0, 0.0), texture, animation.clone());
-        // object_manager.add_draw_object("bat1", sprite, 0, 0);
-
+        let sprite1 = GMSprite::new2(texture, 0);
         let border1 = GMBorder::new2((40.0, 80.0), 500.0, 120.0, sprite1.clone());
         object_manager.add_draw_object("border1", border1, 0, 0);
         object_manager.initialize_object("border1");
 
         // Border 2:
         let mut border2 = GMBorder::new2((40.0, 240.0), 500.0, 120.0, sprite1.clone());
-        animation.current_frame = 1;
-        let sprite2 = GMSprite::new((0.0, 0.0), texture, animation.clone());
+        let sprite2 = GMSprite::new2(texture, 1);
         border2.set_corners(sprite2);
         object_manager.add_draw_object("border2", border2, 0, 0);
         object_manager.initialize_object("border2");
 
+        // Border 3:
+        let mut border3 = GMBorder::new2((40.0, 400.0), 500.0, 120.0, sprite1.clone());
+        let sprite2 = GMSprite::new2(texture, 1);
+        border3.top_left = sprite2.clone().into();
+        border3.bottom_right = sprite2.into();
+        let sprite3 = GMSprite::new2(texture, 2);
+        border3.top_right = sprite3.clone().into();
+        border3.bottom_left = sprite3.into();
+        object_manager.add_draw_object("border3", border3, 0, 0);
+        object_manager.initialize_object("border3");
+
+        // Border 4:
+        let mut border4 = GMBorder::new2((40.0, 560.0), 500.0, 120.0, sprite1.clone());
+        border4.use_texture(texture, &[3, 4, 5, 6, 7, 8, 9, 10]);
+        object_manager.add_draw_object("border4", border4, 0, 0);
+        object_manager.initialize_object("border4");
+
+        // Border 5:
+        let mut border5 = GMBorder::new2((580.0, 560.0), 160.0, 160.0, sprite1.clone());
+        border5.use_texture(texture, &[3, 4, 5, 6, 7, 8, 9, 10]);
+        object_manager.add_draw_object("border5", border5, 0, 0);
+        object_manager.initialize_object("border5");
 
         Self {
             object_manager,

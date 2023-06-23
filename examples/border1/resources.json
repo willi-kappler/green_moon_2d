@@ -20,12 +20,6 @@
             "char_mapping": "ABCDEFGHIJKLMNOPQRSTUVWXYZ.!0123456789?()<>- "
         }
     ],
-    "animations": [
-        {
-            "name": "anim_border1",
-            "animation_type": "fixed",
-            "frames": [[0, 0.0], [1, 0.0]]
-        }
-    ],
+    "animations": [],
     "sounds": []
 }
