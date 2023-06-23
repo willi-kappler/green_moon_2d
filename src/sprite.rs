@@ -28,7 +28,7 @@ pub struct GMSprite {
 }
 
 impl GMSprite {
-    pub fn new<T: Into<GMVec2D>>(position: T, texture: &Rc<GMTexture>, animation: GMAnimation) -> GMSprite {
+    pub fn new<T: Into<GMVec2D>>(position: T, texture: &Rc<GMTexture>, animation: GMAnimation) -> Self {
         let position = position.into();
         let (width, height) = texture.get_unit_dimension();
         debug!("GMSprite::new(), position: '{:?}', width: '{}', height: '{}", position, width, height);
@@ -42,6 +42,10 @@ impl GMSprite {
             flipxy: GMFlipXY::new(),
             size: GMSize::new(width, height),
         }
+    }
+
+    pub fn new2(texture: &Rc<GMTexture>, index: u32) -> Self {
+        Self::new((0.0, 0.0), texture, GMAnimation::new2(index))
     }
 
     pub fn set_texture(&mut self, texture: &Rc<GMTexture>) {

@@ -30,6 +30,10 @@ impl GMAnimation {
         }
     }
 
+    pub fn new2(frame: u32) -> Self {
+        Self::new(&[(frame, 0.0)], GMRepetition::Fixed)
+    }
+
     pub fn texture_index(&self) -> u32 {
         self.frames[self.current_frame].0
     }
