@@ -8,7 +8,7 @@ use nanorand::{WyRand, Rng};
 use crate::interpolation::{GMInterpolateF32, GMInterpolateVec2D};
 use crate::math::GMVec2D;
 use crate::object_manager::GMObjectManager;
-use crate::object::{GMObjectT};
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::target::GMTarget;
 use crate::timer::GMTimer;
 use crate::util::{error_panic, random_range_f32, send_message_bool, send_message_f32, send_message_usize};
@@ -97,7 +97,7 @@ impl GMObjectT for GMTimedMessage {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -194,7 +194,7 @@ impl GMObjectT for GMTimedMultiMessage {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -297,7 +297,7 @@ impl GMObjectT for GMTimedSeqMessage {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -366,7 +366,7 @@ impl GMObjectT for GMTimedFunc {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -423,7 +423,7 @@ impl GMObjectT for GMTrigger {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -492,7 +492,7 @@ impl GMObjectT for GMTriggerPair {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -571,7 +571,7 @@ impl GMObjectT for GMValueInterpolateF32 {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -653,7 +653,7 @@ impl GMObjectT for GMValueInterpolateVec2D {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -718,7 +718,7 @@ impl GMObjectT for GMMapMessage {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -750,7 +750,7 @@ impl GMObjectT for GMCustomSend {
         (self.func)(message, object_manager)
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -807,7 +807,7 @@ impl GMObjectT for GMCustomUpdate {
         (self.func)(object_manager);
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -907,7 +907,7 @@ impl GMObjectT for GMCenterPosition {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -992,7 +992,7 @@ impl GMObjectT for GMRandomPosition {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -1075,7 +1075,7 @@ impl GMObjectT for GMRandomPositionOf {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use log::{info, debug};
 
 use crate::value::GMValue;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectBox};
 use crate::util::error_panic;
 use crate::context::GMContext;
 use crate::target::GMTarget;
@@ -17,14 +17,14 @@ pub struct GMObjectInfo {
     pub active: bool,
     pub draw_index: i32,
     pub groups: HashSet<String>,
-    pub inner: RefCell<Box<dyn GMObjectT>>,
+    pub inner: RefCell<GMObjectBox>,
     pub state: RefCell<GMProperty>,
     pub update_index: i32,
     pub visible: bool,
 }
 
 impl GMObjectInfo {
-    pub fn new<T: Into<Box<dyn GMObjectT>>>(object: T) -> Self {
+    pub fn new<T: Into<GMObjectBox>>(object: T) -> Self {
         Self {
             active: true,
             draw_index: 0,
@@ -66,7 +66,7 @@ impl GMObjectManager {
         }
     }
 
-    pub fn add_normal_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32) {
+    pub fn add_normal_object<T: Into<GMObjectBox>>(&mut self, name: &str, object: T, update_index: i32) {
         let mut new_object = GMObjectInfo::new(object);
         new_object.visible = false;
         new_object.update_index = update_index;
@@ -74,7 +74,7 @@ impl GMObjectManager {
         self.insert_object(name, new_object);
     }
 
-    pub fn add_normal_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, group: &str) {
+    pub fn add_normal_object_group<T: Into<GMObjectBox>>(&mut self, name: &str, object: T, update_index: i32, group: &str) {
         let mut groups = HashSet::new();
         groups.insert(group.to_string());
 
@@ -86,7 +86,7 @@ impl GMObjectManager {
         self.insert_object(name, new_object);
     }
 
-    pub fn add_draw_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
+    pub fn add_draw_object<T: Into<GMObjectBox>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32) {
         let mut new_object = GMObjectInfo::new(object);
         new_object.draw_index = draw_index;
         new_object.update_index = update_index;
@@ -94,7 +94,7 @@ impl GMObjectManager {
         self.insert_object(name, new_object);
     }
 
-    pub fn add_draw_object_group<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32, group: &str) {
+    pub fn add_draw_object_group<T: Into<GMObjectBox>>(&mut self, name: &str, object: T, update_index: i32, draw_index: i32, group: &str) {
         let mut groups = HashSet::new();
         groups.insert(group.to_string());
 
@@ -110,7 +110,7 @@ impl GMObjectManager {
         self.insert_object(name, new_object);
     }
 
-    pub fn replace_object<T: Into<Box<dyn GMObjectT>>>(&mut self, name: &str, new_object: T) {
+    pub fn replace_object<T: Into<GMObjectBox>>(&mut self, name: &str, new_object: T) {
         if let Some(object) = self.objects.get(name) {
             object.inner.replace(new_object.into());
         } else {
@@ -606,7 +606,7 @@ impl GMObjectManager {
                 }
                 "add_draw_object" => {
                     let (object_name, object, update_index, draw_index) =
-                        value.into_generic::<(String, Box<dyn GMObjectT>, i32, i32)>();
+                        value.into_generic::<(String, GMObjectBox, i32, i32)>();
                     self.add_draw_object(&object_name, object, update_index, draw_index);
                 }
                 "add_group" => {
@@ -614,7 +614,7 @@ impl GMObjectManager {
                     self.add_group(&object_name, &group);
                 }
                 "add_normal_object" => {
-                    let (object_name, object, update_index) = value.into_generic::<(String, Box<dyn GMObjectT>, i32)>();
+                    let (object_name, object, update_index) = value.into_generic::<(String, GMObjectBox, i32)>();
                     self.add_normal_object(&object_name, object, update_index);
                 }
                 "clear_groups" => {
@@ -630,7 +630,7 @@ impl GMObjectManager {
                     self.remove_object(&object_name);
                 }
                 "replace_object" => {
-                    let (object_name, object) = value.into_generic::<(String, Box<dyn GMObjectT>)>();
+                    let (object_name, object) = value.into_generic::<(String, GMObjectBox)>();
                     self.replace_object(&object_name, object);
                 }
                 "set_active" => {

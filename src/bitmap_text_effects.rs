@@ -4,7 +4,7 @@ use std::f32::consts::TAU;
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
-use crate::object::{GMObjectT};
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::value::GMValue;
 use crate::target::GMTarget;
 use crate::object_manager::GMObjectManager;
@@ -101,7 +101,7 @@ impl GMObjectT for GMTEWave {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -181,7 +181,7 @@ impl GMObjectT for GMTEShake {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -248,7 +248,7 @@ impl GMObjectT for GMTERotateChars {
         self.time += self.speed;
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -325,7 +325,7 @@ impl GMObjectT for GMTEScale {
         self.time += self.speed;
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

@@ -6,7 +6,7 @@ use log::debug;
 use crate::context::GMContext;
 use crate::math::{GMVec2D, GMSize};
 use crate::object_manager::GMObjectManager;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::util::error_panic;
 use crate::value::GMValue;
 use crate::message::{GMMessage, msgt1v, msgt0v};
@@ -18,7 +18,7 @@ pub enum GMLineMode {
 }
 
 impl GMObjectT for GMLineMode {
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -27,13 +27,13 @@ impl GMObjectT for GMLineMode {
 pub struct GMLine {
     pub start: GMVec2D,
     pub end: GMVec2D,
-    pub init_element: Box<dyn GMObjectT>,
-    pub elements: Vec<Box<dyn GMObjectT>>,
+    pub init_element: GMObjectBox,
+    pub elements: Vec<GMObjectBox>,
     pub line_mode: GMLineMode,
 }
 
 impl GMLine {
-    pub fn new<T: Into<GMVec2D>, U: Into<GMVec2D>, V: Into<Box<dyn GMObjectT>>>(start: T, end: U, init_element: V, line_mode: GMLineMode) -> Self {
+    pub fn new<T: Into<GMVec2D>, U: Into<GMVec2D>, V: Into<GMObjectBox>>(start: T, end: U, init_element: V, line_mode: GMLineMode) -> Self {
         let start = start.into();
         let end = end.into();
         debug!("GMLine::new(), start: '{:?}', end: '{:?}', line_mode: '{:?}'", start, end, line_mode);
@@ -270,7 +270,7 @@ impl GMObjectT for GMLine {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

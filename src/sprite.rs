@@ -9,7 +9,7 @@ use crate::texture::{GMTexture};
 use crate::animation::GMAnimation;
 use crate::math::{GMVec2D, GMSize, GMFlipXY};
 use crate::context::GMContext;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::util::{error_panic, send_message_f32};
@@ -134,7 +134,7 @@ impl GMObjectT for GMSprite {
             self.scale, self.flipxy.x, self.flipxy.y, context);
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

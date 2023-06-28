@@ -3,6 +3,7 @@
 
 - movement: GMMVWarp, GMMVBounce
 - GMObjectFactory
+- GMObjectGroup
 - GMBorder
 - GMParticleManager
 - GMBulletManager

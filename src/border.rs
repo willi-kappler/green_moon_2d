@@ -1,7 +1,7 @@
 
 use std::rc::Rc;
 
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::message::{GMMessage, msgt0v, msg_set_position};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
@@ -15,19 +15,19 @@ use crate::util::{error_panic};
 #[derive(Debug, Clone)]
 pub struct GMBorder {
     pub rectangle: GMRectangle,
-    pub top_left: Box<dyn GMObjectT>,
+    pub top_left: GMObjectBox,
     pub top: GMLine,
-    pub top_right: Box<dyn GMObjectT>,
+    pub top_right: GMObjectBox,
     pub right: GMLine,
-    pub bottom_right: Box<dyn GMObjectT>,
+    pub bottom_right: GMObjectBox,
     pub bottom: GMLine,
-    pub bottom_left: Box<dyn GMObjectT>,
+    pub bottom_left: GMObjectBox,
     pub left: GMLine,
 
 }
 
 impl GMBorder {
-    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>, O: Into<Box<dyn GMObjectT>>>(top_left: U, bottom_right: V, object: O) -> Self {
+    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>, O: Into<GMObjectBox>>(top_left: U, bottom_right: V, object: O) -> Self {
         let rectangle = GMRectangle::new4(top_left, bottom_right);
 
         let object = object.into();
@@ -55,13 +55,13 @@ impl GMBorder {
         }
     }
 
-    pub fn new2<U: Into<GMVec2D>, O: Into<Box<dyn GMObjectT>>>(top_left: U, width: f32, height: f32, object: O) -> Self {
+    pub fn new2<U: Into<GMVec2D>, O: Into<GMObjectBox>>(top_left: U, width: f32, height: f32, object: O) -> Self {
         let top_left = top_left.into();
         let bottom_left = GMVec2D::new(top_left.x + width, top_left.y + height);
         Self::new(top_left, bottom_left, object)
     }
 
-    pub fn set_object<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+    pub fn set_object<O: Into<GMObjectBox>>(&mut self, object: O) {
         let object = object.into();
 
         self.top_left = object.clone();
@@ -74,7 +74,7 @@ impl GMBorder {
         self.left.init_element = object;
     }
 
-    pub fn set_2_objects<O: Into<Box<dyn GMObjectT>>>(&mut self, corner: O, side: O) {
+    pub fn set_2_objects<O: Into<GMObjectBox>>(&mut self, corner: O, side: O) {
         let corner = corner.into();
         let side = side.into();
 
@@ -88,7 +88,7 @@ impl GMBorder {
         self.left.init_element = side;
     }
 
-    pub fn set_4_objects<O: Into<Box<dyn GMObjectT>>>(&mut self, top: O, right: O, bottom: O, left: O) {
+    pub fn set_4_objects<O: Into<GMObjectBox>>(&mut self, top: O, right: O, bottom: O, left: O) {
         let top = top.into();
         let right = right.into();
         let bottom = bottom.into();
@@ -104,7 +104,7 @@ impl GMBorder {
         self.left.init_element = left;
     }
 
-    pub fn set_8_objects(&mut self, mut objects: Vec<Box<dyn GMObjectT>>) {
+    pub fn set_8_objects(&mut self, mut objects: Vec<GMObjectBox>) {
         assert_eq!(objects.len(), 8);
 
         let mut drained = objects.drain(0..);
@@ -120,7 +120,7 @@ impl GMBorder {
 
     }
 
-    pub fn set_corners<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+    pub fn set_corners<O: Into<GMObjectBox>>(&mut self, object: O) {
         let object = object.into();
 
         self.top_left = object.clone();
@@ -129,7 +129,7 @@ impl GMBorder {
         self.bottom_left = object.clone();
     }
 
-    pub fn set_sides<O: Into<Box<dyn GMObjectT>>>(&mut self, object: O) {
+    pub fn set_sides<O: Into<GMObjectBox>>(&mut self, object: O) {
         let object = object.into();
 
         self.top.init_element = object.clone();
@@ -159,7 +159,7 @@ impl GMBorder {
                 self.set_4_objects(top, right, bottom, left);
             }
             8 => {
-                let mut objects: Vec<Box<dyn GMObjectT>> = Vec::with_capacity(8);
+                let mut objects: Vec<GMObjectBox> = Vec::with_capacity(8);
 
                 for index in indices.iter() {
                     let sprite = GMSprite::new2(texture, *index);
@@ -242,12 +242,12 @@ impl GMObjectT for GMBorder {
                     }
                     "set_4_objects" => {
                         let (top, right, bottom, left) =
-                            message.value.into_generic::<(Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>, Box<dyn GMObjectT>)>();
+                            message.value.into_generic::<(GMObjectBox, GMObjectBox, GMObjectBox, GMObjectBox)>();
                         self.set_4_objects(top, right, bottom, left);
                         self.init_objects(object_manager);
                     }
                     "set_8_objects" => {
-                        let objects = message.value.into_generic::<Vec<Box<dyn GMObjectT>>>();
+                        let objects = message.value.into_generic::<Vec<GMObjectBox>>();
                         self.set_8_objects(objects);
                         self.init_objects(object_manager);
                     }
@@ -343,7 +343,7 @@ impl GMObjectT for GMBorder {
         self.left.draw(context);
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

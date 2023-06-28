@@ -8,7 +8,7 @@ use crate::interpolation::GMInterpolateVec2D;
 use crate::math::{GMVec2D, GMCircle};
 use crate::message::{GMMessage, msgt1v, msgt0v};
 use crate::object_manager::GMObjectManager;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::target::GMTarget;
 use crate::util::{error_panic, send_message_f32, send_message_bool, send_message_usize};
 use crate::value::GMValue;
@@ -63,7 +63,7 @@ impl GMObjectT for GMMVVelocity {
         object_manager.send_message(&self.target, self.message.clone());
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -117,7 +117,7 @@ impl GMObjectT for GMMVAcceleration {
         object_manager.send_message(&self.target, self.message.clone());
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -178,7 +178,7 @@ impl GMObjectT for GMMVVelAccel {
         self.v += self.a;
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -211,7 +211,7 @@ impl GMObjectT for GMCircleBase {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -281,7 +281,7 @@ impl GMObjectT for GMMVCircle {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -305,7 +305,7 @@ impl GMMVCircleFunc {
 
     pub fn update_pos(&self, object_manager: &GMObjectManager) {
         let new_pos = self.base.circle.position_from_deg(self.base.angle);
-        (self.func)(new_pos, object_manager);    
+        (self.func)(new_pos, object_manager);
     }
 }
 
@@ -349,7 +349,7 @@ impl GMObjectT for GMMVCircleFunc {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -442,7 +442,7 @@ impl GMObjectT for GMMVMultiCircle {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -625,7 +625,7 @@ impl GMObjectT for GMMVPath {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }
@@ -712,7 +712,7 @@ impl GMObjectT for GMMVFollow {
         object_manager.send_message(&self.target, self.message.clone());
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

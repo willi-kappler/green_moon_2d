@@ -2,7 +2,7 @@
 
 use std::rc::Rc;
 
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::message::GMMessage;
 use crate::object_manager::GMObjectManager;
 use crate::value::GMValue;
@@ -12,17 +12,17 @@ use crate::util::error_panic;
 #[derive(Debug, Clone)]
 pub struct GMObjectFactory {
     // TODO: use GMObjectInfo!
-    pub object: Box<dyn GMObjectT>,
+    pub object: GMObjectBox,
     pub name_prefix: String,
     id: u64,
 }
 
 impl GMObjectFactory {
-    pub fn new(object: Box<dyn GMObjectT>) -> Self {
+    pub fn new(object: GMObjectBox) -> Self {
         Self::new2(object, "")
     }
 
-    pub fn new2(object: Box<dyn GMObjectT>, name_prefix: &str) -> Self {
+    pub fn new2(object: GMObjectBox, name_prefix: &str) -> Self {
         Self {
             object,
             name_prefix: name_prefix.to_string(),
@@ -30,7 +30,7 @@ impl GMObjectFactory {
         }
     }
 
-    fn new_object1(&mut self) -> (Box<dyn GMObjectT>, String) {
+    fn new_object1(&mut self) -> (GMObjectBox, String) {
         let new_object = self.object.clone();
         let new_name = format!("{}_{}", self.name_prefix, self.id);
         self.id += 1;
@@ -38,7 +38,7 @@ impl GMObjectFactory {
         (new_object, new_name)
     }
 
-    fn new_object2(&mut self, new_object: Box<dyn GMObjectT>, new_name: String) -> GMMessage {
+    fn new_object2(&mut self, new_object: GMObjectBox, new_name: String) -> GMMessage {
         let value = GMValue::Any(Rc::new((new_name, new_object)));
         let message = GMMessage::new2("add_custom_object", value);
 
@@ -99,7 +99,7 @@ impl GMObjectT for GMObjectFactory {
         GMValue::None
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

@@ -10,7 +10,7 @@ use crate::texture::{GMTexture};
 use crate::util::{error_panic, GMAlign, send_message_bool};
 use crate::math::{GMVec2D, GMSize};
 use crate::context::GMContext;
-use crate::object::GMObjectT;
+use crate::object::{GMObjectT, GMObjectBox};
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 
@@ -480,7 +480,7 @@ impl GMObjectT for GMBitmapText {
         }
     }
 
-    fn clone_box(&self) -> Box<dyn GMObjectT> {
+    fn clone_box(&self) -> GMObjectBox {
         Box::new(self.clone())
     }
 }

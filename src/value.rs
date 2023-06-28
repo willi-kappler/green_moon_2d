@@ -8,7 +8,7 @@ use crate::animation::GMAnimation;
 use crate::bitmap_text::GMBitmapFont;
 use crate::math::{GMVec2D, GMSize, GMRectangle, GMFlipXY};
 use crate::object_manager::{GMObjectInfo};
-use crate::object::GMObjectT;
+use crate::object::{GMObjectBox};
 use crate::sprite::GMSprite;
 use crate::target::GMTarget;
 use crate::texture::GMTexture;
@@ -36,7 +36,7 @@ pub enum GMValue {
     Message(Box<GMMessage>),
     Multiple(VecDeque<GMValue>),
     None,
-    Object(Box<dyn GMObjectT>),
+    Object(GMObjectBox),
     ObjectInfo(GMObjectInfo),
     Rectangle(GMRectangle),
     Repetition(GMRepetition),
@@ -274,7 +274,7 @@ impl GMValue {
         error_panic(&format!("GMValue::into_object_info, not an object info variant: '{:?}'", self));
     }
 
-    pub fn into_object(self) -> Box<dyn GMObjectT> {
+    pub fn into_object(self) -> GMObjectBox {
         if let Self::Object(value) = self {
             return value
         }
@@ -578,8 +578,8 @@ impl From<Rc<GMBitmapFont>> for GMValue {
     }
 }
 
-impl From<Box<dyn GMObjectT>> for GMValue {
-    fn from(value: Box<dyn GMObjectT>) -> Self {
+impl From<GMObjectBox> for GMValue {
+    fn from(value: GMObjectBox) -> Self {
         Self::Object(value)
     }
 }
