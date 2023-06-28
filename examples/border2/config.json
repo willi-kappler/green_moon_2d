@@ -1,0 +1,8 @@
+{
+    "fps": 60,
+    "window_title": "GreenMoon2D - Border 2",
+    "screen_width": 1024,
+    "screen_height": 768,
+    "resources": "resources.json"
+}
+
