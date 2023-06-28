@@ -18,6 +18,7 @@ pub mod math;
 pub mod message;
 pub mod movement;
 pub mod object_factory;
+pub mod object_group;
 pub mod object_manager;
 pub mod object_util;
 pub mod object;
