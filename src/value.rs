@@ -455,6 +455,12 @@ impl From<GMTarget> for GMValue {
     }
 }
 
+impl From<GMMessage> for GMValue {
+    fn from(message: GMMessage) -> Self {
+        Self::Message(Box::new(message))
+    }
+}
+
 impl From<(GMValue, GMValue)> for GMValue {
     fn from((v1, v2): (GMValue, GMValue)) -> Self {
         let mut vec_deque = VecDeque::new();
