@@ -441,7 +441,8 @@ impl GMObjectManager {
         if let Some(object) = self.objects.get(name) {
             if object.active {
                 let mut borrowed_object = object.inner.borrow_mut();
-                return borrowed_object.send_message_multiple(messages, &self)
+                let value = borrowed_object.send_message_multiple(messages, &self);
+                return value.into()
             }
         }
 
@@ -481,7 +482,7 @@ impl GMObjectManager {
     }
 
     pub fn send_message_group_multiple(&self, group: &str, messages: Vec<GMMessage>) -> GMValue {
-        let mut result = VecDeque::new();
+        let mut result: VecDeque<GMValue> = VecDeque::new();
 
         let objects = self.objects.iter()
             .map(|(_, o)| o)
@@ -490,7 +491,7 @@ impl GMObjectManager {
         for object in objects {
             let mut borrowed_object = object.inner.borrow_mut();
             let value = borrowed_object.send_message_multiple(messages.clone(), &self);
-            result.push_back(value);
+            result.push_back(value.into());
         }
 
         return result.into();

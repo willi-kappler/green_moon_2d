@@ -15,14 +15,14 @@ pub trait GMObjectT: Debug {
         GMValue::None
     }
 
-    fn send_message_multiple(&mut self, mut messages: Vec<GMMessage>, object_manager: &GMObjectManager) -> GMValue {
+    fn send_message_multiple(&mut self, mut messages: Vec<GMMessage>, object_manager: &GMObjectManager) -> VecDeque<GMValue> {
         let mut result = VecDeque::new();
 
         for message in messages.drain(0..) {
             result.push_back(self.send_message(message, object_manager));
         }
 
-        return result.into()
+        result
     }
 
     fn update(&mut self, _object_manager: &GMObjectManager, _context: &mut GMContext) {
