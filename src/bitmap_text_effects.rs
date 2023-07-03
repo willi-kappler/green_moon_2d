@@ -4,6 +4,7 @@ use std::f32::consts::TAU;
 use log::debug;
 use nanorand::{Rng, WyRand, SeedableRng};
 
+use crate::bitmap_text::GMBitmapText;
 use crate::object::{GMObjectT, GMObjectBox};
 use crate::value::GMValue;
 use crate::target::GMTarget;
@@ -35,6 +36,56 @@ impl GMTEWave {
             time: 0.0,
         }
     }
+
+    pub fn update_inner(&mut self, horizontal: bool, num_of_chars: usize) -> GMMessage {
+        let mut offset = 0.0;
+
+        let message = if horizontal {
+            let mut new_positions = Vec::with_capacity(num_of_chars);
+
+            for _ in 0..num_of_chars {
+                let new_y = (self.time + offset).sin() * self.amplitude;
+                new_positions.push(new_y);
+                offset += self.offset;
+            }
+            msgt1v("chars", "add_y", GMValue::from_any(new_positions))
+        } else {
+            let mut new_positions = Vec::with_capacity(num_of_chars);
+
+            for _ in 0..num_of_chars {
+                let new_x = (self.time + offset).sin() * self.amplitude;
+                new_positions.push(new_x);
+                offset += self.offset;
+            }
+            msgt1v("chars", "add_x", GMValue::from_any(new_positions))
+        };
+
+        self.time += self.speed;
+        if self.time > TAU {
+            self.time -= TAU;
+        }
+
+        message
+    }
+
+    pub fn update_text(&mut self, text: &mut GMBitmapText, object_manager: &GMObjectManager) {
+        let horizontal = text.horizontal;
+        let num_of_chars = text.get_char_count();
+        let message = self.update_inner(horizontal, num_of_chars);
+        text.send_message(message, object_manager);
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let messages = vec![msgt0v("horizontal", "get"), msg0v("get_char_count")];
+
+        let mut values = object.send_message_multiple(messages, object_manager);
+        let horizontal = values.pop_front().unwrap().into_bool();
+        let num_of_chars = values.pop_front().unwrap().into_usize();
+
+        let message = self.update_inner(horizontal, num_of_chars);
+        object.send_message(message, object_manager);
+    }
+
 }
 
 impl GMObjectT for GMTEWave {
@@ -44,6 +95,18 @@ impl GMObjectT for GMTEWave {
         let value = message.value;
 
         match tag.as_str() {
+            "" => {
+                match method {
+                    "update_inner" => {
+                        let (horizontal, num_of_chars) = value.into_generic::<(bool, usize)>();
+                        let message = self.update_inner(horizontal, num_of_chars);
+                        return message.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMTEWave::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
             "target" => {
                 return self.target.send_message(method, value);
             }
@@ -69,36 +132,9 @@ impl GMObjectT for GMTEWave {
         let mut values = result.to_vec_deque();
         let horizontal = values.pop_front().unwrap().into_bool();
         let num_of_chars = values.pop_front().unwrap().into_usize();
-        // let (horizontal, num_of_chars) = result.into_generic::<(bool, usize)>();
 
-        let mut offset = 0.0;
-
-        if horizontal {
-            let mut new_positions = Vec::with_capacity(num_of_chars);
-
-            for _ in 0..num_of_chars {
-                let new_y = (self.time + offset).sin() * self.amplitude;
-                new_positions.push(new_y);
-                offset += self.offset;
-            }
-            object_manager.send_message(&self.target,
-                msgt1v("chars", "add_y", GMValue::from_any(new_positions)));
-        } else {
-            let mut new_positions = Vec::with_capacity(num_of_chars);
-
-            for _ in 0..num_of_chars {
-                let new_x = (self.time + offset).sin() * self.amplitude;
-                new_positions.push(new_x);
-                offset += self.offset;
-            }
-            object_manager.send_message(&self.target,
-                msgt1v("chars", "add_x", GMValue::from_any(new_positions)));
-        }
-
-        self.time += self.speed;
-        if self.time > TAU {
-            self.time -= TAU;
-        }
+        let message = self.update_inner(horizontal, num_of_chars);
+        object_manager.send_message(&self.target, message);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -133,6 +169,41 @@ impl GMTEShake {
             rng,
         }
     }
+
+    pub fn update_inner(&mut self, num_of_chars: usize) -> GMMessage {
+        self.time += self.speed;
+        self.rng.reseed(u64::to_ne_bytes(self.seed));
+
+        let mut new_positions = Vec::with_capacity(num_of_chars);
+
+        for _ in 0..num_of_chars {
+            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
+            new_positions.push(GMVec2D::new(dx, dy));
+        }
+
+        if self.time > 1.0 {
+            self.time = 0.0;
+            self.seed += 1;
+        }
+
+        msgt1v("chars", "add_position", GMValue::from_any(new_positions))
+    }
+
+    pub fn update_text(&mut self, text: &mut GMBitmapText, object_manager: &GMObjectManager) {
+        let num_of_chars = text.get_char_count();
+
+        let message = self.update_inner(num_of_chars);
+        text.send_message(message, object_manager);
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
+    }
 }
 
 impl GMObjectT for GMTEShake {
@@ -142,6 +213,18 @@ impl GMObjectT for GMTEShake {
         let value = message.value;
 
         match tag.as_str() {
+            "" => {
+                match method {
+                    "update_inner" => {
+                        let num_of_chars = value.into_usize();
+                        let message = self.update_inner(num_of_chars);
+                        return message.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMTEShake::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
             "target" => {
                 return self.target.send_message(method, value);
             }
@@ -161,24 +244,8 @@ impl GMObjectT for GMTEShake {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 
-        self.time += self.speed;
-        self.rng.reseed(u64::to_ne_bytes(self.seed));
-
-        let mut new_positions = Vec::with_capacity(num_of_chars);
-
-        for _ in 0..num_of_chars {
-            let dx = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-            let dy = ((self.rng.generate::<f32>() * 2.0) - 1.0) * self.radius;
-            new_positions.push(GMVec2D::new(dx, dy));
-        }
-
-        object_manager.send_message(&self.target,
-            msgt1v("chars", "add_position", GMValue::from_any(new_positions)));
-
-        if self.time > 1.0 {
-            self.time = 0.0;
-            self.seed += 1;
-        }
+        let message = self.update_inner(num_of_chars);
+        object_manager.send_message(&self.target, message);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -206,6 +273,35 @@ impl GMTERotateChars {
             time: 0.0,
         }
     }
+
+    pub fn update_inner(&mut self, num_of_chars: usize) -> GMMessage {
+        let mut delta = 0.0;
+        let mut new_angles = Vec::with_capacity(num_of_chars);
+
+        for _ in 0..num_of_chars {
+            new_angles.push(self.time + delta);
+            delta += self.offset;
+        }
+
+        self.time += self.speed;
+
+        msgt1v("chars", "set_angle", GMValue::from_any(new_angles))
+    }
+
+    pub fn update_text(&mut self, text: &mut GMBitmapText, object_manager: &GMObjectManager) {
+        let num_of_chars = text.get_char_count();
+
+        let message = self.update_inner(num_of_chars);
+        text.send_message(message, object_manager);
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
+    }
 }
 
 impl GMObjectT for GMTERotateChars {
@@ -215,6 +311,18 @@ impl GMObjectT for GMTERotateChars {
         let value = message.value;
 
         match tag.as_str() {
+            "" => {
+                match method {
+                    "update_inner" => {
+                        let num_of_chars = value.into_usize();
+                        let message = self.update_inner(num_of_chars);
+                        return message.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMTERotateChars::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
             "target" => {
                 return self.target.send_message(method, value);
             }
@@ -234,18 +342,8 @@ impl GMObjectT for GMTERotateChars {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 
-        let mut delta = 0.0;
-        let mut new_angles = Vec::with_capacity(num_of_chars);
-
-        for _ in 0..num_of_chars {
-            new_angles.push(self.time + delta);
-            delta += self.offset;
-        }
-
-        object_manager.send_message(&self.target,
-            msgt1v("chars", "set_angle", GMValue::from_any(new_angles)));
-
-        self.time += self.speed;
+        let message = self.update_inner(num_of_chars);
+        object_manager.send_message(&self.target, message);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -277,6 +375,35 @@ impl GMTEScale {
             time: 0.0,
         }
     }
+
+    pub fn update_inner(&mut self, num_of_chars: usize) -> GMMessage {
+        let mut offset = 0.0;
+        let mut new_scales = Vec::with_capacity(num_of_chars);
+
+        for _ in 0..num_of_chars {
+            new_scales.push(self.base + (self.amplitude * (self.time + offset).sin()));
+            offset += self.offset;
+        }
+
+        self.time += self.speed;
+
+        msgt1v("chars", "set_scale", GMValue::from_any(new_scales))
+    }
+
+    pub fn update_text(&mut self, text: &mut GMBitmapText, object_manager: &GMObjectManager) {
+        let num_of_chars = text.get_char_count();
+
+        let message = self.update_inner(num_of_chars);
+        text.send_message(message, object_manager);
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
+    }
 }
 
 impl GMObjectT for GMTEScale {
@@ -286,6 +413,18 @@ impl GMObjectT for GMTEScale {
         let value = message.value;
 
         match tag.as_str() {
+            "" => {
+                match method {
+                    "update_inner" => {
+                        let num_of_chars = value.into_usize();
+                        let message = self.update_inner(num_of_chars);
+                        return message.into();
+                    }
+                    _ => {
+                        error_panic(&format!("GMTEScale::send_message, unknown method: '{}', no tag", method));
+                    }
+                }
+            }
             "target" => {
                 return self.target.send_message(method, value);
             }
@@ -311,18 +450,8 @@ impl GMObjectT for GMTEScale {
         let result = object_manager.send_message(&self.target, msg0v("get_char_count"));
         let num_of_chars = result.into_usize();
 
-        let mut offset = 0.0;
-        let mut new_scales = Vec::with_capacity(num_of_chars);
-
-        for _ in 0..num_of_chars {
-            new_scales.push(self.base + (self.amplitude * (self.time + offset).sin()));
-            offset += self.offset;
-        }
-
-        object_manager.send_message(&self.target,
-            msgt1v("chars", "set_scale", GMValue::from_any(new_scales)));
-
-        self.time += self.speed;
+        let message = self.update_inner(num_of_chars);
+        object_manager.send_message(&self.target, message);
     }
 
     fn clone_box(&self) -> GMObjectBox {

@@ -114,6 +114,10 @@ impl GMBitmapText {
         text
     }
 
+    pub fn get_char_count(&self) -> usize {
+        self.chars.len()
+    }
+
     pub fn set_align(&mut self, align: GMAlign) {
         self.align = align;
         self.reset_positions();
@@ -235,7 +239,7 @@ impl GMObjectT for GMBitmapText {
             "" => {
                 match method {
                     "get_char_count" => {
-                        return self.chars.len().into();
+                        return self.get_char_count().into();
                     }
                     "reset_chars" => {
                         self.reset_chars();
