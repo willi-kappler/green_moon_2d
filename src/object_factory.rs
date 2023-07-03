@@ -56,12 +56,14 @@ impl GMObjectFactory {
         object_manager.send_message(&target, message);
     }
 
+    // Just create a new object using the object_manager.
     pub fn new_object(&mut self, object_manager: &GMObjectManager) {
         let (new_object, new_name) = self.new_object1();
         let message = self.new_object2(new_object, new_name);
         self.new_object4(message, object_manager);
     }
 
+    // First send some messages to the object before creating a new one.
     pub fn new_object_messages(&mut self, messages: Vec<GMMessage>, object_manager: &GMObjectManager) {
         let message = self.new_object3(messages, object_manager);
         self.new_object4(message, object_manager);
