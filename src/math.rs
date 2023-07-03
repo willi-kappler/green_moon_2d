@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use crate::util::{error_panic, send_message_f32, send_message_bool};
+use crate::util::{error_panic, send_message_f32, send_message_bool, random_range_f32};
 use crate::value::GMValue;
 use crate::message::GMMessage;
 
@@ -231,6 +231,20 @@ impl Display for GMVec2D {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "(x: {}, y: {})", self.x, self.y)
     }
+}
+
+pub fn center_position(positions: Vec<GMVec2D>) -> GMVec2D {
+    let mut result = GMVec2D::new(0.0, 0.0);
+    let mut count = 0;
+
+    for p in positions.iter() {
+        result += *p;
+        count += 1;
+    }
+
+    let factor = 1.0 / (count as f32);
+
+    result * factor
 }
 
 #[derive(Copy, Clone, Debug)]
