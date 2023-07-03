@@ -27,11 +27,16 @@ impl GMMVVelocity {
         let v = v.into();
         debug!("GMMVVelocity::new(), target: '{:?}', v: '{:?}'", target, v);
 
-        Self{
+        Self {
             target,
             v,
             message: msgt0v("position", "set"),
         }
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.message.set_value(self.v);
+        object.send_message(self.message.clone(), object_manager);
     }
 }
 
