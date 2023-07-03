@@ -64,6 +64,16 @@ impl GMTimedMessage {
             timed_base,
         }
     }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        if self.timed_base.timer.finished() {
+            if self.timed_base.repeat {
+                self.timed_base.timer.start();
+            }
+
+            object.send_message(self.message.clone(), object_manager);
+        }
+    }
 }
 
 impl GMObjectT for GMTimedMessage {
@@ -914,6 +924,7 @@ impl GMObjectT for GMCenterPosition {
 
 #[derive(Clone, Debug)]
 pub struct GMRandomPosition {
+    // TODO: use GMRandomPosition from utils
     pub target: GMTarget,
     pub minx: f32,
     pub miny: f32,
@@ -937,6 +948,21 @@ impl GMRandomPosition {
             message: msgt0v("position", "set"),
         }
     }
+
+    pub fn random_x(&self) -> f32 {
+        random_range_f32(self.minx, self.maxx)
+    }
+
+    pub fn random_y(&self) -> f32 {
+        random_range_f32(self.miny, self.maxy)
+    }
+
+    pub fn random_pos(&self) -> GMVec2D {
+        let x = self.random_x();
+        let y = self.random_y();
+
+        GMVec2D::new(x, y)
+    }
 }
 
 impl GMObjectT for GMRandomPosition {
@@ -959,9 +985,7 @@ impl GMObjectT for GMRandomPosition {
                         self.maxy = maxy;
                     }
                     "update" => {
-                        let x = random_range_f32(self.minx, self.maxx);
-                        let y = random_range_f32(self.miny, self.maxy);
-                        self.message.set_value(GMVec2D::new(x, y));
+                        self.message.set_value(self.random_pos());
                         object_manager.send_message(&self.target, self.message.clone());
                     }
                     _ => {
