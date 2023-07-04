@@ -6,6 +6,7 @@ use crate::context::GMContext;
 use crate::value::GMValue;
 use crate::object_manager::GMObjectManager;
 use crate::message::GMMessage;
+use crate::util::error_panic;
 
 pub type GMObjectBox = Box<dyn GMObjectT>;
 
@@ -26,6 +27,10 @@ pub trait GMObjectT: Debug {
     }
 
     fn update(&mut self, _object_manager: &GMObjectManager, _context: &mut GMContext) {
+    }
+
+    fn update_object(&mut self, _object: &mut GMObjectBox, _object_manager: &GMObjectManager) {
+        error_panic("GMObjectT::update_object() not implemented!");
     }
 
     fn draw(&self, _context: &mut GMContext) {

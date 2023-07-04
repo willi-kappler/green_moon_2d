@@ -74,18 +74,6 @@ impl GMTEWave {
         let message = self.update_inner(horizontal, num_of_chars);
         text.send_message(message, object_manager);
     }
-
-    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
-        let messages = vec![msgt0v("horizontal", "get"), msg0v("get_char_count")];
-
-        let mut values = object.send_message_multiple(messages, object_manager);
-        let horizontal = values.pop_front().unwrap().into_bool();
-        let num_of_chars = values.pop_front().unwrap().into_usize();
-
-        let message = self.update_inner(horizontal, num_of_chars);
-        object.send_message(message, object_manager);
-    }
-
 }
 
 impl GMObjectT for GMTEWave {
@@ -135,6 +123,17 @@ impl GMObjectT for GMTEWave {
 
         let message = self.update_inner(horizontal, num_of_chars);
         object_manager.send_message(&self.target, message);
+    }
+
+    fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let messages = vec![msgt0v("horizontal", "get"), msg0v("get_char_count")];
+
+        let mut values = object.send_message_multiple(messages, object_manager);
+        let horizontal = values.pop_front().unwrap().into_bool();
+        let num_of_chars = values.pop_front().unwrap().into_usize();
+
+        let message = self.update_inner(horizontal, num_of_chars);
+        object.send_message(message, object_manager);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -196,14 +195,6 @@ impl GMTEShake {
         let message = self.update_inner(num_of_chars);
         text.send_message(message, object_manager);
     }
-
-    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
-        let result = object.send_message(msg0v("get_char_count"), object_manager);
-        let num_of_chars = result.into_usize();
-
-        let message = self.update_inner(num_of_chars);
-        object.send_message(message, object_manager);
-    }
 }
 
 impl GMObjectT for GMTEShake {
@@ -246,6 +237,14 @@ impl GMObjectT for GMTEShake {
 
         let message = self.update_inner(num_of_chars);
         object_manager.send_message(&self.target, message);
+    }
+
+    fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -294,14 +293,6 @@ impl GMTERotateChars {
         let message = self.update_inner(num_of_chars);
         text.send_message(message, object_manager);
     }
-
-    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
-        let result = object.send_message(msg0v("get_char_count"), object_manager);
-        let num_of_chars = result.into_usize();
-
-        let message = self.update_inner(num_of_chars);
-        object.send_message(message, object_manager);
-    }
 }
 
 impl GMObjectT for GMTERotateChars {
@@ -344,6 +335,14 @@ impl GMObjectT for GMTERotateChars {
 
         let message = self.update_inner(num_of_chars);
         object_manager.send_message(&self.target, message);
+    }
+
+    fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
     }
 
     fn clone_box(&self) -> GMObjectBox {
@@ -396,14 +395,6 @@ impl GMTEScale {
         let message = self.update_inner(num_of_chars);
         text.send_message(message, object_manager);
     }
-
-    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
-        let result = object.send_message(msg0v("get_char_count"), object_manager);
-        let num_of_chars = result.into_usize();
-
-        let message = self.update_inner(num_of_chars);
-        object.send_message(message, object_manager);
-    }
 }
 
 impl GMObjectT for GMTEScale {
@@ -452,6 +443,14 @@ impl GMObjectT for GMTEScale {
 
         let message = self.update_inner(num_of_chars);
         object_manager.send_message(&self.target, message);
+    }
+
+    fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        let result = object.send_message(msg0v("get_char_count"), object_manager);
+        let num_of_chars = result.into_usize();
+
+        let message = self.update_inner(num_of_chars);
+        object.send_message(message, object_manager);
     }
 
     fn clone_box(&self) -> GMObjectBox {

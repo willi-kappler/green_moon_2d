@@ -64,16 +64,6 @@ impl GMTimedMessage {
             timed_base,
         }
     }
-
-    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
-        if self.timed_base.timer.finished() {
-            if self.timed_base.repeat {
-                self.timed_base.timer.start();
-            }
-
-            object.send_message(self.message.clone(), object_manager);
-        }
-    }
 }
 
 impl GMObjectT for GMTimedMessage {
@@ -104,6 +94,16 @@ impl GMObjectT for GMTimedMessage {
             }
 
             object_manager.send_message(&self.target, self.message.clone());
+        }
+    }
+
+    fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        if self.timed_base.timer.finished() {
+            if self.timed_base.repeat {
+                self.timed_base.timer.start();
+            }
+
+            object.send_message(self.message.clone(), object_manager);
         }
     }
 
