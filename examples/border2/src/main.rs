@@ -4,11 +4,10 @@ use simplelog::{WriteLogger, LevelFilter, ConfigBuilder};
 
 use green_moon_2d::{GMEngine, GMSceneT, GMContext, GMEventCode};
 use green_moon_2d::bitmap_text::{GMBitmapText};
-use green_moon_2d::util::{GMAlign, GMRepetition};
+use green_moon_2d::util::{GMAlign};
 use green_moon_2d::object_manager::GMObjectManager;
 use green_moon_2d::sprite::GMSprite;
 use green_moon_2d::border::GMBorder;
-use green_moon_2d::message::{msgt1v};
 
 
 #[derive(Debug)]

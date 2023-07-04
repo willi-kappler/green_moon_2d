@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use std::f32::consts::TAU;
 
-use crate::util::{error_panic, send_message_f32, send_message_bool, random_range_f32};
+use crate::util::{error_panic, send_message_f32, send_message_bool};
 use crate::value::GMValue;
 use crate::message::GMMessage;
 
