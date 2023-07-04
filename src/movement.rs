@@ -92,6 +92,11 @@ impl GMMVAcceleration {
             message: msgt0v("veclocity", "add"),
         }
     }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.message.set_value(self.a);
+        object.send_message( self.message.clone(), object_manager);
+    }
 }
 
 impl GMObjectT for GMMVAcceleration {
@@ -148,6 +153,12 @@ impl GMMVVelAccel {
             a,
             message: msgt0v("position", "add"),
         }
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.message.set_value(self.v);
+        object.send_message( self.message.clone(), object_manager);
+        self.v += self.a;
     }
 }
 
@@ -241,10 +252,14 @@ impl GMMVCircle {
         }
     }
 
-    pub fn update_pos(&mut self, object_manager: &GMObjectManager) {
+    pub fn update_pos(&mut self) {
         let new_pos = self.base.circle.position_from_deg(self.base.angle);
         self.message.set_value(new_pos);
-        object_manager.send_message(&self.target, self.message.clone());
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.update_pos();
+        object.send_message(self.message.clone(), object_manager);
     }
 }
 
@@ -257,7 +272,8 @@ impl GMObjectT for GMMVCircle {
             "" => {
                 match method {
                     "update" => {
-                        self.update_pos(object_manager);
+                        self.update_pos();
+                        object_manager.send_message(&self.target, self.message.clone());
                     }
                     _ => {
                         error_panic(&format!("GMMVCircle::send_message, unknown method: '{}', no tag", method));
@@ -282,7 +298,8 @@ impl GMObjectT for GMMVCircle {
 
     fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.base.auto_update {
-            self.update_pos(object_manager);
+            self.update_pos();
+            object_manager.send_message(&self.target, self.message.clone());
         }
     }
 
@@ -485,11 +502,10 @@ impl GMMVPath {
         }
     }
 
-    pub fn update_position(&mut self, object_manager: &GMObjectManager) {
+    pub fn update_pos(&mut self) {
         self.interpolation.update();
         let position = self.interpolation.get_current_value();
         self.message.set_value(position);
-        object_manager.send_message(&self.target, self.message.clone());
 
         if self.interpolation.is_finished() {
             self.index += 1;
@@ -520,6 +536,11 @@ impl GMMVPath {
 
         }
     }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.update_pos();
+        object.send_message(self.message.clone(), object_manager);
+    }
 }
 
 impl GMObjectT for GMMVPath {
@@ -531,7 +552,8 @@ impl GMObjectT for GMMVPath {
             "" => {
                 match method {
                     "update" => {
-                        self.update_position(object_manager);
+                        self.update_pos();
+                        object_manager.send_message(&self.target, self.message.clone());
                     }
                     "init" => {
                         let position = self.interpolation.get_current_value();
@@ -626,7 +648,8 @@ impl GMObjectT for GMMVPath {
 
     fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
         if self.auto_update {
-            self.update_position(object_manager);
+            self.update_pos();
+            object_manager.send_message(&self.target, self.message.clone());
         }
     }
 
@@ -668,6 +691,17 @@ impl GMMVFollow {
         self.interpolation.calculate_diff();
         self.interpolation.reset();
     }
+
+    pub fn update_pos(&mut self) {
+        self.interpolation.update();
+        let pos = self.interpolation.get_current_value();
+        self.message.set_value(pos);
+    }
+
+    pub fn update_object(&mut self, object: &mut GMObjectBox, object_manager: &GMObjectManager) {
+        self.update_pos();
+        object.send_message(self.message.clone(), object_manager);
+    }
 }
 
 impl GMObjectT for GMMVFollow {
@@ -683,6 +717,9 @@ impl GMObjectT for GMMVFollow {
                     }
                     "update_source" => {
                         self.update_source(object_manager);
+                    }
+                    "update_pos" => {
+                        self.update_pos();
                     }
                     _ => {
                         error_panic(&format!("GMMVFollow::send_message, unknown method: '{}', no tag", method));
@@ -711,9 +748,7 @@ impl GMObjectT for GMMVFollow {
     }
 
     fn update(&mut self, object_manager: &GMObjectManager, _context: &mut GMContext) {
-        self.interpolation.update();
-        let pos = self.interpolation.get_current_value();
-        self.message.set_value(pos);
+        self.update_pos();
         object_manager.send_message(&self.target, self.message.clone());
     }
 
