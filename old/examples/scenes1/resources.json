@@ -1,0 +1,16 @@
+{
+    "font_files": [
+        "../assets/gfx/fonts/cuddly.json",
+        "../assets/gfx/fonts/bbc1.json"
+    ],
+    "sounds": [
+        {
+            "name": "change1",
+            "file": "../assets/sfx/change1.ogg"
+        },
+        {
+            "name": "enter1",
+            "file": "../assets/sfx/enter1.ogg"
+        }
+    ]
+}

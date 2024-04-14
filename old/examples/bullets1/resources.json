@@ -1,0 +1,49 @@
+{
+    "sprite_sheets": [
+        {
+            "name": "ships1",
+            "file": "../assets/gfx/sprite_sheets/ships1.png"
+        },
+        {
+            "name": "bullets1",
+            "file": "../assets/gfx/sprite_sheets/bullets1.png"
+        },
+        {
+            "name": "head1",
+            "file": "../assets/gfx/sprite_sheets/head1.png"
+        },
+        {
+            "name": "explosion1",
+            "file": "../assets/gfx/sprite_sheets/explosion1.png"
+        }
+    ],
+    "animation_files": [
+        "../assets/gfx/sprite_sheets/ships1_animation.json",
+        "../assets/gfx/sprite_sheets/bullets1_animation.json",
+        "../assets/gfx/sprite_sheets/head1_animation.json",
+        "../assets/gfx/sprite_sheets/explosion1_animation.json"
+    ],
+    "sprites": [
+        {
+            "name": "ship1",
+            "sprite_sheet": "ships1",
+            "animation": "ships1_1"
+        },
+        {
+            "name": "bullet1",
+            "sprite_sheet": "bullets1",
+            "animation": "bullets1_1"
+        },
+        {
+            "name": "head1",
+            "sprite_sheet": "head1",
+            "animation": "head1"
+        }
+    ],
+    "sounds": [
+        {
+            "name": "laser1",
+            "file": "../assets/sfx/laser1.ogg"
+        }
+    ]
+}

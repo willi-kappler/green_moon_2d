@@ -1,0 +1,21 @@
+[package]
+name = "green_moon_2d"
+version = "0.1.0"
+authors = ["Willi Kappler <grandor@gmx.de>"]
+license = "MIT"
+repository = "https://github.com/willi-kappler/green_moon_2d"
+description = "2D game library"
+readme = "README.md"
+exclude = ["target"]
+keywords = ["2d", "Game"]
+categories = ["Game"]
+edition = "2018"
+
+[dependencies]
+thiserror = "1.0"
+macroquad = "0.3.7"
+nanoserde = "0.1.26"
+log = "0.4"
+
+[profile.release]
+lto = true
