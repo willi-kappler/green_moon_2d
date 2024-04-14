@@ -1,8 +1,4 @@
 # green_moon_2d
 
-Green Moon 2D - a collection of useful data structures and functions for game development.
+Green Moon 2D - a 2D game library for developing games in Nim.
 
-TODO:
-- GMCollisionManager
-- GMGameManager
-- GMMessageManager

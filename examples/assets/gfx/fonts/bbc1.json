@@ -1,7 +1,0 @@
-{
-    "name": "bbc1",
-    "image_file": "bbc1.png",
-    "char_width": 32.0,
-    "char_height": 32.0,
-    "char_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZ'.,-!?0123456789<> "
-}
