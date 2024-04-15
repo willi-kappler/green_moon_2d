@@ -1,0 +1,591 @@
+
+use std::rc::Rc;
+
+use crate::object::{GMObjectT, GMObjectBox};
+use crate::message::{GMMessage, msgt0v, msg_set_position};
+use crate::value::GMValue;
+use crate::object_manager::GMObjectManager;
+use crate::context::GMContext;
+use crate::math::{GMVec2D, GMRectangle, GMSize};
+use crate::line::{GMLine, GMLineMode};
+use crate::sprite::GMSprite;
+use crate::texture::GMTexture;
+use crate::util::{error_panic};
+
+#[derive(Debug, Clone)]
+pub struct GMBorder {
+    pub rectangle: GMRectangle,
+    pub top_left: GMObjectBox,
+    pub top: GMLine,
+    pub top_right: GMObjectBox,
+    pub right: GMLine,
+    pub bottom_right: GMObjectBox,
+    pub bottom: GMLine,
+    pub bottom_left: GMObjectBox,
+    pub left: GMLine,
+
+}
+
+impl GMBorder {
+    pub fn new<U: Into<GMVec2D>, V: Into<GMVec2D>, O: Into<GMObjectBox>>(top_left: U, bottom_right: V, object: O) -> Self {
+        let rectangle = GMRectangle::new4(top_left, bottom_right);
+
+        let object = object.into();
+        let top_left = object.clone();
+        let top = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
+        let top_right = object.clone();
+        let right = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
+        let bottom_right = object.clone();
+        let bottom = GMLine::new((0.0, 0.0), (1.0, 1.0), object.clone(), GMLineMode::Number(1));
+        let bottom_left = object.clone();
+        let left = GMLine::new((0.0, 0.0), (1.0, 1.0), object, GMLineMode::Number(1));
+
+
+        Self {
+            rectangle,
+            top_left,
+            top,
+            top_right,
+            right,
+            bottom_right,
+            bottom,
+            bottom_left,
+            left,
+
+        }
+    }
+
+    pub fn new2<U: Into<GMVec2D>, O: Into<GMObjectBox>>(top_left: U, width: f32, height: f32, object: O) -> Self {
+        let top_left = top_left.into();
+        let bottom_left = GMVec2D::new(top_left.x + width, top_left.y + height);
+        Self::new(top_left, bottom_left, object)
+    }
+
+    pub fn set_object<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top_left = object.clone();
+        self.top.init_element = object.clone();
+        self.top_right = object.clone();
+        self.right.init_element = object.clone();
+        self.bottom_right = object.clone();
+        self.bottom.init_element = object.clone();
+        self.bottom_left = object.clone();
+        self.left.init_element = object;
+    }
+
+    pub fn set_2_objects<O: Into<GMObjectBox>>(&mut self, corner: O, side: O) {
+        let corner = corner.into();
+        let side = side.into();
+
+        self.top_left = corner.clone();
+        self.top.init_element = side.clone();
+        self.top_right = corner.clone();
+        self.right.init_element = side.clone();
+        self.bottom_right = corner.clone();
+        self.bottom.init_element = side.clone();
+        self.bottom_left = corner;
+        self.left.init_element = side;
+    }
+
+    pub fn set_4_objects<O: Into<GMObjectBox>>(&mut self, top: O, right: O, bottom: O, left: O) {
+        let top = top.into();
+        let right = right.into();
+        let bottom = bottom.into();
+        let left = left.into();
+
+        self.top_left = top.clone();
+        self.top.init_element = top.clone();
+        self.top_right = top;
+        self.right.init_element = right;
+        self.bottom_right = bottom.clone();
+        self.bottom.init_element = bottom.clone();
+        self.bottom_left = bottom;
+        self.left.init_element = left;
+    }
+
+    pub fn set_8_objects(&mut self, mut objects: Vec<GMObjectBox>) {
+        assert_eq!(objects.len(), 8);
+
+        let mut drained = objects.drain(0..);
+
+        self.top_left = drained.next().unwrap();
+        self.top.init_element = drained.next().unwrap();
+        self.top_right = drained.next().unwrap();
+        self.right.init_element = drained.next().unwrap();
+        self.bottom_right = drained.next().unwrap();
+        self.bottom.init_element = drained.next().unwrap();
+        self.bottom_left = drained.next().unwrap();
+        self.left.init_element = drained.next().unwrap();
+
+    }
+
+    pub fn set_corners<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top_left = object.clone();
+        self.top_right = object.clone();
+        self.bottom_right = object.clone();
+        self.bottom_left = object;
+    }
+
+    pub fn set_sides<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top.init_element = object.clone();
+        self.right.init_element = object.clone();
+        self.bottom.init_element = object.clone();
+        self.left.init_element = object;
+    }
+
+    pub fn use_texture(&mut self, texture: &Rc<GMTexture>, indices: &[u32]) {
+        let len = indices.len();
+
+        match len {
+            1 => {
+                let sprite = GMSprite::new2(texture, indices[0]);
+                self.set_object(sprite);
+            }
+            2 => {
+                let sprite1 = GMSprite::new2(texture, indices[0]);
+                let sprite2 = GMSprite::new2(texture, indices[1]);
+                self.set_2_objects(sprite1, sprite2);
+            }
+            4 => {
+                let top = GMSprite::new2(texture, indices[0]);
+                let right = GMSprite::new2(texture, indices[1]);
+                let bottom = GMSprite::new2(texture, indices[2]);
+                let left = GMSprite::new2(texture, indices[3]);
+                self.set_4_objects(top, right, bottom, left);
+            }
+            8 => {
+                let mut objects: Vec<GMObjectBox> = Vec::with_capacity(8);
+
+                for index in indices.iter() {
+                    let sprite = GMSprite::new2(texture, *index);
+                    objects.push(Box::new(sprite));
+                }
+
+                self.set_8_objects(objects);
+            }
+            _ => {
+                error_panic(&format!("GMBorderSimple::use_texture: number of indices not supported: '{}'", len));
+            }
+        }
+    }
+
+    pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
+        // All objects must have the same width and height
+        let size = self.top_left.send_message(msgt0v("size", "get"), object_manager).into_size();
+        let width = size.width;
+        let height = size.height;
+
+        let x1 = self.rectangle.top_left.x;
+        let x3 = self.rectangle.bottom_right.x;
+        let nw = ((x3 - x1) / width).floor();
+        let dx = (x3 - x1) / nw;
+        let x2 = x1 + dx;
+
+        let y1 = self.rectangle.top_left.y;
+        let y3 = self.rectangle.bottom_right.y;
+        let nh = ((y3 - y1) / height).floor();
+        let dy = (y3 - y1) / nh;
+        let y2 = y1 + dy;
+
+        self.top_left.send_message(msg_set_position((x1, y1)), object_manager);
+        self.top.start.x = x2;
+        self.top.start.y = y1;
+        self.top.end.x = x3;
+        self.top.end.y = y1;
+        self.top_right.send_message(msg_set_position((x3, y1)), object_manager);
+
+        self.right.start.x = x3;
+        self.right.start.y = y2;
+        self.right.end.x = x3;
+        self.right.end.y = y3;
+
+        self.bottom_left.send_message(msg_set_position((x1, y3)), object_manager);
+        self.bottom.start.x = x2;
+        self.bottom.start.y = y3;
+        self.bottom.end.x = x3;
+        self.bottom.end.y = y3;
+        self.bottom_right.send_message(msg_set_position((x3, y3)), object_manager);
+
+        self.left.start.x = x1;
+        self.left.start.y = y2;
+        self.left.end.x = x1;
+        self.left.end.y = y3;
+
+        self.top.set_number2((nw as u32) - 1, object_manager);
+        self.right.set_number2((nh as u32) - 1, object_manager);
+        self.bottom.set_number2((nw as u32) - 1, object_manager);
+        self.left.set_number2((nh as u32) - 1, object_manager);
+
+    }
+}
+
+impl GMObjectT for GMBorder {
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "init" => {
+                        self.init_objects(object_manager);
+                    }
+                    "set_object" => {
+                        let object = message.value.into_object();
+                        self.set_object(object);
+                    }
+                    "set_4_objects" => {
+                        let (top, right, bottom, left) =
+                            message.value.into_generic::<(GMObjectBox, GMObjectBox, GMObjectBox, GMObjectBox)>();
+                        self.set_4_objects(top, right, bottom, left);
+                    }
+                    "set_8_objects" => {
+                        let objects = message.value.into_generic::<Vec<GMObjectBox>>();
+                        self.set_8_objects(objects);
+                    }
+                    "set_top_left" => {
+                        let object = message.value.into_object();
+                        self.top_left = object;
+                    }
+                    "set_top" => {
+                        let object = message.value.into_object();
+                        self.top.init_element = object;
+                    }
+                    "set_top_right" => {
+                        let object = message.value.into_object();
+                        self.top_right = object;
+                    }
+                    "set_right" => {
+                        let object = message.value.into_object();
+                        self.right.init_element = object;
+                    }
+                    "set_bottom_right" => {
+                        let object = message.value.into_object();
+                        self.bottom_right = object;
+                    }
+                    "set_bottom" => {
+                        let object = message.value.into_object();
+                        self.bottom.init_element = object;
+                    }
+                    "set_bottom_left" => {
+                        let object = message.value.into_object();
+                        self.bottom_left = object;
+                    }
+                    "set_left" => {
+                        let object = message.value.into_object();
+                        self.left.init_element = object;
+                    }
+                    _ => {
+                        error_panic(&format!("GMBorder::send_message: Unknown method '{}', no tag", method));
+                    }
+                }
+            }
+            "top" => {
+                return self.top.send_message(message, object_manager);
+            }
+            "right" => {
+                return self.right.send_message(message, object_manager);
+            }
+            "bottom" => {
+                return self.bottom.send_message(message, object_manager);
+            }
+            "left" => {
+                return self.left.send_message(message, object_manager);
+            }
+            "top_left" => {
+                return self.top_left.send_message(message, object_manager);
+            }
+            "top_right" => {
+                return self.top_right.send_message(message, object_manager);
+            }
+            "bottom_left" => {
+                return self.bottom_left.send_message(message, object_manager);
+            }
+            "bottom_right" => {
+                return self.bottom_right.send_message(message, object_manager);
+            }
+            _ => {
+                message.pre_tag(tag);
+                return self.rectangle.send_message(message);
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn update(&mut self, object_manager: &GMObjectManager, context: &mut GMContext) {
+        self.top_left.update(object_manager, context);
+        self.top.update(object_manager, context);
+        self.top_right.update(object_manager, context);
+        self.right.update(object_manager, context);
+        self.bottom_right.update(object_manager, context);
+        self.bottom.update(object_manager, context);
+        self.bottom_left.update(object_manager, context);
+        self.left.update(object_manager, context);
+    }
+
+    fn draw(&self, context: &mut GMContext) {
+        self.top_left.draw(context);
+        self.top.draw(context);
+        self.top_right.draw(context);
+        self.right.draw(context);
+        self.bottom_right.draw(context);
+        self.bottom.draw(context);
+        self.bottom_left.draw(context);
+        self.left.draw(context);
+    }
+
+    fn clone_box(&self) -> GMObjectBox {
+        Box::new(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GMBorderCustom {
+    pub position: GMVec2D,
+    // (object, width, height)
+    pub top_left: (GMObjectBox, GMSize),
+    pub top: (GMObjectBox, GMSize),
+    pub top_right: (GMObjectBox, GMSize),
+    pub right: (GMObjectBox, GMSize),
+    pub bottom_right: (GMObjectBox, GMSize),
+    pub bottom: (GMObjectBox, GMSize),
+    pub bottom_left: (GMObjectBox, GMSize),
+    pub left: (GMObjectBox, GMSize),
+}
+
+impl GMBorderCustom {
+    pub fn new<U: Into<GMVec2D>, O: Into<GMObjectBox>>(position: U, object: O) -> Self {
+        let object = object.into();
+
+        let top_left = (object.clone(), GMSize::new(0.0, 0.0));
+        let top = (object.clone(), GMSize::new(0.0, 0.0));
+        let top_right = (object.clone(), GMSize::new(0.0, 0.0));
+        let right = (object.clone(), GMSize::new(0.0, 0.0));
+        let bottom_right = (object.clone(), GMSize::new(0.0, 0.0));
+        let bottom = (object.clone(), GMSize::new(0.0, 0.0));
+        let bottom_left = (object.clone(), GMSize::new(0.0, 0.0));
+        let left = (object, GMSize::new(0.0, 0.0));
+
+        Self {
+            position: position.into(),
+            top_left,
+            top,
+            top_right,
+            right,
+            bottom_right,
+            bottom,
+            bottom_left,
+            left,
+        }
+    }
+
+    pub fn set_object<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top_left.0 = object.clone();
+        self.top.0 = object.clone();
+        self.top_right.0 = object.clone();
+        self.right.0 = object.clone();
+        self.bottom_right.0 = object.clone();
+        self.bottom.0 = object.clone();
+        self.bottom_left.0 = object.clone();
+        self.left.0 = object;
+    }
+
+    pub fn set_2_objects<O: Into<GMObjectBox>>(&mut self, corner: O, side: O) {
+        let corner = corner.into();
+        let side = side.into();
+
+        self.top_left.0 = corner.clone();
+        self.top.0 = side.clone();
+        self.top_right.0 = corner.clone();
+        self.right.0 = side.clone();
+        self.bottom_right.0 = corner.clone();
+        self.bottom.0 = side.clone();
+        self.bottom_left.0 = corner;
+        self.left.0 = side;
+    }
+
+    pub fn set_4_objects<O: Into<GMObjectBox>>(&mut self, top: O, right: O, bottom: O, left: O) {
+        let top = top.into();
+        let right = right.into();
+        let bottom = bottom.into();
+        let left = left.into();
+
+        self.top_left.0 = top.clone();
+        self.top.0 = top.clone();
+        self.top_right.0 = top;
+        self.right.0 = right.clone();
+        self.bottom_right.0 = bottom.clone();
+        self.bottom.0 = bottom.clone();
+        self.bottom_left.0 = bottom;
+        self.left.0 = left.clone();
+    }
+
+    pub fn set_8_objects(&mut self, mut objects: Vec<GMObjectBox>) {
+        assert_eq!(objects.len(), 8);
+
+        let mut drained = objects.drain(0..);
+
+        self.top_left.0 = drained.next().unwrap();
+        self.top.0 = drained.next().unwrap();
+        self.top_right.0 = drained.next().unwrap();
+        self.right.0 = drained.next().unwrap();
+        self.bottom_right.0 = drained.next().unwrap();
+        self.bottom.0 = drained.next().unwrap();
+        self.bottom_left.0 = drained.next().unwrap();
+        self.left.0 = drained.next().unwrap();
+
+    }
+
+    pub fn set_corners<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top_left.0 = object.clone();
+        self.top_right.0 = object.clone();
+        self.bottom_right.0 = object.clone();
+        self.bottom_left.0 = object;
+    }
+
+    pub fn set_sides<O: Into<GMObjectBox>>(&mut self, object: O) {
+        let object = object.into();
+
+        self.top.0 = object.clone();
+        self.right.0 = object.clone();
+        self.bottom.0 = object.clone();
+        self.left.0 = object;
+    }
+
+    pub fn init_objects(&mut self, object_manager: &GMObjectManager) {
+        self.top_left.1 = self.top_left.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.top.1 = self.top.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.top_right.1 = self.top_right.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.right.1 = self.right.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.bottom_right.1 = self.bottom_right.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.bottom.1 = self.bottom.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.bottom_left.1 = self.bottom_left.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+        self.left.1 = self.right.0.send_message(msgt0v("size", "get"), object_manager).into_size();
+
+        let x1 = self.position.x;
+        let x2 = self.position.x + (self.top_left.1.width.max(self.left.1.width).max(self.bottom_left.1.width));
+        let x3 = x2 + (self.top.1.width.max(self.bottom.1.width));
+
+        let y1 = self.position.y;
+        let y2 = self.position.y + (self.top_left.1.height.max(self.top.1.height).max(self.top_right.1.height));
+        let y3 = y2 + (self.left.1.height.max(self.right.1.height));
+
+        self.top_left.0.send_message(msg_set_position((x1, y1)), object_manager);
+        self.top.0.send_message(msg_set_position((x2, y1)), object_manager);
+        self.top_right.0.send_message(msg_set_position((x3, y1)), object_manager);
+        self.right.0.send_message(msg_set_position((x3, y2)), object_manager);
+        self.bottom_left.0.send_message(msg_set_position((x3, y3)), object_manager);
+        self.bottom.0.send_message(msg_set_position((x2, y3)), object_manager);
+        self.bottom_right.0.send_message(msg_set_position((x1, y3)), object_manager);
+        self.right.0.send_message(msg_set_position((x1, y2)), object_manager);
+    }
+}
+
+impl GMObjectT for GMBorderCustom {
+    fn send_message(&mut self, mut message: GMMessage, object_manager: &GMObjectManager) -> GMValue {
+        let tag = message.next_tag();
+        let method = message.method.as_str();
+
+        match tag.as_str() {
+            "" => {
+                match method {
+                    "init" => {
+                        self.init_objects(object_manager);
+                    }
+                    "set_object" => {
+                        let object = message.value.into_object();
+                        self.set_object(object);
+                    }
+                    "set_4_objects" => {
+                        let (top, right, bottom, left) =
+                            message.value.into_generic::<(GMObjectBox, GMObjectBox, GMObjectBox, GMObjectBox)>();
+                        self.set_4_objects(top, right, bottom, left);
+                    }
+                    "set_8_objects" => {
+                        let objects = message.value.into_generic::<Vec<GMObjectBox>>();
+                        self.set_8_objects(objects);
+                    }
+                    "set_top_left" => {
+                        let object = message.value.into_object();
+                        self.top_left.0 = object;
+                    }
+                    "set_top" => {
+                        let object = message.value.into_object();
+                        self.top.0 = object;
+                    }
+                    "set_top_right" => {
+                        let object = message.value.into_object();
+                        self.top_right.0 = object;
+                    }
+                    "set_right" => {
+                        let object = message.value.into_object();
+                        self.right.0 = object;
+                    }
+                    "set_bottom_right" => {
+                        let object = message.value.into_object();
+                        self.bottom_right.0 = object;
+                    }
+                    "set_bottom" => {
+                        let object = message.value.into_object();
+                        self.bottom.0 = object;
+                    }
+                    "set_bottom_left" => {
+                        let object = message.value.into_object();
+                        self.bottom_left.0 = object;
+                    }
+                    "set_left" => {
+                        let object = message.value.into_object();
+                        self.left.0 = object;
+                    }
+                    _ => {
+                        error_panic(&format!("GMBorderCustom::send_message: Unknown method '{}', no tag", method));
+                    }
+                }
+            }
+            "position" => {
+                return self.position.send_message(method, message.value);
+            }
+            _ => {
+                error_panic(&format!("GMBorderCustom::send_message: Unknown tag '{}'", tag));
+            }
+        }
+
+        GMValue::None
+    }
+
+    fn update(&mut self, object_manager: &GMObjectManager, context: &mut GMContext) {
+        self.top_left.0.update(object_manager, context);
+        self.top.0.update(object_manager, context);
+        self.top_right.0.update(object_manager, context);
+        self.right.0.update(object_manager, context);
+        self.bottom_right.0.update(object_manager, context);
+        self.bottom.0.update(object_manager, context);
+        self.bottom_left.0.update(object_manager, context);
+        self.left.0.update(object_manager, context);
+    }
+
+    fn draw(&self, context: &mut GMContext) {
+        self.top_left.0.draw(context);
+        self.top.0.draw(context);
+        self.top_right.0.draw(context);
+        self.right.0.draw(context);
+        self.bottom_right.0.draw(context);
+        self.bottom.0.draw(context);
+        self.bottom_left.0.draw(context);
+        self.left.0.draw(context);
+    }
+
+    fn clone_box(&self) -> GMObjectBox {
+        Box::new(self.clone())
+    }
+}

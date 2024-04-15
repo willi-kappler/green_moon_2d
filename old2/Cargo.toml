@@ -1,0 +1,25 @@
+[package]
+name = "green_moon_2d"
+version = "0.1.0"
+authors = ["Willi Kappler <grandor@gmx.de>"]
+license = "MIT"
+repository = "https://github.com/willi-kappler/green_moon_2d"
+description = "2D game engine"
+readme = "README.md"
+exclude = ["target"]
+keywords = ["2d", "Game", "Engine"]
+categories = ["Game"]
+edition = "2021"
+
+[dependencies]
+nanoserde = "0.1"
+nanorand = "0.7"
+log = "0.4"
+
+[dependencies.sdl2]
+version = "0.35"
+default-features = false
+features = ["ttf", "image", "gfx", "mixer", "unsafe_textures"]
+
+[profile.release]
+lto = true
