@@ -18,7 +18,8 @@ type
         scenes: seq[GMScene]
         sceneStack: seq[string]
         currentScene: uint32
-        stuff: bool
+
+# GMScene:
 
 method gmInit*(self: var GMScene) {.base.} =
     ## This method can be implemented when the scene is initialized.
@@ -44,6 +45,26 @@ method gmCustom*(self: var GMScene, data: JsonNode) {.base.} =
     ## This method can be implemented to send user defined data.
     discard
 
+# GMSceneManager:
+
+proc gmFindSceneIndex(self: GMSceneManager): uint32 =
+    # TODO: get index of given scene name
+    return 0
+
+proc gmUpdate*(self: var GMSceneManager) =
+    self.scenes[self.currentScene].gmUpdate()
+
+proc gmDraw*(self: var GMSceneManager) =
+    self.scenes[self.currentScene].gmDraw()
+
+proc gmAddScene*(self: var GMSceneManager, scene: GMScene) =
+    self.scenes.add(scene)
+
+# TODO: remove scene, change to scene, replace scene, push and change scene,
+# pop and change scene, send custom message
+
 proc gmInitSceneManager*(): GMSceneManager =
-    result.stuff = true
+    result.scenes = @[]
+    result.sceneStack = @[]
+    result.currentScene = 0
 
