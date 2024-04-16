@@ -15,7 +15,7 @@ type
         stuff: bool
 
 
-proc gmprocessResources(data: string): GMResourceManager =
+proc gmProcessResources(data: string): GMResourceManager =
     let jsonData = parseJson(data)
     result.stuff = true
 
@@ -25,6 +25,5 @@ proc gmLoadResources*(filename: string): GMResourceManager =
     let data = inFile.readAll()
     inFile.close()
 
-    result.stuff = true
-
+    return gmProcessResources(data)
 
