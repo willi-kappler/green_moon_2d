@@ -15,6 +15,10 @@ type
         stuff: bool
 
 
+proc gmprocessResources(data: string): GMResourceManager =
+    let jsonData = parseJson(data)
+    result.stuff = true
+
 proc gmLoadResources*(filename: string): GMResourceManager =
     ## Load and initialize the resources from the given file name (format: JSON).
     let inFile = open(filename, mode = fmRead)
