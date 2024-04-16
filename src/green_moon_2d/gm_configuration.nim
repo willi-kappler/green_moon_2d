@@ -19,20 +19,20 @@ type
         screenHeight: uint32
         resources: string
 
-proc gmGetFPS*(config: GMConfiguration): uint32 =
-    return config.fps
+proc gmGetFPS*(self: GMConfiguration): uint32 =
+    return self.fps
 
-proc gmGetWindowTitle*(config: GMConfiguration): string =
-    return config.windowTitle
+proc gmGetWindowTitle*(self: GMConfiguration): string =
+    return self.windowTitle
 
-proc gmGetScreenWidth*(config: GMConfiguration): uint32 =
-    return config.screenWidth
+proc gmGetScreenWidth*(self: GMConfiguration): uint32 =
+    return self.screenWidth
 
-proc gmGetScreenHeight*(config: GMConfiguration): uint32 =
-    return config.screenHeight
+proc gmGetScreenHeight*(self: GMConfiguration): uint32 =
+    return self.screenHeight
 
-proc gmGetResourcesFilename*(config: GMConfiguration): string =
-    return config.resources
+proc gmGetResourcesFilename*(self: GMConfiguration): string =
+    return self.resources
 
 proc gmValidateConfiguration*(jsonString: string): GMConfiguration =
     ## Checks if the given json string contains a valid configuration
