@@ -4,7 +4,7 @@
 ##
 ## This Nim library allows you to write 2D games, it used Naylib (Raylib) internally.
 ##
-## This module just contains the configuration for the library / the game.
+## This module contains the configuration for the library / the game.
 ##
 
 # Nim std imports
