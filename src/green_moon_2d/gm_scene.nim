@@ -7,11 +7,42 @@
 ## This module contains the code that handles all the scenes.
 ##
 
+# Nim std imports
+import std/json
+
 type
+    GMScene* = ref object of RootObj
+        name: string
+
     GMSceneManager* = object
+        scenes: seq[GMScene]
+        sceneStack: seq[string]
+        currentScene: uint32
         stuff: bool
 
+method gmInit*(self: var GMScene) {.base.} =
+    ## This method can be implemented when the scene is initialized.
+    discard
 
+method gmEnter*(self: var GMScene) {.base.} =
+    ## This method can be implemented when the scene is entered.
+    discard
+
+method gmExit*(self: var GMScene) {.base.} =
+    ## This method can be implemented when the scene is left.
+    discard
+
+method gmUpdate*(self: var GMScene) {.base.} =
+    ## This method must be implemented in order to update the scene.
+    quit("You must override this method: gm")
+
+method gmDraw*(self: var GMScene) {.base.} =
+    ## This method must be implemented in order to draw the scene.
+    quit("You must override this method: gm")
+
+method gmCustom*(self: var GMScene, data: JsonNode) {.base.} =
+    ## This method can be implemented to send user defined data.
+    discard
 
 proc gmInitSceneManager*(): GMSceneManager =
     result.stuff = true
