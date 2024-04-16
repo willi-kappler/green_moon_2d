@@ -4,7 +4,7 @@
 ##
 ## This Nim library allows you to write 2D games, it used Naylib (Raylib) internally.
 ##
-## This module contains the ccode for normal objects and graphic objects.
+## This module contains the code for normal objects and graphic objects.
 ##
 
 

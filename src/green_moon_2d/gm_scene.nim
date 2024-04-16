@@ -4,7 +4,7 @@
 ##
 ## This Nim library allows you to write 2D games, it used Naylib (Raylib) internally.
 ##
-## This module contains the ccode that handles all the scenes.
+## This module contains the code that handles all the scenes.
 ##
 
 type
