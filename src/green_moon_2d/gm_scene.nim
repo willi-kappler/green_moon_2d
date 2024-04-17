@@ -9,6 +9,8 @@
 
 # Nim std imports
 import std/json
+import std/options
+import std/enumerate
 
 type
     GMScene* = ref object of RootObj
@@ -41,23 +43,28 @@ method gmDraw*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to draw the scene.
     quit("You must override this method: gm")
 
-method gmCustom*(self: var GMScene, data: JsonNode) {.base.} =
-    ## This method can be implemented to send user defined data.
-    discard
+method gmCustom*(self: var GMScene, data: JsonNode): JsonNode {.base.} =
+    ## This method can be implemented to send or receive user defined data.
+    return newJNull()
 
 # GMSceneManager:
 
-proc gmFindSceneIndex(self: GMSceneManager): uint32 =
-    # TODO: get index of given scene name
-    return 0
+proc gmFindSceneIndex(self: GMSceneManager, name: string): Option[uint32] =
+    ## Return the index of a given scene (by name) or none if no such scene was found.
+    for (i, s) in enumerate(self.scenes):
+        if s.name == name:
+            return some(uint32(i))
 
 proc gmUpdate*(self: var GMSceneManager) =
+    ## Calls the gmUpdate() method on the current active scene.
     self.scenes[self.currentScene].gmUpdate()
 
 proc gmDraw*(self: var GMSceneManager) =
+    ## Calls the gmDraw() method on the current active scene.
     self.scenes[self.currentScene].gmDraw()
 
 proc gmAddScene*(self: var GMSceneManager, scene: GMScene) =
+    ## Adds a new scene to the list of scenes.
     self.scenes.add(scene)
 
 # TODO: remove scene, change to scene, replace scene, push and change scene,
