@@ -67,6 +67,21 @@ proc gmAddScene*(self: var GMSceneManager, scene: GMScene) =
     ## Adds a new scene to the list of scenes.
     self.scenes.add(scene)
 
+proc gmRemoveScene*(self: var GMSceneManager, name: string) =
+    let idx = self.gmFindSceneIndex(name)
+
+    if idx.isSome():
+        let i = idx.get()
+        if i != self.currentScene:
+            # Remove scene
+            self.scenes.del(i)
+        else:
+            # Log error
+            discard
+    else:
+        # Log error
+        discard
+
 # TODO: remove scene, change to scene, replace scene, push and change scene,
 # pop and change scene, send custom message
 
