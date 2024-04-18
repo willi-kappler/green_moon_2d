@@ -1,4 +1,5 @@
 {
+    "logFilename": "test1.log",
     "fps": 58,
     "screenWidth": 800,
     "screenHeight": 600,
