@@ -10,20 +10,27 @@
 # Nim std imports
 import std/json
 
+# Local imports
+import gm_configuration
+
 type
-    GMResourceManager* = object
+    GMResourceManager = object
         stuff: bool
 
+var GMGlobResources: GMResourceManager
 
 proc gmProcessResources(data: string): GMResourceManager =
     let jsonData = parseJson(data)
     result.stuff = true
 
-proc gmLoadResources*(filename: string): GMResourceManager =
+proc gmLoadResources*() =
     ## Load and initialize the resources from the given file name (format: JSON).
+    let filename = gmGetResourcesFilename()
     let inFile = open(filename, mode = fmRead)
     let data = inFile.readAll()
     inFile.close()
 
-    return gmProcessResources(data)
+    GMGlobResources = gmProcessResources(data)
+
+# Test cases
 

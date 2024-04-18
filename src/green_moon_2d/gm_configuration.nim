@@ -11,7 +11,7 @@
 import std/json
 
 type
-    GMConfiguration* = object
+    GMConfiguration = object
         ## Configuration options for GreenMoon2D.
         fps: uint32
         windowTitle: string
@@ -19,22 +19,24 @@ type
         screenHeight: uint32
         resources: string
 
-proc gmGetFPS*(self: GMConfiguration): uint32 =
-    return self.fps
+var GMGlobConfig: GMConfiguration
 
-proc gmGetWindowTitle*(self: GMConfiguration): string =
-    return self.windowTitle
+proc gmGetFPS*(): uint32 =
+    return GMGlobConfig.fps
 
-proc gmGetScreenWidth*(self: GMConfiguration): uint32 =
-    return self.screenWidth
+proc gmGetWindowTitle*(): string =
+    return GMGlobConfig.windowTitle
 
-proc gmGetScreenHeight*(self: GMConfiguration): uint32 =
-    return self.screenHeight
+proc gmGetScreenWidth*(): uint32 =
+    return GMGlobConfig.screenWidth
 
-proc gmGetResourcesFilename*(self: GMConfiguration): string =
-    return self.resources
+proc gmGetScreenHeight*(): uint32 =
+    return GMGlobConfig.screenHeight
 
-proc gmValidateConfiguration*(jsonString: string): GMConfiguration =
+proc gmGetResourcesFilename*(): string =
+    return GMGlobConfig.resources
+
+proc gmValidateConfiguration(jsonString: string): GMConfiguration =
     ## Checks if the given json string contains a valid configuration
     let jsonConfig = parseJson(jsonString)
 
@@ -59,11 +61,15 @@ proc gmValidateConfiguration*(jsonString: string): GMConfiguration =
     if result.resources.len() == 0:
         result.resources = "resources.json"
 
-proc gmLoadConfiguration*(filename: string): GMConfiguration =
+proc gmLoadConfiguration*(filename: string) =
     ## Load the configuration from the given file name (format: JSON).
     let inFile = open(filename, mode = fmRead)
     let data = inFile.readAll()
     inFile.close()
-    return gmValidateConfiguration(data)
+    GMGlobConfig = gmValidateConfiguration(data)
+
+# Test cases
+
+
 
 

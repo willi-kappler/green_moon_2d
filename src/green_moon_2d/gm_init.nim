@@ -10,22 +10,17 @@
 
 # Local imports
 import gm_configuration
+import gm_log
 import gm_object
 import gm_resources
 import gm_scene
 
-# Global variables:
-var GMGlobConfig*: GMConfiguration
-var GMGlobResources*: GMResourceManager
-var GMGlobScenes*: GMSceneManager
-var GMGlobObjects*: GMObjectManager
-var GMGlobGFXObjects*: GMGFXObjectManager
-
 proc gm_init*(configFilename: string = "config.json") =
-    GMGlobConfig = gmLoadConfiguration(configFilename)
-    GMGlobResources = gmLoadResources(GMGlobConfig.gmGetResourcesFilename())
-    GMGlobScenes = gmInitSceneManager()
-    GMGlobObjects = gmInitObjectManager()
-    GMGlobGFXObjects = gmInitGFXObjectManager()
+    gmLoadConfiguration(configFilename)
+    gmInitLogger()
+    gmLoadResources()
+    gmInitSceneManager()
+    gmInitObjectManager()
+    gmInitGFXObjectManager()
 
 

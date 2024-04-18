@@ -10,18 +10,18 @@
 
 
 type
-    GMObjectManager* = object
+    GMObjectManager = object
         stuff: bool
 
-    GMGFXObjectManager* = object
+    GMGFXObjectManager = object
         stuff: bool
 
+var GMGlobObjects: GMObjectManager
+var GMGlobGFXObjects: GMGFXObjectManager
 
+proc gmInitObjectManager*() =
+    GMGlobObjects = GMObjectManager(stuff: true)
 
-proc gmInitObjectManager*(): GMObjectManager =
-    result.stuff = true
-
-proc gmInitGFXObjectManager*(): GMGFXObjectManager =
-    result.stuff = true
-
+proc gmInitGFXObjectManager*() =
+    GMGlobGFXObjects = GMGFXObjectManager(stuff: true)
 
