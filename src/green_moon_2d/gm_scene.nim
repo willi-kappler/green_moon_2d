@@ -32,12 +32,12 @@ method gmEnter*(self: var GMScene) {.base.} =
     ## This method can be implemented when the scene is entered.
     discard
 
-method gmUpdate*(self: var GMScene) {.base.} =
-    ## This method must be implemented in order to update the scene.
-    quit("You must override this method: gm")
-
 method gmDraw*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to draw the scene.
+    quit("You must override this method: gm")
+
+method gmUpdate*(self: var GMScene) {.base.} =
+    ## This method must be implemented in order to update the scene.
     quit("You must override this method: gm")
 
 method gmCustom*(self: var GMScene, data: JsonNode): JsonNode {.base.} =
@@ -54,13 +54,13 @@ proc gmFindSceneIndex(name: string): Option[uint32] =
 
     return none(uint32)
 
-proc gmUpdate*() =
-    ## Calls the gmUpdate() method on the current active scene.
-    GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
-
 proc gmDraw*() =
     ## Calls the gmDraw() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDraw()
+
+proc gmUpdate*() =
+    ## Calls the gmUpdate() method on the current active scene.
+    GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
 
 proc gmAddScene*(scene: GMScene) =
     ## Adds a new scene to the list of scenes.
