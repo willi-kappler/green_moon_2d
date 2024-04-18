@@ -17,7 +17,8 @@ import gm_scene
 
 proc gmRun*() =
     while not gmQuitGame():
-        discard
+        gmDrawScenes()
+        gmUpdateScenes()
 
 proc gmInit*(configFilename: string = "config.json") =
     gmLoadConfiguration(configFilename)
