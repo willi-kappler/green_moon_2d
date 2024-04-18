@@ -54,11 +54,11 @@ proc gmFindSceneIndex(name: string): Option[uint32] =
 
     return none(uint32)
 
-proc gmDraw*() =
+proc gmDrawScenes*() =
     ## Calls the gmDraw() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDraw()
 
-proc gmUpdate*() =
+proc gmUpdateScenes*() =
     ## Calls the gmUpdate() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
 
