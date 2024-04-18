@@ -15,9 +15,13 @@ import gm_configuration
 
 type
     GMResourceManager = object
+        quit: bool
         stuff: bool
 
 var GMGlobResources: GMResourceManager
+
+proc gmQuitGame*(): bool =
+    return GMGlobResources.quit
 
 proc gmProcessResources(data: string): GMResourceManager =
     let jsonData = parseJson(data)

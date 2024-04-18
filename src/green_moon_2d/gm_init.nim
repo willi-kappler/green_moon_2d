@@ -15,12 +15,15 @@ import gm_object
 import gm_resources
 import gm_scene
 
-proc gm_init*(configFilename: string = "config.json") =
+proc gmRun*() =
+    while not gmQuitGame():
+        discard
+
+proc gmInit*(configFilename: string = "config.json") =
     gmLoadConfiguration(configFilename)
     gmInitLogger()
     gmLoadResources()
     gmInitSceneManager()
     gmInitObjectManager()
     gmInitGFXObjectManager()
-
 
