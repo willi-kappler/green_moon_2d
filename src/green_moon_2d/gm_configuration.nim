@@ -13,6 +13,7 @@ import std/json
 type
     GMConfiguration = object
         ## Configuration options for GreenMoon2D.
+        logFilename: string
         fps: uint32
         windowTitle: string
         screenWidth: uint32
@@ -20,6 +21,9 @@ type
         resources: string
 
 var GMGlobConfig: GMConfiguration
+
+proc gmGetLogFilename*(): string =
+    return GMGlobConfig.logFilename
 
 proc gmGetFPS*(): uint32 =
     return GMGlobConfig.fps
@@ -40,24 +44,27 @@ proc gmValidateConfiguration(jsonString: string): GMConfiguration =
     ## Checks if the given json string contains a valid configuration
     let jsonConfig = parseJson(jsonString)
 
-    result.fps = uint32(jsonConfig{"fps"}.getInt(60))
-    result.windowTitle = jsonConfig{"windowTitle"}.getStr("Made with GreenMoon2D")
-    result.screenWidth = uint32(jsonConfig{"screenWidth"}.getInt(800))
-    result.screenHeight = uint32(jsonConfig{"screenHeight"}.getInt(600))
-    result.resources = jsonConfig{"resources"}.getStr("resources.json")
+    result.logFilename = jsonConfig{"logFilename"}.getStr("")
+    if result.logFilename.len() == 0:
+        result.logFilename = "game.log"
 
+    result.fps = uint32(jsonConfig{"fps"}.getInt(0))
     if result.fps == 0:
         result.fps = 60
 
+    result.windowTitle = jsonConfig{"windowTitle"}.getStr("")
     if result.windowTitle.len() == 0:
         result.windowTitle = "Made with GreenMoon2D"
 
+    result.screenWidth = uint32(jsonConfig{"screenWidth"}.getInt(0))
     if result.screenWidth == 0:
         result.screenWidth = 800
 
+    result.screenHeight = uint32(jsonConfig{"screenHeight"}.getInt(0))
     if result.screenHeight == 0:
         result.screenHeight = 600
 
+    result.resources = jsonConfig{"resources"}.getStr("")
     if result.resources.len() == 0:
         result.resources = "resources.json"
 
