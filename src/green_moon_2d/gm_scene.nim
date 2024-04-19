@@ -58,9 +58,27 @@ proc gmDrawScenes*() =
     ## Calls the gmDraw() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDraw()
 
+proc gmDrawScene*(name: string) =
+    ## Calls the gmDraw() method on the scene with the given name.
+    let idx = gmFindSceneIndex(name)
+    if idx.isSome():
+        let i = idx.get()
+        GMGlobScenes.scenes[i].gmDraw()
+    else:
+        gmLoggerError(fmt("Can't draw scene: {name}, it was not found!"))
+
 proc gmUpdateScenes*() =
     ## Calls the gmUpdate() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
+
+proc gmUpdateScene*(name: string) =
+    ## Calls the gmUpdate() method on the scene with the given name.
+    let idx = gmFindSceneIndex(name)
+    if idx.isSome():
+        let i = idx.get()
+        GMGlobScenes.scenes[i].gmUpdate()
+    else:
+        gmLoggerError(fmt("Can't update scene: {name}, it was not found!"))
 
 proc gmAddScene*(scene: GMScene) =
     ## Adds a new scene to the list of scenes.
