@@ -65,12 +65,32 @@ proc checkOneProperty(scene: TestScene, name: string = "", value: uint8 = 0) =
         assert(scene.message2Sent == 0)
 
 proc test1_addScene1() =
-    var scene1 = TestScene()
+    gmInitSceneManager()
+    let scene1 = TestScene()
     gmAddScene(scene1, "Test1")
     gmEnterScene("Test1")
     checkOneProperty(scene1, "enterCalled", 1u8)
 
-when isMainModule:
+proc test2_addScene2() =
     gmInitSceneManager()
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+    gmAddScene(scene1, "Test1")
+    gmAddScene(scene2, "Test2")
+    gmEnterScene("Test1")
+    gmUpdateScene("Test2")
+    checkOneProperty(scene1, "enterCalled", 1u8)
+    checkOneProperty(scene2, "updateCalled", 1u8)
+
+proc test3_addScene3() =
+    gmInitSceneManager()
+    let scene1 = TestScene()
+    gmAddScene(scene1, "Test3")
+    gmEnterScene("Test3")
+    checkOneProperty(scene1, "enterCalled", 1u8)
+
+when isMainModule:
     test1_addScene1()
+    test2_addScene2()
+    test3_addScene3()
 
