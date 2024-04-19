@@ -86,8 +86,9 @@ proc test3_addScene3() =
     gmInitSceneManager()
     let scene1 = TestScene()
     gmAddScene(scene1, "Test3")
-    gmEnterScene("Test3")
-    checkOneProperty(scene1, "enterCalled", 1u8)
+
+    doAssertRaises GMSceneError:
+        gmAddScene(scene1, "Test3")
 
 when isMainModule:
     test1_addScene1()
