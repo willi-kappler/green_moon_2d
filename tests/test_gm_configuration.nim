@@ -4,9 +4,8 @@
 ##
 ## This Nim library allows you to write 2D games, it used Naylib (Raylib) internally.
 ##
-## This file contains the test cased for the configuration
+## This file contains the test case for the configuration
 ##
-
 
 # Nim std imports
 from std/files import removeFile
