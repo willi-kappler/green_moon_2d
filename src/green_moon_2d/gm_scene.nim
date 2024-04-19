@@ -61,6 +61,7 @@ proc gmDrawScenes*() =
 proc gmDrawScene*(name: string) =
     ## Calls the gmDraw() method on the scene with the given name.
     let idx = gmFindSceneIndex(name)
+
     if idx.isSome():
         let i = idx.get()
         GMGlobScenes.scenes[i].gmDraw()
@@ -74,6 +75,7 @@ proc gmUpdateScenes*() =
 proc gmUpdateScene*(name: string) =
     ## Calls the gmUpdate() method on the scene with the given name.
     let idx = gmFindSceneIndex(name)
+
     if idx.isSome():
         let i = idx.get()
         GMGlobScenes.scenes[i].gmUpdate()
@@ -83,6 +85,7 @@ proc gmUpdateScene*(name: string) =
 proc gmEnterScene*(name: string) =
     ## Calls the gmEnter() method on the scene with the given name.
     let idx = gmFindSceneIndex(name)
+
     if idx.isSome():
         let i = idx.get()
         GMGlobScenes.scenes[i].gmEnter()
