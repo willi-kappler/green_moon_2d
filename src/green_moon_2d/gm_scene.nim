@@ -92,8 +92,9 @@ proc gmEnterScene*(name: string) =
     else:
         gmLoggerError(fmt("Can't enter scene: {name}, it was not found!"))
 
-proc gmAddScene*(scene: GMScene) =
+proc gmAddScene*(scene: GMScene, name: string) =
     ## Adds a new scene to the list of scenes.
+    scene.name = name
     let idx = gmFindSceneIndex(scene.name)
 
     if idx.isSome():
