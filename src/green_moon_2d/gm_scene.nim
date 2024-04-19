@@ -80,6 +80,15 @@ proc gmUpdateScene*(name: string) =
     else:
         gmLoggerError(fmt("Can't update scene: {name}, it was not found!"))
 
+proc gmEnterScene*(name: string) =
+    ## Calls the gmEnter() method on the scene with the given name.
+    let idx = gmFindSceneIndex(name)
+    if idx.isSome():
+        let i = idx.get()
+        GMGlobScenes.scenes[i].gmEnter()
+    else:
+        gmLoggerError(fmt("Can't enter scene: {name}, it was not found!"))
+
 proc gmAddScene*(scene: GMScene) =
     ## Adds a new scene to the list of scenes.
     let idx = gmFindSceneIndex(scene.name)
