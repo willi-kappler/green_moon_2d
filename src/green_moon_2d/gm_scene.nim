@@ -24,13 +24,13 @@ type
         sceneStack: seq[string]
         currentScene: uint32
 
-    SceneError* = object of CatchableError
+    GMSceneError* = object of CatchableError
 
 var GMGlobScenes: GMSceneManager
 
 proc error_log(message: string) =
     gmLoggerError(message)
-    raise newException(SceneError, message)
+    raise newException(GMSceneError, message)
 
 # GMScene:
 
