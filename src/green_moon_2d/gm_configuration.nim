@@ -2,7 +2,7 @@
 ##
 ## Written by Willi Kappler, License: MIT
 ##
-## This Nim library allows you to write 2D games, it used Naylib (Raylib) internally.
+## This Nim library allows you to write 2D games, it uses Naylib (Raylib) internally.
 ##
 ## This module contains the configuration for the library / the game.
 ##
