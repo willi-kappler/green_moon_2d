@@ -64,7 +64,7 @@ proc gmFindSceneIndex(name: string): Option[uint32] =
 
     return none(uint32)
 
-proc gmDrawScenes*() =
+proc gmDrawCurrentScene*() =
     ## Calls the gmDraw() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDraw()
 
@@ -78,7 +78,7 @@ proc gmDrawScene*(name: string) =
     else:
         error_log(fmt("Can't draw scene: {name}, it was not found!"))
 
-proc gmUpdateScenes*() =
+proc gmUpdateCurrentScene*() =
     ## Calls the gmUpdate() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
 
