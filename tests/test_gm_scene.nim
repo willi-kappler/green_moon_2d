@@ -140,6 +140,48 @@ proc test6_drawScene3() =
     doAssertRaises GMSceneError:
         gmDrawScene("Test1.1")
 
+proc test7_updateScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test7.1")
+    gmAddScene(scene2, "Test7.2")
+
+    gmUpdateScene("Test7.1")
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2)
+
+    gmUpdateScene("Test7.2")
+    gmUpdateScene("Test7.2")
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2, "updateCalled", 2u8)
+
+proc test8_updateScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test8.1")
+    gmAddScene(scene2, "Test8.2")
+
+    gmUpdateCurrentScene()
+
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2)
+
+proc test9_updateScene3() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test9.1")
+
+    doAssertRaises GMSceneError:
+        gmUpdateScene("Test1.1")
+
 when isMainModule:
     test1_addScene1()
     test2_addScene2()
@@ -147,4 +189,7 @@ when isMainModule:
     test4_drawScene1()
     test5_drawScene2()
     test6_drawScene3()
+    test7_updateScene1()
+    test8_updateScene2()
+    test9_updateScene3()
 
