@@ -192,4 +192,25 @@ when isMainModule:
     test7_updateScene1()
     test8_updateScene2()
     test9_updateScene3()
+    # enter scene 2 x
+    # enter scene error not found
+    # remove scene
+    # remove current scene error
+    # remove scene error not found
+    # change scene
+    # change scene already active
+    # change scene error not found
+    # replace scene
+    # replace scene error not found
+    # push and change scene
+    # push and change scene active
+    # push and change scene error not found
+    # pop and change scene
+    # pop and change scene error empty stack
+    # custom message
+    # custom message scene error not found
+
+
+
+
 
