@@ -66,32 +66,85 @@ proc checkOneProperty(scene: TestScene, name: string = "", value: uint8 = 0) =
 
 proc test1_addScene1() =
     gmInitSceneManager()
+
     let scene1 = TestScene()
+
     gmAddScene(scene1, "Test1")
     gmEnterScene("Test1")
     checkOneProperty(scene1, "enterCalled", 1u8)
 
 proc test2_addScene2() =
     gmInitSceneManager()
+
     let scene1 = TestScene()
     let scene2 = TestScene()
-    gmAddScene(scene1, "Test1")
-    gmAddScene(scene2, "Test2")
-    gmEnterScene("Test1")
-    gmUpdateScene("Test2")
+
+    gmAddScene(scene1, "Test2.1")
+    gmAddScene(scene2, "Test2.2")
+
+    gmEnterScene("Test2.1")
+    gmUpdateScene("Test2.2")
+
     checkOneProperty(scene1, "enterCalled", 1u8)
     checkOneProperty(scene2, "updateCalled", 1u8)
 
 proc test3_addScene3() =
     gmInitSceneManager()
+
     let scene1 = TestScene()
+
     gmAddScene(scene1, "Test3")
 
     doAssertRaises GMSceneError:
         gmAddScene(scene1, "Test3")
 
+proc test4_drawScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test4.1")
+    gmAddScene(scene2, "Test4.2")
+
+    gmDrawScene("Test4.1")
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2)
+
+    gmDrawScene("Test4.2")
+    gmDrawScene("Test4.2")
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2, "drawCalled", 2u8)
+
+proc test5_drawScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test5.1")
+    gmAddScene(scene2, "Test5.2")
+
+    gmDrawCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2)
+
+proc test6_drawScene3() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test6.1")
+
+    doAssertRaises GMSceneError:
+        gmDrawScene("Test1.1")
+
 when isMainModule:
     test1_addScene1()
     test2_addScene2()
     test3_addScene3()
+    test4_drawScene1()
+    test5_drawScene2()
+    test6_drawScene3()
 
