@@ -182,6 +182,36 @@ proc test9_updateScene3() =
     doAssertRaises GMSceneError:
         gmUpdateScene("Test1.1")
 
+proc test10_enterScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test10.1")
+    gmAddScene(scene2, "Test10.2")
+
+    gmEnterScene("Test10.1")
+
+    checkOneProperty(scene1, "enterCalled", 1u8)
+    checkOneProperty(scene2)
+
+    gmEnterScene("Test10.2")
+    gmEnterScene("Test10.2")
+
+    checkOneProperty(scene1, "enterCalled", 1u8)
+    checkOneProperty(scene2, "enterCalled", 2u8)
+
+proc test11_enterScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test10.1")
+
+    doAssertRaises GMSceneError:
+        gmEnterScene("Test10.2")
+
 when isMainModule:
     test1_addScene1()
     test2_addScene2()
@@ -192,8 +222,8 @@ when isMainModule:
     test7_updateScene1()
     test8_updateScene2()
     test9_updateScene3()
-    # enter scene 2 x
-    # enter scene error not found
+    test10_enterScene1()
+    test11_enterScene2()
     # remove scene
     # remove current scene error
     # remove scene error not found
