@@ -178,7 +178,7 @@ proc gmPopAndChangeScene*() =
     else:
         error_log(fmt("Can't pop scene: scene stack is empty"), GMSceneStackEmptyError)
 
-proc gmCustom*(name: string, data: JsonNode): JsonNode =
+proc gmSceneCustomMessage*(name: string, data: JsonNode): JsonNode =
     ## Sends a message with custom data to the given scene.
     let idx = gmFindSceneIndex(name)
 
