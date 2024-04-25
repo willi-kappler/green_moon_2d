@@ -11,6 +11,7 @@
 import std/json
 #from std/files import removeFile
 #from std/paths import Path
+#from std/strformat import fmt
 
 # Local imports
 import green_moon_2d/gm_scene
@@ -95,7 +96,7 @@ proc test3_addScene3() =
 
     gmAddScene(scene1, "Test3")
 
-    doAssertRaises GMSceneError:
+    doAssertRaises GMSceneAlreadyExistsError:
         gmAddScene(scene1, "Test3")
 
 proc test4_drawScene1() =
@@ -137,7 +138,7 @@ proc test6_drawScene3() =
 
     gmAddScene(scene1, "Test6.1")
 
-    doAssertRaises GMSceneError:
+    doAssertRaises GMSceneNotFoundError:
         gmDrawScene("Test1.1")
 
 proc test7_updateScene1() =
@@ -179,7 +180,7 @@ proc test9_updateScene3() =
 
     gmAddScene(scene1, "Test9.1")
 
-    doAssertRaises GMSceneError:
+    doAssertRaises GMSceneNotFoundError:
         gmUpdateScene("Test1.1")
 
 proc test10_enterScene1() =
@@ -209,7 +210,7 @@ proc test11_enterScene2() =
 
     gmAddScene(scene1, "Test10.1")
 
-    doAssertRaises GMSceneError:
+    doAssertRaises GMSceneNotFoundError:
         gmEnterScene("Test10.2")
 
 when isMainModule:

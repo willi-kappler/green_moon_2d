@@ -24,17 +24,20 @@ type
         sceneStack: seq[string]
         currentScene: uint32
 
-    GMSceneError* = object of CatchableError
+    GMSceneNotFoundError* = object of CatchableError
+    GMSceneAlreadyExistsError* = object of CatchableError
+    GMSceneIsActiveError* = object of CatchableError
+    GMSceneStackEmptyError* = object of CatchableError
 
 var GMGlobScenes: GMSceneManager
 
-proc error_log2(filename: string, line: int, message: string) =
+proc error_log2(filename: string, line: int, message: string, exceptn: typedesc) =
     gmLoggerError(fmt("{filename} - {line}: {message}"))
-    raise newException(GMSceneError, message)
+    raise newException(exceptn, message)
 
-template error_log(message: string) =
+template error_log(message: string, exceptn: typedesc) =
     let pos = instantiationInfo()
-    error_log2(pos.filename, pos.line, message)
+    error_log2(pos.filename, pos.line, message, exceptn)
 
 # GMScene:
 
@@ -76,7 +79,7 @@ proc gmDrawScene*(name: string) =
         let i = idx.get()
         GMGlobScenes.scenes[i].gmDraw()
     else:
-        error_log(fmt("Can't draw scene: {name}, it was not found!"))
+        error_log(fmt("Can't draw scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmUpdateCurrentScene*() =
     ## Calls the gmUpdate() method on the current active scene.
@@ -90,7 +93,7 @@ proc gmUpdateScene*(name: string) =
         let i = idx.get()
         GMGlobScenes.scenes[i].gmUpdate()
     else:
-        error_log(fmt("Can't update scene: {name}, it was not found!"))
+        error_log(fmt("Can't update scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmEnterScene*(name: string) =
     ## Calls the gmEnter() method on the scene with the given name.
@@ -100,7 +103,7 @@ proc gmEnterScene*(name: string) =
         let i = idx.get()
         GMGlobScenes.scenes[i].gmEnter()
     else:
-        error_log(fmt("Can't enter scene: {name}, it was not found!"))
+        error_log(fmt("Can't enter scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmAddScene*(scene: GMScene, name: string) =
     ## Adds a new scene to the list of scenes.
@@ -108,7 +111,7 @@ proc gmAddScene*(scene: GMScene, name: string) =
     let idx = gmFindSceneIndex(scene.name)
 
     if idx.isSome():
-        error_log(fmt("Can't add scene: {scene.name}, a scene with that name already exists!"))
+        error_log(fmt("Can't add scene: {scene.name}, a scene with that name already exists!"), GMSceneAlreadyExistsError)
     else:
         GMGlobScenes.scenes.add(scene)
 
@@ -122,9 +125,9 @@ proc gmRemoveScene*(name: string) =
             # Remove scene
             GMGlobScenes.scenes.del(i)
         else:
-            error_log(fmt("Can't remove current active scene: {name}, index: {i}!"))
+            error_log(fmt("Can't remove current active scene: {name}, index: {i}!"), GMSceneIsActiveError)
     else:
-        error_log(fmt("Can't remove scene: {name}, it was not found!"))
+        error_log(fmt("Can't remove scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmChangeScene*(name: string) =
     ## Changes the active scnene to the one with the given name.
@@ -136,9 +139,9 @@ proc gmChangeScene*(name: string) =
             GMGlobScenes.currentScene = i
             GMGlobScenes.scenes[i].gmEnter()
         else:
-            error_log(fmt("Scene is already active: {name}, index: {i}!"))
+            error_log(fmt("Scene is already active: {name}, index: {i}!"), GMSceneIsActiveError)
     else:
-        error_log(fmt("Can't change to scene: {name}, it was not found!"))
+        error_log(fmt("Can't change to scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmReplaceScene*(name: string, scene: GMScene) =
     ## Replace the scenen given by the name with the new given one.
@@ -148,7 +151,7 @@ proc gmReplaceScene*(name: string, scene: GMScene) =
         let i = idx.get()
         GMGlobScenes.scenes[i] = scene
     else:
-        error_log(fmt("Can't replace scene: {name}, it was not found!"))
+        error_log(fmt("Can't replace scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmPushAndChangeScene*(name: string) =
     ## Pushes the current scene onto a stack and change to the given scene.
@@ -163,9 +166,9 @@ proc gmPushAndChangeScene*(name: string) =
             GMGlobScenes.currentScene = i
             GMGlobScenes.scenes[i].gmEnter()
         else:
-            error_log(fmt("Can't push scene, it is already active: {name}, index: {i}!"))
+            error_log(fmt("Can't push scene, it is already active: {name}, index: {i}!"), GMSceneIsActiveError)
     else:
-        error_log(fmt("Can't push scene: {name}, it was not found!"))
+        error_log(fmt("Can't push scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmPopAndChangeScene*() =
     ## Pops the last scene from the stack and changes to it.
@@ -173,7 +176,7 @@ proc gmPopAndChangeScene*() =
         let previousSceneName = GMGlobScenes.sceneStack.pop()
         gmChangeScene(previousSceneName)
     else:
-        error_log(fmt("Can't pop scene: scene stack is empty"))
+        error_log(fmt("Can't pop scene: scene stack is empty"), GMSceneStackEmptyError)
 
 proc gmCustom*(name: string, data: JsonNode): JsonNode =
     ## Sends a message with custom data to the given scene.
@@ -183,7 +186,7 @@ proc gmCustom*(name: string, data: JsonNode): JsonNode =
         let i = idx.get()
         return GMGlobScenes.scenes[i].gmCustom(data)
     else:
-        error_log(fmt("Can't send cutom data to scene: {name}, it was not found!"))
+        error_log(fmt("Can't send cutom data to scene: {name}, it was not found!"), GMSceneNotFoundError)
 
 proc gmInitSceneManager*() =
     GMGlobScenes.scenes = @[]
