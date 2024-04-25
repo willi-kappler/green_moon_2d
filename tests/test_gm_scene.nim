@@ -9,9 +9,6 @@
 
 # Nim std imports
 import std/json
-#from std/files import removeFile
-#from std/paths import Path
-#from std/strformat import fmt
 
 # Local imports
 import green_moon_2d/gm_scene
@@ -36,7 +33,7 @@ method gmUpdate*(self: var TestScene) =
 method gmCustom*(self: var TestScene, data: JsonNode): JsonNode =
     if data.contains("message1"):
         inc(self.message1Sent)
-    elif data.contains("message2"):
+    if data.contains("message2"):
         inc(self.message2Sent)
 
 proc checkOneProperty(scene: TestScene, name: string = "", value: uint8 = 0) =
@@ -459,6 +456,47 @@ proc test25_popAndChangeScene2() =
     doAssertRaises GMSceneStackEmptyError:
         gmPopAndChangeScene()
 
+proc test26_customMessage1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test26.1")
+    gmAddScene(scene2, "Test26.2")
+
+    checkOneProperty(scene1)
+    checkOneProperty(scene2)
+
+    discard gmSceneCustomMessage("Test26.1", %*{"message1": 12})
+
+    checkOneProperty(scene1, "message1Sent", 1u8)
+    checkOneProperty(scene2)
+
+    discard gmSceneCustomMessage("Test26.2", %*{"message2": 15})
+
+    checkOneProperty(scene1, "message1Sent", 1u8)
+    checkOneProperty(scene2, "message2Sent", 1u8)
+
+    discaRD gmSceneCustomMessage("Test26.2", %*{"message1": 32, "message2": 15})
+
+    checkOneProperty(scene1, "message1Sent", 1u8)
+    assert(scene2.enterCalled == 0)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 0)
+    assert(scene2.message1Sent == 1)
+    assert(scene2.message2Sent == 2)
+
+proc test27_customMessage2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test27.1")
+
+    doAssertRaises GMSceneNotFoundError:
+        discard gmSceneCustomMessage("Test27.2", %*{"message1": 12})
+
 when isMainModule:
     test1_addScene1()
     test2_addScene2()
@@ -485,10 +523,6 @@ when isMainModule:
     test23_pushAndChangeScene3()
     test24_popAndChangeScene1()
     test25_popAndChangeScene2()
-    # custom message
-    # custom message scene error not found
-
-
-
-
+    test26_customMessage1()
+    test27_customMessage2()
 
