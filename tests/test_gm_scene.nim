@@ -337,7 +337,127 @@ proc test20_replaceScene2() =
     doAssertRaises GMSceneNotFoundError:
         gmReplaceScene("Test20.2", scene2)
 
+proc test21_pushAndChangeScene1() =
+    gmInitSceneManager()
 
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test21.1")
+    gmAddScene(scene2, "Test21.2")
+
+    checkOneProperty(scene1)
+    checkOneProperty(scene2)
+
+    gmDrawCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2)
+
+    # This calls enter scene!
+    gmPushAndChangeScene("Test21.2")
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2, "enterCalled", 1u8)
+
+    gmUpdateCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    assert(scene2.enterCalled == 1)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 1)
+    assert(scene2.message1Sent == 0)
+    assert(scene2.message2Sent == 0)
+
+proc test22_pushAndChangeScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test22.1")
+
+    doAssertRaises GMSceneIsActiveError:
+        gmPushAndChangeScene("Test22.1")
+
+proc test23_pushAndChangeScene3() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test23.1")
+
+    doAssertRaises GMSceneNotFoundError:
+        gmPushAndChangeScene("Test23.2")
+
+proc test24_popAndChangeScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test24.1")
+    gmAddScene(scene2, "Test24.2")
+
+    checkOneProperty(scene1)
+    checkOneProperty(scene2)
+
+    gmDrawCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2)
+
+    # This calls enter scene!
+    gmPushAndChangeScene("Test24.2")
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2, "enterCalled", 1u8)
+
+    gmUpdateCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    assert(scene2.enterCalled == 1)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 1)
+    assert(scene2.message1Sent == 0)
+    assert(scene2.message2Sent == 0)
+
+    gmPopAndChangeScene()
+
+    assert(scene1.enterCalled == 1)
+    assert(scene1.drawCalled == 1)
+    assert(scene1.updateCalled == 0)
+    assert(scene1.message1Sent == 0)
+    assert(scene1.message2Sent == 0)
+
+    assert(scene2.enterCalled == 1)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 1)
+    assert(scene2.message1Sent == 0)
+    assert(scene2.message2Sent == 0)
+
+    gmUpdateCurrentScene()
+
+    assert(scene1.enterCalled == 1)
+    assert(scene1.drawCalled == 1)
+    assert(scene1.updateCalled == 1)
+    assert(scene1.message1Sent == 0)
+    assert(scene1.message2Sent == 0)
+
+    assert(scene2.enterCalled == 1)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 1)
+    assert(scene2.message1Sent == 0)
+    assert(scene2.message2Sent == 0)
+
+proc test25_popAndChangeScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test25.1")
+
+    doAssertRaises GMSceneStackEmptyError:
+        gmPopAndChangeScene()
 
 when isMainModule:
     test1_addScene1()
@@ -360,11 +480,11 @@ when isMainModule:
     test18_changeScene3()
     test19_replaceScene1()
     test20_replaceScene2()
-    # push and change scene
-    # push and change scene active
-    # push and change scene error not found
-    # pop and change scene
-    # pop and change scene error empty stack
+    test21_pushAndChangeScene1()
+    test22_pushAndChangeScene2()
+    test23_pushAndChangeScene3()
+    test24_popAndChangeScene1()
+    test25_popAndChangeScene2()
     # custom message
     # custom message scene error not found
 
