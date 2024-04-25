@@ -257,6 +257,86 @@ proc test15_removeScene4() =
     doAssertRaises GMSceneNotFoundError:
         gmRemoveScene("Test15.1")
 
+proc test16_changeScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test16.1")
+    gmAddScene(scene2, "Test16.2")
+
+    gmDrawCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    checkOneProperty(scene2)
+
+    # This also calls enter scene!
+    gmChangeScene("Test16.2")
+
+    gmUpdateCurrentScene()
+
+    checkOneProperty(scene1, "drawCalled", 1u8)
+    assert(scene2.enterCalled == 1)
+    assert(scene2.drawCalled == 0)
+    assert(scene2.updateCalled == 1)
+    assert(scene2.message1Sent == 0)
+    assert(scene2.message2Sent == 0)
+
+proc test17_changeScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test17.1")
+
+    doAssertRaises GMSceneIsActiveError:
+        gmChangeScene("Test17.1")
+
+proc test18_changeScene3() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test18.1")
+
+    doAssertRaises GMSceneNotFoundError:
+        gmChangeScene("Test18.2")
+
+proc test19_replaceScene1() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test19.1")
+
+    gmUpdateCurrentScene()
+
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2)
+
+    gmReplaceScene("Test19.1", scene2)
+
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2)
+
+    gmDrawCurrentScene()
+
+    checkOneProperty(scene1, "updateCalled", 1u8)
+    checkOneProperty(scene2, "drawCalled", 1u8)
+
+proc test20_replaceScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test20.1")
+
+    doAssertRaises GMSceneNotFoundError:
+        gmReplaceScene("Test20.2", scene2)
+
 
 
 when isMainModule:
@@ -275,11 +355,11 @@ when isMainModule:
     test13_removeScene2()
     test14_removeScene3()
     test15_removeScene4()
-    # change scene
-    # change scene already active
-    # change scene error not found
-    # replace scene
-    # replace scene error not found
+    test16_changeScene1()
+    test17_changeScene2()
+    test18_changeScene3()
+    test19_replaceScene1()
+    test20_replaceScene2()
     # push and change scene
     # push and change scene active
     # push and change scene error not found
