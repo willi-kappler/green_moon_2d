@@ -10,9 +10,60 @@
 # Nim std imports
 from std/files import removeFile
 from std/paths import Path
+from std/strformat import fmt
 
 # Local imports
 import green_moon_2d/gm_configuration
+
+proc checkStringProperty(name: string, value: string) =
+    # Checks that the given property of the configuration is equal
+    # to the given value.
+
+    # Default values:
+    var logFilename = "game.log"
+    var windowTitle = "Made with GreenMoon2D"
+    var resourcesFilename = "resources.json"
+
+    if name == "LogFilename":
+        logFilename = value
+    elif name == "WindowTitle":
+        windowTitle = value
+    elif name == "ResourcesFilename":
+        resourcesFilename = value
+    else:
+        raise newException(ValueError, fmt("Unknown property name: {name}"))
+
+    assert(gmGetLogFilename() == logFilename)
+    assert(gmGetFPS() == 60)
+    assert(gmGetScreenWidth() == 800)
+    assert(gmGetscreenHeight() == 600)
+    assert(gmGetWindowTitle() == windowTitle)
+    assert(gmGetResourcesFilename() == resourcesFilename)
+
+proc checkIntProperty(name: string, value: uint32) =
+    # Checks that the given property of the configuration is equal
+    # to the given value.
+
+    # Default values:
+    var fps: uint32 = 60
+    var screenWidth: uint32 = 800
+    var screenHeight: uint32 = 600
+
+    if name == "FPS":
+        fps = value
+    elif name == "ScreenWidth":
+        screenWidth = value
+    elif name == "ScreenHeight":
+        screenHeight = value
+    else:
+        raise newException(ValueError, fmt("Unknown property name: {name}"))
+
+    assert(gmGetLogFilename() == "game.log")
+    assert(gmGetFPS() == fps)
+    assert(gmGetScreenWidth() == screenWidth)
+    assert(gmGetscreenHeight() == screenHeight)
+    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
+    assert(gmGetResourcesFilename() == "resources.json")
 
 proc test1_loadConfiguration() =
     let filename = "does_not_exists.json"
@@ -26,8 +77,8 @@ proc test2_loadConfiguration() =
 
     assert(gmGetLogFilename() == "test1.log")
     assert(gmGetFPS() == 58)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
+    assert(gmGetScreenWidth() == 1024)
+    assert(gmGetscreenHeight() == 768)
     assert(gmGetWindowTitle() == "TestConfig")
     assert(gmGetResourcesFilename() == "resources.json")
 
@@ -38,12 +89,7 @@ proc test3_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkStringProperty("LogFilename", "game.log")
 
 proc test4_validateJSON() =
     let inputConfig = """{"logFilename": "test4.log"}"""
@@ -52,12 +98,7 @@ proc test4_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "test4.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkStringProperty("LogFilename", "test4.log")
 
 proc test5_validateJSON() =
     let inputConfig = """{"fps": 50}"""
@@ -66,12 +107,7 @@ proc test5_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 50)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkIntProperty("FPS", 50)
 
 proc test6_validateJSON() =
     let inputConfig = """{"screenWidth": 1024}"""
@@ -80,12 +116,7 @@ proc test6_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 1024)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkIntProperty("ScreenWidth", 1024)
 
 proc test7_validateJSON() =
     let inputConfig = """{"screenHeight": 768}"""
@@ -94,12 +125,7 @@ proc test7_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 768)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkIntProperty("ScreenHeight", 768)
 
 proc test8_validateJSON() =
     let inputConfig = """{"windowTitle": "Test8"}"""
@@ -108,12 +134,7 @@ proc test8_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Test8")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkStringProperty("WindowTitle", "Test8")
 
 proc test9_validateJSON() =
     let inputConfig = """{"resources": "some_file.json"}"""
@@ -122,12 +143,7 @@ proc test9_validateJSON() =
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
 
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "some_file.json")
+    checkStringProperty("ResourcesFilename", "some_file.json")
 
 when isMainModule:
     test1_loadConfiguration()
