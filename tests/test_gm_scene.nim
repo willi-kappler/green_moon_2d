@@ -208,10 +208,56 @@ proc test11_enterScene2() =
 
     let scene1 = TestScene()
 
-    gmAddScene(scene1, "Test10.1")
+    gmAddScene(scene1, "Test11.1")
 
     doAssertRaises GMSceneNotFoundError:
-        gmEnterScene("Test10.2")
+        gmEnterScene("Test11.2")
+
+proc test12_removeScene1() =
+    gmInitSceneManager()
+
+    # Can't remove the current active scene, so we need a second one
+    # to be removed.
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test12.1")
+    gmAddScene(scene2, "Test12.2")
+    gmEnterScene("Test12.2")
+    checkOneProperty(scene1)
+    checkOneProperty(scene2, "enterCalled", 1u8)
+
+    gmRemoveScene("Test12.2")
+    doAssertRaises GMSceneNotFoundError:
+        gmEnterScene("Test12.2")
+
+proc test13_removeScene2() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test13.1")
+
+    doAssertRaises GMSceneIsActiveError:
+        gmRemoveScene("Test13.1")
+
+proc test14_removeScene3() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+
+    gmAddScene(scene1, "Test14.1")
+
+    doAssertRaises GMSceneNotFoundError:
+        gmRemoveScene("Test14.2")
+
+proc test15_removeScene4() =
+    gmInitSceneManager()
+
+    doAssertRaises GMSceneNotFoundError:
+        gmRemoveScene("Test15.1")
+
+
 
 when isMainModule:
     test1_addScene1()
@@ -225,9 +271,10 @@ when isMainModule:
     test9_updateScene3()
     test10_enterScene1()
     test11_enterScene2()
-    # remove scene
-    # remove current scene error
-    # remove scene error not found
+    test12_removeScene1()
+    test13_removeScene2()
+    test14_removeScene3()
+    test15_removeScene4()
     # change scene
     # change scene already active
     # change scene error not found
