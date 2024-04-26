@@ -18,13 +18,24 @@ import gm_scene
 proc gmRun*() =
     while not gmQuitGame():
         gmDrawCurrentScene()
+        gmDrawGFXObjects()
+        gmDrawCurrentSceneAfter()
+
         gmUpdateCurrentScene()
+        gmUpdateGFXObjects()
+        gmUpdateObjects()
+        gmUpdateCurrentSceneAfter()
 
 proc gmInit*(configFilename: string = "config.json") =
+    ## Init GreenMoon2D and Naylib
+
+    # GreenMoon2D
     gmLoadConfiguration(configFilename)
     gmInitLogger()
     gmLoadResources()
     gmInitSceneManager()
     gmInitObjectManager()
     gmInitGFXObjectManager()
+
+    ## Naylib
 
