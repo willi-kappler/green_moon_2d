@@ -9,6 +9,7 @@
 
 # Nim std imports
 import std/json
+from std/strformat import fmt
 
 # Local imports
 import green_moon_2d/gm_scene
@@ -17,7 +18,9 @@ type
     TestScene = ref object of GMScene
         enterCalled: uint8
         drawCalled: uint8
+        drawAfterCalled: uint8
         updateCalled: uint8
+        updateAfterCalled: uint8
         message1Sent: uint8
         message2Sent: uint8
 
@@ -27,8 +30,14 @@ method gmEnter*(self: var TestScene) =
 method gmDraw*(self: var TestScene) =
     inc(self.drawCalled)
 
+method gmDrawAfter*(self: var TestScene) =
+    inc(self.drawAfterCalled)
+
 method gmUpdate*(self: var TestScene) =
     inc(self.updateCalled)
+
+method gmUpdateAfter*(self: var TestScene) =
+    inc(self.updateAfterCalled)
 
 method gmCustom*(self: var TestScene, data: JsonNode): JsonNode =
     if data.contains("message1"):
@@ -37,30 +46,40 @@ method gmCustom*(self: var TestScene, data: JsonNode): JsonNode =
         inc(self.message2Sent)
 
 proc checkOneProperty(scene: TestScene, name: string = "", value: uint8 = 0) =
-    if name == "enterCalled":
-        assert(scene.enterCalled == value)
-    else:
-        assert(scene.enterCalled == 0)
+    # Default values:
+    var enterCalled: uint8 = 0
+    var drawCalled: uint8 = 0
+    var drawAfterCalled: uint8 = 0
+    var updateCalled: uint8 = 0
+    var updateAfterCalled: uint8 = 0
+    var message1Sent: uint8 = 0
+    var message2Sent: uint8 = 0
 
-    if name == "drawCalled":
-        assert(scene.drawCalled == value)
-    else:
-        assert(scene.drawCalled == 0)
+    if name.len() > 0:
+        if name == "enterCalled":
+            enterCalled = value
+        elif name == "drawCalled":
+            drawCalled = value
+        elif name == "drawAfterCalled":
+            drawAfterCalled = value
+        elif name == "updateCalled":
+            updateCalled = value
+        elif name == "updateAfterCalled":
+            updateAfterCalled = value
+        elif name == "message1Sent":
+            message1Sent = value
+        elif name == "message2Sent":
+            message2Sent = value
+        else:
+            raise newException(ValueError, fmt("Unknown property name: {name}"))
 
-    if name == "updateCalled":
-        assert(scene.updateCalled == value)
-    else:
-        assert(scene.updateCalled == 0)
-
-    if name == "message1Sent":
-        assert(scene.message1Sent == value)
-    else:
-        assert(scene.message1Sent == 0)
-
-    if name == "message2Sent":
-        assert(scene.message2Sent == value)
-    else:
-        assert(scene.message2Sent == 0)
+    assert(scene.enterCalled == enterCalled)
+    assert(scene.drawCalled == drawCalled)
+    assert(scene.drawAfterCalled == drawAfterCalled)
+    assert(scene.updateCalled == updateCalled)
+    assert(scene.updateAfterCalled == updateAfterCalled)
+    assert(scene.message1Sent == message1Sent)
+    assert(scene.message2Sent == message2Sent)
 
 proc test1_addScene1() =
     gmInitSceneManager()
@@ -276,7 +295,9 @@ proc test16_changeScene1() =
     checkOneProperty(scene1, "drawCalled", 1u8)
     assert(scene2.enterCalled == 1)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 1)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 0)
     assert(scene2.message2Sent == 0)
 
@@ -362,7 +383,9 @@ proc test21_pushAndChangeScene1() =
     checkOneProperty(scene1, "drawCalled", 1u8)
     assert(scene2.enterCalled == 1)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 1)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 0)
     assert(scene2.message2Sent == 0)
 
@@ -414,7 +437,9 @@ proc test24_popAndChangeScene1() =
     checkOneProperty(scene1, "drawCalled", 1u8)
     assert(scene2.enterCalled == 1)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 1)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 0)
     assert(scene2.message2Sent == 0)
 
@@ -422,13 +447,17 @@ proc test24_popAndChangeScene1() =
 
     assert(scene1.enterCalled == 1)
     assert(scene1.drawCalled == 1)
+    assert(scene1.drawAfterCalled == 0)
     assert(scene1.updateCalled == 0)
+    assert(scene1.updateAfterCalled == 0)
     assert(scene1.message1Sent == 0)
     assert(scene1.message2Sent == 0)
 
     assert(scene2.enterCalled == 1)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 1)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 0)
     assert(scene2.message2Sent == 0)
 
@@ -436,13 +465,17 @@ proc test24_popAndChangeScene1() =
 
     assert(scene1.enterCalled == 1)
     assert(scene1.drawCalled == 1)
+    assert(scene1.drawAfterCalled == 0)
     assert(scene1.updateCalled == 1)
+    assert(scene1.updateAfterCalled == 0)
     assert(scene1.message1Sent == 0)
     assert(scene1.message2Sent == 0)
 
     assert(scene2.enterCalled == 1)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 1)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 0)
     assert(scene2.message2Sent == 0)
 
@@ -483,7 +516,9 @@ proc test26_customMessage1() =
     checkOneProperty(scene1, "message1Sent", 1u8)
     assert(scene2.enterCalled == 0)
     assert(scene2.drawCalled == 0)
+    assert(scene2.drawAfterCalled == 0)
     assert(scene2.updateCalled == 0)
+    assert(scene2.updateAfterCalled == 0)
     assert(scene2.message1Sent == 1)
     assert(scene2.message2Sent == 2)
 
@@ -496,6 +531,34 @@ proc test27_customMessage2() =
 
     doAssertRaises GMSceneNotFoundError:
         discard gmSceneCustomMessage("Test27.2", %*{"message1": 12})
+
+proc test28_drawSceneAfter() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test28.1")
+    gmAddScene(scene2, "Test28.2")
+
+    gmDrawCurrentSceneAfter()
+
+    checkOneProperty(scene1, "drawAfterCalled", 1u8)
+    checkOneProperty(scene2)
+
+proc test29_updateSceneAfter() =
+    gmInitSceneManager()
+
+    let scene1 = TestScene()
+    let scene2 = TestScene()
+
+    gmAddScene(scene1, "Test29.1")
+    gmAddScene(scene2, "Test29.2")
+
+    gmUpdateCurrentSceneAfter()
+
+    checkOneProperty(scene1, "updateAfterCalled", 1u8)
+    checkOneProperty(scene2)
 
 when isMainModule:
     test1_addScene1()
@@ -525,4 +588,6 @@ when isMainModule:
     test25_popAndChangeScene2()
     test26_customMessage1()
     test27_customMessage2()
+    test28_drawSceneAfter()
+    test29_updateSceneAfter()
 
