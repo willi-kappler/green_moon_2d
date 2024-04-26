@@ -49,9 +49,17 @@ method gmDraw*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to draw the scene.
     quit("You must override this method: gm")
 
+method gmDrawAfter*(self: var GMScene) {.base.} =
+    ## This method can be implemented when things need to be drawn after all gfx objects.
+    discard
+
 method gmUpdate*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to update the scene.
     quit("You must override this method: gm")
+
+method gmUpdateAfter*(self: var GMScene) {.base.} =
+    ## This method can be implemented when things need to be updated after all objects.
+    discard
 
 method gmCustom*(self: var GMScene, data: JsonNode): JsonNode {.base.} =
     ## This method can be implemented to send or receive user defined data.
@@ -71,6 +79,10 @@ proc gmDrawCurrentScene*() =
     ## Calls the gmDraw() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDraw()
 
+proc gmDrawCurrentSceneAfter*() =
+    ## Calls the gmDrawAfter() method on the current active scene.
+    GMGlobScenes.scenes[GMGlobScenes.currentScene].gmDrawAfter()
+
 proc gmDrawScene*(name: string) =
     ## Calls the gmDraw() method on the scene with the given name.
     let idx = gmFindSceneIndex(name)
@@ -84,6 +96,10 @@ proc gmDrawScene*(name: string) =
 proc gmUpdateCurrentScene*() =
     ## Calls the gmUpdate() method on the current active scene.
     GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdate()
+
+proc gmUpdateCurrentSceneAfter*() =
+    ## Calls the gmUpdateAfter() method on the current active scene.
+    GMGlobScenes.scenes[GMGlobScenes.currentScene].gmUpdateAfter()
 
 proc gmUpdateScene*(name: string) =
     ## Calls the gmUpdate() method on the scene with the given name.
