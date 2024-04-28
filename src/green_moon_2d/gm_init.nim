@@ -16,18 +16,18 @@ import gm_resources
 import gm_scene
 
 proc gmRun*() =
+    ## This function implements the main game loop.
     while not gmQuitGame():
         gmDrawCurrentScene()
-        gmDrawGFXObjects()
+        gmDrawObjects()
         gmDrawCurrentSceneAfter()
 
         gmUpdateCurrentScene()
-        gmUpdateGFXObjects()
         gmUpdateObjects()
         gmUpdateCurrentSceneAfter()
 
 proc gmInit*(configFilename: string = "config.json") =
-    ## Init GreenMoon2D and Naylib
+    ## Init GreenMoon2D and Naylib.
 
     # GreenMoon2D
     gmLoadConfiguration(configFilename)
@@ -35,7 +35,6 @@ proc gmInit*(configFilename: string = "config.json") =
     gmLoadResources()
     gmInitSceneManager()
     gmInitObjectManager()
-    gmInitGFXObjectManager()
 
-    ## Naylib
+    # Naylib
 
