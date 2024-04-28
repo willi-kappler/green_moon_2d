@@ -29,6 +29,7 @@ type
         visible*: bool
         x*: float32
         y*: float32
+        custom*: JsonNode
 
     GMObjectManager = object
         objects: seq[GMObject]
@@ -88,22 +89,40 @@ proc gmDeleteObject*(name: string) =
     else:
         error_log(fmt("Can't remove object {name}, not found!"), GMObjectNotFoundError)
 
-proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
-    ## Sends a message to the given object (by name). Raise an exception if that name was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.gmSendMessage(message)
+proc gmObjectAddGroup*(name: string, group: string) =
+    ## Add the given object (by name) to the given group. Raise an exception if the object was not found.
+    # TODO: implement
+    discard
 
-    error_log(fmt("Can't send message to object {name}, not found!"), GMObjectNotFoundError)
+proc gmObjectRemoveGroup*(name: string, group: string) =
+    ## Removed the given object (by name) from the given group. Raise an exception if the object was not found.
+    # TODO: implement
+    discard
 
-proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, JsonNode)] =
-    ## Send a message to all objects that belong to the given group.
-    result = @[]
+proc gmObjectRemoveAllGroups*(group: string) =
+    ## Removes all the objects from the given group.
+    # TODO: implement
+    discard
 
-    for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
-            let v = ob.gmSendMessage(message)
-            result.add((ob.name, v))
+proc gmObjectSetUpdateOrder*(name: string, order: int32) =
+    ## Sets the update order for the given object (by name). Raise an exception if the object was not found.
+    # TODO: implement
+    discard
+
+proc gmObjectSetUpdateOrderGroup*(group: string, order: int32) =
+    ## Sets the update order for all the objects in the given group.
+    # TODO: implement
+    discard
+
+proc gmObjectSetDrawOrder*(name: string, order: int32) =
+    ## Sets the draw order for the given object (by name). Raise an exception if the object was not found.
+    # TODO: implement
+    discard
+
+proc gmObjectSetDrawOrderGroup*(group: string, order: int32) =
+    ## Sets the draw order for all the objects in the given group.
+    # TODO: implement
+    discard
 
 proc gmObjectSetActive*(name: string, active: bool = true) =
     ## Set active flag for given object (by name). Raise an exception if that name was not found.
@@ -164,6 +183,33 @@ proc gmObjectToggleVisibleGroup*(name: string) =
     for ob in GMGlobObjects.objects.mitems():
         if name in ob.groups:
             ob.visible = not ob.visible
+
+proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
+    ## Sends a message to the given object (by name). Raise an exception if that name was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return ob.gmSendMessage(message)
+
+    error_log(fmt("Can't send message to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectSendMultiMessages*(name: string, messages: seq[JsonNode]): seq[JsonNode] =
+    ## Sends multiple messages to the given object (by name). Raise an exception if that name was not found.
+    # TODO: implement
+    discard
+
+proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, JsonNode)] =
+    ## Send a message to all objects that belong to the given group.
+    result = @[]
+
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            let v = ob.gmSendMessage(message)
+            result.add((ob.name, v))
+
+proc gmObjectSendMultiMessagesGroup*(name: string, messages: seq[JsonNode]): seq[(string, seq[JsonNode])] =
+    ## Sends multiple messages to all objects that belong to the given group.
+    # TODO: implement
+    discard
 
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
