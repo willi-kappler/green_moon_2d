@@ -105,6 +105,66 @@ proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, Js
             let v = ob.gmSendMessage(message)
             result.add((ob.name, v))
 
+proc gmObjectSetActive*(name: string, active: bool = true) =
+    ## Set active flag for given object (by name). Raise an exception if that name was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.active = active
+            return
+
+    error_log(fmt("Can't set active to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectToggleActive*(name: string) =
+    ## Toggle active flag for given object (by name). Raise an exception if that name was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.active = not ob.active
+            return
+
+    error_log(fmt("Can't toggle active to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectSetActiveGroup*(name: string, active: bool = true) =
+    ## Set active flag for all objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            ob.active = active
+
+proc gmObjectToggleActiveGroup*(name: string) =
+    ## Toggle active flag for all objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            ob.active = not ob.active
+
+proc gmObjectSetVisible*(name: string, visible: bool = true) =
+    ## Set visible flag for given object (by name). Raise an exception if that name was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.visible = visible
+            return
+
+    error_log(fmt("Can't set visible to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectToggleVisible*(name: string) =
+    ## Toggle visible flag for given object (by name). Raise an exception if that name was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.visible = not ob.visible
+            return
+
+    error_log(fmt("Can't toggle visible to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectSetVisibleGroup*(name: string, visible: bool = true) =
+    ## Set visible flag for all objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            ob.visible = visible
+
+proc gmObjectToggleVisibleGroup*(name: string) =
+    ## Toggle visible flag for all objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            ob.visible = not ob.visible
+
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
     GMGlobObjects.objects.sort do(a, b: GMObject) -> int:
@@ -115,7 +175,7 @@ proc gmDrawObjects*() =
             o.gmDraw()
 
 proc gmUpdateObjects*() =
-    ## Calls update() for all active (non-gfx) objects, at each frame.
+    ## Calls update() for all active objects, at each frame.
     GMGlobObjects.objects.sort do(a, b: GMObject) -> int:
         return cmp(a.updateOrder, b.updateOrder)
 
