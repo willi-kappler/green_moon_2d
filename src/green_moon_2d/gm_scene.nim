@@ -31,14 +31,6 @@ type
 
 var GMGlobScenes: GMSceneManager
 
-proc error_log2(filename: string, line: int, message: string, exceptn: typedesc) =
-    gmLoggerError(fmt("{filename} - {line}: {message}"))
-    raise newException(exceptn, message)
-
-template error_log(message: string, exceptn: typedesc) =
-    let pos = instantiationInfo()
-    error_log2(pos.filename, pos.line, message, exceptn)
-
 # GMScene:
 
 method gmEnter*(self: var GMScene) {.base.} =
@@ -47,7 +39,7 @@ method gmEnter*(self: var GMScene) {.base.} =
 
 method gmDraw*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to draw the scene.
-    quit("You must override this method: gm")
+    quit("You must override this method: gmDraw()")
 
 method gmDrawAfter*(self: var GMScene) {.base.} =
     ## This method can be implemented when things need to be drawn after all gfx objects.
@@ -55,7 +47,7 @@ method gmDrawAfter*(self: var GMScene) {.base.} =
 
 method gmUpdate*(self: var GMScene) {.base.} =
     ## This method must be implemented in order to update the scene.
-    quit("You must override this method: gm")
+    quit("You must override this method: gmUpdate()")
 
 method gmUpdateAfter*(self: var GMScene) {.base.} =
     ## This method can be implemented when things need to be updated after all objects.

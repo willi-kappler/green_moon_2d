@@ -8,7 +8,7 @@
 ##
 
 # Nim std imports
-#from std/strformat import fmt
+from std/strformat import fmt
 
 type
     GMLogger = object
@@ -36,4 +36,13 @@ proc gmGetDebugLevel*(): uint8 =
 
 proc gm_initLogger*() =
     GMGlobLogger = GMLogger(debugLevel: 0)
+
+proc error_log_intern(filename: string, line: int, message: string, exceptn: typedesc) =
+    gmLoggerError(fmt("{filename} - {line}: {message}"))
+    raise newException(exceptn, message)
+
+template error_log*(message: string, exceptn: typedesc) =
+    let pos = instantiationInfo()
+    error_log_intern(pos.filename, pos.line, message, exceptn)
+
 
