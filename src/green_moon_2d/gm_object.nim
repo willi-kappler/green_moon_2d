@@ -4,7 +4,7 @@
 ##
 ## This Nim library allows you to write 2D games, it uses Naylib (Raylib) internally.
 ##
-## This module contains the code for normal objects and graphic objects.
+## This module contains the code for graphic objects.
 ##
 
 
@@ -52,6 +52,23 @@ method gmSendMessage*(self: var GMObject, message: JsonNode): JsonNode {.base.} 
     ## This method can be implemented in order to send a custom message to the object.
     return newJNull()
 
+proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
+    ## Intercepts message and performs default actions when given.
+    result = newJNull()
+
+    # TODO: implement
+
+    if message.contains("addGroup"):
+        discard
+    elif message.contains("removeGroup"):
+        discard
+    elif message.contains("inGroup"):
+        discard
+    elif message.contains(""):
+        discard
+    else:
+        discard
+
 proc gmFindObject*(name: string): Option[GMObject] =
     ## Return the object (by name) or none if no such object was found.
     for o in GMGlobObjects.objects.mitems():
@@ -91,38 +108,80 @@ proc gmDeleteObject*(name: string) =
 
 proc gmObjectAddGroup*(name: string, group: string) =
     ## Add the given object (by name) to the given group. Raise an exception if the object was not found.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.groups.incl(group)
+            return
+
+    error_log(fmt("Can't add object {name} to group {group}, object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveGroup*(name: string, group: string) =
-    ## Removed the given object (by name) from the given group. Raise an exception if the object was not found.
-    # TODO: implement
-    discard
+    ## Removes the given object (by name) from the given group. Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.groups.excl(group)
+            return
+
+    error_log(fmt("Can't remove object {name} to group {group}, object not found!"), GMObjectNotFoundError)
+
+proc gmObjectInGroup*(name: string, group: string): bool =
+    ## Returns true if the given object (by name) is in the group. Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return group in ob.groups
+
+    error_log(fmt("Can't check if object {name} is in group {group}, object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveAllGroups*(group: string) =
     ## Removes all the objects from the given group.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        ob.groups.excl(group)
 
 proc gmObjectSetUpdateOrder*(name: string, order: int32) =
     ## Sets the update order for the given object (by name). Raise an exception if the object was not found.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.updateOrder = order
+            return
+
+    error_log(fmt("Can't set update order for object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectGetUpdateOrder*(name: string): int32 =
+    ## Returns the update order of the given object (by name). Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return ob.updateOrder
+
+    error_log(fmt("Can't get update order for object {name}, not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetUpdateOrderGroup*(group: string, order: int32) =
     ## Sets the update order for all the objects in the given group.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if group in ob.groups:
+            ob.updateOrder = order
 
 proc gmObjectSetDrawOrder*(name: string, order: int32) =
     ## Sets the draw order for the given object (by name). Raise an exception if the object was not found.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.drawOrder = order
+            return
+
+    error_log(fmt("Can't set draw order for object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectGetDrawOrder*(name: string): int32 =
+    ## Returns the draw order of the given object (by name). Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return ob.drawOrder
+
+    error_log(fmt("Can't get draw order for object {name}, not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetDrawOrderGroup*(group: string, order: int32) =
     ## Sets the draw order for all the objects in the given group.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if group in ob.groups:
+            ob.drawOrder = order
 
 proc gmObjectSetActive*(name: string, active: bool = true) =
     ## Set active flag for given object (by name). Raise an exception if that name was not found.
@@ -141,6 +200,14 @@ proc gmObjectToggleActive*(name: string) =
             return
 
     error_log(fmt("Can't toggle active to object {name}, not found!"), GMObjectNotFoundError)
+
+proc gmObjectGetActive*(name: string): bool =
+    ## Returns if the given object (by name) is actie. Raise an exception of the object was nmot found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return ob.active
+
+    error_log(fmt("Can't get active state from object {name}, not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetActiveGroup*(name: string, active: bool = true) =
     ## Set active flag for all objects that belong to the given group.
@@ -172,6 +239,14 @@ proc gmObjectToggleVisible*(name: string) =
 
     error_log(fmt("Can't toggle visible to object {name}, not found!"), GMObjectNotFoundError)
 
+proc gmObjectGetVisible*(name: string): bool =
+    ## Returns if the given object (by name) is visible. Raise an exception of the object was nmot found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            return ob.visible
+
+    error_log(fmt("Can't get visible state from object {name}, not found!"), GMObjectNotFoundError)
+
 proc gmObjectSetVisibleGroup*(name: string, visible: bool = true) =
     ## Set visible flag for all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
@@ -194,8 +269,14 @@ proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
 
 proc gmObjectSendMultiMessages*(name: string, messages: seq[JsonNode]): seq[JsonNode] =
     ## Sends multiple messages to the given object (by name). Raise an exception if that name was not found.
-    # TODO: implement
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            var r: seq[JsonNode] = @[]
+            for m in messages:
+                r.add(ob.gmSendMessage(m))
+            return r
+
+    error_log(fmt("Can't send multiple message to object {name}, not found!"), GMObjectNotFoundError)
 
 proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, JsonNode)] =
     ## Send a message to all objects that belong to the given group.
@@ -208,8 +289,29 @@ proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, Js
 
 proc gmObjectSendMultiMessagesGroup*(name: string, messages: seq[JsonNode]): seq[(string, seq[JsonNode])] =
     ## Sends multiple messages to all objects that belong to the given group.
+    result = @[]
+
+    for ob in GMGlobObjects.objects.mitems():
+        if name in ob.groups:
+            var r: seq[JsonNode] = @[]
+            for m in messages:
+                r.add(ob.gmSendMessage(m))
+            result.add((ob.name, r))
+
+proc gmObjectSetCustomProperty*(name: string, property: JsonNode) =
+    ## Sets a custom property for the object. Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            ob.custom = property
+            return
+
+    error_log(fmt("Can't set custom property for '{name}', object not found!"), GMObjectNotFoundError)
+
+proc gmObjectGetCustomProperty*() =
+    ## Gets a custom property for the object. Raise an exception if the object was not found.
     # TODO: implement
     discard
+
 
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
@@ -228,6 +330,4 @@ proc gmUpdateObjects*() =
     for o in GMGlobObjects.objects.mitems():
         if o.active:
             o.gmUpdate()
-
-
 
