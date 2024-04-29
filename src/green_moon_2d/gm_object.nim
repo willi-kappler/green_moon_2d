@@ -102,7 +102,7 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
         self.x = float32(elems[0].getFloat())
         self.y = float32(elems[1].getFloat())
     elif message.contains("addXY"):
-        let elems = message["getXY"].getElems()
+        let elems = message["addXY"].getElems()
         self.x += float32(elems[0].getFloat())
         self.y += float32(elems[1].getFloat())
     elif message.contains("getXY"):
@@ -113,7 +113,7 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
         let elems = message["setProperty"].getElems()
         let name = elems[0].getStr()
         let property = elems[1]
-        self.custom.add(name, property)
+        self.custom[name] = property
     elif message.contains("getProperty"):
         let name = message["getProperty"].getStr()
         if self.custom.contains(name):
