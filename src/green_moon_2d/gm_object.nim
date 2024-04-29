@@ -56,8 +56,6 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
     ## Intercepts message and performs default actions when given.
     result = newJNull()
 
-    # TODO: implement
-
     if message.contains("addGroup"):
         let group = message["addGroup"].getStr()
         self.groups.incl(group)
@@ -120,6 +118,10 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
         let name = message["getProperty"].getStr()
         if self.custom.contains(name):
             result = self.custom[name]
+    elif message.contains("removeProperty"):
+        let name = message["removeProperty"].getStr()
+        if self.custom.contains(name):
+            self.custom.delete(name)
     else:
         result = self.gmSendMessage(message)
 
@@ -131,7 +133,6 @@ proc gmFindObject*(name: string): Option[GMObject] =
 
     return none(GMObject)
 
-# GMObjectManager:
 proc gmInitObjectManager*() =
     ## Initializes the object manager
     GMGlobObjects = GMObjectManager(objects: @[])
@@ -371,6 +372,15 @@ proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
                 return newJNull()
 
     error_log(fmt("Can't get custom property for '{name}', object not found!"), GMObjectNotFoundError)
+
+proc gmObjectRemoveCustomProperty*(name: string, property: string) =
+    ## Removes a custom property for the object. Raise an exception if the object was not found.
+    for ob in GMGlobObjects.objects.mitems():
+        if ob.name == name:
+            if ob.custom.contains(property):
+                ob.custom.delete(property)
+
+    error_log(fmt("Can't remove custom property for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
