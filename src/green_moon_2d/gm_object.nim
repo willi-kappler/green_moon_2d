@@ -27,6 +27,7 @@ type
         drawOrder*: int32
         active*: bool
         visible*: bool
+        receiveBaseMessage*: bool
         x*: float32
         y*: float32
         custom*: JsonNode
@@ -55,6 +56,9 @@ method gmSendMessage*(self: var GMObject, message: JsonNode): JsonNode {.base.} 
 proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
     ## Intercepts message and performs default actions when given.
     result = newJNull()
+
+    if self.receiveBaseMessage:
+        return self.gmSendMessage(message)
 
     if message.contains("addGroup"):
         let group = message["addGroup"].getStr()
