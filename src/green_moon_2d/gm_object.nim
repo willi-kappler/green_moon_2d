@@ -366,6 +366,10 @@ proc gmObjectSetCustomProperty*(name: string, property: string, value: JsonNode)
 
     error_log(fmt("Can't set custom property for '{name}', object not found!"), GMObjectNotFoundError)
 
+proc gmObjectSetCustomPropertyGroup*(group: string, property: string, value: JsonNode) =
+    ## Sets a custom property for all the objects in the given group.
+    discard
+
 proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
     ## Gets a custom property for the object. Raise an exception if the object was not found.
     for ob in GMGlobObjects.objects.mitems():
