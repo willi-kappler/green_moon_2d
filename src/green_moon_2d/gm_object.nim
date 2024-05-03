@@ -399,6 +399,11 @@ proc gmObjectRemoveCustomPropertyGroup*(group: string, property: string) =
             if ob.custom.contains(property):
                 ob.custom.delete(property)
 
+proc gmObjectApplyAll*(op: proc (o: var GMObject) {.closure.}) =
+    ## Apply the given function 'op' to all objects.
+    for ob in GMGlobObjects.objects.mitems():
+        op(ob)
+
 proc gmObjectApplyGroup*(group: string, op: proc (o: var GMObject) {.closure.}) =
     ## Apply the given function 'op' to all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
