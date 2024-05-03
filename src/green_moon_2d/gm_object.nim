@@ -191,7 +191,7 @@ proc gmObjectInGroup*(name: string, group: string): bool =
 
     error_log(fmt("Can't check if '{name}' is in group '{group}', object not found!"), GMObjectNotFoundError)
 
-proc gmObjectRemoveAllGroups*(group: string) =
+proc gmObjectRemoveGroupFromAll*(group: string) =
     ## Removes all the objects from the given group.
     for ob in GMGlobObjects.objects.mitems():
         ob.groups.excl(group)
@@ -268,16 +268,16 @@ proc gmObjectGetActive*(name: string): bool =
 
     error_log(fmt("Can't get active flag from '{name}', object not found!"), GMObjectNotFoundError)
 
-proc gmObjectSetActiveGroup*(name: string, active: bool = true) =
+proc gmObjectSetActiveGroup*(group: string, active: bool = true) =
     ## Set active flag for all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             ob.active = active
 
-proc gmObjectToggleActiveGroup*(name: string) =
+proc gmObjectToggleActiveGroup*(group: string) =
     ## Toggle active flag for all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             ob.active = not ob.active
 
 proc gmObjectSetVisible*(name: string, visible: bool = true) =
@@ -306,16 +306,16 @@ proc gmObjectGetVisible*(name: string): bool =
 
     error_log(fmt("Can't get visible flag from '{name}', object not found!"), GMObjectNotFoundError)
 
-proc gmObjectSetVisibleGroup*(name: string, visible: bool = true) =
+proc gmObjectSetVisibleGroup*(group: string, visible: bool = true) =
     ## Set visible flag for all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             ob.visible = visible
 
-proc gmObjectToggleVisibleGroup*(name: string) =
+proc gmObjectToggleVisibleGroup*(group: string) =
     ## Toggle visible flag for all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             ob.visible = not ob.visible
 
 proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
@@ -337,21 +337,21 @@ proc gmObjectSendMultiMessages*(name: string, messages: seq[JsonNode]): seq[Json
 
     error_log(fmt("Can't send multiple message to '{name}', object not found!"), GMObjectNotFoundError)
 
-proc gmObjectSendMessageGroup*(name: string, message: JsonNode): seq[(string, JsonNode)] =
+proc gmObjectSendMessageGroup*(group: string, message: JsonNode): seq[(string, JsonNode)] =
     ## Send a message to all objects that belong to the given group.
     result = @[]
 
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             let v = ob.gmSendMessageIntern(message)
             result.add((ob.name, v))
 
-proc gmObjectSendMultiMessagesGroup*(name: string, messages: seq[JsonNode]): seq[(string, seq[JsonNode])] =
+proc gmObjectSendMultiMessagesGroup*(group: string, messages: seq[JsonNode]): seq[(string, seq[JsonNode])] =
     ## Sends multiple messages to all objects that belong to the given group.
     result = @[]
 
     for ob in GMGlobObjects.objects.mitems():
-        if name in ob.groups:
+        if group in ob.groups:
             var r: seq[JsonNode] = @[]
             for m in messages:
                 r.add(ob.gmSendMessageIntern(m))
@@ -368,7 +368,9 @@ proc gmObjectSetCustomProperty*(name: string, property: string, value: JsonNode)
 
 proc gmObjectSetCustomPropertyGroup*(group: string, property: string, value: JsonNode) =
     ## Sets a custom property for all the objects in the given group.
-    discard
+    for ob in GMGlobObjects.objects.mitems():
+        if group in ob.groups:
+            ob.custom[property] = value
 
 proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
     ## Gets a custom property for the object. Raise an exception if the object was not found.
@@ -389,6 +391,19 @@ proc gmObjectRemoveCustomProperty*(name: string, property: string) =
                 ob.custom.delete(property)
 
     error_log(fmt("Can't remove custom property for '{name}', object not found!"), GMObjectNotFoundError)
+
+proc gmObjectRemoveCustomPropertyGroup*(group: string, property: string) =
+    ## Removes a custom property from all the objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if group in ob.groups:
+            if ob.custom.contains(property):
+                ob.custom.delete(property)
+
+proc gmObjectApplyGroup*(group: string, op: proc (o: var GMObject) {.closure.}) =
+    ## Apply the given function 'op' to all objects that belong to the given group.
+    for ob in GMGlobObjects.objects.mitems():
+        if group in ob.groups:
+            op(ob)
 
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
