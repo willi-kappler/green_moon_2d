@@ -11,6 +11,10 @@ TODO:
   - Add more configuration options as needed
   - Maybe allow command line configuration options ?
 
+- GMObjectManager:
+  - maybe add an iterator over all objects ?
+
+
 
 
 Done:
