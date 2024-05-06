@@ -53,6 +53,9 @@ method gmSendMessage*(self: var GMObject, message: JsonNode): JsonNode {.base.} 
     ## This method can be implemented in order to send a custom message to the object.
     return newJNull()
 
+proc gmGetName*(self: GMObject): string =
+    return self.name
+
 proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
     ## Intercepts message and performs default actions when given.
     result = newJNull()
