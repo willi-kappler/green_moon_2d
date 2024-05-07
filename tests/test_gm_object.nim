@@ -9,6 +9,9 @@
 
 # Nim std imports
 import std/json
+import std/sets
+import std/options
+
 from std/strformat import fmt
 
 # Local imports
@@ -41,6 +44,25 @@ method gmSendMessage*(self: var TestObject, message: JsonNode): JsonNode =
 #proc test_() =
 #    gmInitSceneManager()
 #    testObjectOrder = @[]
+
+proc checkOneProperties(obj: TestObject, property: JsonNode) =
+    var name = ""
+    var groups: HashSet[string] = initHashSet[string]()
+    var updateOrder: int32 = 0
+    var drawOrder: int32 = 0
+    var active = false
+    var visible = false
+    var receiveBaseMessage = false
+    var x: float32 = 0.0
+    var y: float32 = 0.0
+    var custom = newJNull()
+    var drawCalled: uint8 = 0
+    var updateCalled: uint8 = 0
+    var messages: seq[JsonNode] = @[]
+
+
+    assert(obj.groups == groups)
+
 
 proc test1_addObject1() =
     gmInitObjectManager()
