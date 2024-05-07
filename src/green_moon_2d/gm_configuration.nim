@@ -10,6 +10,9 @@
 # Nim std imports
 import std/json
 
+# Local imports
+import gm_json
+
 type
     GMConfiguration = object
         ## Configuration options for GreenMoon2D.
@@ -44,27 +47,27 @@ proc gmValidateConfiguration(jsonString: string): GMConfiguration =
     ## Checks if the given json string contains a valid configuration
     let jsonConfig = parseJson(jsonString)
 
-    result.logFilename = jsonConfig{"logFilename"}.getStr("")
+    result.logFilename = gmGetString(jsonConfig, "logFilename")
     if result.logFilename.len() == 0:
         result.logFilename = "game.log"
 
-    result.fps = uint32(jsonConfig{"fps"}.getInt(0))
+    result.fps = gmGetUint32(jsonConfig, "fps")
     if result.fps == 0:
         result.fps = 60
 
-    result.windowTitle = jsonConfig{"windowTitle"}.getStr("")
+    result.windowTitle = gmGetString(jsonConfig, "windowTitle")
     if result.windowTitle.len() == 0:
         result.windowTitle = "Made with GreenMoon2D"
 
-    result.screenWidth = uint32(jsonConfig{"screenWidth"}.getInt(0))
+    result.screenWidth = gmGetUint32(jsonConfig, "screenWidth")
     if result.screenWidth == 0:
         result.screenWidth = 800
 
-    result.screenHeight = uint32(jsonConfig{"screenHeight"}.getInt(0))
+    result.screenHeight = gmGetUint32(jsonConfig, "screenHeight")
     if result.screenHeight == 0:
         result.screenHeight = 600
 
-    result.resources = jsonConfig{"resources"}.getStr("")
+    result.resources = gmGetString(jsonConfig, "resources")
     if result.resources.len() == 0:
         result.resources = "resources.json"
 

@@ -13,6 +13,7 @@ import green_moon_2d/gm_border
 import green_moon_2d/gm_configuration
 import green_moon_2d/gm_font
 import green_moon_2d/gm_init
+import green_moon_2d/gm_json
 import green_moon_2d/gm_log
 import green_moon_2d/gm_menu
 import green_moon_2d/gm_menuitem
@@ -34,6 +35,7 @@ export gm_border
 export gm_configuration
 export gm_font
 export gm_init
+export gm_json
 export gm_log
 export gm_menu
 export gm_menuitem
