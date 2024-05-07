@@ -9,13 +9,14 @@
 
 # Nim std imports
 import std/json
-import std/sets
+#import std/sets
 import std/options
 
 from std/strformat import fmt
 
 # Local imports
 import green_moon_2d/gm_object
+import green_moon_2d/gm_json
 
 type
     TestObject = ref object of GMObject
@@ -46,23 +47,33 @@ method gmSendMessage*(self: var TestObject, message: JsonNode): JsonNode =
 #    testObjectOrder = @[]
 
 proc checkOneProperties(obj: TestObject, property: JsonNode) =
-    var name = ""
-    var groups: HashSet[string] = initHashSet[string]()
-    var updateOrder: int32 = 0
-    var drawOrder: int32 = 0
-    var active = false
-    var visible = false
-    var receiveBaseMessage = false
-    var x: float32 = 0.0
-    var y: float32 = 0.0
-    var custom = newJNull()
-    var drawCalled: uint8 = 0
-    var updateCalled: uint8 = 0
-    var messages: seq[JsonNode] = @[]
+    let name = gmGetString(property, "name")
+    let groups = gmGetHashSetString(property, "groups")
+    let updateOrder = gmGetInt32(property, "updateOrder")
+    let drawOrder = gmGetInt32(property, "drawOrder")
+    let active = gmGetBool(property, "active")
+    let visible = gmGetBool(property, "visible")
+    let receiveBaseMessage = gmGetBool(property, "receiveBaseMessage")
+    let x = gmGetFloat32(property, "x")
+    let y = gmGetFloat32(property, "y")
+    let custom = gmGetNode(property, "custom")
+    let drawCalled = gmGetUint8(property, "drawCalled")
+    let updateCalled = gmGetUint8(property, "updateCalled")
+    let messages = gmGetNodes(property, "messages")
 
-
+    assert(obj.gmGetName() == name)
     assert(obj.groups == groups)
-
+    assert(obj.updateOrder == updateOrder)
+    assert(obj.drawOrder == drawOrder)
+    assert(obj.active == active)
+    assert(obj.visible == visible)
+    assert(obj.receiveBaseMessage == receiveBaseMessage)
+    assert(obj.x == x)
+    assert(obj.y == y)
+    assert(obj.custom == custom)
+    assert(obj.drawCalled == drawCalled)
+    assert(obj.updateCalled == updateCalled)
+    assert(obj.messages == messages)
 
 proc test1_addObject1() =
     gmInitObjectManager()
