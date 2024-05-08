@@ -66,7 +66,6 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
         return self.gmSendMessage(message)
 
     if message.contains("addGroup"):
-        #let group = message["addGroup"].getStr()
         self.groups.incl(gmGetString(message, "addGroup"))
     elif message.contains("removeGroup"):
         self.groups.excl(gmGetString(message, "removeGroup"))
@@ -74,54 +73,40 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
         let group = gmGetString(message, "inGroup")
         result = newJBool(group in self.groups)
     elif message.contains("setUpdateOrder"):
-        #self.updateOrder = int32(message["setUpdateOrder"].getInt())
         self.updateOrder = gmGetInt32(message, "setUpdateOrder")
     elif message.contains("getUpdateOrder"):
         result = newJInt(self.updateOrder)
     elif message.contains("setDrawOrder"):
-        #self.drawOrder = int32(message["setDrawOrder"].getInt())
         self.drawOrder = gmGetInt32(message, "setDrawOrder")
     elif message.contains("getDrawOrder"):
         result = newJInt(self.drawOrder)
     elif message.contains("setActive"):
-        #self.active = message["setActive"].getBool()
         self.active = gmGetBool(message, "setActive")
     elif message.contains("toggleActive"):
         self.active = not self.active
     elif message.contains("getActive"):
         result = newJBool(self.active)
     elif message.contains("setVisible"):
-        #self.visible = message["setVisible"].getBool()
         self.visible = gmGetBool(message, "setVisible")
     elif message.contains("toggleVisible"):
         self.visible = not self.visible
     elif message.contains("getVisible"):
         result = newJBool(self.visible)
     elif message.contains("setX"):
-        #self.x = float32(message["setX"].getFloat())
         self.x = gmGetFloat32(message, "setX")
     elif message.contains("addX"):
-        #self.x += float32(message["addX"].getFloat())
         self.x += gmGetFloat32(message, "addX")
     elif message.contains("getX"):
         result = newJFloat(self.x)
     elif message.contains("setY"):
-        #self.y = float32(message["setY"].getFloat())
         self.y = gmGetFloat32(message, "setY")
     elif message.contains("addY"):
-        #self.y += float32(message["addY"].getFloat())
         self.y += gmGetFloat32(message, "addY")
     elif message.contains("getY"):
         result = newJFloat(self.y)
     elif message.contains("setXY"):
-        #let elems = message["setXY"].getElems()
-        #self.x = float32(elems[0].getFloat())
-        #self.y = float32(elems[1].getFloat())
         (self.x, self.y) = gmGetF32F32(message, "setXY")
     elif message.contains("addXY"):
-        #let elems = message["addXY"].getElems()
-        #self.x += float32(elems[0].getFloat())
-        #self.y += float32(elems[1].getFloat())
         let (x, y) = gmGetF32F32(message, "addXY")
         self.x += x
         self.y += y
