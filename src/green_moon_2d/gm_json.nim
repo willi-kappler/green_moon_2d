@@ -27,6 +27,12 @@ proc gmGetUint32*(node: JsonNode, name: string, default: uint32 = 0): uint32 =
 proc gmGetFloat32*(node: JsonNode, name: string, default: float32 = 0.0): float32 =
     return float32(node{name}.getFloat(float32(default)))
 
+proc gmGetF32F32*(node: JsonNode, name: string, default: (float32, float32) = (0.0, 0.0)): (float32, float32) =
+    let elems = node[name].getElems()
+    let a = float32(elems[0].getFloat())
+    let b = float32(elems[1].getFloat())
+    return (a, b)
+
 proc gmGetString*(node: JsonNode, name: string, default: string = ""): string =
     return node{name}.getStr(default)
 
