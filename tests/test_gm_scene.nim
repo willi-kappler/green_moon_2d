@@ -14,6 +14,7 @@ from std/strformat import fmt
 # Local imports
 import green_moon_2d/gm_scene
 import green_moon_2d/gm_json
+import green_moon_2d/gm_util
 
 type
     TestScene = ref object of GMScene
@@ -55,13 +56,13 @@ proc checkProperties(scene: TestScene, node: JsonNode = newJNull()) =
     let message1Sent = gmGetUint8(node, "message1Sent")
     let message2Sent = gmGetUint8(node, "message2Sent")
 
-    assert(scene.enterCalled == enterCalled)
-    assert(scene.drawCalled == drawCalled)
-    assert(scene.drawAfterCalled == drawAfterCalled)
-    assert(scene.updateCalled == updateCalled)
-    assert(scene.updateAfterCalled == updateAfterCalled)
-    assert(scene.message1Sent == message1Sent)
-    assert(scene.message2Sent == message2Sent)
+    assert2(scene.enterCalled, enterCalled, "enterCalled")
+    assert2(scene.drawCalled, drawCalled, "drawCalled")
+    assert2(scene.drawAfterCalled, drawAfterCalled, "drawAfterCalled")
+    assert2(scene.updateCalled, updateCalled, "updateCalled")
+    assert2(scene.updateAfterCalled, updateAfterCalled, "updateAfterCalled")
+    assert2(scene.message1Sent, message1Sent, "message1Sent")
+    assert2(scene.message2Sent, message2Sent, "message2Sent")
 
 proc test1_addScene1() =
     gmInitSceneManager()
