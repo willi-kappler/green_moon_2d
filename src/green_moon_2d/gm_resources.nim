@@ -15,6 +15,7 @@ import gm_configuration
 
 type
     GMResourceManager = object
+        # TODO: implement
         quit: bool
         stuff: bool
 
@@ -35,6 +36,4 @@ proc gmLoadResources*() =
     inFile.close()
 
     GMGlobResources = gmProcessResources(data)
-
-# Test cases
 
