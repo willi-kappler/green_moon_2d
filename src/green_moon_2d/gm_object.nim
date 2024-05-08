@@ -142,13 +142,16 @@ proc gmInitObjectManager*() =
     ## Initializes the object manager
     GMGlobObjects = GMObjectManager(objects: @[])
 
-proc gmAddObject*(name: string, newObject: GMObject) =
+proc gmAddObject*(name: string, newObject: var GMObject) =
     ## Adds a new object by the given name. Raise an exception if that name is already in use.
     let ob = gmFindObject(name)
 
     if ob.isSome():
         error_log(fmt("Can't add object with name '{name}', it is already in use!"), GMObjectAlreadyExistsError)
     else:
+        newObject.name = name
+        newObject.groups = initHashSet[string]()
+        newObject.custom = newJNull()
         GMGlobObjects.objects.add(newObject)
 
 proc gmDeleteObject*(name: string) =
