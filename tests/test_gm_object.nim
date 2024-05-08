@@ -46,7 +46,7 @@ method gmSendMessage*(self: var TestObject, message: JsonNode): JsonNode =
 #    gmInitSceneManager()
 #    testObjectOrder = @[]
 
-proc checkOneProperties(obj: TestObject, property: JsonNode) =
+proc checkProperties(obj: TestObject, property: JsonNode) =
     let name = gmGetString(property, "name")
     let groups = gmGetHashSetString(property, "groups")
     let updateOrder = gmGetInt32(property, "updateOrder")
