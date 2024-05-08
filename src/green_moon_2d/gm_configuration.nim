@@ -52,7 +52,7 @@ proc gmValidateConfiguration(jsonString: string): GMConfiguration =
         result.logFilename = "game.log"
 
     result.fps = gmGetUint32(jsonConfig, "fps")
-    if result.fps == 0:
+    if result.fps < 10:
         result.fps = 60
 
     result.windowTitle = gmGetString(jsonConfig, "windowTitle")
@@ -60,15 +60,15 @@ proc gmValidateConfiguration(jsonString: string): GMConfiguration =
         result.windowTitle = "Made with GreenMoon2D"
 
     result.screenWidth = gmGetUint32(jsonConfig, "screenWidth")
-    if result.screenWidth == 0:
+    if result.screenWidth < 100:
         result.screenWidth = 800
 
     result.screenHeight = gmGetUint32(jsonConfig, "screenHeight")
-    if result.screenHeight == 0:
+    if result.screenHeight < 100:
         result.screenHeight = 600
 
     result.resources = gmGetString(jsonConfig, "resources")
-    if result.resources.len() == 0:
+    if result.resources.len() < 3:
         result.resources = "resources.json"
 
 proc gmLoadConfiguration*(filename: string) =
