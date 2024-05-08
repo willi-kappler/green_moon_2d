@@ -10,6 +10,7 @@
 # Nim std imports
 import std/json
 import std/sets
+import std/sequtils
 
 proc gmGetBool*(node: JsonNode, name: string, default: bool = false): bool =
     return node{name}.getBool(default)
@@ -31,8 +32,11 @@ proc gmGetString*(node: JsonNode, name: string, default: string = ""): string =
 
 proc gmGetHashSetString*(node: JsonNode, name: string, default: HashSet[string] = initHashSet[string]()): HashSet[string] =
     result = default
-    # TODO: implement
 
+    if node.contains(name):
+        let elements = node.getElems()
+        let strings = elements.mapIt(it.getStr())
+        result = toHashSet(strings)
 
 proc gmGetNode*(node: JsonNode, name: string, default: JsonNode = newJNull()): JsonNode =
     result = default
@@ -40,6 +44,5 @@ proc gmGetNode*(node: JsonNode, name: string, default: JsonNode = newJNull()): J
         result = node[name]
 
 proc gmGetNodes*(node: JsonNode, name: string, default: seq[JsonNode] = @[]): seq[JsonNode] =
-    result = default
-    # TODO: implement
+    return node{name}.getElems(default)
 
