@@ -80,9 +80,11 @@ proc test1_addObject1() =
     gmInitObjectManager()
     testObjectOrder = @[]
 
-    let ob1 = TestObject()
+    var ob1 = TestObject()
 
-    gmAddObject("test1", ob1)
+    gmAddObject("test1", (GMObject) ob1)
+
+    checkProperties(ob1, %*{"name": "test1"})
 
 when isMainModule:
     test1_addObject1()
