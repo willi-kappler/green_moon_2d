@@ -17,6 +17,7 @@ from std/strformat import fmt
 # Local imports
 import green_moon_2d/gm_object
 import green_moon_2d/gm_json
+import green_moon_2d/gm_util
 
 type
     TestObject = ref object of GMObject
@@ -61,19 +62,19 @@ proc checkProperties(obj: TestObject, property: JsonNode) =
     let updateCalled = gmGetUint8(property, "updateCalled")
     let messages = gmGetNodes(property, "messages")
 
-    assert(obj.gmGetName() == name)
-    assert(obj.groups == groups)
-    assert(obj.updateOrder == updateOrder)
-    assert(obj.drawOrder == drawOrder)
-    assert(obj.active == active)
-    assert(obj.visible == visible)
-    assert(obj.receiveBaseMessage == receiveBaseMessage)
-    assert(obj.x == x)
-    assert(obj.y == y)
-    assert(obj.custom == custom)
-    assert(obj.drawCalled == drawCalled)
-    assert(obj.updateCalled == updateCalled)
-    assert(obj.messages == messages)
+    assert2(obj.gmGetName(), name, "name")
+    assert2(obj.groups, groups, "groups")
+    assert2(obj.updateOrder, updateOrder, "updateOrder")
+    assert2(obj.drawOrder, drawOrder, "drawOrder")
+    assert2(obj.active, active, "active")
+    assert2(obj.visible, visible, "visible")
+    assert2(obj.receiveBaseMessage, receiveBaseMessage, "receiveBaseMessage")
+    assert2(obj.x, x, "x")
+    assert2(obj.y, y, "y")
+    assert2(obj.custom, custom, "custom")
+    assert2(obj.drawCalled, drawCalled, "drawCalled")
+    assert2(obj.updateCalled, updateCalled, "updateCalled")
+    assert2(obj.messages, messages, "messages")
 
 proc test1_addObject1() =
     gmInitObjectManager()
