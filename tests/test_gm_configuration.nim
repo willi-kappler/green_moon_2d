@@ -17,6 +17,7 @@ import std/json
 # Local imports
 import green_moon_2d/gm_configuration
 import green_moon_2d/gm_json
+import green_moon_2d/gm_util
 
 proc checkProperties(node: JsonNode = newJNull()) =
     let logFilename = gmGetString(node, "LogFilename", "game.log")
@@ -26,62 +27,12 @@ proc checkProperties(node: JsonNode = newJNull()) =
     let windowTitle = gmGetString(node, "WindowTitle", "Made with GreenMoon2D")
     let resourcesFilename = gmGetString(node, "ResourcesFilename", "resources.json")
 
-    assert(gmGetLogFilename() == logFilename, fmt("LogFilename doesn't match: {logFilename}"))
-    assert(gmGetFPS() == fps, fmt("FPS doesn't match: {fps}"))
-    assert(gmGetScreenWidth() == screenWidth, fmt("ScreenWidth doesn't match: {screenWidth}"))
-    assert(gmGetscreenHeight() == screenHeight, fmt("ScreenHeight doesn't match: {screenHeight}"))
-    assert(gmGetWindowTitle() == windowTitle, fmt("WindowTitle doesn't match: {windowTitle}"))
-    assert(gmGetResourcesFilename() == resourcesFilename, fmt("ResourcesFilename doesn't match: {resourcesFilename}"))
-
-proc checkStringProperty(name: string, value: string) =
-    # Checks that the given property of the configuration is equal
-    # to the given value.
-
-    # Default values:
-    var logFilename = "game.log"
-    var windowTitle = "Made with GreenMoon2D"
-    var resourcesFilename = "resources.json"
-
-    if name == "LogFilename":
-        logFilename = value
-    elif name == "WindowTitle":
-        windowTitle = value
-    elif name == "ResourcesFilename":
-        resourcesFilename = value
-    else:
-        raise newException(ValueError, fmt("Unknown property name: {name}"))
-
-    assert(gmGetLogFilename() == logFilename)
-    assert(gmGetFPS() == 60)
-    assert(gmGetScreenWidth() == 800)
-    assert(gmGetscreenHeight() == 600)
-    assert(gmGetWindowTitle() == windowTitle)
-    assert(gmGetResourcesFilename() == resourcesFilename)
-
-proc checkIntProperty(name: string, value: uint32) =
-    # Checks that the given property of the configuration is equal
-    # to the given value.
-
-    # Default values:
-    var fps: uint32 = 60
-    var screenWidth: uint32 = 800
-    var screenHeight: uint32 = 600
-
-    if name == "FPS":
-        fps = value
-    elif name == "ScreenWidth":
-        screenWidth = value
-    elif name == "ScreenHeight":
-        screenHeight = value
-    else:
-        raise newException(ValueError, fmt("Unknown property name: {name}"))
-
-    assert(gmGetLogFilename() == "game.log")
-    assert(gmGetFPS() == fps)
-    assert(gmGetScreenWidth() == screenWidth)
-    assert(gmGetscreenHeight() == screenHeight)
-    assert(gmGetWindowTitle() == "Made with GreenMoon2D")
-    assert(gmGetResourcesFilename() == "resources.json")
+    assert2(gmGetLogFilename(), logFilename, "LogFilename")
+    assert2(gmGetFPS(), fps, "FPS")
+    assert2(gmGetScreenWidth(), screenWidth, "ScreenWidth")
+    assert2(gmGetScreenHeight(), screenHeight, "ScreenHeight")
+    assert2(gmGetWindowTitle(), windowTitle, "WindowTitle")
+    assert2(gmGetResourcesFilename(), resourcesFilename, "ResourcesFilename")
 
 proc test1_loadConfiguration() =
     let filename = "does_not_exists.json"
@@ -110,8 +61,7 @@ proc test4_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkStringProperty("LogFilename", "test4.log")
+    checkProperties(%*{"LogFilename": "test4.log"})
 
 proc test5_validateJSON() =
     let inputConfig = """{"fps": 50}"""
@@ -119,8 +69,7 @@ proc test5_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkIntProperty("FPS", 50)
+    checkProperties(%*{"FPS": 50})
 
 proc test6_validateJSON() =
     let inputConfig = """{"screenWidth": 1024}"""
@@ -128,8 +77,7 @@ proc test6_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkIntProperty("ScreenWidth", 1024)
+    checkProperties(%*{"ScreenWidth": 1024})
 
 proc test7_validateJSON() =
     let inputConfig = """{"screenHeight": 768}"""
@@ -137,8 +85,7 @@ proc test7_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkIntProperty("ScreenHeight", 768)
+    checkProperties(%*{"ScreenHeight": 768})
 
 proc test8_validateJSON() =
     let inputConfig = """{"windowTitle": "Test8"}"""
@@ -146,8 +93,7 @@ proc test8_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkStringProperty("WindowTitle", "Test8")
+    checkProperties(%*{"WindowTitle": "Test8"})
 
 proc test9_validateJSON() =
     let inputConfig = """{"resources": "some_file.json"}"""
@@ -155,8 +101,7 @@ proc test9_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkStringProperty("ResourcesFilename", "some_file.json")
+    checkProperties(%*{"ResourcesFilename": "some_file.json"})
 
 when isMainModule:
     test1_loadConfiguration()
