@@ -53,7 +53,7 @@ method gmUpdateAfter*(self: var GMScene) {.base.} =
     ## This method can be implemented when things need to be updated after all objects.
     discard
 
-method gmCustom*(self: var GMScene, data: JsonNode): JsonNode {.base.} =
+method gmSendMessage*(self: var GMScene, data: JsonNode): JsonNode {.base.} =
     ## This method can be implemented to send or receive user defined data.
     return newJNull()
 
@@ -186,13 +186,13 @@ proc gmPopAndChangeScene*() =
     else:
         error_log(fmt("Can't pop scene: scene stack is empty"), GMSceneStackEmptyError)
 
-proc gmSceneCustomMessage*(name: string, data: JsonNode): JsonNode =
+proc gmSceneSendMessage*(name: string, data: JsonNode): JsonNode =
     ## Sends a message with custom data to the given scene.
     let idx = gmFindSceneIndex(name)
 
     if idx.isSome():
         let i = idx.get()
-        return GMGlobScenes.scenes[i].gmCustom(data)
+        return GMGlobScenes.scenes[i].gmSendMessage(data)
     else:
         error_log(fmt("Can't send cutom data to scene: {name}, it was not found!"), GMSceneNotFoundError)
 
