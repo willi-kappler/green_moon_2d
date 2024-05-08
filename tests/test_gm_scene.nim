@@ -39,7 +39,7 @@ method gmUpdate*(self: var TestScene) =
 method gmUpdateAfter*(self: var TestScene) =
     inc(self.updateAfterCalled)
 
-method gmCustom*(self: var TestScene, data: JsonNode): JsonNode =
+method gmSendMessage*(self: var TestScene, data: JsonNode): JsonNode =
     if data.contains("message1"):
         inc(self.message1Sent)
     if data.contains("message2"):
@@ -501,17 +501,17 @@ proc test26_customMessage1() =
     checkOneProperty(scene1)
     checkOneProperty(scene2)
 
-    discard gmSceneCustomMessage("Test26.1", %*{"message1": 12})
+    discard gmSceneSendMessage("Test26.1", %*{"message1": 12})
 
     checkOneProperty(scene1, "message1Sent", 1u8)
     checkOneProperty(scene2)
 
-    discard gmSceneCustomMessage("Test26.2", %*{"message2": 15})
+    discard gmSceneSendMessage("Test26.2", %*{"message2": 15})
 
     checkOneProperty(scene1, "message1Sent", 1u8)
     checkOneProperty(scene2, "message2Sent", 1u8)
 
-    discaRD gmSceneCustomMessage("Test26.2", %*{"message1": 32, "message2": 15})
+    discard gmSceneSendMessage("Test26.2", %*{"message1": 32, "message2": 15})
 
     checkOneProperty(scene1, "message1Sent", 1u8)
     assert(scene2.enterCalled == 0)
@@ -530,7 +530,7 @@ proc test27_customMessage2() =
     gmAddScene(scene1, "Test27.1")
 
     doAssertRaises GMSceneNotFoundError:
-        discard gmSceneCustomMessage("Test27.2", %*{"message1": 12})
+        discard gmSceneSendMessage("Test27.2", %*{"message1": 12})
 
 proc test28_drawSceneAfter() =
     gmInitSceneManager()
