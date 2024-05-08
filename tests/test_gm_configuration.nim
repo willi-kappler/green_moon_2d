@@ -12,8 +12,26 @@ from std/files import removeFile
 from std/paths import Path
 from std/strformat import fmt
 
+import std/json
+
 # Local imports
 import green_moon_2d/gm_configuration
+import green_moon_2d/gm_json
+
+proc checkProperties(node: JsonNode = newJNull()) =
+    let logFilename = gmGetString(node, "LogFilename", "game.log")
+    let fps = gmGetUint32(node, "FPS", 60)
+    let screenWidth = gmGetUint32(node, "ScreenWidth", 800)
+    let screenHeight = gmGetUint32(node, "ScreenHeight", 600)
+    let windowTitle = gmGetString(node, "WindowTitle", "Made with GreenMoon2D")
+    let resourcesFilename = gmGetString(node, "ResourcesFilename", "resources.json")
+
+    assert(gmGetLogFilename() == logFilename, fmt("LogFilename doesn't match: {logFilename}"))
+    assert(gmGetFPS() == fps, fmt("FPS doesn't match: {fps}"))
+    assert(gmGetScreenWidth() == screenWidth, fmt("ScreenWidth doesn't match: {screenWidth}"))
+    assert(gmGetscreenHeight() == screenHeight, fmt("ScreenHeight doesn't match: {screenHeight}"))
+    assert(gmGetWindowTitle() == windowTitle, fmt("WindowTitle doesn't match: {windowTitle}"))
+    assert(gmGetResourcesFilename() == resourcesFilename, fmt("ResourcesFilename doesn't match: {resourcesFilename}"))
 
 proc checkStringProperty(name: string, value: string) =
     # Checks that the given property of the configuration is equal
@@ -74,13 +92,9 @@ proc test1_loadConfiguration() =
 proc test2_loadConfiguration() =
     let filename = "tests/config1.json"
     gmLoadConfiguration(filename)
-
-    assert(gmGetLogFilename() == "test1.log")
-    assert(gmGetFPS() == 58)
-    assert(gmGetScreenWidth() == 1024)
-    assert(gmGetscreenHeight() == 768)
-    assert(gmGetWindowTitle() == "TestConfig")
-    assert(gmGetResourcesFilename() == "resources.json")
+    checkProperties(%*{"LogFilename": "test1.log", "FPS": 58,
+                       "ScreenWidth": 1024, "ScreenHeight": 768,
+                       "WindowTitle": "TestConfig"})
 
 proc test3_validateJSON() =
     let inputConfig = "{}"
@@ -88,8 +102,7 @@ proc test3_validateJSON() =
     writeFile(filename, inputConfig)
     gmLoadConfiguration(filename)
     removeFile(Path(filename))
-
-    checkStringProperty("LogFilename", "game.log")
+    checkProperties()
 
 proc test4_validateJSON() =
     let inputConfig = """{"logFilename": "test4.log"}"""
