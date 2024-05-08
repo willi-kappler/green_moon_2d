@@ -17,15 +17,19 @@ type
 var GMGlobLogger: GMLogger
 
 proc gmLoggerDebug*(message: string) =
+    # TODO: implement
     discard
 
 proc gmLoggerInfo*(message: string) =
+    # TODO: implement
     discard
 
 proc gmLoggerWarn*(message: string) =
+    # TODO: implement
     discard
 
 proc gmLoggerError*(message: string) =
+    # TODO: implement
     discard
 
 proc gmSetDebugLevel*(level: uint8) =
