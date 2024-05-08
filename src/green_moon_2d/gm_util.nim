@@ -10,6 +10,5 @@
 from std/strformat import fmt
 
 proc assert2*[T](expected: T, actual: T, message: string) =
-    assert(expected == actual, fmt("{message} doesn't match {expected} != {actual}"))
-
+    assert(expected == actual, fmt("'{message}' doesn't match '{expected}' != '{actual}'"))
 
