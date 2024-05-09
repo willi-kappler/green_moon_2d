@@ -27,7 +27,7 @@ proc collideRectangle1(p: GMVec2D, inside: bool = false) =
         assert(not gmIsColliding(r, p))
 
 proc collideCircle1(p: GMVec2D, inside: bool = false) =
-    let m = GMVec2D(x: 6.0, y:6.0)
+    let m = GMVec2D(x:6.0, y:6.0)
     let c = GMCircle(m:m, r:2.0)
 
     if inside:
