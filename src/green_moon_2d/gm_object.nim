@@ -19,6 +19,7 @@ from std/strformat import fmt
 # Local imports
 import gm_log
 import gm_json
+import gm_math
 
 type
     GMObject* = ref object of RootObj
@@ -29,9 +30,7 @@ type
         active*: bool
         visible*: bool
         receiveBaseMessage*: bool
-        # TODO: Use Vec2D
-        x*: float32
-        y*: float32
+        position*: GMVec2D
         custom*: JsonNode
 
     GMObjectManager = object
@@ -93,27 +92,27 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
     elif message.contains("getVisible"):
         result = newJBool(self.visible)
     elif message.contains("setX"):
-        self.x = gmGetFloat32(message, "setX")
+        self.position.x = gmGetFloat32(message, "setX")
     elif message.contains("addX"):
-        self.x += gmGetFloat32(message, "addX")
+        self.position.x += gmGetFloat32(message, "addX")
     elif message.contains("getX"):
-        result = newJFloat(self.x)
+        result = newJFloat(self.position.x)
     elif message.contains("setY"):
-        self.y = gmGetFloat32(message, "setY")
+        self.position.y = gmGetFloat32(message, "setY")
     elif message.contains("addY"):
-        self.y += gmGetFloat32(message, "addY")
+        self.position.y += gmGetFloat32(message, "addY")
     elif message.contains("getY"):
-        result = newJFloat(self.y)
+        result = newJFloat(self.position.y)
     elif message.contains("setXY"):
-        (self.x, self.y) = gmGetF32F32(message, "setXY")
+        (self.position.x, self.position.y) = gmGetF32F32(message, "setXY")
     elif message.contains("addXY"):
         let (x, y) = gmGetF32F32(message, "addXY")
-        self.x += x
-        self.y += y
+        self.position.x += x
+        self.position.y += y
     elif message.contains("getXY"):
         result = newJArray()
-        result.add(newJFloat(self.x))
-        result.add(newJFloat(self.y))
+        result.add(newJFloat(self.position.x))
+        result.add(newJFloat(self.position.y))
     elif message.contains("setProperty"):
         let elems = gmGetNodes(message, "setProperty")
         let name = elems[0].getStr()
