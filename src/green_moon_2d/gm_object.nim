@@ -162,13 +162,6 @@ proc gmAddObject*(name: string, newObject: var GMObject) =
 
 proc gmDeleteObject*(name: string) =
     ## Deletes an object with the given name. Raise an exception if the object was not found.
-#    var idx = none(uint32)
-#
-#    for (i, ob) in GMGlobObjects.objects.pairs():
-#        if ob.name == name:
-#            idx = some(uint32(i))
-#            break
-
     let idx = gmGetIndex(name)
 
     if idx.isSome():
@@ -179,11 +172,6 @@ proc gmDeleteObject*(name: string) =
 
 proc gmObjectAddGroup*(name: string, group: string) =
     ## Add the given object to the given group. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.groups.incl(group)
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -194,12 +182,6 @@ proc gmObjectAddGroup*(name: string, group: string) =
 
 proc gmObjectAddGroups*(name: string, groups: openArray[string]) =
     ## Add the given object to the given groups. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            for g in groups:
-#                ob.groups.incl(g)
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -211,11 +193,6 @@ proc gmObjectAddGroups*(name: string, groups: openArray[string]) =
 
 proc gmObjectRemoveGroup*(name: string, group: string) =
     ## Removes the given object from the given group. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.groups.excl(group)
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -226,12 +203,6 @@ proc gmObjectRemoveGroup*(name: string, group: string) =
 
 proc gmObjectRemoveGroups*(name: string, groups: openArray[string]) =
     ## Removes the given object from the given groups. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            for g in groups:
-#                ob.groups.excl(g)
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -243,10 +214,6 @@ proc gmObjectRemoveGroups*(name: string, groups: openArray[string]) =
 
 proc gmObjectInGroup*(name: string, group: string): bool =
     ## Returns true if the given object is in the group. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return group in ob.groups
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -262,11 +229,6 @@ proc gmObjectRemoveGroupFromAll*(group: string) =
 
 proc gmObjectSetUpdateOrder*(name: string, order: int32) =
     ## Sets the update order for the given object . Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.updateOrder = order
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -277,10 +239,6 @@ proc gmObjectSetUpdateOrder*(name: string, order: int32) =
 
 proc gmObjectGetUpdateOrder*(name: string): int32 =
     ## Returns the update order of the given object . Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return ob.updateOrder
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -297,11 +255,6 @@ proc gmObjectSetUpdateOrderGroup*(group: string, order: int32) =
 
 proc gmObjectSetDrawOrder*(name: string, order: int32) =
     ## Sets the draw order for the given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.drawOrder = order
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -312,10 +265,6 @@ proc gmObjectSetDrawOrder*(name: string, order: int32) =
 
 proc gmObjectGetDrawOrder*(name: string): int32 =
     ## Returns the draw order of the given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return ob.drawOrder
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -332,11 +281,6 @@ proc gmObjectSetDrawOrderGroup*(group: string, order: int32) =
 
 proc gmObjectSetActive*(name: string, active: bool = true) =
     ## Set active flag for given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.active = active
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -347,11 +291,6 @@ proc gmObjectSetActive*(name: string, active: bool = true) =
 
 proc gmObjectToggleActive*(name: string) =
     ## Toggle active flag for given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.active = not ob.active
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -362,10 +301,6 @@ proc gmObjectToggleActive*(name: string) =
 
 proc gmObjectGetActive*(name: string): bool =
     ## Returns the given object active flag. Raise an exception of the object was nmot found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return ob.active
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -388,11 +323,6 @@ proc gmObjectToggleActiveGroup*(group: string) =
 
 proc gmObjectSetVisible*(name: string, visible: bool = true) =
     ## Set visible flag for given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.visible = visible
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -403,11 +333,6 @@ proc gmObjectSetVisible*(name: string, visible: bool = true) =
 
 proc gmObjectToggleVisible*(name: string) =
     ## Toggle visible flag for given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.visible = not ob.visible
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -418,10 +343,6 @@ proc gmObjectToggleVisible*(name: string) =
 
 proc gmObjectGetVisible*(name: string): bool =
     ## Returns the visibility flag for the given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return ob.visible
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -444,10 +365,6 @@ proc gmObjectToggleVisibleGroup*(group: string) =
 
 proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
     ## Sends a message to the given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            return ob.gmSendMessageIntern(message)
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -458,13 +375,6 @@ proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
 
 proc gmObjectSendMultiMessages*(name: string, messages: seq[JsonNode]): seq[JsonNode] =
     ## Sends multiple messages to the given object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            var r: seq[JsonNode] = @[]
-#            for m in messages:
-#                r.add(ob.gmSendMessageIntern(m))
-#            return r
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -498,11 +408,6 @@ proc gmObjectSendMultiMessagesGroup*(group: string, messages: seq[JsonNode]): se
 
 proc gmObjectSetCustomProperty*(name: string, property: string, value: JsonNode) =
     ## Sets a custom property for the object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            ob.custom[property] = value
-#            return
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -519,13 +424,6 @@ proc gmObjectSetCustomPropertyGroup*(group: string, property: string, value: Jso
 
 proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
     ## Gets a custom property for the object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            if ob.custom.contains(property):
-#                return ob.custom[property]
-#            else:
-#                return newJNull()
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -539,11 +437,6 @@ proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
 
 proc gmObjectRemoveCustomProperty*(name: string, property: string) =
     ## Removes a custom property for the object. Raise an exception if the object was not found.
-#    for ob in GMGlobObjects.objects.mitems():
-#        if ob.name == name:
-#            if ob.custom.contains(property):
-#                ob.custom.delete(property)
-
     let ob = gmFindObject(name)
 
     if ob.isSome():
