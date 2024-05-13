@@ -137,6 +137,13 @@ proc gmFindObject*(name: string): Option[GMObject] =
 
     return none(GMObject)
 
+proc gmGetIndex(name: string): Option[uint32] =
+    for i in 0..GMGlobObjects.objects.high():
+        if GMGlobObjects.objects[i].name == name:
+            return some(uint32(i))
+
+    return none(uint32)
+
 proc gmInitObjectManager*() =
     ## Initializes the object manager
     GMGlobObjects = GMObjectManager(objects: @[])
@@ -155,12 +162,14 @@ proc gmAddObject*(name: string, newObject: var GMObject) =
 
 proc gmDeleteObject*(name: string) =
     ## Deletes an object with the given name. Raise an exception if the object was not found.
-    var idx = none(uint32)
+#    var idx = none(uint32)
+#
+#    for (i, ob) in GMGlobObjects.objects.pairs():
+#        if ob.name == name:
+#            idx = some(uint32(i))
+#            break
 
-    for (i, ob) in GMGlobObjects.objects.pairs():
-        if ob.name == name:
-            idx = some(uint32(i))
-            break
+    let idx = gmGetIndex(name)
 
     if idx.isSome():
         let i = idx.get()
@@ -170,29 +179,81 @@ proc gmDeleteObject*(name: string) =
 
 proc gmObjectAddGroup*(name: string, group: string) =
     ## Add the given object to the given group. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.groups.incl(group)
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.groups.incl(group)
+#            return
 
-    error_log(fmt("Can't add '{name}' to group '{group}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.groups.incl(group)
+    else:
+        error_log(fmt("Can't add '{name}' to group '{group}', object not found!"), GMObjectNotFoundError)
+
+proc gmObjectAddGroups*(name: string, groups: openArray[string]) =
+    ## Add the given object to the given groups. Raise an exception if the object was not found.
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            for g in groups:
+#                ob.groups.incl(g)
+#            return
+
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        for g in groups:
+            obj.groups.incl(g)
+    else:
+        error_log(fmt("Can't add '{name}' to groups '{groups}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveGroup*(name: string, group: string) =
     ## Removes the given object from the given group. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.groups.excl(group)
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.groups.excl(group)
+#            return
 
-    error_log(fmt("Can't remove '{name}' from group '{group}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.groups.excl(group)
+    else:
+        error_log(fmt("Can't remove '{name}' from group '{group}', object not found!"), GMObjectNotFoundError)
+
+proc gmObjectRemoveGroups*(name: string, groups: openArray[string]) =
+    ## Removes the given object from the given groups. Raise an exception if the object was not found.
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            for g in groups:
+#                ob.groups.excl(g)
+#            return
+
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        for g in groups:
+            obj.groups.excl(g)
+    else:
+        error_log(fmt("Can't remove '{name}' from groups '{groups}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectInGroup*(name: string, group: string): bool =
     ## Returns true if the given object is in the group. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return group in ob.groups
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return group in ob.groups
 
-    error_log(fmt("Can't check if '{name}' is in group '{group}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        let obj = ob.get()
+        return group in obj.groups
+    else:
+        error_log(fmt("Can't check if '{name}' is in group '{group}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveGroupFromAll*(group: string) =
     ## Removes all the objects from the given group.
@@ -201,20 +262,32 @@ proc gmObjectRemoveGroupFromAll*(group: string) =
 
 proc gmObjectSetUpdateOrder*(name: string, order: int32) =
     ## Sets the update order for the given object . Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.updateOrder = order
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.updateOrder = order
+#            return
 
-    error_log(fmt("Can't set update order for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.updateOrder = order
+    else:
+        error_log(fmt("Can't set update order for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectGetUpdateOrder*(name: string): int32 =
     ## Returns the update order of the given object . Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.updateOrder
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return ob.updateOrder
 
-    error_log(fmt("Can't get update order for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        let obj = ob.get()
+        return obj.updateOrder
+    else:
+        error_log(fmt("Can't get update order for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetUpdateOrderGroup*(group: string, order: int32) =
     ## Sets the update order for all the objects in the given group.
@@ -224,20 +297,32 @@ proc gmObjectSetUpdateOrderGroup*(group: string, order: int32) =
 
 proc gmObjectSetDrawOrder*(name: string, order: int32) =
     ## Sets the draw order for the given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.drawOrder = order
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.drawOrder = order
+#            return
 
-    error_log(fmt("Can't set draw order for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.drawOrder = order
+    else:
+        error_log(fmt("Can't set draw order for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectGetDrawOrder*(name: string): int32 =
     ## Returns the draw order of the given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.drawOrder
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return ob.drawOrder
 
-    error_log(fmt("Can't get draw order for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        let obj = ob.get()
+        return obj.drawOrder
+    else:
+        error_log(fmt("Can't get draw order for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetDrawOrderGroup*(group: string, order: int32) =
     ## Sets the draw order for all the objects in the given group.
@@ -247,29 +332,47 @@ proc gmObjectSetDrawOrderGroup*(group: string, order: int32) =
 
 proc gmObjectSetActive*(name: string, active: bool = true) =
     ## Set active flag for given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.active = active
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.active = active
+#            return
 
-    error_log(fmt("Can't set active flag for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.active = active
+    else:
+        error_log(fmt("Can't set active flag for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectToggleActive*(name: string) =
     ## Toggle active flag for given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.active = not ob.active
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.active = not ob.active
+#            return
 
-    error_log(fmt("Can't toggle active flag for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.active = not obj.active
+    else:
+        error_log(fmt("Can't toggle active flag for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectGetActive*(name: string): bool =
     ## Returns the given object active flag. Raise an exception of the object was nmot found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.active
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return ob.active
 
-    error_log(fmt("Can't get active flag from '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        let obj = ob.get()
+        return obj.active
+    else:
+        error_log(fmt("Can't get active flag from '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetActiveGroup*(group: string, active: bool = true) =
     ## Set active flag for all objects that belong to the given group.
@@ -285,29 +388,47 @@ proc gmObjectToggleActiveGroup*(group: string) =
 
 proc gmObjectSetVisible*(name: string, visible: bool = true) =
     ## Set visible flag for given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.visible = visible
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.visible = visible
+#            return
 
-    error_log(fmt("Can't set visible flag for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.visible = visible
+    else:
+        error_log(fmt("Can't set visible flag for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectToggleVisible*(name: string) =
     ## Toggle visible flag for given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.visible = not ob.visible
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.visible = not ob.visible
+#            return
 
-    error_log(fmt("Can't toggle visible flag for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.visible = not obj.visible
+    else:
+        error_log(fmt("Can't toggle visible flag for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectGetVisible*(name: string): bool =
     ## Returns the visibility flag for the given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.visible
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return ob.visible
 
-    error_log(fmt("Can't get visible flag from '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        let obj = ob.get()
+        return obj.visible
+    else:
+        error_log(fmt("Can't get visible flag from '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetVisibleGroup*(group: string, visible: bool = true) =
     ## Set visible flag for all objects that belong to the given group.
@@ -323,22 +444,37 @@ proc gmObjectToggleVisibleGroup*(group: string) =
 
 proc gmObjectSendMessage*(name: string, message: JsonNode): JsonNode =
     ## Sends a message to the given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            return ob.gmSendMessageIntern(message)
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            return ob.gmSendMessageIntern(message)
 
-    error_log(fmt("Can't send message to '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        return obj.gmSendMessageIntern(message)
+    else:
+        error_log(fmt("Can't send message to '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSendMultiMessages*(name: string, messages: seq[JsonNode]): seq[JsonNode] =
     ## Sends multiple messages to the given object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            var r: seq[JsonNode] = @[]
-            for m in messages:
-                r.add(ob.gmSendMessageIntern(m))
-            return r
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            var r: seq[JsonNode] = @[]
+#            for m in messages:
+#                r.add(ob.gmSendMessageIntern(m))
+#            return r
 
-    error_log(fmt("Can't send multiple message to '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        var r: seq[JsonNode] = @[]
+        for m in messages:
+            r.add(obj.gmSendMessageIntern(m))
+        return r
+    else:
+        error_log(fmt("Can't send multiple message to '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSendMessageGroup*(group: string, message: JsonNode): seq[(string, JsonNode)] =
     ## Send a message to all objects that belong to the given group.
@@ -362,12 +498,18 @@ proc gmObjectSendMultiMessagesGroup*(group: string, messages: seq[JsonNode]): se
 
 proc gmObjectSetCustomProperty*(name: string, property: string, value: JsonNode) =
     ## Sets a custom property for the object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            ob.custom[property] = value
-            return
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            ob.custom[property] = value
+#            return
 
-    error_log(fmt("Can't set custom property for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        obj.custom[property] = value
+    else:
+        error_log(fmt("Can't set custom property for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectSetCustomPropertyGroup*(group: string, property: string, value: JsonNode) =
     ## Sets a custom property for all the objects in the given group.
@@ -377,23 +519,39 @@ proc gmObjectSetCustomPropertyGroup*(group: string, property: string, value: Jso
 
 proc gmObjectGetCustomProperty*(name: string, property: string): JsonNode =
     ## Gets a custom property for the object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            if ob.custom.contains(property):
-                return ob.custom[property]
-            else:
-                return newJNull()
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            if ob.custom.contains(property):
+#                return ob.custom[property]
+#            else:
+#                return newJNull()
 
-    error_log(fmt("Can't get custom property for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        if obj.custom.contains(property):
+            return obj.custom[property]
+        else:
+            return newJNull()
+    else:
+        error_log(fmt("Can't get custom property for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveCustomProperty*(name: string, property: string) =
     ## Removes a custom property for the object. Raise an exception if the object was not found.
-    for ob in GMGlobObjects.objects.mitems():
-        if ob.name == name:
-            if ob.custom.contains(property):
-                ob.custom.delete(property)
+#    for ob in GMGlobObjects.objects.mitems():
+#        if ob.name == name:
+#            if ob.custom.contains(property):
+#                ob.custom.delete(property)
 
-    error_log(fmt("Can't remove custom property for '{name}', object not found!"), GMObjectNotFoundError)
+    let ob = gmFindObject(name)
+
+    if ob.isSome():
+        var obj = ob.get()
+        if obj.custom.contains(property):
+            obj.custom.delete(property)
+    else:
+        error_log(fmt("Can't remove custom property for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveCustomPropertyGroup*(group: string, property: string) =
     ## Removes a custom property from all the objects that belong to the given group.
