@@ -11,6 +11,7 @@
 import std/json
 import std/sets
 import std/sequtils
+#from std/strformat import fmt
 
 proc gmGetBool*(node: JsonNode, name: string, default: bool = false): bool =
     return node{name}.getBool(default)
@@ -40,9 +41,10 @@ proc gmGetHashSetString*(node: JsonNode, name: string, default: HashSet[string] 
     result = default
 
     if node.contains(name):
-        let elements = node.getElems()
-        let strings = elements.mapIt(it.getStr())
-        result = toHashSet(strings)
+        let elements = node[name].getElems()
+        #echo(fmt("gmGetHashSetString(), elements: {elements}"))
+        for e in elements:
+            result.incl(e.getStr())
 
 proc gmGetNode*(node: JsonNode, name: string, default: JsonNode = newJNull()): JsonNode =
     result = default
