@@ -223,9 +223,20 @@ proc gmObjectInGroup*(name: string, group: string): bool =
         error_log(fmt("Can't check if '{name}' is in group '{group}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectRemoveGroupFromAll*(group: string) =
-    ## Removes all the objects from the given group.
+    ## Removes the given group from all the objects.
     for ob in GMGlobObjects.objects.mitems():
         ob.groups.excl(group)
+
+proc gmDeleteObjectsInGroup*(group: string) =
+    ## Deletes all the objects that belong to the given group.
+    var deleteObjs: seq[uint32] = @[]
+
+    for i in 0..GMGlobObjects.objects.high():
+        if group in GMGlobObjects.objects[i].groups:
+            deleteObjs.add(uint32(i))
+
+    #TODO: implement
+
 
 proc gmObjectSetUpdateOrder*(name: string, order: int32) =
     ## Sets the update order for the given object . Raise an exception if the object was not found.
