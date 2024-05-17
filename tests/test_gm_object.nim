@@ -355,6 +355,21 @@ when isMainModule:
     test15_objectInGroup1()
     test16_objectInGroup2()
     test17_objectRemoveGroupFromAll1()
+    #test18_deleteObjectsInGroup1()
+    #test19_setUpdateOrder1()
+    #test20_setUpdateOrder2()
+    #test21_getUpdateOrder1()
+    #test22_getUpdateOrder2()
+    #test23_setUpdateOrderGroup1()
+    #test24_setDrawOrder1()
+    #test25_setDrawOrder2()
+    #test26_getDrawOrder1()
+    #test27_getDrawOrder2()
+    #test28_setDrawOrderGroup1()
+    #test29_setActive1()
+    #test30_setActive2()
+
+
 
 
 
