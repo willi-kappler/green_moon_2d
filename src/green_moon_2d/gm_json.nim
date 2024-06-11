@@ -52,3 +52,9 @@ proc gmGetNode*(node: JsonNode, name: string, default: JsonNode = newJNull()): J
 proc gmGetNodes*(node: JsonNode, name: string, default: seq[JsonNode] = @[]): seq[JsonNode] =
     return node{name}.getElems(default)
 
+proc gmHashSetStringToJson*(h: HashSet[string]): JsonNode =
+    result = newJArray()
+
+    for e in h:
+        result.add(newJString(e))
+
