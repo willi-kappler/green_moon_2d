@@ -465,15 +465,48 @@ proc gmObjectRemoveCustomPropertyGroup*(group: string, property: string) =
                 ob.custom.delete(property)
 
 proc gmObjectApplyAll*(op: proc (o: var GMObject) {.closure.}) =
-    ## Apply the given function 'op' to all objects.
+    ## Apply the given mutating function 'op' to all objects.
     for ob in GMGlobObjects.objects.mitems():
         op(ob)
 
 proc gmObjectApplyGroup*(group: string, op: proc (o: var GMObject) {.closure.}) =
-    ## Apply the given function 'op' to all objects that belong to the given group.
+    ## Apply the given mutating function 'op' to all objects that belong to the given group.
     for ob in GMGlobObjects.objects.mitems():
         if group in ob.groups:
             op(ob)
+
+proc gmObjectGroupCollect*(group: string, properties: seq[string]): JsonNode =
+    ## Collect all the properties from all the object that are in the given group.
+    result = newJArray()
+
+    for ob in GMGlobObjects.objects.items():
+        if group in ob.groups:
+            var obProperties = newJObject()
+            for prop in properties:
+                case prop:
+                    of "name":
+                        obProperties[prop] = newJString(ob.name)
+                    of "groups":
+                        ## TODO: groups
+                        obProperties[prop] = gmHashSetStringToJson(ob.groups)
+                    of "updateOrder":
+                        obProperties[prop] = newJInt(ob.updateOrder)
+                    of "drawOrder":
+                        obProperties[prop] = newJInt(ob.drawOrder)
+                    of "active":
+                        obProperties[prop] = newJBool(ob.active)
+                    of "visible":
+                        obProperties[prop] = newJBool(ob.visible)
+                    of "position":
+                        var pos = newJArray()
+                        pos.add(newJFloat(ob.position.x))
+                        pos.add(newJFloat(ob.position.y))
+                        obProperties[prop] = pos
+                    else:
+                        ## TODO: error handling
+                        obProperties[prop] = ob.custom[prop]
+
+            result.add(obProperties)
 
 proc gmDrawObjects*() =
     ## Calls the draw() method for all visible objects, at each frame.
