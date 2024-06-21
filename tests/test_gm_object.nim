@@ -651,8 +651,22 @@ when isMainModule:
     test30_setDrawOrderGroup1()
     #test31_setActive1()
     #test32_setActive2()
-
-
+    #test33_toggleActive1()
+    #test34_toggleActive2()
+    #test35_getActive1()
+    #test36_getActive2()
+    #test37_setActiveGroup()
+    #test38_toggleActiveGroup()
+    #test39_setVisible1()
+    #test40_setVisible2()
+    #test41_toggleVisible1()
+    #test42_toggleVisible2()
+    #test43_getVisible1()
+    #test44_getVisible2()
+    #test45_setVisibleGroup()
+    #test46_toggleVisibleGroup()
+    #test47_sendMessage1()
+    #test48_sendMessage2()
 
 
 
