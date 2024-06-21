@@ -507,6 +507,66 @@ proc test24_getUpdateOrder2() =
     doAssertRaises GMObjectNotFoundError:
         discard gmObjectGetUpdateOrder("test24.2")
 
+proc test25_setUpdateOrderGroup1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+    var ob3 = TestObject()
+    var ob4 = TestObject()
+    var ob5 = TestObject()
+
+    gmAddObject("test25.1", GMObject(ob1))
+    gmAddObject("test25.2", GMObject(ob2))
+    gmAddObject("test25.3", GMObject(ob3))
+    gmAddObject("test25.4", GMObject(ob4))
+    gmAddObject("test25.5", GMObject(ob5))
+
+    gmObjectAddGroups("test25.1", ["green"])
+    gmObjectAddGroups("test25.2", ["blue", "red"])
+    gmObjectAddGroups("test25.3", ["yellow", "blue"])
+    gmObjectAddGroups("test25.4", ["gray"])
+
+    gmObjectSetUpdateOrderGroup("blue", 37)
+
+    checkProperties2(ob1, %*{"name": "test25.1", "groups": ["green"]})
+    checkProperties2(ob2, %*{"name": "test25.2", "groups": ["blue", "red"], "updateOrder": 37})
+    checkProperties2(ob3, %*{"name": "test25.3", "groups": ["yellow", "blue"],  "updateOrder": 37})
+    checkProperties2(ob4, %*{"name": "test25.4", "groups": ["gray"]})
+    checkProperties2(ob5, %*{"name": "test25.5"})
+
+proc test26_setDrawOrder1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+
+    gmAddObject("test26.1", GMObject(ob1))
+    gmAddObject("test26.2", GMObject(ob2))
+
+    gmObjectSetDrawOrder("test26.1", 5)
+
+    checkProperties2(ob1, %*{"name": "test26.1", "drawOrder": 5})
+    checkProperties2(ob2, %*{"name": "test26.2", "drawOrder": 0})
+
+    gmObjectSetDrawOrder("test26.2", -11)
+
+    checkProperties2(ob1, %*{"name": "test26.1", "drawOrder": 5})
+    checkProperties2(ob2, %*{"name": "test26.2", "drawOrder": -11})
+
+proc test27_setDrawOrder2() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test27.1", GMObject(ob1))
+
+    doAssertRaises GMObjectNotFoundError:
+        gmObjectSetDrawOrder("test27.2", 11)
+
+
 when isMainModule:
     test1_addObject1()
     test2_addObject2()
@@ -532,9 +592,9 @@ when isMainModule:
     test22_setUpdateOrder2()
     test23_getUpdateOrder1()
     test24_getUpdateOrder2()
-    #test25_setUpdateOrderGroup1()
-    #test26_setDrawOrder1()
-    #test27_setDrawOrder2()
+    test25_setUpdateOrderGroup1()
+    test26_setDrawOrder1()
+    test27_setDrawOrder2()
     #test28_getDrawOrder1()
     #test29_getDrawOrder2()
     #test30_setDrawOrderGroup1()
