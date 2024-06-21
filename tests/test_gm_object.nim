@@ -47,7 +47,7 @@ method gmSendMessage*(self: var TestObject, message: JsonNode): JsonNode =
 #    gmInitSceneManager()
 #    testObjectOrder = @[]
 
-proc checkProperties(obj: TestObject, property: JsonNode) =
+proc checkProperties1(obj: GMObject, property: JsonNode) =
     let name = gmGetString(property, "name")
     let groups = gmGetHashSetString(property, "groups")
     let updateOrder = gmGetInt32(property, "updateOrder")
@@ -58,9 +58,6 @@ proc checkProperties(obj: TestObject, property: JsonNode) =
     let x = gmGetFloat32(property, "x")
     let y = gmGetFloat32(property, "y")
     let custom = gmGetNode(property, "custom")
-    let drawCalled = gmGetUint8(property, "drawCalled")
-    let updateCalled = gmGetUint8(property, "updateCalled")
-    let messages = gmGetNodes(property, "messages")
 
     assert2(obj.gmGetName(), name, "name")
     assert2(obj.groups, groups, "groups")
@@ -72,6 +69,20 @@ proc checkProperties(obj: TestObject, property: JsonNode) =
     assert2(obj.position.x, x, "x")
     assert2(obj.position.y, y, "y")
     assert2(obj.custom, custom, "custom")
+
+proc checkProperties1Name(name: string, property: JsonNode) =
+    let ob = gmFindObject(name)
+    assert(ob.isSome())
+    let ob2 = ob.get()
+    checkProperties1(ob2, property)
+
+proc checkProperties2(obj: TestObject, property: JsonNode) =
+    checkProperties1(obj, property)
+
+    let drawCalled = gmGetUint8(property, "drawCalled")
+    let updateCalled = gmGetUint8(property, "updateCalled")
+    let messages = gmGetNodes(property, "messages")
+
     assert2(obj.drawCalled, drawCalled, "drawCalled")
     assert2(obj.updateCalled, updateCalled, "updateCalled")
     assert2(obj.messages, messages, "messages")
@@ -80,20 +91,24 @@ proc test1_addObject1() =
     gmInitObjectManager()
     testObjectOrder = @[]
 
+    assert(gmGetNumberOfObjects() == 0)
+
     var ob1 = TestObject()
     var ob2 = TestObject()
 
     gmAddObject("test1", GMObject(ob1))
-    checkProperties(ob1, %*{"name": "test1"})
+    checkProperties2(ob1, %*{"name": "test1"})
+    assert(gmGetNumberOfObjects() == 1)
 
     gmAddObject("test2", GMObject(ob2))
-    checkProperties(ob2, %*{"name": "test2"})
+    checkProperties2(ob2, %*{"name": "test2"})
+    assert(gmGetNumberOfObjects() == 2)
 
     discard gmObjectSendMessage("test1", %*{"setX": 12.0})
-    checkProperties(ob1, %*{"name": "test1", "x": 12.0})
+    checkProperties2(ob1, %*{"name": "test1", "x": 12.0})
 
     discard gmObjectSendMessage("test2", %*{"setY": -99.0})
-    checkProperties(ob2, %*{"name": "test2", "y": -99.0})
+    checkProperties2(ob2, %*{"name": "test2", "y": -99.0})
 
 proc test2_addObject2() =
     gmInitObjectManager()
@@ -103,7 +118,7 @@ proc test2_addObject2() =
     var ob2 = TestObject()
 
     gmAddObject("test2", GMObject(ob1))
-    checkProperties(ob1, %*{"name": "test2"})
+    checkProperties2(ob1, %*{"name": "test2"})
 
     doAssertRaises GMObjectAlreadyExistsError:
         gmAddObject("test2", GMObject(ob2))
@@ -121,7 +136,7 @@ proc test3_findObject1() =
     let ob2_ok = ob2.get()
     assert(ob2_ok.gmGetName() == "test3")
     assert(ob2_ok.position.x == 19.0)
-    checkProperties(ob1, %*{"name": "test3", "x": 19.0})
+    checkProperties2(ob1, %*{"name": "test3", "x": 19.0})
 
 proc test4_findObject2() =
     gmInitObjectManager()
@@ -141,8 +156,10 @@ proc test5_removeObject1() =
     var ob2 = TestObject()
     gmAddObject("test5.1", GMObject(ob1))
     gmAddObject("test5.2", GMObject(ob2))
+    assert(gmGetNumberOfObjects() == 2)
 
     gmDeleteObject("test5.1")
+    assert(gmGetNumberOfObjects() == 1)
 
     assert(gmFindObject("test5.1").isNone())
     assert(gmFindObject("test5.2").isSome())
@@ -168,20 +185,20 @@ proc test7_addGroup1() =
     gmAddObject("test7.2", GMObject(ob2))
 
     gmObjectAddGroup("test7.1", "poison")
-    checkProperties(ob1, %*{"name": "test7.1", "groups": ["poison"]})
-    checkProperties(ob2, %*{"name": "test7.2"})
+    checkProperties2(ob1, %*{"name": "test7.1", "groups": ["poison"]})
+    checkProperties2(ob2, %*{"name": "test7.2"})
 
     gmObjectAddGroup("test7.1", "strong")
-    checkProperties(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
-    checkProperties(ob2, %*{"name": "test7.2"})
+    checkProperties2(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
+    checkProperties2(ob2, %*{"name": "test7.2"})
 
     gmObjectAddGroup("test7.2", "unlucky")
-    checkProperties(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
-    checkProperties(ob2, %*{"name": "test7.2", "groups": ["unlucky"]})
+    checkProperties2(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
+    checkProperties2(ob2, %*{"name": "test7.2", "groups": ["unlucky"]})
 
     gmObjectAddGroup("test7.2", "unlucky")
-    checkProperties(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
-    checkProperties(ob2, %*{"name": "test7.2", "groups": ["unlucky"]})
+    checkProperties2(ob1, %*{"name": "test7.1", "groups": ["poison", "strong"]})
+    checkProperties2(ob2, %*{"name": "test7.2", "groups": ["unlucky"]})
 
 proc test8_addGroup2() =
     gmInitObjectManager()
@@ -204,16 +221,16 @@ proc test9_addGroups1() =
     gmAddObject("test9.2", GMObject(ob2))
 
     gmObjectAddGroups("test9.1", ["bullet", "magnetic"])
-    checkProperties(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
-    checkProperties(ob2, %*{"name": "test9.2"})
+    checkProperties2(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
+    checkProperties2(ob2, %*{"name": "test9.2"})
 
     gmObjectAddGroups("test9.2", ["bleed", "fast", "infected"])
-    checkProperties(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
-    checkProperties(ob2, %*{"name": "test9.2", "groups": ["bleed", "fast", "infected"]})
+    checkProperties2(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
+    checkProperties2(ob2, %*{"name": "test9.2", "groups": ["bleed", "fast", "infected"]})
 
     gmObjectAddGroups("test9.2", [])
-    checkProperties(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
-    checkProperties(ob2, %*{"name": "test9.2", "groups": ["bleed", "fast", "infected"]})
+    checkProperties2(ob1, %*{"name": "test9.1", "groups": ["bullet", "magnetic"]})
+    checkProperties2(ob2, %*{"name": "test9.2", "groups": ["bleed", "fast", "infected"]})
 
 proc test10_addGroups2() =
     gmInitObjectManager()
@@ -237,12 +254,12 @@ proc test11_removeGroup1() =
 
     gmObjectAddGroups("test11.1", ["small", "wounded"])
     gmObjectRemoveGroup("test11.1", "wounded")
-    checkProperties(ob1, %*{"name": "test11.1", "groups": ["small"]})
-    checkProperties(ob2, %*{"name": "test11.2"})
+    checkProperties2(ob1, %*{"name": "test11.1", "groups": ["small"]})
+    checkProperties2(ob2, %*{"name": "test11.2"})
 
     gmObjectRemoveGroup("test11.1", "small")
-    checkProperties(ob1, %*{"name": "test11.1"})
-    checkProperties(ob2, %*{"name": "test11.2"})
+    checkProperties2(ob1, %*{"name": "test11.1"})
+    checkProperties2(ob2, %*{"name": "test11.2"})
 
 proc test12_removeGroup2() =
     gmInitObjectManager()
@@ -267,12 +284,12 @@ proc test13_removeGroups1() =
     gmObjectAddGroups("test13.1", ["green", "red", "blue"])
 
     gmObjectRemoveGroups("test13.1", ["green", "red"])
-    checkProperties(ob1, %*{"name": "test13.1", "groups": ["blue"]})
-    checkProperties(ob2, %*{"name": "test13.2"})
+    checkProperties2(ob1, %*{"name": "test13.1", "groups": ["blue"]})
+    checkProperties2(ob2, %*{"name": "test13.2"})
 
     gmObjectRemoveGroups("test13.1", [])
-    checkProperties(ob1, %*{"name": "test13.1", "groups": ["blue"]})
-    checkProperties(ob2, %*{"name": "test13.2"})
+    checkProperties2(ob1, %*{"name": "test13.1", "groups": ["blue"]})
+    checkProperties2(ob2, %*{"name": "test13.2"})
 
 proc test14_removeGroups2() =
     gmInitObjectManager()
@@ -332,10 +349,110 @@ proc test17_objectRemoveGroupFromAll1() =
 
     gmObjectRemoveGroupFromAll("blue")
 
-    checkProperties(ob1, %*{"name": "test17.1", "groups": ["green", "red"]})
-    checkProperties(ob2, %*{"name": "test17.2", "groups": ["yellow"]})
-    checkProperties(ob3, %*{"name": "test17.3"})
-    checkProperties(ob4, %*{"name": "test17.4", "groups": ["pink", "yellow"]})
+    checkProperties2(ob1, %*{"name": "test17.1", "groups": ["green", "red"]})
+    checkProperties2(ob2, %*{"name": "test17.2", "groups": ["yellow"]})
+    checkProperties2(ob3, %*{"name": "test17.3"})
+    checkProperties2(ob4, %*{"name": "test17.4", "groups": ["pink", "yellow"]})
+
+proc test18_deleteObjectsInGroup1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+    var ob3 = TestObject()
+    var ob4 = TestObject()
+    var ob5 = TestObject()
+
+    gmAddObject("test18.1", GMObject(ob1))
+    gmAddObject("test18.2", GMObject(ob2))
+    gmAddObject("test18.3", GMObject(ob3))
+    gmAddObject("test18.4", GMObject(ob4))
+    gmAddObject("test18.5", GMObject(ob5))
+    assert(gmGetNumberOfObjects() == 5)
+
+    gmObjectAddGroups("test18.1", ["green"])
+    gmObjectAddGroups("test18.2", ["green", "blue"])
+    gmObjectAddGroups("test18.3", ["red", "green"])
+    gmObjectAddGroups("test18.4", ["red", "blue"])
+
+    gmDeleteObjectsInGroup("green")
+    assert(gmGetNumberOfObjects() == 2)
+
+    let ob6 = gmFindObject("test18.1")
+    assert(ob6.isNone())
+
+    let ob7 = gmFindObject("test18.2")
+    assert(ob7.isNone())
+
+    let ob8 = gmFindObject("test18.3")
+    assert(ob8.isNone())
+
+    checkProperties1Name("test18.4", %*{"name": "test18.4", "groups": ["red", "blue"]})
+    checkProperties1Name("test18.5", %*{"name": "test18.5"})
+
+proc test19_deleteObjectsInGroup2() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+    var ob3 = TestObject()
+    var ob4 = TestObject()
+    var ob5 = TestObject()
+
+    gmAddObject("test19.1", GMObject(ob1))
+    gmAddObject("test19.2", GMObject(ob2))
+    gmAddObject("test19.3", GMObject(ob3))
+    gmAddObject("test19.4", GMObject(ob4))
+    gmAddObject("test19.5", GMObject(ob5))
+    assert(gmGetNumberOfObjects() == 5)
+
+    gmObjectAddGroups("test19.1", ["green"])
+    gmObjectAddGroups("test19.2", ["blue"])
+    gmObjectAddGroups("test19.3", ["red", "green"])
+    gmObjectAddGroups("test19.4", ["red", "blue"])
+    gmObjectAddGroups("test19.5", ["green", "yellow"])
+
+    gmDeleteObjectsInGroup("green")
+    assert(gmGetNumberOfObjects() == 2)
+
+    let ob6 = gmFindObject("test19.1")
+    assert(ob6.isNone())
+
+    let ob7 = gmFindObject("test19.3")
+    assert(ob7.isNone())
+
+    let ob8 = gmFindObject("test19.5")
+    assert(ob8.isNone())
+
+    checkProperties1Name("test19.2", %*{"name": "test19.2", "groups": ["blue"]})
+    checkProperties1Name("test19.4", %*{"name": "test19.4", "groups": ["red", "blue"]})
+
+proc test20_deleteObjectsInGroup3() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    # Try to remove objects if there are none available:
+    gmDeleteObjectsInGroup("green")
+    assert(gmGetNumberOfObjects() == 0)
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+
+    gmAddObject("test20.1", GMObject(ob1))
+    gmAddObject("test20.2", GMObject(ob2))
+    assert(gmGetNumberOfObjects() == 2)
+
+    gmObjectAddGroups("test20.1", ["red"])
+    gmObjectAddGroups("test20.2", ["blue"])
+
+    # This group does not exist:
+    gmDeleteObjectsInGroup("green")
+    assert(gmGetNumberOfObjects() == 2)
+
+    checkProperties1Name("test20.1", %*{"name": "test20.1", "groups": ["red"]})
+    checkProperties1Name("test20.2", %*{"name": "test20.2", "groups": ["blue"]})
 
 when isMainModule:
     test1_addObject1()
@@ -355,7 +472,9 @@ when isMainModule:
     test15_objectInGroup1()
     test16_objectInGroup2()
     test17_objectRemoveGroupFromAll1()
-    #test18_deleteObjectsInGroup1()
+    test18_deleteObjectsInGroup1()
+    test19_deleteObjectsInGroup2()
+    test20_deleteObjectsInGroup3()
     #test19_setUpdateOrder1()
     #test20_setUpdateOrder2()
     #test21_getUpdateOrder1()
