@@ -484,6 +484,29 @@ proc test22_setUpdateOrder2() =
     doAssertRaises GMObjectNotFoundError:
         gmObjectSetUpdateOrder("test22.2", 11)
 
+proc test23_getUpdateOrder1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test23.1", GMObject(ob1))
+
+    gmObjectSetUpdateOrder("test23.1", 7)
+
+    assert(gmObjectGetUpdateOrder("test23.1") == 7)
+
+proc test24_getUpdateOrder2() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test24.1", GMObject(ob1))
+
+    gmObjectSetUpdateOrder("test24.1", 7)
+
+    doAssertRaises GMObjectNotFoundError:
+        discard gmObjectGetUpdateOrder("test24.2")
+
 when isMainModule:
     test1_addObject1()
     test2_addObject2()
@@ -507,8 +530,8 @@ when isMainModule:
     test20_deleteObjectsInGroup3()
     test21_setUpdateOrder1()
     test22_setUpdateOrder2()
-    #test23_getUpdateOrder1()
-    #test24_getUpdateOrder2()
+    test23_getUpdateOrder1()
+    test24_getUpdateOrder2()
     #test25_setUpdateOrderGroup1()
     #test26_setDrawOrder1()
     #test27_setDrawOrder2()
