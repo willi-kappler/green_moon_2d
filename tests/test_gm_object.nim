@@ -454,6 +454,36 @@ proc test20_deleteObjectsInGroup3() =
     checkProperties1Name("test20.1", %*{"name": "test20.1", "groups": ["red"]})
     checkProperties1Name("test20.2", %*{"name": "test20.2", "groups": ["blue"]})
 
+proc test21_setUpdateOrder1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+
+    gmAddObject("test21.1", GMObject(ob1))
+    gmAddObject("test21.2", GMObject(ob2))
+
+    gmObjectSetUpdateOrder("test21.1", 5)
+
+    checkProperties2(ob1, %*{"name": "test21.1", "updateOrder": 5})
+    checkProperties2(ob2, %*{"name": "test21.2", "updateOrder": 0})
+
+    gmObjectSetUpdateOrder("test21.2", -11)
+
+    checkProperties2(ob1, %*{"name": "test21.1", "updateOrder": 5})
+    checkProperties2(ob2, %*{"name": "test21.2", "updateOrder": -11})
+
+proc test22_setUpdateOrder2() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test22.1", GMObject(ob1))
+
+    doAssertRaises GMObjectNotFoundError:
+        gmObjectSetUpdateOrder("test22.2", 11)
+
 when isMainModule:
     test1_addObject1()
     test2_addObject2()
@@ -475,18 +505,18 @@ when isMainModule:
     test18_deleteObjectsInGroup1()
     test19_deleteObjectsInGroup2()
     test20_deleteObjectsInGroup3()
-    #test19_setUpdateOrder1()
-    #test20_setUpdateOrder2()
-    #test21_getUpdateOrder1()
-    #test22_getUpdateOrder2()
-    #test23_setUpdateOrderGroup1()
-    #test24_setDrawOrder1()
-    #test25_setDrawOrder2()
-    #test26_getDrawOrder1()
-    #test27_getDrawOrder2()
-    #test28_setDrawOrderGroup1()
-    #test29_setActive1()
-    #test30_setActive2()
+    test21_setUpdateOrder1()
+    test22_setUpdateOrder2()
+    #test23_getUpdateOrder1()
+    #test24_getUpdateOrder2()
+    #test25_setUpdateOrderGroup1()
+    #test26_setDrawOrder1()
+    #test27_setDrawOrder2()
+    #test28_getDrawOrder1()
+    #test29_getDrawOrder2()
+    #test30_setDrawOrderGroup1()
+    #test31_setActive1()
+    #test32_setActive2()
 
 
 
