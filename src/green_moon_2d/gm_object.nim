@@ -38,6 +38,7 @@ type
 
     GMObjectNotFoundError* = object of CatchableError
     GMObjectAlreadyExistsError* = object of CatchableError
+    GMInvalidFlexiMessage* = object of CatchableError
 
 var GMGlobObjects: GMObjectManager
 
@@ -428,6 +429,31 @@ proc gmObjectSendMultiMessagesGroup*(group: string, messages: seq[JsonNode]): se
             for m in messages:
                 r.add(ob.gmSendMessageIntern(m))
             result.add((ob.name, r))
+
+proc gmSendFlexibleMessage*(message: JsonNode): JsonNode =
+    ## Sends a message with flexible receivers.
+    if message.contains("name"):
+        let name = message["name"].getStr()
+        if message.contains("message"):
+            let internMessage = message["message"]
+            return gmObjectSendMessage(name, internMessage)
+        elif message.contains("messages"):
+            let internMessages = message["messages"]
+            #gmObjectSendMultiMessages(name, internMessages)
+        else:
+            error_log(fmt("a flexible message must contain 'message' or 'messages': {message}"), GMInvalidFlexiMessage)
+    elif message.contains("group"):
+        let group = message["group"].getStr()
+        if message.contains("message"):
+            let internMessage = message["message"]
+            #gmObjectSendMessageGroup(group, internMessage)
+        elif message.contains("messages"):
+            let internMessages = message["messages"]
+            #gmObjectSendMultiMessagesGroup(group, internMessages)
+        else:
+            error_log(fmt("a flexible message must contain 'message' or 'messages': {message}"), GMInvalidFlexiMessage)
+    else:
+        error_log(fmt("a flexible message must contain 'name' or 'group': {message}"), GMInvalidFlexiMessage)
 
 proc gmObjectSetCustomProperty*(name: string, property: string, value: JsonNode) =
     ## Sets a custom property for the object. Raise an exception if the object was not found.
