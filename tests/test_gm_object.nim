@@ -566,6 +566,57 @@ proc test27_setDrawOrder2() =
     doAssertRaises GMObjectNotFoundError:
         gmObjectSetDrawOrder("test27.2", 11)
 
+proc test28_getDrawOrder1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test28.1", GMObject(ob1))
+
+    gmObjectSetDrawOrder("test28.1", 7)
+
+    assert(gmObjectGetDrawOrder("test28.1") == 7)
+
+proc test29_getDrawOrder2() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    gmAddObject("test29.1", GMObject(ob1))
+
+    gmObjectSetDrawOrder("test29.1", 7)
+
+    doAssertRaises GMObjectNotFoundError:
+        discard gmObjectGetDrawOrder("test29.2")
+
+proc test30_setDrawOrderGroup1() =
+    gmInitObjectManager()
+    testObjectOrder = @[]
+
+    var ob1 = TestObject()
+    var ob2 = TestObject()
+    var ob3 = TestObject()
+    var ob4 = TestObject()
+    var ob5 = TestObject()
+
+    gmAddObject("test30.1", GMObject(ob1))
+    gmAddObject("test30.2", GMObject(ob2))
+    gmAddObject("test30.3", GMObject(ob3))
+    gmAddObject("test30.4", GMObject(ob4))
+    gmAddObject("test30.5", GMObject(ob5))
+
+    gmObjectAddGroups("test30.1", ["green"])
+    gmObjectAddGroups("test30.2", ["blue", "red"])
+    gmObjectAddGroups("test30.3", ["yellow", "blue"])
+    gmObjectAddGroups("test30.4", ["gray"])
+
+    gmObjectSetDrawOrderGroup("blue", -89)
+
+    checkProperties2(ob1, %*{"name": "test30.1", "groups": ["green"]})
+    checkProperties2(ob2, %*{"name": "test30.2", "groups": ["blue", "red"], "drawOrder": -89})
+    checkProperties2(ob3, %*{"name": "test30.3", "groups": ["yellow", "blue"],  "drawOrder": -89})
+    checkProperties2(ob4, %*{"name": "test30.4", "groups": ["gray"]})
+    checkProperties2(ob5, %*{"name": "test30.5"})
 
 when isMainModule:
     test1_addObject1()
@@ -595,9 +646,9 @@ when isMainModule:
     test25_setUpdateOrderGroup1()
     test26_setDrawOrder1()
     test27_setDrawOrder2()
-    #test28_getDrawOrder1()
-    #test29_getDrawOrder2()
-    #test30_setDrawOrderGroup1()
+    test28_getDrawOrder1()
+    test29_getDrawOrder2()
+    test30_setDrawOrderGroup1()
     #test31_setActive1()
     #test32_setActive2()
 
