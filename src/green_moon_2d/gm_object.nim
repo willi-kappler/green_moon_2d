@@ -129,6 +129,10 @@ proc gmSendMessageIntern(self: var GMObject, message: JsonNode): JsonNode =
     else:
         result = self.gmSendMessage(message)
 
+# GMObjectManager:
+proc gmGetNumberOfObjects*(): uint32 =
+    return uint32(GMGlobObjects.objects.len())
+
 proc gmFindObject*(name: string): Option[GMObject] =
     ## Return the object or none if no such object was found.
     for o in GMGlobObjects.objects.mitems():
@@ -230,16 +234,24 @@ proc gmObjectRemoveGroupFromAll*(group: string) =
 proc gmDeleteObjectsInGroup*(group: string) =
     ## Deletes all the objects that belong to the given group.
     var deleteObjs: seq[uint32] = @[]
+    var indexShift = 0
 
     for i in 0..GMGlobObjects.objects.high():
         if group in GMGlobObjects.objects[i].groups:
-            deleteObjs.add(uint32(i))
+            deleteObjs.add(uint32(i - indexShift))
+            inc(indexShift)
 
-    #TODO: implement
+    for i in 0..deleteObjs.high():
+        GMGlobObjects.objects.delete(deleteObjs[i])
 
+    # Deleting objects this way is inefficient, since all the other objects
+    # have to be moved around after deleting one object.
+    # A better way to do this is to mark the place with an empty object
+    # and when a new object is inserted, those empty places are filled first
+    # before extending the sequence.
 
 proc gmObjectSetUpdateOrder*(name: string, order: int32) =
-    ## Sets the update order for the given object . Raise an exception if the object was not found.
+    ## Sets the update order for the given object. Raise an exception if the object was not found.
     let ob = gmFindObject(name)
 
     if ob.isSome():
@@ -249,7 +261,7 @@ proc gmObjectSetUpdateOrder*(name: string, order: int32) =
         error_log(fmt("Can't set update order for '{name}', object not found!"), GMObjectNotFoundError)
 
 proc gmObjectGetUpdateOrder*(name: string): int32 =
-    ## Returns the update order of the given object . Raise an exception if the object was not found.
+    ## Returns the update order of the given object. Raise an exception if the object was not found.
     let ob = gmFindObject(name)
 
     if ob.isSome():
