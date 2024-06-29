@@ -7,7 +7,10 @@
 This module defines the GMObject base class that all game objects should derive from.
 """
 
+from collections.abc import Iterator
+
 from gm_context import GMContext
+from gm_math import GMVec2D
 
 class GMObject:
     """
@@ -34,7 +37,7 @@ class GMObject:
 
     def move(self) -> None:
         self.vel += self.acc
-        self.pos += self.vec
+        self.pos += self.vel
 
     def add_group(self, name: str) -> None:
         self.groups.add(name)
@@ -60,15 +63,15 @@ class GMObjectManager:
     def object_not_found(self, method: str, name: str) -> None:
         raise KeyError(f"GMObjectManager.{method}(), object with that name not found: {name}")
 
-    def add_object(self, object: GMObject) -> None:
-        assert isinstance(scene, GMObject), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
+    def add_object(self, obj: GMObject) -> None:
+        assert isinstance(obj, GMObject), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
 
-        index = self.get_index(object.name)
+        index = self.get_index(obj.name)
 
         if index is not None:
-            raise KeyError(f"GMObjectManager.add_object(), object with that already exists: {object.name}")
+            raise KeyError(f"GMObjectManager.add_object(), object with that already exists: {obj.name}")
 
-        self.objects.append(object)
+        self.objects.append(obj)
 
     def delete(self, name: str) -> None:
         index = self.get_index(name)
@@ -84,7 +87,7 @@ class GMObjectManager:
     def sort_draw(self) -> None:
         self.objects.sort(key=lambda o: o.draw_order)
 
-    def get_index(self, name: str) -> None:
+    def get_index(self, name: str) -> int | None:
         index = None
 
         for i, o in enumerate(self.objects):
@@ -100,7 +103,7 @@ class GMObjectManager:
         if index is None:
             self.object_not_found("get", name)
         else:
-            return self.objects[i]
+            return self.objects[index]
 
     def update(self, context: GMContext) -> None:
         for o in self.objects:
