@@ -1,0 +1,15 @@
+# This file is part of GreenMoon2D, a 2D game engine for Python
+# written by Willi Kappler
+#
+# See: https://github.com/willi-kappler/green_moon_2d
+
+"""
+This module defines all math relatec functions and objects
+"""
+
+class GMVec2D:
+    def __init__(self):
+        self.x = 0.0
+        self.y = 0.0
+
+
