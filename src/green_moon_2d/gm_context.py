@@ -14,7 +14,6 @@ class GMContext:
     """
     def __init__(self):
         game_property = {}
-        pass
 
 
 
