@@ -30,25 +30,49 @@ class GMObject:
         self.property = {}
 
     def update(self, context: GMContext) -> None:
+        """
+        This method is called once per frame, you should derive it if needed.
+        It is used to update the internal state of the object.
+        """
         pass
 
     def draw(self, context: GMContext) -> None:
+        """
+        This method is called once per frame, you should derive it if needed.
+        It is used to draw the object.
+        """
         pass
 
     def move(self) -> None:
+        """
+        This method can be called once per frame if needed.
+        It moves this object according to the given velocity and acceleration.
+        """
         self.vel += self.acc
         self.pos += self.vel
 
     def add_group(self, name: str) -> None:
+        """
+        Add adds this object to the given group.
+        """
         self.groups.add(name)
 
     def remove_group(self, name: str) -> None:
+        """
+        Removes this object from the given group.
+        """
         self.groups.remove(name)
 
     def in_group(self, name: str) -> bool:
+        """
+        Tests if this object is part of the given group.
+        """
         return name in self.groups
 
     def clear_groups(self) -> None:
+        """
+        Removed this object from all the groups.
+        """
         self.groups.clear()
 
 class GMObjectManager:
@@ -60,10 +84,18 @@ class GMObjectManager:
     def __init__(self):
         self.objects = []
 
-    def object_not_found(self, method: str, name: str) -> None:
+    def _object_not_found(self, method: str, name: str) -> None:
+        """
+        Internal error method. It's called when the object with the given name was not found.
+        Raise KeyError.
+        """
         raise KeyError(f"GMObjectManager.{method}(), object with that name not found: {name}")
 
     def add_object(self, obj: GMObject) -> None:
+        """
+        Adds a new object to the manager. The name must be unique and the object must be derived from GMObject.
+        Raises KeyError if the name is already in use.
+        """
         assert isinstance(obj, GMObject), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
 
         index = self.get_index(obj.name)
@@ -74,20 +106,34 @@ class GMObjectManager:
         self.objects.append(obj)
 
     def delete(self, name: str) -> None:
+        """
+        Remove the object with the given name.
+        Raises KeyError if the object was not found.
+        """
         index = self.get_index(name)
 
         if index is None:
-            self.object_not_found("delete", name)
+            self._object_not_found("delete", name)
         else:
             del self.objects[index]
 
     def sort_update(self) -> None:
+        """
+        Sorts all object according to the update_order.
+        """
         self.objects.sort(key=lambda o: o.update_order)
 
     def sort_draw(self) -> None:
+        """
+        Sorts all object according to the draw_order.
+        """
         self.objects.sort(key=lambda o: o.draw_order)
 
     def get_index(self, name: str) -> int | None:
+        """
+        Returns the index of the object with the given name.
+        Returns None if the object was not found.
+        """
         index = None
 
         for i, o in enumerate(self.objects):
@@ -97,58 +143,90 @@ class GMObjectManager:
 
         return index
 
-    def get(self, name: str) -> None:
+    def get(self, name: str) -> GMObject | None:
+        """
+        Returns the object with the given name.
+        Raise KeyError if the object was not found.
+        """
         index = self.get_index(name)
 
         if index is None:
-            self.object_not_found("get", name)
-        else:
-            return self.objects[index]
+            self._object_not_found("get", name)
+
+        return self.objects[index]
 
     def update(self, context: GMContext) -> None:
+        """
+        Updates all the avtive objects. Objects can be sorted by update_order.
+        """
         for o in self.objects:
             if o.active:
                 o.update(context)
 
     def draw(self, context: GMContext) -> None:
+        """
+        Draws all the visible objects. Objects can be sorted by draw_order.
+        """
         for o in self.objects:
             if o.visible:
                 o.draw(context)
 
     def add_group(self, name: str, group: str) -> None:
+        """
+        Add the given object to the given group.
+        Raise KeyError is the object was not found.
+        """
         index = self.get_index(name)
 
         if index is None:
-            self.object_not_found("add_group", name)
+            self._object_not_found("add_group", name)
         else:
             self.objects[index].add_group(group)
 
     def remove_group(self, name: str, group: str) -> None:
+        """
+        Rmove the given object to the given group.
+        Raise KeyError is the object was not found.
+        """
         index = self.get_index(name)
 
         if index is None:
-            self.object_not_found("remove_group", name)
+            self._object_not_found("remove_group", name)
         else:
             self.objects[index].remove_group(group)
 
     def clear_groups(self, name: str) -> None:
+        """
+        Rmove all groups from the given object.
+        Raise KeyError is the object was not found.
+        """
         index = self.get_index(name)
 
         if index is None:
-            self.object_not_found("remove_group", name)
+            self._object_not_found("clear_groups", name)
         else:
             self.objects[index].clear_groups()
 
     def iter_group(self, group: str) -> Iterator[GMObject]:
+        """
+        Iterates over all the objects of the given group.
+        """
         for o in self.objects:
             if o.in_group(group):
                 yield o
 
     def apply_group(self, group: str, op) -> None:
+        """
+        Apply the given operation to all the object of the given group.
+        """
         for o in self.iter_group(group):
             op(o)
 
     def collect_group(self, group: str, op):
+        """
+        Collects the return values of all the objects of the given groups
+        after the operation is applied to the objects.
+        """
         result = []
         for o in self.iter_group(group):
             result.append((o.name, op(o)))
