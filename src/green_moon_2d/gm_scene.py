@@ -1,5 +1,5 @@
 # This file is part of GreenMoon2D, a 2D game engine for Python
-# written by Willi Kappler
+# written by Willi Kappler, MIT license.
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
@@ -17,6 +17,7 @@ class GMScene:
 
     def __init__(self, name: str):
         self.name = name
+        self.custom_property = {}
 
     def update(self, context: GMContext) -> None:
         """
