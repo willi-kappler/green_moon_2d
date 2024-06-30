@@ -110,5 +110,12 @@ class GMSceneManager:
         self.current_scene = self.scene_stack.pop()
         self.current_scene.enter()
 
+    def start_scene(self, name: str) -> None:
+        """
+        Sets the first scene to start the game with.
+        Raises KeyError if the scene with the given name is not found.
+        """
 
+        self.current_scene = self.scenes[name]
+        self.current_scene.enter()
 
