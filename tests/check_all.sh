@@ -14,5 +14,3 @@ echo -e "\n\n-------------------------------------------\n\n"
 
 echo "flake8:"
 flake8 src/green_moon_2d/
-
-# end
