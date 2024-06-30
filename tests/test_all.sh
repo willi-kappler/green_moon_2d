@@ -2,10 +2,9 @@
 
 reset
 
-python3 tests/test_scene.py
+export PYTHONPATH=$PYTHONPATH:"src/"
 
-python3 tests/test_object.py
-
-python3 tests/test_math.py
-
-# end
+for t in tests/*.py; do
+	echo $t
+	python3 $t
+done
