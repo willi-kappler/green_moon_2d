@@ -7,7 +7,7 @@
 This module defines the GMSceneManager and the GMScene base class.
 """
 
-from gm_context import GMContext
+from green_moon_2d.gm_context import GMContext
 
 class GMScene:
     """

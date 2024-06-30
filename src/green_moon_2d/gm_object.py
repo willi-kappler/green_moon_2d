@@ -9,8 +9,8 @@ This module defines the GMObject base class that all game objects should derive 
 
 from collections.abc import Iterator
 
-from gm_context import GMContext
-from gm_math import GMVec2D
+from green_moon_2d.gm_context import GMContext
+from green_moon_2d.gm_math import GMVec2D
 
 class GMObject:
     """
