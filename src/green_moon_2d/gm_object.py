@@ -12,6 +12,7 @@ from collections.abc import Iterator
 from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_math import GMVec2D
 
+
 class GMObject:
     """
     This base class should be derived from for all objects to work properly.
@@ -106,6 +107,7 @@ class GMObject:
         """
         self.properties.clear()
 
+
 class GMObjectManager:
     """
     This is a helper class that takes care of handling objects.
@@ -183,8 +185,9 @@ class GMObjectManager:
 
         if index is None:
             self._object_not_found("get", name)
-
-        return self.objects[index]
+            return None
+        else:
+            return self.objects[index]
 
     def update(self, context: GMContext) -> None:
         """
@@ -297,12 +300,9 @@ class GMObjectManager:
 
         if index is None:
             self._object_not_found("has_property", name)
+            return False
         else:
             return property in self.objects[index].properties
-
-
-
-
 
 
 
