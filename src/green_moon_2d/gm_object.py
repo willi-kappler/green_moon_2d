@@ -284,9 +284,23 @@ class GMObjectManager:
         index = self.get_index(name)
 
         if index is None:
-            self._object_not_found("set_property", name)
+            self._object_not_found("get_property", name)
         else:
             self.objects[index].get_property(property)
+
+    def has_property(self, name: str, property: str) -> bool:
+        """
+        Checks wether the given object has the property.
+        Raise KeyError if the object was not found.
+        """
+        index = self.get_index(name)
+
+        if index is None:
+            self._object_not_found("has_property", name)
+        else:
+            return property in self.objects[index].properties
+
+
 
 
 
