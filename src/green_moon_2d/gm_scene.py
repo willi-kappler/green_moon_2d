@@ -99,7 +99,7 @@ class GMSceneManager:
         Push the current scene onto the scene stack and change to the given scene.
         If the scene is not found raise an exception.
         """
-        self.scene_stack.add(self.current_scene)
+        self.scene_stack.append(self.current_scene)
         self.change_to_scene(name)
 
     def pop_and_change(self) -> None:
