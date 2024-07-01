@@ -27,7 +27,7 @@ class GMObject:
         self.draw_order = 0
         self.update_order = 0
         self.groups = set()
-        self.property = {}
+        self.properties = {}
 
     def update(self, context: GMContext) -> None:
         """
@@ -75,6 +75,37 @@ class GMObject:
         """
         self.groups.clear()
 
+    def set_property(self, name: str, val):
+        """
+        Sets the property with the given name to the given value.
+        """
+        self.properties[name] = val
+
+    def get_property(self, name: str):
+        """
+        Return the property with the given name.
+        Raise KeyError if the property doesn't exist.
+        """
+        return self.properties[name]
+
+    def get_property_default(self, name: str, default):
+        """
+        Return the property with the given name, return default value if not found.
+        """
+        return self.properties.get(name, default)
+
+    def has_property(self, name: str) -> bool:
+        """
+        Checks wether the property with the given name exists.
+        """
+        return name in self.properties
+
+    def clear_properties(self):
+        """
+        Removes all custom properties from this object.
+        """
+        self.properties.clear()
+
 class GMObjectManager:
     """
     This is a helper class that takes care of handling objects.
@@ -101,7 +132,7 @@ class GMObjectManager:
         index = self.get_index(obj.name)
 
         if index is not None:
-            raise KeyError(f"GMObjectManager.add_object(), object with that already exists: {obj.name}")
+            raise KeyError(f"GMObjectManager.add_object(), object with name that already exists: {obj.name}")
 
         self.objects.append(obj)
 
@@ -174,7 +205,7 @@ class GMObjectManager:
     def add_group(self, name: str, group: str) -> None:
         """
         Add the given object to the given group.
-        Raise KeyError is the object was not found.
+        Raise KeyError if the object was not found.
         """
         index = self.get_index(name)
 
@@ -186,7 +217,7 @@ class GMObjectManager:
     def remove_group(self, name: str, group: str) -> None:
         """
         Rmove the given object to the given group.
-        Raise KeyError is the object was not found.
+        Raise KeyError if the object was not found.
         """
         index = self.get_index(name)
 
@@ -198,7 +229,7 @@ class GMObjectManager:
     def clear_groups(self, name: str) -> None:
         """
         Rmove all groups from the given object.
-        Raise KeyError is the object was not found.
+        Raise KeyError if the object was not found.
         """
         index = self.get_index(name)
 
@@ -232,4 +263,32 @@ class GMObjectManager:
             result.append((o.name, op(o)))
 
         return result
+
+    def set_property(self, name: str, property: str, val) -> None:
+        """
+        Sets the property for the given object.
+        Raise KeyError if the object is not found.
+        """
+        index = self.get_index(name)
+
+        if index is None:
+            self._object_not_found("set_property", name)
+        else:
+            self.objects[index].set_property(property, val)
+
+    def get_property(self, name: str, property: str):
+        """
+        Returns the property of the given object.
+        Raise KeyError if the object in not found or if the property is not found.
+        """
+        index = self.get_index(name)
+
+        if index is None:
+            self._object_not_found("set_property", name)
+        else:
+            self.objects[index].get_property(property)
+
+
+
+
 
