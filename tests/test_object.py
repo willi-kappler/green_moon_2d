@@ -8,6 +8,7 @@ import unittest
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_context import GMContext
 
+
 class TestObject(GMObject):
     def __init__(self, name):
         super().__init__(name)
@@ -21,21 +22,27 @@ class TestObject(GMObject):
     def draw(self, context: GMContext):
         self.draw_called += 1
 
+
 class TestObjectManager(unittest.TestCase):
     def setUp(self):
         self.om = GMObjectManager()
 
     def test_add_object1(self):
         """
-        Test
+        Test adding a new object.
         """
-        pass
+        self.assertEqual(len(self.om.objects), 0)
+        self.om.add_object(TestObject("test1"))
+        self.assertEqual(self.om.get_index("test1"), 0)
+        self.assertEqual(len(self.om.objects), 1)
 
     def test_add_object2(self):
         """
-        Test
+        Test adding a new object with a used name.
         """
-        pass
+        self.om.add_object(TestObject("test1"))
+        with self.assertRaises(KeyError):
+            self.om.add_object(TestObject("test1"))
 
     def test_delete_object1(self):
         """
@@ -193,6 +200,6 @@ class TestObjectManager(unittest.TestCase):
 #        """
 #        pass
 
+
 if __name__ == '__main__':
     unittest.main()
-
