@@ -5,7 +5,7 @@
 
 import unittest
 
-from green_moon_2d.gm_scene import GMObject, GMObjectManager
+from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_context import GMContext
 
 class TestObject(GMObject):
@@ -164,6 +164,24 @@ class TestObjectManager(unittest.TestCase):
         pass
 
     def test_collect_group2(self):
+        """
+        Test
+        """
+        pass
+
+    def test_set_property(self):
+        """
+        Test
+        """
+        pass
+
+    def test_get_property(self):
+        """
+        Test
+        """
+        pass
+
+    def test_has_property(self):
         """
         Test
         """
