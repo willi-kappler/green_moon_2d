@@ -15,38 +15,39 @@ from green_moon_2d.gm_context import GMContext
 class GMScene:
     """
     This is the base class for a user defined scene.
-    You have to provide a scene name and imlement the update() and draw() methods.
+    You have to provide a scene name and imlement the update() and
+    draw() methods.
     """
 
     def __init__(self, name: str):
         self.name: str = name
         self.custom_property: dict[str, Any] = {}
 
-    def update(self, context: GMContext) -> None:
+    def update(self, _context: GMContext) -> None:
         """
-        This method is called once per frame and is used to update the internal state of the scene.
-        You have to implement this method.
+        This method is called once per frame and is used to update the
+        internal state of the scene. You have to implement this method.
         """
         pass
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self, _context: GMContext) -> None:
         """
-        This method is called once per frame and is used to draw the whole scene.
-        You have to implement this method.
+        This method is called once per frame and is used to draw the
+        whole scene. You have to implement this method.
         """
         pass
 
     def enter(self) -> None:
         """
-        This method is called every time this scene becomes the current scene.
-        You don't have to implement this mwthod.
+        This method is called every time this scene becomes the current
+        scene. You don't have to implement this mwthod.
         """
         pass
 
     def leave(self) -> None:
         """
-        This method is called every time this scene is no longer the current scene.
-        You don't have to implement this mwthod.
+        This method is called every time this scene is no longer the
+        current scene. You don't have to implement this mwthod.
         """
         pass
 
@@ -63,19 +64,22 @@ class GMSceneManager:
 
     def update(self, context: GMContext) -> None:
         """
-        Updates the current scene. This method is called by the engine once per frame.
+        Updates the current scene. This method is called by the engine
+        once per frame.
         """
         self.current_scene.update(context)
 
     def draw(self, context: GMContext) -> None:
         """
-        Draws the current scene. This method is called by the engine once per frame.
+        Draws the current scene. This method is called by the engine
+        once per frame.
         """
         self.current_scene.draw(context)
 
     def add_scene(self, scene: GMScene) -> None:
         """
-        Adds a new scene to the scene manager. If a scene with the same name already exists it will be replaced.
+        Adds a new scene to the scene manager. If a scene with the
+        same name already exists it will be replaced.
         """
         assert isinstance(
             scene, GMScene
@@ -85,14 +89,16 @@ class GMSceneManager:
 
     def delete_scene(self, name: str) -> None:
         """
-        Deletes the scene with the given name. If the scene is not found raise an exception.
+        Deletes the scene with the given name. If the scene is not found
+        raise an exception.
         """
 
         del self.scenes[name]
 
     def change_to_scene(self, name: str) -> None:
         """
-        Change the current scene to the given one. If the scene is not found raise an exception.
+        Change the current scene to the given one. If the scene is not
+        found raise an exception.
         """
 
         self.current_scene.leave()
@@ -101,15 +107,16 @@ class GMSceneManager:
 
     def push_and_change(self, name: str) -> None:
         """
-        Push the current scene onto the scene stack and change to the given scene.
-        If the scene is not found raise an exception.
+        Push the current scene onto the scene stack and change to the
+        given scene. If the scene is not found raise an exception.
         """
         self.scene_stack.append(self.current_scene)
         self.change_to_scene(name)
 
     def pop_and_change(self) -> None:
         """
-        Pops a scene from the scene stack and change to it. If the stack is empty raise an exception.
+        Pops a scene from the scene stack and change to it. If the stack
+        is empty raise an exception.
         """
         self.current_scene.leave()
         self.current_scene = self.scene_stack.pop()
