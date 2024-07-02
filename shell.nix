@@ -6,9 +6,9 @@
         flake8
         ipython
         mypy
-        #python-lsp-ruff
         raylib
         ]))
+      pyright
       ruff
     ];
 }
