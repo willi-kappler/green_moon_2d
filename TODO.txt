@@ -1,0 +1,5 @@
+Add py.typed to src/green_moon_2d/ path:
+
+https://mypy.readthedocs.io/en/stable/installed_packages.html#installed-packages
+
+
