@@ -7,7 +7,10 @@
 This module defines the GMSceneManager and the GMScene base class.
 """
 
+from typing import Any
+
 from green_moon_2d.gm_context import GMContext
+
 
 class GMScene:
     """
@@ -16,8 +19,8 @@ class GMScene:
     """
 
     def __init__(self, name: str):
-        self.name = name
-        self.custom_property = {}
+        self.name: str = name
+        self.custom_property: dict[str, Any] = {}
 
     def update(self, context: GMContext) -> None:
         """
@@ -55,7 +58,7 @@ class GMSceneManager:
 
     def __init__(self):
         self.scenes = {}
-        self.current_scene = None
+        self.current_scene: GMScene = GMScene("empty")
         self.scene_stack = []
 
     def update(self, context: GMContext) -> None:
@@ -74,7 +77,9 @@ class GMSceneManager:
         """
         Adds a new scene to the scene manager. If a scene with the same name already exists it will be replaced.
         """
-        assert isinstance(scene, GMScene), "GMSceneManager.add_scene(), new scene must be a subclass of GMScene"
+        assert isinstance(
+            scene, GMScene
+        ), "GMSceneManager.add_scene(), new scene must be a subclass of GMScene"
 
         self.scenes[scene.name] = scene
 
@@ -118,4 +123,3 @@ class GMSceneManager:
 
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
-
