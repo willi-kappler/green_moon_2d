@@ -4,7 +4,8 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 """
-This module defines the GMObject base class that all game objects should derive from.
+This module defines the GMObject base class that all game objects should
+derive from.
 """
 
 from collections.abc import Iterator
@@ -15,7 +16,8 @@ from green_moon_2d.gm_math import GMVec2D
 
 class GMObject:
     """
-    This base class should be derived from for all objects to work properly.
+    This base class should be derived from for all objects to work
+    properly.
     """
 
     def __init__(self, name):
@@ -91,7 +93,8 @@ class GMObject:
 
     def get_property_default(self, name: str, default):
         """
-        Return the property with the given name, return default value if not found.
+        Return the property with the given name, return default value
+        if not found.
         """
         return self.properties.get(name, default)
 
@@ -119,22 +122,29 @@ class GMObjectManager:
 
     def _object_not_found(self, method: str, name: str) -> None:
         """
-        Internal error method. It's called when the object with the given name was not found.
-        Raise KeyError.
+        Internal error method. It's called when the object with the given
+        name was not found. Raise KeyError.
         """
-        raise KeyError(f"GMObjectManager.{method}(), object with that name not found: {name}")
+        raise KeyError(
+            f"GMObjectManager.{method}(), object with that name not found: {name}"
+        )
 
     def add_object(self, obj: GMObject) -> None:
         """
-        Adds a new object to the manager. The name must be unique and the object must be derived from GMObject.
+        Adds a new object to the manager. The name must be unique and the
+        object must be derived from GMObject.
         Raises KeyError if the name is already in use.
         """
-        assert isinstance(obj, GMObject), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
+        assert isinstance(
+            obj, GMObject
+        ), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
 
         index = self.get_index(obj.name)
 
         if index is not None:
-            raise KeyError(f"GMObjectManager.add_object(), object with name that already exists: {obj.name}")
+            raise KeyError(
+                f"GMObjectManager.add_object(), object with name that already exists: {obj.name}"
+            )
 
         self.objects.append(obj)
 
@@ -282,7 +292,8 @@ class GMObjectManager:
     def get_property(self, name: str, property: str):
         """
         Returns the property of the given object.
-        Raise KeyError if the object in not found or if the property is not found.
+        Raise KeyError if the object in not found or if the property is
+        not found.
         """
         index = self.get_index(name)
 
@@ -303,6 +314,3 @@ class GMObjectManager:
             return False
         else:
             return property in self.objects[index].properties
-
-
-
