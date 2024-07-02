@@ -8,6 +8,7 @@ import unittest
 from green_moon_2d.gm_scene import GMScene, GMSceneManager
 from green_moon_2d.gm_context import GMContext
 
+
 class TestScene(GMScene):
     def __init__(self, name):
         super().__init__(name)
@@ -17,10 +18,10 @@ class TestScene(GMScene):
         self.enter_called = 0
         self.leave_called = 0
 
-    def update(self, context: GMContext):
+    def update(self, _context: GMContext):
         self.update_called += 1
 
-    def draw(self, context: GMContext):
+    def draw(self, _context: GMContext):
         self.draw_called += 1
 
     def enter(self):
@@ -28,6 +29,7 @@ class TestScene(GMScene):
 
     def leave(self):
         self.leave_called += 1
+
 
 class TestSceneManager(unittest.TestCase):
     def assertSceneProperty(self, name: str, property: str, value):
@@ -256,6 +258,6 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneDraw("test1", 1)
         self.assertSceneDraw("test2", 1)
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()
