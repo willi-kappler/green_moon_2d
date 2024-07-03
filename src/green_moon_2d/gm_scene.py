@@ -59,7 +59,7 @@ class GMSceneManager:
 
     def __init__(self):
         self.scenes = {}
-        self.current_scene: GMScene | None = None
+        self.current_scene: GMScene = GMScene("empty")
         self.scene_stack = []
 
     def update(self, context: GMContext) -> None:
