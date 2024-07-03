@@ -8,7 +8,7 @@ This module defines the GMObject base class that all game objects should
 derive from.
 """
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Iterable
 
 from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_math import GMVec2D
@@ -130,25 +130,28 @@ class GMObjectManager:
             "name not found: {name}"
         )
 
-    def add_object(self, obj: GMObject) -> None:
+    def add(self, obj: GMObject | Iterable[GMObject]) -> None:
         """
-        Adds a new object to the manager. The name must be unique and the
-        object must be derived from GMObject.
+        Adds one or more new object to the manager. The name must be unique
+        and the object must be derived from GMObject.
         Raise KeyError if the name is already in use.
         """
-        assert isinstance(
-            obj, GMObject), "GMObjectManager.add_object(), new object must " \
-            "be a subclass of GMObject"
+        if isinstance(obj, GMObject):
+            index = self.get_index(obj.name)
 
-        index = self.get_index(obj.name)
+            if index is not None:
+                raise KeyError(
+                    "GMObjectManager.add(), object with name "
+                    f"that already exists: {obj.name}"
+                )
 
-        if index is not None:
-            raise KeyError(
-                "GMObjectManager.add_object(), object with name "
-                f"that already exists: {obj.name}"
-            )
-
-        self.objects.append(obj)
+            self.objects.append(obj)
+        elif isinstance(obj, Iterable):
+            for item in obj:
+                self.add(item)
+        else:
+            raise TypeError("GMObjectManager.add(), new object must "
+                            "be a subclass of GMObject")
 
     def delete(self, name: str) -> None:
         """
@@ -196,8 +199,7 @@ class GMObjectManager:
         index = self.get_index(name)
 
         if index is None:
-            self._object_not_found("get", name)
-            return None
+            return self._object_not_found("get", name)
         else:
             return self.objects[index]
 
