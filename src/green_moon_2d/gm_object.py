@@ -134,7 +134,7 @@ class GMObjectManager:
         """
         Adds a new object to the manager. The name must be unique and the
         object must be derived from GMObject.
-        Raises KeyError if the name is already in use.
+        Raise KeyError if the name is already in use.
         """
         assert isinstance(
             obj, GMObject), "GMObjectManager.add_object(), new object must " \
@@ -153,7 +153,7 @@ class GMObjectManager:
     def delete(self, name: str) -> None:
         """
         Remove the object with the given name.
-        Raises KeyError if the object was not found.
+        Raise KeyError if the object was not found.
         """
         index = self.get_index(name)
 

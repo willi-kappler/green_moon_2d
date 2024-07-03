@@ -126,7 +126,7 @@ class GMSceneManager:
     def start_scene(self, name: str) -> None:
         """
         Sets the first scene to start the game with.
-        Raises KeyError if the scene with the given name is not found.
+        Raise KeyError if the scene with the given name is not found.
         """
 
         self.current_scene = self.scenes[name]
