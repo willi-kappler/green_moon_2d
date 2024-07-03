@@ -213,7 +213,7 @@ class TestSceneManager(unittest.TestCase):
         Test setting the start scene.
         """
         self.sm.add_scene(TestScene("test1"))
-        self.assertEqual(self.sm.current_scene, None)
+        self.assertEqual(self.sm.current_scene.name, "empty")
 
         self.sm.start_scene("test1")
         self.assertSceneCurrent("test1")
