@@ -330,7 +330,6 @@ class TestObjectManager(unittest.TestCase):
         """
         Test iterating over all objects that belong to a group.
         """
-
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -354,7 +353,20 @@ class TestObjectManager(unittest.TestCase):
         """
         Test iteration over all objects that belong to an unknown group.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+
+        self.om.add_group("test1", ["foo", "bar", "top"])
+        self.om.add_group("test2", ["blue", "top"])
+
+        self.om.get("test1").properties["Called"] = "No"
+        self.om.get("test2").properties["Called"] = "No"
+
+        for ob in self.om.iter_group("yellow"):
+            ob.properties["Called"] = "Yes"
+
+        self.assertObjectProperty("test1", "Called", "No")
+        self.assertObjectProperty("test2", "Called", "No")
 
     def test_apply_group1(self):
         """
