@@ -18,4 +18,5 @@ class GMVec2D:
     def __add__(self, other: Self) -> Self:
         x = self.x + other.x
         y = self.y + other.y
-        return type(self)(x, y)
+        cls = type(self)
+        return cls(x, y)
