@@ -15,14 +15,14 @@ class TestObject(GMObject):
     def __init__(self, name):
         super().__init__(name)
 
-        self.update_called = 0
-        self.draw_called = 0
+        self.properties["update_called"] = 0
+        self.properties["draw_called"] = 0
 
     def update(self, context: GMContext):
-        self.update_called += 1
+        self.properties["update_called"] += 1
 
     def draw(self, context: GMContext):
-        self.draw_called += 1
+        self.properties["draw_called"] += 1
 
 
 class TestObjectManager(unittest.TestCase):
@@ -176,15 +176,15 @@ class TestObjectManager(unittest.TestCase):
         context = GMContext()
         self.om.update(context)
 
-        self.assertEqual(self.om.get("test1").update_called, 1)
-        self.assertEqual(self.om.get("test2").update_called, 1)
+        self.assertObjectProperty("test1", "update_called", 1)
+        self.assertObjectProperty("test2", "update_called", 1)
 
         self.om.add(TestObject("test3"))
         self.om.update(context)
 
-        self.assertEqual(self.om.get("test1").update_called, 2)
-        self.assertEqual(self.om.get("test2").update_called, 2)
-        self.assertEqual(self.om.get("test3").update_called, 1)
+        self.assertObjectProperty("test1", "update_called", 2)
+        self.assertObjectProperty("test2", "update_called", 2)
+        self.assertObjectProperty("test3", "update_called", 1)
 
     def test_draw(self):
         """
@@ -196,15 +196,15 @@ class TestObjectManager(unittest.TestCase):
         context = GMContext()
         self.om.draw(context)
 
-        self.assertEqual(self.om.get("test1").draw_called, 1)
-        self.assertEqual(self.om.get("test2").draw_called, 1)
+        self.assertObjectProperty("test1", "draw_called", 1)
+        self.assertObjectProperty("test2", "draw_called", 1)
 
         self.om.add(TestObject("test3"))
         self.om.draw(context)
 
-        self.assertEqual(self.om.get("test1").draw_called, 2)
-        self.assertEqual(self.om.get("test2").draw_called, 2)
-        self.assertEqual(self.om.get("test3").draw_called, 1)
+        self.assertObjectProperty("test1", "draw_called", 2)
+        self.assertObjectProperty("test2", "draw_called", 2)
+        self.assertObjectProperty("test3", "draw_called", 1)
 
     def test_add_group1(self):
         """
