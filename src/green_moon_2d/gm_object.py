@@ -9,7 +9,7 @@ derive from.
 """
 
 from collections.abc import Iterator, Iterable
-from typing import Any
+from typing import Any, NoReturn
 
 from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_math import GMVec2D
@@ -122,7 +122,7 @@ class GMObjectManager:
     def __init__(self):
         self.objects = []
 
-    def _object_not_found(self, method: str, name: str) -> None:
+    def _object_not_found(self, method: str, name: str) -> NoReturn:
         """
         Internal error method. It's called when the object with the given
         name was not found. Raise KeyError.
@@ -194,7 +194,7 @@ class GMObjectManager:
 
         return index
 
-    def get(self, name: str) -> GMObject | None:
+    def get(self, name: str) -> GMObject:
         """
         Returns the object with the given name.
         Raise KeyError if the object was not found.
@@ -202,9 +202,9 @@ class GMObjectManager:
         index = self.get_index(name)
 
         if index is None:
-            return self._object_not_found("get", name)
-        else:
-            return self.objects[index]
+            self._object_not_found("get", name)
+
+        return self.objects[index]
 
     def update(self, context: GMContext) -> None:
         """
