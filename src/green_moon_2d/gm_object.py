@@ -9,6 +9,7 @@ derive from.
 """
 
 from collections.abc import Iterator, Iterable
+from typing import Any
 
 from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_math import GMVec2D
@@ -64,7 +65,8 @@ class GMObject:
         """
         Removes this object from the given group.
         """
-        self.groups.remove(name)
+        if name in self.groups:
+            self.groups.remove(name)
 
     def in_group(self, name: str) -> bool:
         """
@@ -78,20 +80,20 @@ class GMObject:
         """
         self.groups.clear()
 
-    def set_property(self, name: str, val):
+    def set_property(self, name: str, val: Any):
         """
         Sets the property with the given name to the given value.
         """
         self.properties[name] = val
 
-    def get_property(self, name: str):
+    def get_property(self, name: str) -> Any:
         """
         Return the property with the given name.
         Raise KeyError if the property doesn't exist.
         """
         return self.properties[name]
 
-    def get_property_default(self, name: str, default):
+    def get_property_default(self, name: str, default: Any) -> Any:
         """
         Return the property with the given name, return default value
         if not found.
@@ -104,7 +106,7 @@ class GMObject:
         """
         return name in self.properties
 
-    def clear_properties(self):
+    def clear_properties(self) -> None:
         """
         Removes all custom properties from this object.
         """
@@ -252,6 +254,13 @@ class GMObjectManager:
         else:
             self.objects[index].remove_group(group)
 
+    def remove_group_from_all(self, group: str) -> None:
+        """
+        Remove the given group from all object.
+        """
+        for ob in self.objects:
+            ob.remove_group(group)
+
     def clear_groups(self, name: str) -> None:
         """
         Rmove all groups from the given object.
@@ -279,7 +288,7 @@ class GMObjectManager:
         for o in self.iter_group(group):
             op(o)
 
-    def collect_group(self, group: str, op):
+    def collect_group(self, group: str, op) -> list[Any]:
         """
         Collects the return values of all the objects of the given groups
         after the operation is applied to the objects.
@@ -290,7 +299,7 @@ class GMObjectManager:
 
         return result
 
-    def set_property(self, name: str, property: str, val) -> None:
+    def set_property(self, name: str, property: str, val: Any) -> None:
         """
         Sets the property for the given object.
         Raise KeyError if the object is not found.
@@ -302,7 +311,7 @@ class GMObjectManager:
         else:
             self.objects[index].set_property(property, val)
 
-    def get_property(self, name: str, property: str):
+    def get_property(self, name: str, property: str) -> Any:
         """
         Returns the property of the given object.
         Raise KeyError if the object in not found or if the property is
@@ -311,9 +320,9 @@ class GMObjectManager:
         index = self.get_index(name)
 
         if index is None:
-            self._object_not_found("get_property", name)
+            return self._object_not_found("get_property", name)
         else:
-            self.objects[index].get_property(property)
+            return self.objects[index].get_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
         """
