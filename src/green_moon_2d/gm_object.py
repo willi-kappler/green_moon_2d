@@ -150,8 +150,9 @@ class GMObjectManager:
             for item in obj:
                 self.add(item)
         else:
-            raise TypeError("GMObjectManager.add(), new object must "
-                            "be a subclass of GMObject")
+            raise TypeError(
+                "GMObjectManager.add(), new object must "
+                "be a subclass of GMObject")
 
     def delete(self, name: str) -> None:
         """
@@ -219,7 +220,7 @@ class GMObjectManager:
             if o.visible:
                 o.draw(context)
 
-    def add_group(self, name: str, group: str) -> None:
+    def add_group(self, name: str, group: str | list[str]) -> None:
         """
         Add the given object to the given group.
         Raise KeyError if the object was not found.
@@ -229,7 +230,15 @@ class GMObjectManager:
         if index is None:
             self._object_not_found("add_group", name)
         else:
-            self.objects[index].add_group(group)
+            if isinstance(group, str):
+                self.objects[index].add_group(group)
+            elif isinstance(group, list):
+                for g in group:
+                    self.objects[index].add_group(g)
+            else:
+                raise ValueError(
+                    "GMObjectManager.add_group(), group must be "
+                    f"string or list of strings for object {name}")
 
     def remove_group(self, name: str, group: str) -> None:
         """
