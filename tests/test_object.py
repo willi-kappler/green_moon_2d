@@ -216,10 +216,10 @@ class TestObjectManager(unittest.TestCase):
         self.assertObjectGroups("test1", ["foo"])
         self.assertObjectGroups("test2", [])
 
-        self.om.add_group("test1", "bar")
+        self.om.add_group("test1", ["bar", "baz"])
         self.om.add_group("test2", "green")
 
-        self.assertObjectGroups("test1", ["foo", "bar"])
+        self.assertObjectGroups("test1", ["foo", "bar", "baz"])
         self.assertObjectGroups("test2", ["green"])
 
     def test_add_group2(self):
@@ -234,61 +234,86 @@ class TestObjectManager(unittest.TestCase):
 
     def test_remove_group1(self):
         """
-        Test
+        Test removing a group from an object and removing an unknown group
+        from an object.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add_group("test1", ["foo", "bar"])
+        self.om.add_group("test2", ["green", "blue", "yellow"])
+
+        self.assertObjectGroups("test1", ["foo", "bar"])
+        self.assertObjectGroups("test2", ["green", "blue", "yellow"])
+
+        self.om.remove_group("test1", "foo")
+
+        self.assertObjectGroups("test1", ["bar"])
+        self.assertObjectGroups("test2", ["green", "blue", "yellow"])
+
+        self.om.remove_group("test2", "yellow")
+
+        self.assertObjectGroups("test1", ["bar"])
+        self.assertObjectGroups("test2", ["green", "blue"])
+
+        with self.assertRaises(KeyError):
+            self.om.remove_group("test2", "yellow")
 
     def test_remove_group2(self):
         """
-        Test
+        Test removing a group from an unknown object.
         """
-        pass
+
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+
+        with self.assertRaises(KeyError):
+            self.om.remove_group("test3", "foo")
 
     def test_clear_groups1(self):
         """
-        Test
+        Test removing all groups from an object.
         """
         pass
 
     def test_clear_groups2(self):
         """
-        Test
+        Test removing all groups from an unknown object.
         """
         pass
 
     def test_iter_group1(self):
         """
-        Test
+        Test iterating over all objects that belong to a group.
         """
         pass
 
     def test_iter_group2(self):
         """
-        Test
+        Test iteration over all objects that belong to an unknown group.
         """
         pass
 
     def test_apply_group1(self):
         """
-        Test
+        Test applying a function to all objects of a group.
         """
         pass
 
     def test_apply_group2(self):
         """
-        Test
+        Test applying a function to all object of an unknown group.
         """
         pass
 
     def test_collect_group1(self):
         """
-        Test
+        Test collecting data from all objects of a group.
         """
         pass
 
     def test_collect_group2(self):
         """
-        Test
+        Test collecting data from an unknown group.
         """
         pass
 
