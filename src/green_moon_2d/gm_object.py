@@ -126,7 +126,8 @@ class GMObjectManager:
         name was not found. Raise KeyError.
         """
         raise KeyError(
-            f"GMObjectManager.{method}(), object with that name not found: {name}"
+            f"GMObjectManager.{method}(), object with that "
+            "name not found: {name}"
         )
 
     def add_object(self, obj: GMObject) -> None:
@@ -136,14 +137,15 @@ class GMObjectManager:
         Raises KeyError if the name is already in use.
         """
         assert isinstance(
-            obj, GMObject
-        ), "GMObjectManager.add_object(), new object must be a subclass of GMObject"
+            obj, GMObject), "GMObjectManager.add_object(), new object must " \
+            "be a subclass of GMObject"
 
         index = self.get_index(obj.name)
 
         if index is not None:
             raise KeyError(
-                f"GMObjectManager.add_object(), object with name that already exists: {obj.name}"
+                "GMObjectManager.add_object(), object with name "
+                f"that already exists: {obj.name}"
             )
 
         self.objects.append(obj)

@@ -83,7 +83,8 @@ class GMSceneManager:
         """
         assert isinstance(
             scene, GMScene
-        ), "GMSceneManager.add_scene(), new scene must be a subclass of GMScene"
+        ), "GMSceneManager.add_scene(), new scene must " \
+           "be a subclass of GMScene"
 
         self.scenes[scene.name] = scene
 
