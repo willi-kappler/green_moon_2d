@@ -113,7 +113,7 @@ class GMObject:
         self.properties.clear()
 
 
-class GMObjectManager:
+class GMObjectManager(Iterable):
     """
     This is a helper class that takes care of handling objects.
     You don't have to use it, but it can make things easier.
@@ -273,9 +273,15 @@ class GMObjectManager:
         else:
             self.objects[index].clear_groups()
 
+    def __iter__(self) -> Iterator[GMObject]:
+        """
+        Returns an iterator for all objects.
+        """
+        return iter(self.objects)
+
     def iter_group(self, group: str) -> Iterator[GMObject]:
         """
-        Iterates over all the objects of the given group.
+        Returns an iterator for all the objects of the given group.
         """
         for o in self.objects:
             if o.in_group(group):
@@ -288,7 +294,7 @@ class GMObjectManager:
         for o in self.iter_group(group):
             op(o)
 
-    def collect_group(self, group: str, op) -> list[Any]:
+    def collect_group(self, group: str, op) -> list[tuple[str, Any]]:
         """
         Collects the return values of all the objects of the given groups
         after the operation is applied to the objects.
