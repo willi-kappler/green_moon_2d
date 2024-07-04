@@ -326,6 +326,21 @@ class TestObjectManager(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.om.clear_groups("test3")
 
+    def test_iter(self):
+        """
+        Test iterating over all objects.
+        """
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
+
+        for ob in self.om:
+            ob.properties["iter_ok"] = "Yes"
+
+        self.assertObjectProperty("test1", "iter_ok", "Yes")
+        self.assertObjectProperty("test2", "iter_ok", "Yes")
+        self.assertObjectProperty("test3", "iter_ok", "Yes")
+
     def test_iter_group1(self):
         """
         Test iterating over all objects that belong to a group.
@@ -372,13 +387,47 @@ class TestObjectManager(unittest.TestCase):
         """
         Test applying a function to all objects of a group.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
+
+        self.om.add_group("test1", ["foo", "bar", "top"])
+        self.om.add_group("test2", ["green", "blue", "yellow"])
+        self.om.add_group("test3", ["bleeding", "top"])
+
+        self.om.get("test1").properties["Called"] = "No"
+        self.om.get("test2").properties["Called"] = "No"
+        self.om.get("test3").properties["Called"] = "No"
+
+        self.om.apply_group("top", lambda ob: ob.set_property("Called", "Yes"))
+
+        self.assertObjectProperty("test1", "Called", "Yes")
+        self.assertObjectProperty("test2", "Called", "No")
+        self.assertObjectProperty("test3", "Called", "Yes")
 
     def test_apply_group2(self):
         """
         Test applying a function to all object of an unknown group.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
+
+        self.om.add_group("test1", ["foo", "bar", "top"])
+        self.om.add_group("test2", ["green", "blue", "yellow"])
+        self.om.add_group("test3", ["bleeding", "top"])
+
+        self.om.get("test1").properties["Called"] = "No"
+        self.om.get("test2").properties["Called"] = "No"
+        self.om.get("test3").properties["Called"] = "No"
+
+        self.om.apply_group(
+            "flop", lambda ob: ob.set_property("Called", "Yes")
+        )
+
+        self.assertObjectProperty("test1", "Called", "No")
+        self.assertObjectProperty("test2", "Called", "No")
+        self.assertObjectProperty("test3", "Called", "No")
 
     def test_collect_group1(self):
         """
