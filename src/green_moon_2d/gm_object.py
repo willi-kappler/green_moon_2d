@@ -325,4 +325,4 @@ class GMObjectManager(Iterable):
         Checks wether the given object has the property.
         Raise KeyError if the object was not found.
         """
-        return property in self.get(name)
+        return property in self.get(name).properties
