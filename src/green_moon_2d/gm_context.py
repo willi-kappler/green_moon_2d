@@ -22,4 +22,27 @@ class GMContext:
         self.game_property = {}
 
     def set_property(self, name: str, val: Any) -> None:
+        """
+        Sets the given property globally for the whole program.
+        """
         self.game_property[name] = val
+
+    def get_property(self, name: str) -> Any:
+        """
+        Returns the value of the given property.
+        Raise NameError if the property was not found.
+        """
+        return self.game_property[name]
+
+    def has_property(self, name: str) -> bool:
+        """
+        Returns true if the given property is available.
+        Otherwise return false.
+        """
+        return name in self.game_property
+
+    def clear_screen(self) -> None:
+        """
+        Clears the screen with the black color.
+        """
+        raise NotImplementedError
