@@ -35,14 +35,16 @@ class GMObject:
 
     def update(self, context: GMContext) -> None:
         """
-        This method is called once per frame, you should derive it if needed.
+        This method is called once per frame, you should implement
+        it if needed.
         It is used to update the internal state of the object.
         """
         pass
 
     def draw(self, context: GMContext) -> None:
         """
-        This method is called once per frame, you should derive it if needed.
+        This method is called once per frame, you should implement
+        it if needed.
         It is used to draw the object.
         """
         pass
