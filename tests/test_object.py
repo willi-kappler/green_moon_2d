@@ -24,6 +24,10 @@ class TestObject(GMObject):
     def draw(self, context: GMContext):
         self.properties["draw_called"] += 1
 
+    def send_message(self, msg: Any) -> Any:
+        if isinstance(msg, str):
+            self.properties["message"] = msg
+
 
 class TestObjectManager(unittest.TestCase):
     def setUp(self):
@@ -206,6 +210,25 @@ class TestObjectManager(unittest.TestCase):
         self.assertObjectProperty("test2", "draw_called", 2)
         self.assertObjectProperty("test3", "draw_called", 1)
 
+    def test_send_message1(self):
+        """
+        Test sending message to an object.
+        """
+        self.om.add(TestObject("test1"))
+        self.assertEqual(len(self.om.get("test1").properties), 2)
+
+        self.om.send_message("test1", "alpha_message")
+        self.assertObjectProperty("test1", "message", "alpha_message")
+
+    def test_send_message2(self):
+        """
+        Test sending message to an unknown object.
+        """
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.send_message("test2", "unknown")
+
     def test_add_group1(self):
         """
         Test adding groups to objects.
@@ -334,6 +357,10 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
+        self.om.get("test1").properties["iter_ok"] = "No"
+        self.om.get("test2").properties["iter_ok"] = "No"
+        self.om.get("test3").properties["iter_ok"] = "No"
+
         for ob in self.om:
             ob.properties["iter_ok"] = "Yes"
 
@@ -433,31 +460,117 @@ class TestObjectManager(unittest.TestCase):
         """
         Test collecting data from all objects of a group.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
+
+        self.om.add_group("test1", ["foo", "bar", "top"])
+        self.om.add_group("test2", ["green", "blue", "yellow"])
+        self.om.add_group("test3", ["bleeding", "top"])
+
+        self.om.get("test1").properties["id_test"] = "one"
+        self.om.get("test2").properties["id_test"] = "two"
+        self.om.get("test3").properties["id_test"] = "three"
+
+        items = self.om.collect_group(
+            "top", lambda ob: ob.get_property("id_test"))
+
+        self.assertEqual(items, [("test1", "one"), ("test3", "three")])
 
     def test_collect_group2(self):
         """
         Test collecting data from an unknown group.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
 
-    def test_set_property(self):
-        """
-        Test
-        """
-        pass
+        self.om.add_group("test1", ["foo", "bar", "top"])
+        self.om.add_group("test2", ["green", "blue", "yellow"])
+        self.om.add_group("test3", ["bleeding", "top"])
 
-    def test_get_property(self):
-        """
-        Test
-        """
-        pass
+        self.om.get("test1").properties["id_test"] = "one"
+        self.om.get("test2").properties["id_test"] = "two"
+        self.om.get("test3").properties["id_test"] = "three"
 
-    def test_has_property(self):
+        items = self.om.collect_group(
+            "fop", lambda ob: ob.get_property("id_test"))
+
+        self.assertEqual(items, [])
+
+    def test_set_property1(self):
         """
-        Test
+        Test setting a property for an object.
         """
-        pass
+        self.om.add(TestObject("test1"))
+        self.assertEqual(len(self.om.get("test1").properties), 2)
+
+        self.om.set_property("test1", "monkey", 12)
+        self.assertObjectProperty("test1", "monkey", 12)
+
+        self.om.set_property("test1", "monkey", 25)
+        self.assertObjectProperty("test1", "monkey", 25)
+
+    def test_set_property2(self):
+        """
+        Test setting a property for an unknown object.
+        """
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.set_property("test2", "monkey", 12)
+
+    def test_get_property1(self):
+        """
+        Test getting a property from an object.
+        """
+        self.om.add(TestObject("test1"))
+        self.assertEqual(len(self.om.get("test1").properties), 2)
+
+        self.om.set_property("test1", "monkey", 12)
+        self.assertEqual(self.om.get_property("test1", "monkey"), 12)
+
+        self.om.set_property("test1", "monkey", 25)
+        self.assertEqual(self.om.get_property("test1", "monkey"), 25)
+
+    def test_get_property2(self):
+        """
+        Test getting a property from an unknown object.
+        """
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.get_property("test2", "monkey")
+
+    def test_get_property3(self):
+        """
+        Test getting an unknown property from an object.
+        """
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.get_property("test1", "monkey")
+
+    def test_has_property1(self):
+        """
+        Test checking a property for an object.
+        """
+        self.om.add(TestObject("test1"))
+        self.assertEqual(len(self.om.get("test1").properties), 2)
+
+        self.om.set_property("test1", "monkey", 12)
+        self.assertTrue(self.om.has_property("test1", "monkey"))
+
+        self.assertFalse(self.om.has_property("test1", "spider"))
+
+    def test_has_property2(self):
+        """
+        Test checking a property for an unknown object.
+        """
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.has_property("test2", "monkey")
 
 
 #    def test_(self):
