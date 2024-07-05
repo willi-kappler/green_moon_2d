@@ -55,6 +55,12 @@ class GMObject:
         self.vel += self.acc
         self.pos += self.vel
 
+    def send_message(self, msg: Any) -> Any:
+        """
+        This method can be implemented to send a custom message to the object.
+        """
+        pass
+
     def add_group(self, name: str) -> None:
         """
         Add adds this object to the given group.
@@ -222,37 +228,36 @@ class GMObjectManager(Iterable):
             if o.visible:
                 o.draw(context)
 
+    def send_message(self, name: str, msg: Any) -> Any:
+        """
+        Sends a message to the given object.
+        Raise KeyError if the object was not found.
+        """
+        return self.get(name).send_message(msg)
+
     def add_group(self, name: str, group: str | list[str]) -> None:
         """
         Add the given object to the given group.
         Raise KeyError if the object was not found.
         """
-        index = self.get_index(name)
+        ob = self.get(name)
 
-        if index is None:
-            self._object_not_found("add_group", name)
+        if isinstance(group, str):
+            ob.add_group(group)
+        elif isinstance(group, list):
+            for g in group:
+                ob.add_group(g)
         else:
-            if isinstance(group, str):
-                self.objects[index].add_group(group)
-            elif isinstance(group, list):
-                for g in group:
-                    self.objects[index].add_group(g)
-            else:
-                raise ValueError(
-                    "GMObjectManager.add_group(), group must be "
-                    f"string or list of strings for object {name}")
+            raise ValueError(
+                "GMObjectManager.add_group(), group must be string or "
+                f"list of strings for object {name}")
 
     def remove_group(self, name: str, group: str) -> None:
         """
         Rmove the given object to the given group.
         Raise KeyError if the object was not found.
         """
-        index = self.get_index(name)
-
-        if index is None:
-            self._object_not_found("remove_group", name)
-        else:
-            self.objects[index].remove_group(group)
+        self.get(name).remove_group(group)
 
     def remove_group_from_all(self, group: str) -> None:
         """
@@ -266,12 +271,7 @@ class GMObjectManager(Iterable):
         Rmove all groups from the given object.
         Raise KeyError if the object was not found.
         """
-        index = self.get_index(name)
-
-        if index is None:
-            self._object_not_found("clear_groups", name)
-        else:
-            self.objects[index].clear_groups()
+        self.get(name).clear_groups()
 
     def __iter__(self) -> Iterator[GMObject]:
         """
@@ -310,12 +310,7 @@ class GMObjectManager(Iterable):
         Sets the property for the given object.
         Raise KeyError if the object is not found.
         """
-        index = self.get_index(name)
-
-        if index is None:
-            self._object_not_found("set_property", name)
-        else:
-            self.objects[index].set_property(property, val)
+        self.get(name).set_property(property, val)
 
     def get_property(self, name: str, property: str) -> Any:
         """
@@ -323,22 +318,11 @@ class GMObjectManager(Iterable):
         Raise KeyError if the object in not found or if the property is
         not found.
         """
-        index = self.get_index(name)
-
-        if index is None:
-            return self._object_not_found("get_property", name)
-        else:
-            return self.objects[index].get_property(property)
+        return self.get(name).get_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
         """
         Checks wether the given object has the property.
         Raise KeyError if the object was not found.
         """
-        index = self.get_index(name)
-
-        if index is None:
-            self._object_not_found("has_property", name)
-            return False
-        else:
-            return property in self.objects[index].properties
+        return property in self.get(name)
