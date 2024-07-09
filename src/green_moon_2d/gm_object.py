@@ -137,7 +137,7 @@ class GMObjectManager(Iterable):
         """
         raise KeyError(
             f"GMObjectManager.{method}(), object with that "
-            "name not found: {name}"
+            f"name not found: {name}"
         )
 
     def add(self, obj: GMObject | Iterable[GMObject]) -> None:
