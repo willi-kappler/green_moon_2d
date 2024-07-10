@@ -3,47 +3,9 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-from typing import Any, override
 from enum import Enum, auto
-import time
 
-from green_moon_2d.gm_context import GMContext
-from green_moon_2d.gm_object import GMObject
-
-
-class GMTimer(GMObject):
-    def __init__(self, duration: int):
-        self.duration: int = duration
-        self.start_time: int = int(time.time() * 1000.0)
-
-    @override
-    def update(self, context: GMContext) -> None:
-        if self.active:
-            raise NotImplementedError
-            # TODO:
-
-    @override
-    def send_message(self, msg: Any) -> Any:
-        raise NotImplementedError
-        # TODO:
-
-    def finished(self) -> bool:
-        if self.active:
-            current_time = int(time.time() * 1000.0)
-            return (current_time - self.start_time) > self.duration
-        else:
-            return False
-
-    def set_duration(self, duration: int) -> None:
-        self.duration = duration
-
-    def set_duration_restart(self, duration: int) -> None:
-        self.duration = duration
-        self.restart()
-
-    def restart(self) -> None:
-        self.start_time = int(time.time() * 1000.0)
-        self.active = True
+from green_moon_2d.gm_timer import GMTimer
 
 
 class GMAnimType(Enum):
@@ -55,7 +17,7 @@ class GMAnimType(Enum):
     PINGPONG_B = auto()
 
 
-class GMAnimation(GMObject):
+class GMAnimation:
     def __init__(self, frames: list[tuple[int, int]]):
         self.current_frame: int = 0
         self.anim_type: GMAnimType = GMAnimType.FORWARD
@@ -63,37 +25,81 @@ class GMAnimation(GMObject):
         assert (len(self.frames) > 0)
 
         self.timer: GMTimer = GMTimer(self.frames[0][1])
+        self.active: bool = True
 
-    @override
-    def update(self, context: GMContext) -> None:
-        if self.active:
+    def update(self) -> None:
+        if self.active and self.timer.finished():
             match self.anim_type:
                 case GMAnimType.FORWARD:
-                    pass
+                    self.current_frame += 1
+                    if self.current_frame >= len(self.frames):
+                        self.active = False
+                        self.current_frame = len(self.frames) - 1
+                    else:
+                        self.set_timer_duration()
                 case GMAnimType.BACKWARD:
-                    pass
+                    self.current_frame -= 1
+                    if self.current_frame < 0:
+                        self.active = False
+                        self.current_frame = 0
+                    else:
+                        self.set_timer_duration()
                 case GMAnimType.FORWARD_LOOP:
-                    pass
+                    self.current_frame += 1
+                    if self.current_frame >= len(self.frames):
+                        self.current_frame = 0
+                    self.set_timer_duration()
                 case GMAnimType.BACKWARD_LOOP:
-                    pass
+                    self.current_frame -= 1
+                    if self.current_frame < 0:
+                        self.current_frame = len(self.frames) - 1
+                    self.set_timer_duration()
                 case GMAnimType.PINGPONG_F:
-                    pass
+                    self.current_frame += 1
+                    if self.current_frame >= len(self.frames):
+                        self.current_frame = len(self.frames) - 2
+                    self.set_timer_duration()
+                    self.anim_type = GMAnimType.PINGPONG_B
                 case GMAnimType.PINGPONG_B:
-                    pass
-
-    @override
-    def send_message(self, msg: Any) -> Any:
-        raise NotImplementedError
-        # TODO:
+                    self.current_frame -= 1
+                    if self.current_frame < 0:
+                        self.current_frame = 1
+                    self.set_timer_duration()
+                    self.anim_type = GMAnimType.PINGPONG_F
 
     def change_type(self, new_type: GMAnimType) -> None:
         """
         Change the type of this animation.
-        The current frame will be reset to 0.
+        The current frame will be changed accordingly.
         """
         self.anim_type = new_type
-        self.current_frame = 0
+
+        match self.anim_type:
+            case GMAnimType.FORWARD:
+                self.current_frame = 0
+            case GMAnimType.BACKWARD:
+                self.current_frame = len(self.frames) - 1
+            case GMAnimType.FORWARD_LOOP:
+                self.current_frame = 0
+            case GMAnimType.BACKWARD_LOOP:
+                self.current_frame = len(self.frames) - 1
+            case GMAnimType.PINGPONG_F:
+                self.current_frame = 0
+                assert (len(self.frames) > 1)
+            case GMAnimType.PINGPONG_B:
+                self.current_frame = len(self.frames) - 1
+                assert (len(self.frames) > 1)
 
     def get_frame_index(self) -> int:
+        """
+        Returns the current frame index of the animation.
+        """
         return self.frames[self.current_frame][0]
+
+    def set_timer_duration(self) -> None:
+        """
+        Sets the new duration and restarts the timer.
+        """
+        new_duration = self.frames[self.current_frame][1]
+        self.timer.set_duration_restart(new_duration)
 
