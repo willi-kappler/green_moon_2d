@@ -18,10 +18,10 @@ class TestScene(GMScene):
         self.enter_called = 0
         self.leave_called = 0
 
-    def update(self, _context: GMContext):
+    def update(self, context: GMContext):
         self.update_called += 1
 
-    def draw(self, _context: GMContext):
+    def draw(self, context: GMContext):
         self.draw_called += 1
 
     def enter(self):
