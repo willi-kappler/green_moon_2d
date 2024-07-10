@@ -4,8 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 """
-This module defines the GMObject base class that all game objects should
-derive from.
+This module defines the GMObject base class that all game objects should derive from.
 """
 
 from collections.abc import Iterator, Iterable
@@ -17,8 +16,7 @@ from green_moon_2d.gm_math import GMVec2D
 
 class GMObject:
     """
-    This base class should be derived from for all objects to work
-    properly.
+    This base class should be derived from for all objects to work properly.
     """
 
     def __init__(self, name):
@@ -35,17 +33,19 @@ class GMObject:
 
     def update(self, context: GMContext) -> None:
         """
-        This method is called once per frame, you should implement
-        it if needed.
+        This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
+
+        :param GMContext context: The current game context.
         """
         pass
 
     def draw(self, context: GMContext) -> None:
         """
-        This method is called once per frame, you should implement
-        it if needed.
+        This method is called once per frame, you should implement it if needed.
         It is used to draw the object.
+
+        :param GMContext context: The current game context.
         """
         pass
 
@@ -60,18 +60,26 @@ class GMObject:
     def send_message(self, msg: Any) -> Any:
         """
         This method can be implemented to send a custom message to the object.
+
+        :param Any msg: The message that is send to this object.
+        :return: A possible response from the object.
+        :rtype: Any
         """
         pass
 
     def add_group(self, name: str) -> None:
         """
         Add adds this object to the given group.
+
+        :param str name: The name of the group.
         """
         self.groups.add(name)
 
     def remove_group(self, name: str) -> None:
         """
         Removes this object from the given group.
+
+        :param str name: The name of the group to be removed.
         """
         if name in self.groups:
             self.groups.remove(name)
@@ -79,6 +87,10 @@ class GMObject:
     def in_group(self, name: str) -> bool:
         """
         Tests if this object is part of the given group.
+
+        :param str name: The name of the group.
+        :return: True if the object is in the group otherwise False.
+        :rtype: bool
         """
         return name in self.groups
 
@@ -91,26 +103,40 @@ class GMObject:
     def set_property(self, name: str, val: Any):
         """
         Sets the property with the given name to the given value.
+
+        :param str name: The name of the property.
+        :param Any val: The value of the property.
         """
         self.properties[name] = val
 
     def get_property(self, name: str) -> Any:
         """
         Return the property with the given name.
-        Raise KeyError if the property doesn't exist.
+
+        :param str name: The name of the property.
+        :return: The value of the property.
+        :rtype: Any
         """
         return self.properties[name]
 
     def get_property_default(self, name: str, default: Any) -> Any:
         """
-        Return the property with the given name, return default value
-        if not found.
+        Return the property with the given name, return default value if not found.
+
+        :param str name: The name of the property.
+        :param Any default: The default value if the property is not available.
+        :return: The value of the given property.
+        :rtype: Any
         """
         return self.properties.get(name, default)
 
     def has_property(self, name: str) -> bool:
         """
         Checks wether the property with the given name exists.
+
+        :param str name: The name of the property.
+        :return: True if the property with the given name was found, otherwise False.
+        :rtype: bool
         """
         return name in self.properties
 
@@ -133,18 +159,23 @@ class GMObjectManager(Iterable):
     def _object_not_found(self, method: str, name: str) -> NoReturn:
         """
         Internal error method. It's called when the object with the given
-        name was not found. Raise KeyError.
+        name was not found.
+
+        :param str method: The name of the method where the object was not found.
+        :param str name: The name of the object that was not found.
+        :raise KeyError: when the object was not found.
         """
         raise KeyError(
-            f"GMObjectManager.{method}(), object with that "
-            f"name not found: {name}"
+            f"GMObjectManager.{method}(), object with that name not found: {name}"
         )
 
     def add(self, obj: GMObject | Iterable[GMObject]) -> None:
         """
         Adds one or more new object to the manager. The name must be unique
         and the object must be derived from GMObject.
-        Raise KeyError if the name is already in use.
+
+        :param obj: The new object to be added.
+        :raise KeyError: if the name is already in use.
         """
         if isinstance(obj, GMObject):
             index = self.get_index(obj.name)
@@ -167,7 +198,9 @@ class GMObjectManager(Iterable):
     def delete(self, name: str) -> None:
         """
         Remove the object with the given name.
-        Raise KeyError if the object was not found.
+
+        :param str name: The name of the object that should be deleted.
+        :raise KeyError: if the object was not found.
         """
         index = self.get_index(name)
 
@@ -192,6 +225,9 @@ class GMObjectManager(Iterable):
         """
         Returns the index of the object with the given name.
         Returns None if the object was not found.
+
+        :param str name: The name of the object.
+        :return: The index of the object if it was found, otherwise None
         """
         index = None
 
@@ -205,7 +241,11 @@ class GMObjectManager(Iterable):
     def get(self, name: str) -> GMObject:
         """
         Returns the object with the given name.
-        Raise KeyError if the object was not found.
+
+        :param str name: The name of the object.
+        :return: The object with the given name.
+        :rtype: GMObject
+        :raise KeyError: if the object was not found.
         """
         index = self.get_index(name)
 
@@ -217,6 +257,8 @@ class GMObjectManager(Iterable):
     def update(self, context: GMContext) -> None:
         """
         Updates all the avtive objects. Objects can be sorted by update_order.
+
+        :param GMContext context: The current game context.
         """
         for o in self.objects:
             if o.active:
@@ -225,6 +267,8 @@ class GMObjectManager(Iterable):
     def draw(self, context: GMContext) -> None:
         """
         Draws all the visible objects. Objects can be sorted by draw_order.
+
+        :param GMContext context: The current game context.
         """
         for o in self.objects:
             if o.visible:
@@ -233,14 +277,22 @@ class GMObjectManager(Iterable):
     def send_message(self, name: str, msg: Any) -> Any:
         """
         Sends a message to the given object.
-        Raise KeyError if the object was not found.
+
+        :param str name: The name of the object.
+        :param Any msg: The message that will be sent to the object.
+        :return: A possible response from the object.
+        :rtype: Any
+        :raise KeyError: if the object was not found.
         """
         return self.get(name).send_message(msg)
 
     def add_group(self, name: str, group: str | list[str]) -> None:
         """
         Add the given object to the given group.
-        Raise KeyError if the object was not found.
+
+        :param str name: The name of the object.
+        :param str group: The name of the group.
+        :raise KeyError: if the object was not found.
         """
         ob = self.get(name)
 

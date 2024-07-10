@@ -3,12 +3,27 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
+"""
+This module defines the GMAnimType enum and the GMAnimation class that is used to animate
+objects ( for example sprites).
+"""
+
 from enum import Enum, auto
 
 from green_moon_2d.gm_timer import GMTimer
 
 
 class GMAnimType(Enum):
+    """
+    This class defins the various animation types.
+    FORWARD: Runs the animation forward once.
+    BACKWARD: Runs the animation backward once.
+    FORWARD_LOOP: Runs the animation forward in a loop.
+    BACKWARD_LOOP: Runs the animation backward in a loop.
+    PINGPONG_F: Runs the animation forward once and then
+                backward once and then repeats.
+    """
+
     FORWARD = auto()
     BACKWARD = auto()
     FORWARD_LOOP = auto()
@@ -18,6 +33,14 @@ class GMAnimType(Enum):
 
 
 class GMAnimation:
+    """
+    This class defines the animation for object like sprites.
+    It has a built in timer and uses animation frames to manage indices into the
+    sprite sheet. For example: [(2, 200), (3, 200), (4, 250), (5, 400)].
+    The first value is the index, the second value is the duration in milli seconds.
+    (2, 200) means: index 2 in the sprite sheet and display duration of 200 ms.
+    """
+
     def __init__(self, frames: list[tuple[int, int]]):
         self.current_frame: int = 0
         self.anim_type: GMAnimType = GMAnimType.FORWARD
@@ -28,6 +51,12 @@ class GMAnimation:
         self.active: bool = True
 
     def update(self) -> None:
+        """
+        This method is called once per frame and checks the timer (duration) and moves on to the next
+        frame in the given list of frames.
+        Depening on the animation type different actions are performed.
+        See description of GMAnimType.
+        """
         if self.active and self.timer.finished():
             match self.anim_type:
                 case GMAnimType.FORWARD:
@@ -71,6 +100,8 @@ class GMAnimation:
         """
         Change the type of this animation.
         The current frame will be changed accordingly.
+
+        :param GMAnimType new_type: The new type for this animation.
         """
         self.anim_type = new_type
 
@@ -93,6 +124,9 @@ class GMAnimation:
     def get_frame_index(self) -> int:
         """
         Returns the current frame index of the animation.
+
+        :return: The current frame index.
+        :rtype: int
         """
         return self.frames[self.current_frame][0]
 

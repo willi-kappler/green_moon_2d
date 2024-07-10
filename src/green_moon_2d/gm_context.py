@@ -24,13 +24,20 @@ class GMContext:
     def set_property(self, name: str, val: Any) -> None:
         """
         Sets the given property globally for the whole program.
+
+        :param str name: The name of the property.
+        :param Any val: The value of the property.
         """
         self.game_property[name] = val
 
     def get_property(self, name: str) -> Any:
         """
         Returns the value of the given property.
-        Raise NameError if the property was not found.
+
+        :param str name: The name of the property.
+        :return: The value of the property.
+        :rtype: Any
+        :raises NameError: if the property with the given name was not found.
         """
         return self.game_property[name]
 
@@ -38,6 +45,10 @@ class GMContext:
         """
         Returns true if the given property is available.
         Otherwise return false.
+
+        :param str name: The name of the property.
+        :return: If the property with the given name is available return True otherwise False.
+        :rtype: bool
         """
         return name in self.game_property
 
