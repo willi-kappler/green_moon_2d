@@ -21,7 +21,7 @@ class GMAnimType(Enum):
     FORWARD_LOOP: Runs the animation forward in a loop.
     BACKWARD_LOOP: Runs the animation backward in a loop.
     PINGPONG_F: Runs the animation forward once and then
-                backward once and then repeats.
+        backward once and then repeats.
     """
 
     FORWARD = auto()
