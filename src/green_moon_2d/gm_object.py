@@ -308,34 +308,48 @@ class GMObjectManager(Iterable):
 
     def remove_group(self, name: str, group: str) -> None:
         """
-        Rmove the given object to the given group.
-        Raise KeyError if the object was not found.
+        Remove the given object from the given group.
+
+        :param str name: The name of the object.
+        :param str group: The group from which the object should be removed.
+        :raise KeyError: if the objectr was not found.
         """
         self.get(name).remove_group(group)
 
     def remove_group_from_all(self, group: str) -> None:
         """
         Remove the given group from all object.
+
+        :param str group: The group that is going to be removed from all objects.
         """
         for ob in self.objects:
             ob.remove_group(group)
 
     def clear_groups(self, name: str) -> None:
         """
-        Rmove all groups from the given object.
-        Raise KeyError if the object was not found.
+        Remove all groups from the given object.
+
+        :param str name: The name of the object.
+        :raise KeyError: if the object was not found.
         """
         self.get(name).clear_groups()
 
     def __iter__(self) -> Iterator[GMObject]:
         """
         Returns an iterator for all objects.
+
+        :return: An iterator over all objects.
+        :rtype: Iterator[GMObject]
         """
         return iter(self.objects)
 
     def iter_group(self, group: str) -> Iterator[GMObject]:
         """
         Returns an iterator for all the objects of the given group.
+
+        :param str group: The group to which the objects belong.
+        :return: An iterator for all object in the given group.
+        :rtype: Iterator[GMObject]
         """
         for o in self.objects:
             if o.in_group(group):
@@ -344,6 +358,9 @@ class GMObjectManager(Iterable):
     def apply_group(self, group: str, op) -> None:
         """
         Apply the given operation to all the object of the given group.
+
+        :param str group: The group to which the objects belong.
+        :param op: The operation to apply to the objects individually.
         """
         for o in self.iter_group(group):
             op(o)
@@ -352,6 +369,11 @@ class GMObjectManager(Iterable):
         """
         Collects the return values of all the objects of the given groups
         after the operation is applied to the objects.
+
+        :param str group: The group to which the objects belong.
+        :param op: The operation to apply to the objects individually.
+        :return: A list of tuples with the name of the object and the return value.
+        :rtype: list[tuple[str, Any]]
         """
         result = []
         for o in self.iter_group(group):
@@ -362,21 +384,35 @@ class GMObjectManager(Iterable):
     def set_property(self, name: str, property: str, val: Any) -> None:
         """
         Sets the property for the given object.
-        Raise KeyError if the object is not found.
+
+        :param str name: The name of the object.
+        :param str property: The name of the property.
+        :param Any val: The value of the property.
+        :raise KeyError: if the object was not found.
         """
         self.get(name).set_property(property, val)
 
     def get_property(self, name: str, property: str) -> Any:
         """
         Returns the property of the given object.
-        Raise KeyError if the object in not found or if the property is
-        not found.
+
+        :param str name: The name of the object.
+        :param str property: The name of the property.
+        :return: The value of the given property for the given object.
+        :rtype: Any
+        :raise KeyError: if the object or the property was not found.
         """
         return self.get(name).get_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
         """
-        Checks wether the given object has the property.
-        Raise KeyError if the object was not found.
+        Checks if the given object has the property.
+
+        :param str name: The name of the object.
+        :param str property: The name of the property.
+        :return: True if the object has the property otherwise False.
+        :rtype: bool
+        :raise KeyError: if the object or the property was not found.
         """
         return property in self.get(name).properties
+
