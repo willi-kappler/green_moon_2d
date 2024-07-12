@@ -36,7 +36,7 @@ class GMObject:
         This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         pass
 
@@ -45,7 +45,7 @@ class GMObject:
         This method is called once per frame, you should implement it if needed.
         It is used to draw the object.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         pass
 
@@ -61,7 +61,7 @@ class GMObject:
         """
         This method can be implemented to send a custom message to the object.
 
-        :param Any msg: The message that is send to this object.
+        :param msg: The message that is send to this object.
         :return: A possible response from the object.
         :rtype: Any
         """
@@ -71,7 +71,7 @@ class GMObject:
         """
         Add adds this object to the given group.
 
-        :param str name: The name of the group.
+        :param name: The name of the group.
         """
         self.groups.add(name)
 
@@ -79,7 +79,7 @@ class GMObject:
         """
         Removes this object from the given group.
 
-        :param str name: The name of the group to be removed.
+        :param name: The name of the group to be removed.
         """
         if name in self.groups:
             self.groups.remove(name)
@@ -88,7 +88,7 @@ class GMObject:
         """
         Tests if this object is part of the given group.
 
-        :param str name: The name of the group.
+        :param name: The name of the group.
         :return: True if the object is in the group otherwise False.
         :rtype: bool
         """
@@ -104,8 +104,8 @@ class GMObject:
         """
         Sets the property with the given name to the given value.
 
-        :param str name: The name of the property.
-        :param Any val: The value of the property.
+        :param name: The name of the property.
+        :param val: The value of the property.
         """
         self.properties[name] = val
 
@@ -113,7 +113,7 @@ class GMObject:
         """
         Return the property with the given name.
 
-        :param str name: The name of the property.
+        :param name: The name of the property.
         :return: The value of the property.
         :rtype: Any
         """
@@ -123,8 +123,8 @@ class GMObject:
         """
         Return the property with the given name, return default value if not found.
 
-        :param str name: The name of the property.
-        :param Any default: The default value if the property is not available.
+        :param name: The name of the property.
+        :param default: The default value if the property is not available.
         :return: The value of the given property.
         :rtype: Any
         """
@@ -134,7 +134,7 @@ class GMObject:
         """
         Checks wether the property with the given name exists.
 
-        :param str name: The name of the property.
+        :param name: The name of the property.
         :return: True if the property with the given name was found, otherwise False.
         :rtype: bool
         """
@@ -161,8 +161,8 @@ class GMObjectManager(Iterable):
         Internal error method. It's called when the object with the given
         name was not found.
 
-        :param str method: The name of the method where the object was not found.
-        :param str name: The name of the object that was not found.
+        :param method: The name of the method where the object was not found.
+        :param name: The name of the object that was not found.
         :raise KeyError: when the object was not found.
         """
         raise KeyError(
@@ -199,7 +199,7 @@ class GMObjectManager(Iterable):
         """
         Remove the object with the given name.
 
-        :param str name: The name of the object that should be deleted.
+        :param name: The name of the object that should be deleted.
         :raise KeyError: if the object was not found.
         """
         index = self.get_index(name)
@@ -226,7 +226,7 @@ class GMObjectManager(Iterable):
         Returns the index of the object with the given name.
         Returns None if the object was not found.
 
-        :param str name: The name of the object.
+        :param name: The name of the object.
         :return: The index of the object if it was found, otherwise None
         """
         index = None
@@ -242,7 +242,7 @@ class GMObjectManager(Iterable):
         """
         Returns the object with the given name.
 
-        :param str name: The name of the object.
+        :param name: The name of the object.
         :return: The object with the given name.
         :rtype: GMObject
         :raise KeyError: if the object was not found.
@@ -258,7 +258,7 @@ class GMObjectManager(Iterable):
         """
         Updates all the avtive objects. Objects can be sorted by update_order.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         for o in self.objects:
             if o.active:
@@ -268,7 +268,7 @@ class GMObjectManager(Iterable):
         """
         Draws all the visible objects. Objects can be sorted by draw_order.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         for o in self.objects:
             if o.visible:
@@ -278,8 +278,8 @@ class GMObjectManager(Iterable):
         """
         Sends a message to the given object.
 
-        :param str name: The name of the object.
-        :param Any msg: The message that will be sent to the object.
+        :param name: The name of the object.
+        :param msg: The message that will be sent to the object.
         :return: A possible response from the object.
         :rtype: Any
         :raise KeyError: if the object was not found.
@@ -290,8 +290,8 @@ class GMObjectManager(Iterable):
         """
         Add the given object to the given group.
 
-        :param str name: The name of the object.
-        :param str group: The name of the group.
+        :param name: The name of the object.
+        :param group: The name of the group.
         :raise KeyError: if the object was not found.
         """
         ob = self.get(name)
@@ -310,8 +310,8 @@ class GMObjectManager(Iterable):
         """
         Remove the given object from the given group.
 
-        :param str name: The name of the object.
-        :param str group: The group from which the object should be removed.
+        :param name: The name of the object.
+        :param group: The group from which the object should be removed.
         :raise KeyError: if the objectr was not found.
         """
         self.get(name).remove_group(group)
@@ -320,7 +320,7 @@ class GMObjectManager(Iterable):
         """
         Remove the given group from all object.
 
-        :param str group: The group that is going to be removed from all objects.
+        :param group: The group that is going to be removed from all objects.
         """
         for ob in self.objects:
             ob.remove_group(group)
@@ -329,7 +329,7 @@ class GMObjectManager(Iterable):
         """
         Remove all groups from the given object.
 
-        :param str name: The name of the object.
+        :param name: The name of the object.
         :raise KeyError: if the object was not found.
         """
         self.get(name).clear_groups()
@@ -347,7 +347,7 @@ class GMObjectManager(Iterable):
         """
         Returns an iterator for all the objects of the given group.
 
-        :param str group: The group to which the objects belong.
+        :param group: The group to which the objects belong.
         :return: An iterator for all object in the given group.
         :rtype: Iterator[GMObject]
         """
@@ -359,7 +359,7 @@ class GMObjectManager(Iterable):
         """
         Apply the given operation to all the object of the given group.
 
-        :param str group: The group to which the objects belong.
+        :param group: The group to which the objects belong.
         :param op: The operation to apply to the objects individually.
         """
         for o in self.iter_group(group):
@@ -370,7 +370,7 @@ class GMObjectManager(Iterable):
         Collects the return values of all the objects of the given groups
         after the operation is applied to the objects.
 
-        :param str group: The group to which the objects belong.
+        :param group: The group to which the objects belong.
         :param op: The operation to apply to the objects individually.
         :return: A list of tuples with the name of the object and the return value.
         :rtype: list[tuple[str, Any]]
@@ -385,9 +385,9 @@ class GMObjectManager(Iterable):
         """
         Sets the property for the given object.
 
-        :param str name: The name of the object.
-        :param str property: The name of the property.
-        :param Any val: The value of the property.
+        :param name: The name of the object.
+        :param property: The name of the property.
+        :param val: The value of the property.
         :raise KeyError: if the object was not found.
         """
         self.get(name).set_property(property, val)
@@ -396,8 +396,8 @@ class GMObjectManager(Iterable):
         """
         Returns the property of the given object.
 
-        :param str name: The name of the object.
-        :param str property: The name of the property.
+        :param name: The name of the object.
+        :param property: The name of the property.
         :return: The value of the given property for the given object.
         :rtype: Any
         :raise KeyError: if the object or the property was not found.
@@ -408,8 +408,8 @@ class GMObjectManager(Iterable):
         """
         Checks if the given object has the property.
 
-        :param str name: The name of the object.
-        :param str property: The name of the property.
+        :param name: The name of the object.
+        :param property: The name of the property.
         :return: True if the object has the property otherwise False.
         :rtype: bool
         :raise KeyError: if the object or the property was not found.

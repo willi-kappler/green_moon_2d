@@ -25,8 +25,8 @@ class GMContext:
         """
         Sets the given property globally for the whole program.
 
-        :param str name: The name of the property.
-        :param Any val: The value of the property.
+        :param name: The name of the property.
+        :param val: The value of the property.
         """
         self.game_property[name] = val
 
@@ -34,7 +34,7 @@ class GMContext:
         """
         Returns the value of the given property.
 
-        :param str name: The name of the property.
+        :param name: The name of the property.
         :return: The value of the property.
         :rtype: Any
         :raises NameError: if the property with the given name was not found.
@@ -46,7 +46,7 @@ class GMContext:
         Returns true if the given property is available.
         Otherwise return false.
 
-        :param str name: The name of the property.
+        :param name: The name of the property.
         :return: If the property with the given name is available return True otherwise False.
         :rtype: bool
         """

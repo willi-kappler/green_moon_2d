@@ -3,6 +3,11 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
+"""
+This module defines the GMTimer class that is used for animation and other 
+timer dependend functions.
+"""
+
 import time
 
 
@@ -33,7 +38,7 @@ class GMTimer:
         """
         Sets the new duration for this timer. Note that it is not restarted automatically.
 
-        :param int duration: The new duration in ms.
+        :param duration: The new duration in ms.
         """
         self.duration = duration
 
@@ -41,7 +46,7 @@ class GMTimer:
         """
         Sets the new duration and restarts the timer.
 
-        :param int duration: The new duration in ms.
+        :param duration: The new duration in ms.
         """
         self.duration = duration
         self.restart()

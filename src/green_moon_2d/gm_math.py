@@ -25,7 +25,7 @@ class GMVec2D:
         """
         Adds this vector to another and returns a new vector.
 
-        :param GMVec2D other: The other vector.
+        :param other: The other vector.
         :return: The new vector as the sum of this and the other vector.
         :rtype: GMVec2D
         """

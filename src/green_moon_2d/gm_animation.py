@@ -101,7 +101,7 @@ class GMAnimation:
         Change the type of this animation.
         The current frame will be changed accordingly.
 
-        :param GMAnimType new_type: The new type for this animation.
+        :param new_type: The new type for this animation.
         """
         self.anim_type = new_type
 

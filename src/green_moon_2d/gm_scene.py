@@ -20,7 +20,7 @@ class GMScene:
 
     def __init__(self, name: str):
         """
-        :param str name: The name of the new scene.
+        :param name: The name of the new scene.
         """
         self.name: str = name
         self.custom_property: dict[str, Any] = {}
@@ -30,7 +30,7 @@ class GMScene:
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         pass
 
@@ -39,7 +39,7 @@ class GMScene:
         This method is called once per frame and is used to draw the
         whole scene. You have to implement this method.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         pass
 
@@ -72,7 +72,7 @@ class GMSceneManager:
         """
         Updates the current scene. This method is called by the engine once per frame.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         self.current_scene.update(context)
 
@@ -80,7 +80,7 @@ class GMSceneManager:
         """
         Draws the current scene. This method is called by the engine once per frame.
 
-        :param GMContext context: The current game context.
+        :param context: The current game context.
         """
         self.current_scene.draw(context)
 
@@ -89,7 +89,7 @@ class GMSceneManager:
         Adds a new scene to the scene manager. If a scene with the
         same name already exists it will be replaced.
 
-        :param GMScene scene: The new scene to be added.
+        :param scene: The new scene to be added.
         """
         assert isinstance(
             scene, GMScene
@@ -102,7 +102,7 @@ class GMSceneManager:
         """
         Deletes the scene with the given name.
 
-        :param str name: The name of the scene to be deleted.
+        :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
 
@@ -112,7 +112,7 @@ class GMSceneManager:
         """
         Change the current scene to the given one.
 
-        :param str name: The name of the scene to be deleted.
+        :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
 
@@ -124,7 +124,7 @@ class GMSceneManager:
         """
         Push the current scene onto the scene stack and change to the given scene.
 
-        :param str name: The name of the scene to be deleted.
+        :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
         self.scene_stack.append(self.current_scene)
@@ -144,7 +144,7 @@ class GMSceneManager:
         """
         Sets the first scene to start the game with.
 
-        :param str name: The name of the scene to be deleted.
+        :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
 
