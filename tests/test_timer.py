@@ -9,7 +9,7 @@ import time
 from green_moon_2d.gm_timer import GMTimer
 
 
-class TestVec2D(unittest.TestCase):
+class TestTimer(unittest.TestCase):
     def test_finished(self):
         """
         Test if timer calculates finished value correctly.
