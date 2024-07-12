@@ -4,7 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 """
-This module defines the GMTimer class that is used for animation and other 
+This module defines the GMTimer class that is used for animation and other
 timer dependend functions.
 """
 
