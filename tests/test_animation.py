@@ -9,7 +9,20 @@ from green_moon_2d.gm_animation import GMAnimType, GMAnimation
 
 
 class TestAnimation(unittest.TestCase):
+    def test_empty_frames(self):
+        """
+        Test for exception if user provides empty frames.
+        """
+
+        with self.assertRaises(AssertionError):
+            a1 = GMAnimation([])
+            a1.current_frame = 0
+
     def test_change_type(self):
+        """
+        Test changing the type of the animation.
+        """
+
         frames = [(1, 100), (2, 100), (3, 200)]
         last_frame = len(frames) - 1
         a1 = GMAnimation(frames)
@@ -39,6 +52,38 @@ class TestAnimation(unittest.TestCase):
         a1.current_frame = 1
         a1.change_type(GMAnimType.PINGPONG_B)
         self.assertEqual(a1.current_frame, last_frame)
+
+    def test_get_frame_index(self):
+        """
+        Test returning the correct frame index.
+        """
+
+        a1 = GMAnimation([(5, 100), (10, 100), (8, 300)])
+        self.assertEqual(a1.get_frame_index(), 5)
+
+        a1.current_frame = 1
+        self.assertEqual(a1.get_frame_index(), 10)
+
+        a1.current_frame = 2
+        self.assertEqual(a1.get_frame_index(), 8)
+
+    def test_set_timer_duration(self):
+        """
+        Test setting the correct timer duration.
+        """
+
+        a1 = GMAnimation([(5, 100), (10, 550), (8, 310)])
+        a1.set_timer_duration()
+        self.assertEqual(a1.timer.duration, 100)
+
+        a1.current_frame = 1
+        a1.set_timer_duration()
+        self.assertEqual(a1.timer.duration, 550)
+
+        a1.current_frame = 2
+        a1.set_timer_duration()
+        self.assertEqual(a1.timer.duration, 310)
+
 
 if __name__ == "__main__":
     unittest.main()
