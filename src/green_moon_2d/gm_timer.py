@@ -53,4 +53,3 @@ class GMTimer:
         self.start_time = int(time.time() * 1000.0)
         self.active = True
 
-
