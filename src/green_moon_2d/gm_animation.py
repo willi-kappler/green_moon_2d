@@ -90,14 +90,14 @@ class GMAnimation:
                     self.current_frame += 1
                     if self.current_frame >= len(self.frames):
                         self.current_frame = len(self.frames) - 2
+                        self.anim_type = GMAnimType.PINGPONG_B
                     self.set_timer_duration()
-                    self.anim_type = GMAnimType.PINGPONG_B
                 case GMAnimType.PINGPONG_B:
                     self.current_frame -= 1
                     if self.current_frame < 0:
                         self.current_frame = 1
+                        self.anim_type = GMAnimType.PINGPONG_F
                     self.set_timer_duration()
-                    self.anim_type = GMAnimType.PINGPONG_F
 
     def change_type(self, new_type: GMAnimType) -> None:
         """
