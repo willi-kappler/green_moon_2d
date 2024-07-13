@@ -20,7 +20,7 @@ class GMScene:
 
     def __init__(self, name: str):
         """
-        :param name: The name of the new scene.
+        :param name: The name of the new scene. It must be unique.
         """
         self.name: str = name
         self.custom_property: dict[str, Any] = {}

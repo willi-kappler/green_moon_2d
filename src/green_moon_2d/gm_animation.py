@@ -42,6 +42,9 @@ class GMAnimation:
     """
 
     def __init__(self, frames: list[tuple[int, int]]):
+        """
+        :param frames: A list of tuples containing the index and the duration.
+        """
         self.current_frame: int = 0
         self.anim_type: GMAnimType = GMAnimType.FORWARD
         self.frames: list[tuple[int, int]] = frames

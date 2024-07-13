@@ -17,6 +17,9 @@ class GMTimer:
     """
 
     def __init__(self, duration: int):
+        """
+        :param duration: The count down duration for the timer.
+        """
         self.duration: int = duration
         self.start_time: int = int(time.time() * 1000.0)
         self.active = True

@@ -20,6 +20,9 @@ class GMObject:
     """
 
     def __init__(self, name):
+        """
+        :param name: The name of this object. It must be unique.
+        """
         self.name = name
         self.pos = GMVec2D()
         self.vel = GMVec2D()

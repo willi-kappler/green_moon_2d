@@ -18,6 +18,10 @@ class GMVec2D:
     __slots__ = ("x", "y")
 
     def __init__(self, x: float = 0.0, y: float = 0.0):
+        """
+        :param x: The x component of the 2d vector.
+        :param y: The y component of the 2d vector.
+        """
         self.x: float = x
         self.y: float = y
 

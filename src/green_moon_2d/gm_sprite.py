@@ -11,6 +11,9 @@ from green_moon_2d.gm_object import GMObject
 
 class GMSprite(GMObject):
     def __init__(self, name: str):
+        """
+        :param name: The name of the sprite. It must be unique.
+        """
         super().__init__(name)
 
     @override
