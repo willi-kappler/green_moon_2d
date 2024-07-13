@@ -24,9 +24,9 @@ class GMObject:
         :param name: The name of this object. It must be unique.
         """
         self.name = name
-        self.pos = GMVec2D()
-        self.vel = GMVec2D()
-        self.acc = GMVec2D()
+        self.pos = GMVec2D(0.0, 0.0)
+        self.vel = GMVec2D(0.0, 0.0)
+        self.acc = GMVec2D(0.0, 0.0)
         self.active = True
         self.visible = True
         self.draw_order = 0
