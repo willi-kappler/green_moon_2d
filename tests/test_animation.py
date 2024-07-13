@@ -4,6 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 import unittest
+import time
 
 from green_moon_2d.gm_animation import GMAnimType, GMAnimation
 
@@ -83,6 +84,42 @@ class TestAnimation(unittest.TestCase):
         a1.current_frame = 2
         a1.set_timer_duration()
         self.assertEqual(a1.timer.duration, 310)
+
+    def test_update1(self):
+        """
+        Test updating the animation with FORWARD type.
+        """
+
+        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+        self.assertEqual(a1.active, False)
 
 
 if __name__ == "__main__":
