@@ -1,7 +1,7 @@
 TODO:
 
-- implement __getitem__() for GMObjectManager
-
+- implement __getitem__() for GMObjectManager.
+- add more methods for 2d vector.
 
 
 
