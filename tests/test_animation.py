@@ -158,12 +158,185 @@ class TestAnimation(unittest.TestCase):
         self.assertEqual(a1.get_frame_index(), 2)
         self.assertEqual(a1.active, False)
 
+    def test_update3(self):
+        """
+        Test updating the animation with FORWARD_LOOP type.
+        """
 
+        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.change_type(GMAnimType.FORWARD_LOOP)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
 
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
 
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
 
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
 
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
 
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+        self.assertEqual(a1.active, True)
+
+    def test_update4(self):
+        """
+        Test updating the animation with BACKWARD_LOOP type.
+        """
+
+        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.change_type(GMAnimType.BACKWARD_LOOP)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+        self.assertEqual(a1.active, True)
+
+    def test_update5(self):
+        """
+        Test updating the animation with PINGPONG_F type.
+        """
+
+        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.change_type(GMAnimType.PINGPONG_F)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_B)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_F)
+
+    def test_update6(self):
+        """
+        Test updating the animation with PINGPONG_B type.
+        """
+
+        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.change_type(GMAnimType.PINGPONG_B)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 1)
+        self.assertEqual(a1.get_frame_index(), 4)
+        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_F)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 3)
+        self.assertEqual(a1.get_frame_index(), 1)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 2)
+        self.assertEqual(a1.get_frame_index(), 7)
+        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_B)
 
 
 if __name__ == "__main__":
