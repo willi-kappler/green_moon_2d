@@ -10,6 +10,10 @@ import green_moon_2d.gm_math as gmath
 
 class TestVec2D(unittest.TestCase):
     def test_add(self):
+        """
+        Test adding two vectors together.
+        """
+
         v1 = gmath.GMVec2D(1.0, 4.0)
         v2 = gmath.GMVec2D(2.5, -3.5)
         v3 = v1 + v2
