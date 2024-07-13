@@ -103,6 +103,7 @@ class GMAnimation:
         """
         Change the type of this animation.
         The current frame will be changed accordingly.
+        The animation is set to active and the timer is restarted with the new duration.
 
         :param new_type: The new type for this animation.
         """
@@ -123,6 +124,9 @@ class GMAnimation:
             case GMAnimType.PINGPONG_B:
                 self.current_frame = len(self.frames) - 1
                 assert (len(self.frames) > 1)
+
+        self.active = True
+        self.set_timer_duration()
 
     def get_frame_index(self) -> int:
         """
