@@ -7,6 +7,8 @@
 This module defines all math related functions and classes.
 """
 
+import math
+
 from typing import Self
 
 
@@ -25,19 +27,6 @@ class GMVec2D:
         self.x: float = x
         self.y: float = y
 
-    def __add__(self, other: Self) -> Self:
-        """
-        Adds this vector to another and returns a new vector.
-
-        :param other: The other vector.
-        :return: The new vector as the sum of this and the other vector.
-        :rtype: GMVec2D
-        """
-        x = self.x + other.x
-        y = self.y + other.y
-        cls = type(self)
-        return cls(x, y)
-
     def __eq__(self, other) -> bool:
         """
         Compares this vector to the other element wise.
@@ -48,13 +37,39 @@ class GMVec2D:
         """
 
         if isinstance(other, GMVec2D):
-            return (self.x == other.x) and (self.y == other.y)
+            return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
         else:
             return False
+
+    def __repr__(self) -> str:
+        return f"GMVec2D({self.x}, {self.y})"
+
+    def __add__(self, other: Self | tuple[float, float]) -> Self:
+        """
+        Adds this vector to another (or a tuple) and returns a new vector.
+
+        :param other: The other vector or tuple.
+        :return: The new vector as the sum of this and the other vector.
+        :rtype: GMVec2D
+        """
+
+        if isinstance(other, GMVec2D):
+            x = self.x + other.x
+            y = self.y + other.y
+            cls = type(self)
+            return cls(x, y)
+        elif isinstance(other, tuple):
+            x = self.x + other[0]
+            y = self.y + other[1]
+            cls = type(self)
+            return cls(x, y)
+        else:
+            raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
 
     def add2(self, other: Self | tuple[float, float]):
         """
         Adds the values of other to this vector.
+
         :param other: Can be a GMVec2D or a tuple of floats.
         """
 
@@ -86,20 +101,44 @@ class GMCircle:
         self.cy = cy
         self.r = radius
 
-    def __add__(self, other: GMVec2D) -> Self:
+    def __eq__(self, other) -> bool:
         """
-        Adds a vector to this circle and moved the center accordingly.
+        Compares this circle to another.
 
-        :param other: The vector to be added to the center.
+        :param other: The other circle to compare to.
+        :return: True if all the values are equal (center + radius).
+        :rtype: bool
+        """
+
+        if isinstance(other, GMCircle):
+            return math.isclose(self.cx, other.cx) and math.isclose(self.cy, other.cy) and math.isclose(self.r, other.r)
+        else:
+            return False
+
+    def __repr__(self) -> str:
+        return f"GMCircle({self.cx}, {self.cy}, {self.r})"
+
+    def __add__(self, other: GMVec2D | tuple[float, float]) -> Self:
+        """
+        Adds a vector (or tuple) to this circle and moved the center accordingly.
+
+        :param other: The vector (or tuple) to be added to the center.
         :return: A new circle moved by the vector.
         :rtype: GMCircle
         """
 
-        cx = self.cx + other.x
-        cy = self.cy + other.y
-
-        cls = type(self)
-        return cls(cx, cy, self.r)
+        if isinstance(other, GMVec2D):
+            cx = self.cx + other.x
+            cy = self.cy + other.y
+            cls = type(self)
+            return cls(cx, cy, self.r)
+        elif isinstance(other, tuple):
+            cx = self.cx + other[0]
+            cy = self.cy + other[1]
+            cls = type(self)
+            return cls(cx, cy, self.r)
+        else:
+            raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
 
     def add2(self, other: GMVec2D | tuple[float, float]):
         """
@@ -117,19 +156,53 @@ class GMCircle:
         else:
             raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
 
-    def __eq__(self, other) -> bool:
+    def inside(self, point: GMVec2D | tuple[float, float]) -> bool:
         """
-        Compares this circle to another.
+        Check if a point (vector or tuple) is inside a circle.
 
-        :param other: The other circle to compare to.
-        :return: True if all the values are equal (center + radius).
+        :param point: A vector or a tuple of two floats.
+        :return: True if point is inside this circle, False if outside.
         :rtype: bool
         """
 
-        if isinstance(other, GMCircle):
-            return (self.cx == other.cx) and (self.cy == other.cy) and (self.r == other.r)
+        if isinstance(point, GMVec2D):
+            dx = self.cx - point.x
+            dy = self.cy - point.y
+            d = math.hypot(dx, dy)
+            return d <= self.r
+        elif isinstance(point, tuple):
+            dx = self.cx - point[0]
+            dy = self.cy - point[1]
+            d = math.hypot(dx, dy)
+            return d <= self.r
         else:
-            return False
+            raise ValueError(f"Point must be a GMVec2D or a tuple of floats: {point}")
+
+    def orbitTuple(self, angle: float) -> tuple[float, float]:
+        """
+        Returns the coordinates of a point orbiting this circle.
+
+        :param angle: The angle in degrees for the point.
+        :return: A tuple of tqo floats of the orbiting point.
+        :rtype: tuple[float, float]
+        """
+
+        rad = math.radians(angle)
+        px = self.cx + (self.r * math.cos(rad))
+        py = self.cy + (self.r * math.sin(rad))
+        return (px, py)
+
+    def orbitCircle(self, angle: float) -> GMVec2D:
+        """
+        Returns the coordinates of a point orbiting this circle.
+
+        :param angle: The angle in degrees for the point.
+        :return: A vector of the orbiting point.
+        :rtype: GMVec2D
+        """
+
+        (px, py) = self.orbitTuple(angle)
+        return GMVec2D(px, py)
 
 
 
