@@ -40,8 +40,8 @@ class TestVec2D(unittest.TestCase):
         self.assertEqual(v1, gmath.GMVec2D(3.0, -1.0))
 
         v1 = gmath.GMVec2D(2.0, 4.0)
-        v2 = (1.0, -5.0)
-        v1.add2(v2)
+        v3 = (1.0, -5.0)
+        v1.add2(v3)
         self.assertEqual(v1, gmath.GMVec2D(3.0, -1.0))
 
 
@@ -60,9 +60,8 @@ class TestCircle(unittest.TestCase):
         c2 = c1 + v1
         self.assertEqual(c2, gmath.GMCircle(3.8, 3.0, 2.5))
 
-        c1 = gmath.GMCircle(1.0, 2.5, 2.5)
-        v1 = (2.8, 0.5)
-        c2 = c1 + v1
+        v3 = (2.8, 0.5)
+        c2 = c1 + v3
         self.assertEqual(c2, gmath.GMCircle(3.8, 3.0, 2.5))
 
     def test_add2(self):
