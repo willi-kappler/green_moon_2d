@@ -81,7 +81,7 @@ class TestCircle(unittest.TestCase):
 
     def test_inside(self):
         """
-        Tests if a point (vector or tuple) is inside a circle.
+        Test if a point (vector or tuple) is inside a circle.
         """
 
         c1 = gmath.GMCircle(1.0, 2.5, 2.5)
@@ -95,7 +95,7 @@ class TestCircle(unittest.TestCase):
 
     def test_orbit(self):
         """
-        Tests a point orbiting a circle.
+        Test a point orbiting a circle.
         """
 
         c1 = gmath.GMCircle(5.0, 5.0, 2.0)
