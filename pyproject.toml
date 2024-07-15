@@ -2,7 +2,7 @@
 version = "0.1"
 name = "GreenMoon2D"
 dependencies = [
-    "raylib >= 5.0"
+    "pysdl2 >= 0.9.16"
 ]
 requires-python = ">= 3.12"
 readme = "README.md"

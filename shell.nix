@@ -6,7 +6,7 @@
         flake8
         ipython
         mypy
-        raylib
+        pysdl2
         ]))
       pyright
       ruff
