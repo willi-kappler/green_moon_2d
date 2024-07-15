@@ -22,7 +22,7 @@ class GMTimer:
         """
         self.duration: int = duration
         self.start_time: int = int(time.time() * 1000.0)
-        self.active = True
+        self.active: bool = True
 
     def finished(self) -> bool:
         """
