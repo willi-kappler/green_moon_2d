@@ -10,6 +10,12 @@ and draw() methods.
 
 from typing import Any
 
+import sdl2
+import sdl2.ext
+
+from green_moon_2d.gm_configuration import GMConfiguration
+from green_moon_2d.gm_scene import GMSceneManager
+
 
 class GMContext:
     """
@@ -19,7 +25,11 @@ class GMContext:
     """
 
     def __init__(self):
-        self.game_property = {}
+        self.game_property: dict[str, Any] = {}
+        self.config = GMConfiguration()
+        self.scene_manager: GMSceneManager = GMSceneManager()
+        self.quit_game: bool = False
+        self.renderer: Any = None
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -52,8 +62,53 @@ class GMContext:
         """
         return name in self.game_property
 
-    def clear_screen(self) -> None:
+    def load_config(self, file_name: str):
         """
-        Clears the screen with the black color.
+        Load the configuration from the given file name.
+
+        :param file_name: The name of the configuration file.
         """
+        self.config.load_config(file_name)
+
+    def load_resources(self):
+        """
+        Loads the resources from the configuration file.
+        """
+
         raise NotImplementedError
+        # TODO: Load resources from JSON file.
+
+    def set_fullscreen(self):
+        """
+        Sets the window to full screen or windowed mode, depenting on the setting in the config option.
+        """
+
+        if self.config.fullscreen:
+            sdl2.SDL_SetWindowFullscreen(sdl2.SDL_WINDOW_FULLSCREEN)
+        else:
+            sdl2.SDL_SetWindowFullscreen(0)
+
+    def toggle_fullscreen(self):
+        """
+        Toggle between fullscreen and windowed mode.
+        """
+
+        self.config.fullscreen = not self.config.fullscreen
+        self.set_fullscreen()
+
+    def update(self):
+        """
+        Updates the current scene in the scene manager.
+        """
+
+        self.scene_manager.update(self)
+
+    def draw(self):
+        """
+        Draws the current scene in the scene manager.
+        """
+
+        self.scene_manager.draw(self)
+
+
+
