@@ -9,7 +9,9 @@ This module defines the GMSceneManager and the GMScene base class.
 
 from typing import Any
 
-from green_moon_2d.gm_context import GMContext
+
+class GMContextInterface:
+    pass
 
 
 class GMScene:
@@ -25,7 +27,7 @@ class GMScene:
         self.name: str = name
         self.custom_property: dict[str, Any] = {}
 
-    def update(self, context: GMContext) -> None:
+    def update(self, context: GMContextInterface) -> None:
         """
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
@@ -34,7 +36,7 @@ class GMScene:
         """
         pass
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self, context: GMContextInterface) -> None:
         """
         This method is called once per frame and is used to draw the
         whole scene. You have to implement this method.
@@ -64,11 +66,11 @@ class GMSceneManager:
     """
 
     def __init__(self):
-        self.scenes = {}
+        self.scenes: dict[str, GMScene] = {}
         self.current_scene: GMScene = GMScene("empty")
-        self.scene_stack = []
+        self.scene_stack: list[GMScene] = []
 
-    def update(self, context: GMContext) -> None:
+    def update(self, context: GMContextInterface) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
 
@@ -76,7 +78,7 @@ class GMSceneManager:
         """
         self.current_scene.update(context)
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self, context: GMContextInterface) -> None:
         """
         Draws the current scene. This method is called by the engine once per frame.
 
