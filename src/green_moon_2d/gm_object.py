@@ -23,16 +23,16 @@ class GMObject:
         """
         :param name: The name of this object. It must be unique.
         """
-        self.name = name
-        self.pos = GMVec2D(0.0, 0.0)
-        self.vel = GMVec2D(0.0, 0.0)
-        self.acc = GMVec2D(0.0, 0.0)
-        self.active = True
-        self.visible = True
-        self.draw_order = 0
-        self.update_order = 0
-        self.groups = set()
-        self.properties = {}
+        self.name: str = name
+        self.pos: GMVec2D = GMVec2D(0.0, 0.0)
+        self.vel: GMVec2D = GMVec2D(0.0, 0.0)
+        self.acc: GMVec2D = GMVec2D(0.0, 0.0)
+        self.active: bool = True
+        self.visible: bool = True
+        self.draw_order: int = 0
+        self.update_order: int = 0
+        self.groups: set[str] = set()
+        self.properties: dict[str, Any] = {}
 
     def update(self, context: GMContext) -> None:
         """
