@@ -97,9 +97,9 @@ class GMCircle:
         :param radius: The radius of the circle.
         """
 
-        self.cx = cx
-        self.cy = cy
-        self.r = radius
+        self.cx: float = cx
+        self.cy: float = cy
+        self.r: float = radius
 
     def __eq__(self, other) -> bool:
         """
