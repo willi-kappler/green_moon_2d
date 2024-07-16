@@ -9,12 +9,11 @@ This module defines the GMSceneManager and the GMScene base class.
 
 from typing import Any
 
+from green_moon_2d.gm_context import GMContext
+from green_moon_2d.gm_interfaces import GMSceneInterface
 
-class GMContextInterface:
-    pass
 
-
-class GMScene:
+class GMScene(GMSceneInterface):
     """
     This is the base class for a user defined scene.
     You have to provide a scene name and imlement the update() and draw() methods accordingly.
@@ -24,25 +23,28 @@ class GMScene:
         """
         :param name: The name of the new scene. It must be unique.
         """
+
         self.name: str = name
         self.custom_property: dict[str, Any] = {}
 
-    def update(self, context: GMContextInterface) -> None:
+    def update(self, context: GMContext) -> None:
         """
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
 
         :param context: The current game context.
         """
+
         pass
 
-    def draw(self, context: GMContextInterface) -> None:
+    def draw(self, context: GMContext) -> None:
         """
         This method is called once per frame and is used to draw the
         whole scene. You have to implement this method.
 
         :param context: The current game context.
         """
+
         pass
 
     def enter(self) -> None:
@@ -50,6 +52,7 @@ class GMScene:
         This method is called every time this scene becomes the current
         scene. You don't have to implement this mwthod.
         """
+
         pass
 
     def leave(self) -> None:
@@ -57,6 +60,7 @@ class GMScene:
         This method is called every time this scene is no longer the
         current scene. You don't have to implement this mwthod.
         """
+
         pass
 
 
@@ -70,20 +74,42 @@ class GMSceneManager:
         self.current_scene: GMScene = GMScene("empty")
         self.scene_stack: list[GMScene] = []
 
-    def update(self, context: GMContextInterface) -> None:
+    def update(self, context: GMContext) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
 
         :param context: The current game context.
         """
+
         self.current_scene.update(context)
 
-    def draw(self, context: GMContextInterface) -> None:
+        for msg in context.scene_messages:
+            match msg.kind:
+                case "add":
+                    if isinstance(msg.scene, GMScene):
+                        self.add_scene(msg.scene)
+                    else:
+                        raise ValueError(f"Scene message add scene must be of type GMScene: {msg.scene}")
+                case "delete":
+                    self.delete_scene(msg.scene_name)
+                case "change":
+                    self.change_to_scene(msg.scene_name)
+                case "push":
+                    self.push_and_change(msg.scene_name)
+                case "pop":
+                    self.pop_and_change()
+                case _:
+                    raise ValueError(f"Unknown scene message kind: {msg.kind}.")
+
+        context.scene_messages.clear()
+
+    def draw(self, context: GMContext) -> None:
         """
         Draws the current scene. This method is called by the engine once per frame.
 
         :param context: The current game context.
         """
+
         self.current_scene.draw(context)
 
     def add_scene(self, scene: GMScene) -> None:
@@ -93,10 +119,8 @@ class GMSceneManager:
 
         :param scene: The new scene to be added.
         """
-        assert isinstance(
-            scene, GMScene
-        ), "GMSceneManager.add_scene(), new scene must " \
-           "be a subclass of GMScene"
+
+        assert isinstance(scene, GMScene), "GMSceneManager.add_scene(), new scene must be a subclass of GMScene"
 
         self.scenes[scene.name] = scene
 
@@ -129,6 +153,7 @@ class GMSceneManager:
         :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
+
         self.scene_stack.append(self.current_scene)
         self.change_to_scene(name)
 
@@ -138,6 +163,7 @@ class GMSceneManager:
 
         :raise ValueError: if the stack is empty.
         """
+
         self.current_scene.leave()
         self.current_scene = self.scene_stack.pop()
         self.current_scene.enter()
