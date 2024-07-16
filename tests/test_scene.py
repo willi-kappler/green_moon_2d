@@ -4,6 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 import unittest
+from typing import override
 
 from green_moon_2d.gm_scene import GMScene, GMSceneManager
 from green_moon_2d.gm_context import GMContext
@@ -13,22 +14,26 @@ class TestScene(GMScene):
     def __init__(self, name):
         super().__init__(name)
 
-        self.update_called = 0
-        self.draw_called = 0
-        self.enter_called = 0
-        self.leave_called = 0
+        self.custom_property["update_called"] = 0
+        self.custom_property["draw_called"] = 0
+        self.custom_property["enter_called"] = 0
+        self.custom_property["leave_called"] = 0
 
+    @override
     def update(self, context: GMContext):
-        self.update_called += 1
+        self.custom_property["update_called"] += 1
 
+    @override
     def draw(self, context: GMContext):
-        self.draw_called += 1
+        self.custom_property["draw_called"] += 1
 
+    @override
     def enter(self):
-        self.enter_called += 1
+        self.custom_property["enter_called"] += 1
 
+    @override
     def leave(self):
-        self.leave_called += 1
+        self.custom_property["leave_called"] += 1
 
 
 class TestSceneManager(unittest.TestCase):
@@ -39,16 +44,16 @@ class TestSceneManager(unittest.TestCase):
         self.assertEqual(self.sm.current_scene.name, name)
 
     def assertSceneEnter(self, name: str, val: int):
-        self.assertEqual(self.sm.scenes[name].enter_called, val)
+        self.assertEqual(self.sm.scenes[name].custom_property["enter_called"], val)
 
     def assertSceneLeave(self, name: str, val: int):
-        self.assertEqual(self.sm.scenes[name].leave_called, val)
+        self.assertEqual(self.sm.scenes[name].custom_property["leave_called"], val)
 
     def assertSceneUpdate(self, name: str, val: int):
-        self.assertEqual(self.sm.scenes[name].update_called, val)
+        self.assertEqual(self.sm.scenes[name].custom_property["update_called"], val)
 
     def assertSceneDraw(self, name: str, val: int):
-        self.assertEqual(self.sm.scenes[name].draw_called, val)
+        self.assertEqual(self.sm.scenes[name].custom_property["draw_called"], val)
 
     def assertSceneStack(self, index: int, name: str):
         self.assertEqual(self.sm.scene_stack[index].name, name)
