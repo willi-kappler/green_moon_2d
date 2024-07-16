@@ -2,7 +2,10 @@ TODO:
 
 - implement __getitem__() for GMObjectManager.
 - add more methods for 2d vector.
-
+- test cases for configuration.
+- test cases for context.
+- test scene manager messages.
+- add scene_update() and scene_draw() method.
 
 
 Done:
