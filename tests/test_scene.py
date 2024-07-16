@@ -8,6 +8,7 @@ from typing import override
 
 from green_moon_2d.gm_scene import GMScene, GMSceneManager
 from green_moon_2d.gm_context import GMContext
+from green_moon_2d.gm_messages import GMSceneMessage
 
 
 class TestScene(GMScene):
@@ -263,6 +264,151 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneDraw("test1", 1)
         self.assertSceneDraw("test2", 1)
 
+    def test_scene_messages1(self):
+        """
+        Test scene messages: add
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Sally")))
+        self.assertEqual(len(self.sm.scenes), 0)
+        self.sm.update(context)
+        self.assertEqual(len(context.scene_messages), 0)
+        self.assertEqual(len(self.sm.scenes), 1)
+        self.assertIn("Sally", self.sm.scenes)
+
+    def test_scene_messages2(self):
+        """
+        Test scene messages: delete
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Sally")))
+        self.assertEqual(len(self.sm.scenes), 0)
+        self.sm.update(context)
+        self.assertEqual(len(context.scene_messages), 0)
+        self.assertEqual(len(self.sm.scenes), 1)
+        self.assertIn("Sally", self.sm.scenes)
+
+        context.scene_messages.append(GMSceneMessage("delete", scene_name="Sally"))
+        self.sm.update(context)
+        self.assertEqual(len(self.sm.scenes), 0)
+
+    def test_scene_messages3(self):
+        """
+        Test scene messages: change
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Sally")))
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Bobby")))
+        self.sm.update(context)
+        self.assertEqual(len(self.sm.scenes), 2)
+        self.assertIn("Sally", self.sm.scenes)
+        self.assertIn("Bobby", self.sm.scenes)
+
+        self.sm.start_scene("Sally")
+        self.assertSceneCurrent("Sally")
+        self.assertSceneEnter("Sally", 1)
+
+        context.scene_messages.append(GMSceneMessage("change", scene_name="Bobby"))
+        self.sm.update(context)
+        self.assertSceneCurrent("Bobby")
+        self.assertSceneEnter("Sally", 1)
+        self.assertSceneLeave("Sally", 1)
+        self.assertSceneEnter("Bobby", 1)
+
+    def test_scene_messages4(self):
+        """
+        Test scene messages: push
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Sally")))
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Bobby")))
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Zed")))
+        self.sm.update(context)
+        self.sm.start_scene("Sally")
+ 
+        context.scene_messages.append(GMSceneMessage("push", scene_name="Zed"))
+        self.sm.update(context)
+        self.assertSceneEnter("Sally", 1)
+        self.assertSceneLeave("Sally", 1)
+        self.assertSceneEnter("Zed", 1)
+        self.assertSceneLeave("Zed", 0)
+        self.assertSceneCurrent("Zed")
+        self.assertEqual(len(self.sm.scene_stack), 1)
+        self.assertSceneStack(0, "Sally")
+
+    def test_scene_messages5(self):
+        """
+        Test scene messages: pop
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Sally")))
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Bobby")))
+        context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Zed")))
+        self.sm.update(context)
+        self.sm.start_scene("Sally")
+ 
+        context.scene_messages.append(GMSceneMessage("push", scene_name="Bobby"))
+        self.sm.update(context)
+        self.assertSceneCurrent("Bobby")
+        self.assertEqual(len(self.sm.scene_stack), 1)
+        self.assertSceneStack(0, "Sally")
+
+        context.scene_messages.append(GMSceneMessage("push", scene_name="Zed"))
+        self.sm.update(context)
+        self.assertSceneCurrent("Zed")
+        self.assertEqual(len(self.sm.scene_stack), 2)
+        self.assertSceneStack(0, "Sally")
+        self.assertSceneStack(1, "Bobby")
+
+        self.assertSceneEnter("Sally", 1)
+        self.assertSceneLeave("Sally", 1)
+        self.assertSceneEnter("Bobby", 1)
+        self.assertSceneLeave("Bobby", 1)
+        self.assertSceneEnter("Zed", 1)
+        self.assertSceneLeave("Zed", 0)
+
+        context.scene_messages.append(GMSceneMessage("pop"))
+        self.sm.update(context)
+        self.assertSceneCurrent("Bobby")
+        self.assertEqual(len(self.sm.scene_stack), 1)
+        self.assertSceneStack(0, "Sally")
+
+        self.assertSceneEnter("Sally", 1)
+        self.assertSceneLeave("Sally", 1)
+        self.assertSceneEnter("Bobby", 2)
+        self.assertSceneLeave("Bobby", 1)
+        self.assertSceneEnter("Zed", 1)
+        self.assertSceneLeave("Zed", 1)
+
+        context.scene_messages.append(GMSceneMessage("pop"))
+        self.sm.update(context)
+        self.assertSceneCurrent("Sally")
+        self.assertEqual(len(self.sm.scene_stack), 0)
+
+        self.assertSceneEnter("Sally", 2)
+        self.assertSceneLeave("Sally", 1)
+        self.assertSceneEnter("Bobby", 2)
+        self.assertSceneLeave("Bobby", 2)
+        self.assertSceneEnter("Zed", 1)
+        self.assertSceneLeave("Zed", 1)
+
+    def test_scene_messages6(self):
+        """
+        Test scene messages: unknown
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("the"))
+
+        with self.assertRaises(ValueError):
+            self.sm.update(context)
 
 if __name__ == "__main__":
     unittest.main()
+
+
