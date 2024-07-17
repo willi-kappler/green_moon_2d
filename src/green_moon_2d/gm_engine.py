@@ -59,7 +59,6 @@ class GMEngine:
         ctx.renderer = sdl2.ext.Renderer(window, flags=render_flags)
         ctx.set_screen_mode()
 
-
         window.show()
 
         while not ctx.quit_game:
