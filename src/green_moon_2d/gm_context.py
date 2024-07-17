@@ -157,6 +157,46 @@ class GMContext:
 
         self.scene_messages.append(GMSceneMessage("pop"))
 
+    def update_stack_top(self):
+        """
+        Creates a message to
+        """
 
+        self.scene_messages.append(GMSceneMessage("update_stack_top"))
+
+    def draw_stack_top(self):
+        """
+        Creates a message to
+        """
+
+        self.scene_messages.append(GMSceneMessage("draw_stack_top"))
+
+    def update_scene(self, name: str):
+        """
+        Creates a message to
+
+        :param name: The name of the scene where update should be called.
+        """
+
+        self.scene_messages.append(GMSceneMessage("update_scene", scene_name=name))
+
+    def draw_scene(self, name: str):
+        """
+        Creates a message to
+
+        :param name: The name of the scene where draw should be called.
+        """
+
+        self.scene_messages.append(GMSceneMessage("draw_scene", scene_name=name))
+
+    def send_message(self, name: str, custom_message: Any):
+        """
+        Creates a message to
+
+        :param name: The name of the scene where draw should be called.
+        """
+
+        self.scene_messages.append(GMSceneMessage("draw_scene",
+            scene_name=name, custom_message=custom_message))
 
 
