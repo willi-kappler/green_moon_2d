@@ -329,7 +329,7 @@ class TestSceneManager(unittest.TestCase):
         context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Zed")))
         self.sm.update(context)
         self.sm.start_scene("Sally")
- 
+
         context.scene_messages.append(GMSceneMessage("push", scene_name="Zed"))
         self.sm.update(context)
         self.assertSceneEnter("Sally", 1)
@@ -351,7 +351,7 @@ class TestSceneManager(unittest.TestCase):
         context.scene_messages.append(GMSceneMessage("add", scene=TestScene("Zed")))
         self.sm.update(context)
         self.sm.start_scene("Sally")
- 
+
         context.scene_messages.append(GMSceneMessage("push", scene_name="Bobby"))
         self.sm.update(context)
         self.assertSceneCurrent("Bobby")
@@ -407,6 +407,7 @@ class TestSceneManager(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.sm.update(context)
+
 
 if __name__ == "__main__":
     unittest.main()
