@@ -89,6 +89,7 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(cfg.fps, 60)
         self.assertEqual(cfg.resource_file, "foo_bar1.json")
 
+
 if __name__ == "__main__":
     unittest.main()
 
