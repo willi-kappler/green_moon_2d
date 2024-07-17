@@ -69,6 +69,12 @@ class TestSceneManager(unittest.TestCase):
     def assertSceneOnStack(self, name: str, val: bool):
         self.assertEqual(self.sm.scenes[name].on_stack, val)
 
+    def assertSceneSendMessage(self, name: str, val: int):
+        self.assertEqual(self.sm.scenes[name].custom_property["send_message_called"], val)
+
+    def assertSceneSendMessageValue(self, name: str, val: Any):
+        self.assertEqual(self.sm.scenes[name].custom_property["send_message_value"], val)
+
     def setUp(self):
         self.sm = GMSceneManager()
 
@@ -357,8 +363,25 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneDraw("test2", 1)
 
     def test_send_custom_message(self):
-        raise NotImplementedError
-        # TODO: implement test case.
+        """
+        Test sending a custom message to a scene.
+        """
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
+        self.assertSceneSendMessage("test1", 0)
+        self.assertSceneSendMessage("test2", 0)
+
+        self.sm.send_message("test1", "the first message")
+        self.assertSceneSendMessage("test1", 1)
+        self.assertSceneSendMessage("test2", 0)
+        self.assertSceneSendMessageValue("test1", "the first message")
+
+        self.sm.send_message("test2", "the second message")
+        self.assertSceneSendMessage("test1", 1)
+        self.assertSceneSendMessage("test2", 1)
+        self.assertSceneSendMessageValue("test1", "the first message")
+        self.assertSceneSendMessageValue("test2", "the second message")
 
     def test_scene_messages1(self):
         """
