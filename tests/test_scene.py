@@ -521,55 +521,167 @@ class TestSceneManager(unittest.TestCase):
         Test scene messages: update_stack_top
         """
 
-        context = GMContext()
-        context.scene_messages.append(GMSceneMessage("update_stack_top"))
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
 
-        raise NotImplementedError
-        # TODO: implement test case.
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 0)
+        self.sm.push_and_change("test2")
+
+        context = GMContext()
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 1)
+
+        context.scene_messages.append(GMSceneMessage("update_stack_top"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 1)
+        self.assertSceneUpdate("test2", 2)
+
+        context.scene_messages.append(GMSceneMessage("update_stack_top"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 2)
+        self.assertSceneUpdate("test2", 3)
+
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 2)
+        self.assertSceneUpdate("test2", 4)
 
     def test_scene_messages7(self):
         """
         Test scene messages: draw_stack_top
         """
 
-        context = GMContext()
-        context.scene_messages.append(GMSceneMessage("draw_stack_top"))
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
 
-        raise NotImplementedError
-        # TODO: implement test case.
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 0)
+        self.assertSceneDraw("test2", 0)
+        self.sm.push_and_change("test2")
+
+        context = GMContext()
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 1)
+        self.assertSceneDraw("test1", 0)
+        self.assertSceneDraw("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("draw_stack_top"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 2)
+        self.assertSceneDraw("test1", 1)
+        self.assertSceneDraw("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("draw_stack_top"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 3)
+        self.assertSceneDraw("test1", 2)
+        self.assertSceneDraw("test2", 0)
+
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 4)
+        self.assertSceneDraw("test1", 2)
+        self.assertSceneDraw("test2", 0)
 
     def test_scene_messages8(self):
         """
         Test scene messages: update_scene
         """
 
-        context = GMContext()
-        context.scene_messages.append(GMSceneMessage("update_scene", scene_name="test2"))
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
 
-        raise NotImplementedError
-        # TODO: implement test case.
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 0)
+
+        context = GMContext()
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 1)
+        self.assertSceneUpdate("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("update_scene", scene_name="test1"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 3)
+        self.assertSceneUpdate("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("update_scene", scene_name="test2"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 4)
+        self.assertSceneUpdate("test2", 1)
 
     def test_scene_messages9(self):
         """
         Test scene messages: draw_scene
         """
 
-        context = GMContext()
-        context.scene_messages.append(GMSceneMessage("draw_scene", scene_name="test2"))
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
 
-        raise NotImplementedError
-        # TODO: implement test case.
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 0)
+        self.assertSceneDraw("test2", 0)
+
+        context = GMContext()
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 1)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 0)
+        self.assertSceneDraw("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("draw_scene", scene_name="test1"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 2)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 1)
+        self.assertSceneDraw("test2", 0)
+
+        context.scene_messages.append(GMSceneMessage("draw_scene", scene_name="test2"))
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 3)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 1)
+        self.assertSceneDraw("test2", 1)
+
+        self.sm.update(context)
+        self.assertSceneUpdate("test1", 4)
+        self.assertSceneUpdate("test2", 0)
+        self.assertSceneDraw("test1", 1)
+        self.assertSceneDraw("test2", 1)
 
     def test_scene_messages10(self):
         """
         Test scene messages: send_message
         """
 
-        context = GMContext()
-        context.scene_messages.append(GMSceneMessage("send_message", custom_message="Foo1"))
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
 
-        raise NotImplementedError
-        # TODO: implement test case.
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("send_message", scene_name="test1", custom_message="TestFoo1"))
+        self.sm.update(context)
+
+        self.assertSceneSendMessage("test1", 1)
+        self.assertSceneSendMessage("test2", 0)
+        self.assertSceneSendMessageValue("test1", "TestFoo1")
+
+        context.scene_messages.append(GMSceneMessage("send_message", scene_name="test2", custom_message="TestBar2"))
+        self.sm.update(context)
+
+        self.assertSceneSendMessage("test1", 1)
+        self.assertSceneSendMessage("test2", 1)
+        self.assertSceneSendMessageValue("test1", "TestFoo1")
+        self.assertSceneSendMessageValue("test2", "TestBar2")
 
     def test_scene_messages11(self):
         """
