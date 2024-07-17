@@ -43,6 +43,7 @@ class TestScene(GMScene):
         self.custom_property["send_message_called"] += 1
         self.custom_property["send_message_value"] = custom_message
 
+
 class TestSceneManager(unittest.TestCase):
     def assertSceneProperty(self, name: str, property: str, value):
         self.assertEqual(self.sm.scenes[name].custom_property[property], value)
@@ -183,7 +184,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneCurrent("test2")
         self.assertEqual(len(self.sm.scene_stack), 1)
         self.assertSceneStack(0, "test1")
-        self.assertSceneOnStack("test2", True)
+        self.assertSceneOnStack("test1", True)
 
     def test_push_and_change2(self):
         """
@@ -213,7 +214,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneEnter("test2", 1)
         self.assertSceneLeave("test2", 1)
         self.assertSceneCurrent("test1")
-        self.assertSceneOnStack("test2", False)
+        self.assertSceneOnStack("test1", False)
 
     def test_pop_and_change2(self):
         """
@@ -478,31 +479,23 @@ class TestSceneManager(unittest.TestCase):
         raise NotImplementedError
         # TODO: implement test case.
 
-
     def test_draw_stack_top(self):
         raise NotImplementedError
         # TODO: implement test case.
-
 
     def test_update_scene_name(self):
         raise NotImplementedError
         # TODO: implement test case.
 
-
     def test_draw_scene_name(self):
         raise NotImplementedError
         # TODO: implement test case.
-
 
     def test_send_custom_message(self):
         raise NotImplementedError
         # TODO: implement test case.
 
 
-
-
-
 if __name__ == "__main__":
     unittest.main()
-
 
