@@ -276,6 +276,40 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneDraw("test1", 1)
         self.assertSceneDraw("test2", 1)
 
+    def test_update_stack_top(self):
+        """
+        Test calling draw on the current scene.
+        """
+        self.sm.add_scene(TestScene("test1"))
+        self.sm.add_scene(TestScene("test2"))
+        self.sm.start_scene("test1")
+
+        self.assertSceneUpdate("test1", 0)
+        self.assertSceneUpdate("test2", 0)
+
+        context = GMContext()
+        self.sm.push_and_change("test2")
+        self.sm.update_stack_top(context)
+
+        self.assertSceneUpdate("test1", 1)
+        self.assertSceneUpdate("test2", 0)
+
+    def test_draw_stack_top(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_update_scene_name(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_draw_scene_name(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_send_custom_message(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
     def test_scene_messages1(self):
         """
         Test scene messages: add
@@ -474,26 +508,6 @@ class TestSceneManager(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             self.sm.update(context)
-
-    def test_update_stack_top(self):
-        raise NotImplementedError
-        # TODO: implement test case.
-
-    def test_draw_stack_top(self):
-        raise NotImplementedError
-        # TODO: implement test case.
-
-    def test_update_scene_name(self):
-        raise NotImplementedError
-        # TODO: implement test case.
-
-    def test_draw_scene_name(self):
-        raise NotImplementedError
-        # TODO: implement test case.
-
-    def test_send_custom_message(self):
-        raise NotImplementedError
-        # TODO: implement test case.
 
 
 if __name__ == "__main__":
