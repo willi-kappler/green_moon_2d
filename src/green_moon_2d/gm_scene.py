@@ -72,6 +72,7 @@ class GMScene(GMSceneInterface):
 
         pass
 
+
 class GMSceneManager:
     """
     This class manages all the scenes that are used in the engine.
