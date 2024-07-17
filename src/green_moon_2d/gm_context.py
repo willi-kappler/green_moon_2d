@@ -196,7 +196,9 @@ class GMContext:
         :param name: The name of the scene where draw should be called.
         """
 
-        self.scene_messages.append(GMSceneMessage("draw_scene",
-            scene_name=name, custom_message=custom_message))
+        self.scene_messages.append(GMSceneMessage(
+            "draw_scene",
+            scene_name=name,
+            custom_message=custom_message))
 
 
