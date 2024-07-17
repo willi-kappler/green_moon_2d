@@ -25,6 +25,7 @@ class GMScene(GMSceneInterface):
         """
 
         self.name: str = name
+        self.on_stack: bool = False
         self.custom_property: dict[str, Any] = {}
 
     def update(self, context: GMContext) -> None:
@@ -63,6 +64,13 @@ class GMScene(GMSceneInterface):
 
         pass
 
+    def send_message(self, custom_message: Any):
+        """
+        This method can be used to send a custom message from one
+        scene (usually the currently active one) to another scene.
+        """
+
+        pass
 
 class GMSceneManager:
     """
@@ -77,6 +85,7 @@ class GMSceneManager:
     def update(self, context: GMContext) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
+        The scene manager also processes all the scene messages here.
 
         :param context: The current game context.
         """
@@ -98,6 +107,16 @@ class GMSceneManager:
                     self.push_and_change(msg.scene_name)
                 case "pop":
                     self.pop_and_change()
+                case "update_stack_top":
+                    self.update_stack_top(context)
+                case "draw_stack_top":
+                    self.draw_stack_top(context)
+                case "update_scene":
+                    self.update_scene(msg.scene_name, context)
+                case "draw_scene":
+                    self.draw_scene(msg.scene_name, context)
+                case "send_message":
+                    self.send_message(msg.scene_name, msg.custom_message)
                 case _:
                     raise ValueError(f"Unknown scene message kind: {msg.kind}.")
 
@@ -155,6 +174,7 @@ class GMSceneManager:
         """
 
         self.scene_stack.append(self.current_scene)
+        self.current_scene.on_stack = True
         self.change_to_scene(name)
 
     def pop_and_change(self) -> None:
@@ -166,6 +186,7 @@ class GMSceneManager:
 
         self.current_scene.leave()
         self.current_scene = self.scene_stack.pop()
+        self.current_scene.on_stack = False
         self.current_scene.enter()
 
     def start_scene(self, name: str) -> None:
@@ -178,4 +199,54 @@ class GMSceneManager:
 
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
+
+    def update_stack_top(self, context: GMContext):
+        """
+        Update the scene that is on top of the stack.
+
+        :param context: The current game context.
+        """
+
+        self.scene_stack[-1].update(context)
+
+    def draw_stack_top(self, context: GMContext):
+        """
+        Draw the scene that is on top of the stack.
+
+        :param context: The current game context.
+        """
+
+        self.scene_stack[-1].draw(context)
+
+    def update_scene(self, name: str, context: GMContext):
+        """
+        Update the specific scene given by the name.
+
+        :param name: The name of the scene to be updated.
+        :param context: The current game context.
+        """
+
+        self.scenes[name].update(context)
+
+    def draw_scene(self, name: str, context: GMContext):
+        """
+        Draw the specific scene given by the name.
+
+        :param name: The name of the scene to be drawn.
+        :param context: The current game context.
+        """
+
+        self.scenes[name].draw(context)
+
+    def send_message(self, name: str, custom_message: Any):
+        """
+        Sends a custom message to the scene given by the name.
+
+        :param name: The name of the scene to send the custom message to.
+        :param custom_message: The custom message that is sent to the scene.
+        """
+
+        self.scenes[name].send_message(custom_message)
+
+
 
