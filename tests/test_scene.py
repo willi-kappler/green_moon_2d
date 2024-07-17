@@ -4,7 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 import unittest
-from typing import override
+from typing import Any, override
 
 from green_moon_2d.gm_scene import GMScene, GMSceneManager
 from green_moon_2d.gm_context import GMContext
@@ -19,6 +19,8 @@ class TestScene(GMScene):
         self.custom_property["draw_called"] = 0
         self.custom_property["enter_called"] = 0
         self.custom_property["leave_called"] = 0
+        self.custom_property["send_message_called"] = 0
+        self.custom_property["send_message_value"] = None
 
     @override
     def update(self, context: GMContext):
@@ -36,6 +38,10 @@ class TestScene(GMScene):
     def leave(self):
         self.custom_property["leave_called"] += 1
 
+    @override
+    def send_message(self, custom_message: Any):
+        self.custom_property["send_message_called"] += 1
+        self.custom_property["send_message_value"] = custom_message
 
 class TestSceneManager(unittest.TestCase):
     def assertSceneProperty(self, name: str, property: str, value):
@@ -58,6 +64,9 @@ class TestSceneManager(unittest.TestCase):
 
     def assertSceneStack(self, index: int, name: str):
         self.assertEqual(self.sm.scene_stack[index].name, name)
+
+    def assertSceneOnStack(self, name: str, val: bool):
+        self.assertEqual(self.sm.scenes[name].on_stack, val)
 
     def setUp(self):
         self.sm = GMSceneManager()
@@ -174,6 +183,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneCurrent("test2")
         self.assertEqual(len(self.sm.scene_stack), 1)
         self.assertSceneStack(0, "test1")
+        self.assertSceneOnStack("test2", True)
 
     def test_push_and_change2(self):
         """
@@ -203,6 +213,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneEnter("test2", 1)
         self.assertSceneLeave("test2", 1)
         self.assertSceneCurrent("test1")
+        self.assertSceneOnStack("test2", False)
 
     def test_pop_and_change2(self):
         """
@@ -399,14 +410,96 @@ class TestSceneManager(unittest.TestCase):
 
     def test_scene_messages6(self):
         """
+        Test scene messages: update_stack_top
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("update_stack_top"))
+
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_scene_messages7(self):
+        """
+        Test scene messages: draw_stack_top
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("draw_stack_top"))
+
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_scene_messages8(self):
+        """
+        Test scene messages: update_scene
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("update_scene", scene_name="test2"))
+
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_scene_messages9(self):
+        """
+        Test scene messages: draw_scene
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("draw_scene", scene_name="test2"))
+
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_scene_messages10(self):
+        """
+        Test scene messages: send_message
+        """
+
+        context = GMContext()
+        context.scene_messages.append(GMSceneMessage("send_message", custom_message="Foo1"))
+
+        raise NotImplementedError
+        # TODO: implement test case.
+
+    def test_scene_messages11(self):
+        """
         Test scene messages: unknown
         """
 
         context = GMContext()
-        context.scene_messages.append(GMSceneMessage("the"))
+        context.scene_messages.append(GMSceneMessage("the_unknown"))
 
         with self.assertRaises(ValueError):
             self.sm.update(context)
+
+    def test_update_stack_top(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+
+    def test_draw_stack_top(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+
+    def test_update_scene_name(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+
+    def test_draw_scene_name(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+
+    def test_send_custom_message(self):
+        raise NotImplementedError
+        # TODO: implement test case.
+
+
+
 
 
 if __name__ == "__main__":
