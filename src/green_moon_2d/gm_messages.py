@@ -7,14 +7,17 @@
 This module defines messages used in the game engine.
 """
 
+from typing import Any
 
 import green_moon_2d.gm_interfaces as gmi
 
 
 class GMSceneMessage:
-    def __init__(self, kind: str, scene: None | gmi.GMSceneInterface = None, scene_name: str = ""):
+    def __init__(self, kind: str, scene: None | gmi.GMSceneInterface = None,
+            scene_name: str = "", custom_message: Any = None):
         self.kind: str = kind
         self.scene = scene
-        self.scene_name = scene_name
+        self.scene_name: str = scene_name
+        self.custom_message: Any = custom_message
 
 
