@@ -2,15 +2,15 @@ TODO:
 
 - implement __getitem__() for GMObjectManager.
 - add more methods for 2d vector.
-- test cases for configuration.
 - test cases for context.
-- test scene manager messages.
-- add scene_update() and scene_draw() method.
 
 
 Done:
 
 # Add py.typed to src/green_moon_2d/ path:
 # https://mypy.readthedocs.io/en/stable/installed_packages.html#installed-packages
+# test cases for configuration.
+# test scene manager messages.
+# add scene_update() and scene_draw() method.
 
 
