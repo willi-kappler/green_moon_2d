@@ -29,6 +29,11 @@ class TestVec2D(unittest.TestCase):
         v3 = v1 + v2
         self.assertEqual(v3, gmath.GMVec2D(9.9, 7.1))
 
+        v1 = gmath.GMVec2D(5.0, 8.0)
+        t1 = (3.0, 2.0)
+        v2 = v1 + t1
+        self.assertEqual(v2, gmath.GMVec2D(8.0, 10.0))
+
     def test_add2(self):
         """
         Test adding a vector (or tuple) by mutating the first one.
@@ -43,6 +48,11 @@ class TestVec2D(unittest.TestCase):
         v3 = (1.0, -5.0)
         v1.add2(v3)
         self.assertEqual(v1, gmath.GMVec2D(3.0, -1.0))
+
+        v1 = gmath.GMVec2D(5.0, 8.0)
+        t1 = (3.0, 2.0)
+        v1.add2(t1)
+        self.assertEqual(v1, gmath.GMVec2D(8.0, 10.0))
 
 
 class TestCircle(unittest.TestCase):
@@ -60,8 +70,8 @@ class TestCircle(unittest.TestCase):
         c2 = c1 + v1
         self.assertEqual(c2, gmath.GMCircle(3.8, 3.0, 2.5))
 
-        v3 = (2.8, 0.5)
-        c2 = c1 + v3
+        t1 = (2.8, 0.5)
+        c2 = c1 + t1
         self.assertEqual(c2, gmath.GMCircle(3.8, 3.0, 2.5))
 
     def test_add2(self):
@@ -75,8 +85,8 @@ class TestCircle(unittest.TestCase):
         self.assertEqual(c1, gmath.GMCircle(3.8, 3.0, 2.5))
 
         c1 = gmath.GMCircle(1.0, 2.5, 2.5)
-        v1 = gmath.GMVec2D(2.8, 0.5)
-        c1.add2(v1)
+        t1 = (2.8, 0.5)
+        c1.add2(t1)
         self.assertEqual(c1, gmath.GMCircle(3.8, 3.0, 2.5))
 
     def test_inside(self):
