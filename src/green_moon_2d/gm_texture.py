@@ -27,16 +27,29 @@ class GMTexture:
     def draw(self, dx: float, dy: float, index: int, context: GMContext):
         """
         Draw this texture on the screen given the coordinates and frame index.
+
         :param dx: The center x position.
         :param dy: The center y position.
         :param index: The index of the frame / cell.
+        :param context: The current game context.
         """
 
-        self.draw_opt(dx, dy, index, 0.0, 0.0, False, False, context)
+        self.draw_opt(dx, dy, index, context)
 
-    def draw_opt(self, dx: float, dy: float, index: int, angle: float, 
-                 scale: float, flip_x: bool, flip_y: bool, context: GMContext):
+    def draw_opt(self, dx: float, dy: float, index: int, context: GMContext,
+            angle: float = 0.0, scale: float = 1.0, flip_x: bool = False,
+            flip_y: bool = False):
         """
+        Draw this texture on the screen using several options.
+
+        :param dx: The center x position.
+        :param dy: The center y position.
+        :param index: The index of the frame / cell.
+        :param context: The current game context.
+        :param angle: Rotate the texture.
+        :param scale: The scale of the texture.
+        :param flip_x: True to flip horizontally.
+        :param flip_y: True to flip vertically.
         """
 
         yi = index / self.cols
@@ -52,15 +65,15 @@ class GMTexture:
         dy = dy - (float(self.unit_height) / 2.0)
 
         srcrect = (sx, sy, self.unit_width, self.unit_height)
-        dstrect = (dx, dy, self.unit_width, self.unit_height)
+        dstrect = (dx, dy, self.unit_width * scale, self.unit_height * scale)
 
         flip = sdl2.SDL_FLIP_NONE
 
         if flip_x:
-            flip = flip or sdl2.SDL_FLIP_HORIZONTAL
+            flip = flip | sdl2.SDL_FLIP_HORIZONTAL
 
         if flip_y:
-            flip = flip or sdl2.SDL_FLIP_VERTICAL
+            flip = flip | sdl2.SDL_FLIP_VERTICAL
 
         context.renderer.copy(self.texture, srcrect, dstrect, angle, flip=flip)
 
