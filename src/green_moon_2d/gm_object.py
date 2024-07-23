@@ -241,7 +241,7 @@ class GMObjectManager(Iterable):
 
         return index
 
-    def get(self, name: str) -> GMObject:
+    def __getitem__(self, name: str) -> GMObject:
         """
         Returns the object with the given name.
 
@@ -287,7 +287,7 @@ class GMObjectManager(Iterable):
         :rtype: Any
         :raise KeyError: if the object was not found.
         """
-        return self.get(name).send_message(msg)
+        return self[name].send_message(msg)
 
     def add_group(self, name: str, group: str | list[str]) -> None:
         """
@@ -297,7 +297,7 @@ class GMObjectManager(Iterable):
         :param group: The name of the group.
         :raise KeyError: if the object was not found.
         """
-        ob = self.get(name)
+        ob = self[name]
 
         if isinstance(group, str):
             ob.add_group(group)
@@ -317,7 +317,7 @@ class GMObjectManager(Iterable):
         :param group: The group from which the object should be removed.
         :raise KeyError: if the objectr was not found.
         """
-        self.get(name).remove_group(group)
+        self[name].remove_group(group)
 
     def remove_group_from_all(self, group: str) -> None:
         """
@@ -335,7 +335,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object.
         :raise KeyError: if the object was not found.
         """
-        self.get(name).clear_groups()
+        self[name].clear_groups()
 
     def __iter__(self) -> Iterator[GMObject]:
         """
@@ -393,7 +393,7 @@ class GMObjectManager(Iterable):
         :param val: The value of the property.
         :raise KeyError: if the object was not found.
         """
-        self.get(name).set_property(property, val)
+        self[name].set_property(property, val)
 
     def get_property(self, name: str, property: str) -> Any:
         """
@@ -405,7 +405,7 @@ class GMObjectManager(Iterable):
         :rtype: Any
         :raise KeyError: if the object or the property was not found.
         """
-        return self.get(name).get_property(property)
+        return self[name].get_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
         """
@@ -417,5 +417,5 @@ class GMObjectManager(Iterable):
         :rtype: bool
         :raise KeyError: if the object or the property was not found.
         """
-        return property in self.get(name).properties
+        return property in self[name].properties
 
