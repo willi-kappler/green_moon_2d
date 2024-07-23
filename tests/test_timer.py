@@ -16,19 +16,19 @@ class TestTimer(unittest.TestCase):
         """
 
         t1 = GMTimer(100)
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.055)
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.055)
-        self.assertEqual(t1.finished(), True)
+        self.assertTrue(t1.finished())
 
         t1.active = False
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.11)
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
     def test_set_duration(self):
         """
@@ -48,20 +48,20 @@ class TestTimer(unittest.TestCase):
         t1 = GMTimer(100)
 
         time.sleep(0.11)
-        self.assertEqual(t1.finished(), True)
+        self.assertTrue(t1.finished())
 
         t1.restart()
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.11)
-        self.assertEqual(t1.finished(), True)
+        self.assertTrue(t1.finished())
 
         t1.active = False
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         t1.restart()
         time.sleep(0.11)
-        self.assertEqual(t1.finished(), True)
+        self.assertTrue(t1.finished())
 
     def test_set_duration_restart(self):
         """
@@ -71,18 +71,18 @@ class TestTimer(unittest.TestCase):
         t1 = GMTimer(100)
         t1.active = False
 
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.11)
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         t1.set_duration_restart(200)
-        self.assertEqual(t1.active, True)
+        self.assertTrue(t1.active)
         self.assertEqual(t1.duration, 200)
-        self.assertEqual(t1.finished(), False)
+        self.assertFalse(t1.finished())
 
         time.sleep(0.21)
-        self.assertEqual(t1.finished(), True)
+        self.assertTrue(t1.finished())
 
 
 if __name__ == "__main__":

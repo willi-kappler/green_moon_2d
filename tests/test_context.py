@@ -45,8 +45,8 @@ class TestContext(unittest.TestCase):
 
         ctx = GMContext()
         ctx.set_property("level", 22)
-        self.assertEqual(ctx.has_property("level"), True)
-        self.assertEqual(ctx.has_property("points"), False)
+        self.assertTrue(ctx.has_property("level"))
+        self.assertFalse(ctx.has_property("points"))
 
     # The rest of the methods are tested in test_scene.py!
 

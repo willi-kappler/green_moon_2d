@@ -99,9 +99,9 @@ class TestCircle(unittest.TestCase):
         v2 = gmath.GMVec2D(0.0, 10.0)
         t1 = (0.5, 2.0)
 
-        self.assertEqual(c1.inside(v1), True)
-        self.assertEqual(c1.inside(v2), False)
-        self.assertEqual(c1.inside(t1), True)
+        self.assertTrue(c1.inside(v1))
+        self.assertFalse(c1.inside(v2))
+        self.assertTrue(c1.inside(t1))
 
     def test_orbit(self):
         """

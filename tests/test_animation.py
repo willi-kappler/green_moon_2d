@@ -119,7 +119,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 3)
         self.assertEqual(a1.get_frame_index(), 1)
-        self.assertEqual(a1.active, False)
+        self.assertFalse(a1.active)
 
     def test_update2(self):
         """
@@ -156,7 +156,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 0)
         self.assertEqual(a1.get_frame_index(), 2)
-        self.assertEqual(a1.active, False)
+        self.assertFalse(a1.active)
 
     def test_update3(self):
         """
@@ -193,7 +193,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 0)
         self.assertEqual(a1.get_frame_index(), 2)
-        self.assertEqual(a1.active, True)
+        self.assertTrue(a1.active)
 
     def test_update4(self):
         """
@@ -230,7 +230,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 3)
         self.assertEqual(a1.get_frame_index(), 1)
-        self.assertEqual(a1.active, True)
+        self.assertTrue(a1.active)
 
     def test_update5(self):
         """

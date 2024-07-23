@@ -43,7 +43,7 @@ class TestConfiguration(unittest.TestCase):
 
         self.assertEqual(cfg.screen_width, 678)
         self.assertEqual(cfg.screen_height, 456)
-        self.assertEqual(cfg.fullscreen, True)
+        self.assertTrue(cfg.fullscreen)
         self.assertEqual(cfg.window_title, "Test1")
         self.assertEqual(cfg.fps, 77)
         self.assertEqual(cfg.resource_file, "test_resources.json")
@@ -63,7 +63,7 @@ class TestConfiguration(unittest.TestCase):
 
         self.assertEqual(cfg.screen_width, 800)
         self.assertEqual(cfg.screen_height, 600)
-        self.assertEqual(cfg.fullscreen, False)
+        self.assertFalse(cfg.fullscreen)
         self.assertEqual(cfg.window_title, "Made with GreenMoon2D")
         self.assertEqual(cfg.fps, 60)
         self.assertEqual(cfg.resource_file, "resources.json")
@@ -84,7 +84,7 @@ class TestConfiguration(unittest.TestCase):
 
         self.assertEqual(cfg.screen_width, 1200)
         self.assertEqual(cfg.screen_height, 600)
-        self.assertEqual(cfg.fullscreen, False)
+        self.assertFalse(cfg.fullscreen)
         self.assertEqual(cfg.window_title, "Made with GreenMoon2D")
         self.assertEqual(cfg.fps, 60)
         self.assertEqual(cfg.resource_file, "foo_bar1.json")
