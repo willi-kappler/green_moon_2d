@@ -1,8 +1,7 @@
 TODO:
 
-- implement __getitem__() for GMObjectManager.
 - add more methods for 2d vector.
-- test cases for context.
+- add tests for scene properties.
 
 
 Done:
@@ -12,5 +11,7 @@ Done:
 # test cases for configuration.
 # test scene manager messages.
 # add scene_update() and scene_draw() method.
+# test cases for context.
+# implement __getitem__() for GMObjectManager.
 
 
