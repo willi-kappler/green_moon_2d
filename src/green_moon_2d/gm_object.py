@@ -195,23 +195,23 @@ class GMObjectManager(Iterable):
         :raise KeyError: if the name is already in use.
         """
 
-        if isinstance(obj, GMObject):
-            index = self.get_index(obj.name)
+        match obj:
+            case GMObject():
+                index = self.get_index(obj.name)
 
-            if index is not None:
-                raise KeyError(
-                    "GMObjectManager.add(), object with name "
-                    f"that already exists: {obj.name}"
-                )
+                if index is not None:
+                    raise KeyError(
+                        "GMObjectManager.add(), object with name "
+                        f"that already exists: {obj.name}"
+                    )
 
-            self.objects.append(obj)
-        elif isinstance(obj, Iterable):
-            for item in obj:
-                self.add(item)
-        else:
-            raise TypeError(
-                "GMObjectManager.add(), new object must "
-                "be a subclass of GMObject")
+                self.objects.append(obj)
+            case Iterable():
+                for item in obj:
+                    self.add(item)
+            case _:
+                raise TypeError(
+                    "GMObjectManager.add(), new object must be a subclass of GMObject")
 
     def delete(self, name: str) -> None:
         """
@@ -323,15 +323,15 @@ class GMObjectManager(Iterable):
 
         ob = self[name]
 
-        if isinstance(group, str):
-            ob.add_group(group)
-        elif isinstance(group, list):
-            for g in group:
-                ob.add_group(g)
-        else:
-            raise ValueError(
-                "GMObjectManager.add_group(), group must be string or "
-                f"list of strings for object {name}")
+        match group:
+            case str():
+                ob.add_group(group)
+            case list():
+                for g in group:
+                    ob.add_group(g)
+            case _:
+                raise ValueError(
+                    f"GMObjectManager.add_group(), group must be string or list of strings for object {name}")
 
     def remove_group(self, name: str, group: str) -> None:
         """

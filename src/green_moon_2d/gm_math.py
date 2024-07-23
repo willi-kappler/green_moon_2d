@@ -53,18 +53,19 @@ class GMVec2D:
         :rtype: GMVec2D
         """
 
-        if isinstance(other, GMVec2D):
-            x = self.x + other.x
-            y = self.y + other.y
-            cls = type(self)
-            return cls(x, y)
-        elif isinstance(other, tuple):
-            x = self.x + other[0]
-            y = self.y + other[1]
-            cls = type(self)
-            return cls(x, y)
-        else:
-            raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
+        match other:
+            case GMVec2D(x=ox, y=oy):
+                x = self.x + ox
+                y = self.y + oy
+                cls = type(self)
+                return cls(x, y)
+            case (tx, ty):
+                x = self.x + tx
+                y = self.y + ty
+                cls = type(self)
+                return cls(x, y)
+            case _:
+                raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
 
     def add2(self, other: Self | tuple[float, float]):
         """
@@ -73,14 +74,15 @@ class GMVec2D:
         :param other: Can be a GMVec2D or a tuple of floats.
         """
 
-        if isinstance(other, GMVec2D):
-            self.x += other.x
-            self.y += other.y
-        elif isinstance(other, tuple):
-            self.x += other[0]
-            self.y += other[1]
-        else:
-            raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
+        match other:
+            case GMVec2D(x=ox, y=oy):
+                self.x += ox
+                self.y += oy
+            case (tx, ty):
+                self.x += tx
+                self.y += ty
+            case _:
+                raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
 
 
 class GMCircle:
@@ -127,18 +129,19 @@ class GMCircle:
         :rtype: GMCircle
         """
 
-        if isinstance(other, GMVec2D):
-            cx = self.cx + other.x
-            cy = self.cy + other.y
-            cls = type(self)
-            return cls(cx, cy, self.r)
-        elif isinstance(other, tuple):
-            cx = self.cx + other[0]
-            cy = self.cy + other[1]
-            cls = type(self)
-            return cls(cx, cy, self.r)
-        else:
-            raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
+        match other:
+            case GMVec2D(x=ox, y=oy):
+                cx = self.cx + ox
+                cy = self.cy + oy
+                cls = type(self)
+                return cls(cx, cy, self.r)
+            case (tx, ty):
+                cx = self.cx + tx
+                cy = self.cy + ty
+                cls = type(self)
+                return cls(cx, cy, self.r)
+            case _:
+                raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
 
     def add2(self, other: GMVec2D | tuple[float, float]):
         """
@@ -147,14 +150,15 @@ class GMCircle:
         :param other: Can be a vector or a tuple of floats.
         """
 
-        if isinstance(other, GMVec2D):
-            self.cx += other.x
-            self.cy += other.y
-        elif isinstance(other, tuple):
-            self.cx += other[0]
-            self.cy += other[1]
-        else:
-            raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
+        match other:
+            case GMVec2D(x=ox, y=oy):
+                self.cx += ox
+                self.cy += oy
+            case (tx, ty):
+                self.cx += tx
+                self.cy += ty
+            case _:
+                raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
 
     def inside(self, point: GMVec2D | tuple[float, float]) -> bool:
         """
@@ -165,18 +169,19 @@ class GMCircle:
         :rtype: bool
         """
 
-        if isinstance(point, GMVec2D):
-            dx = self.cx - point.x
-            dy = self.cy - point.y
-            d = math.hypot(dx, dy)
-            return d <= self.r
-        elif isinstance(point, tuple):
-            dx = self.cx - point[0]
-            dy = self.cy - point[1]
-            d = math.hypot(dx, dy)
-            return d <= self.r
-        else:
-            raise ValueError(f"Point must be a GMVec2D or a tuple of floats: {point}")
+        match point:
+            case GMVec2D(x=px, y=py):
+                dx = self.cx - px
+                dy = self.cy - py
+                d = math.hypot(dx, dy)
+                return d <= self.r
+            case (tx, ty):
+                dx = self.cx - tx
+                dy = self.cy - ty
+                d = math.hypot(dx, dy)
+                return d <= self.r
+            case _:
+                raise ValueError(f"Point must be a GMVec2D or a tuple of floats: {point}")
 
     def orbitTuple(self, angle: float) -> tuple[float, float]:
         """
