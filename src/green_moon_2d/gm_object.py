@@ -41,6 +41,7 @@ class GMObject:
 
         :param context: The current game context.
         """
+
         pass
 
     def draw(self, context: GMContext) -> None:
@@ -50,6 +51,7 @@ class GMObject:
 
         :param context: The current game context.
         """
+
         pass
 
     def move(self) -> None:
@@ -57,6 +59,7 @@ class GMObject:
         This method can be called once per frame if needed.
         It moves this object according to the given velocity and acceleration.
         """
+
         self.vel += self.acc
         self.pos += self.vel
 
@@ -68,6 +71,7 @@ class GMObject:
         :return: A possible response from the object.
         :rtype: Any
         """
+
         pass
 
     def add_group(self, name: str) -> None:
@@ -76,6 +80,7 @@ class GMObject:
 
         :param name: The name of the group.
         """
+
         self.groups.add(name)
 
     def remove_group(self, name: str) -> None:
@@ -84,6 +89,7 @@ class GMObject:
 
         :param name: The name of the group to be removed.
         """
+
         if name in self.groups:
             self.groups.remove(name)
 
@@ -95,12 +101,14 @@ class GMObject:
         :return: True if the object is in the group otherwise False.
         :rtype: bool
         """
+
         return name in self.groups
 
     def clear_groups(self) -> None:
         """
         Removed this object from all the groups.
         """
+
         self.groups.clear()
 
     def set_property(self, name: str, val: Any):
@@ -110,6 +118,7 @@ class GMObject:
         :param name: The name of the property.
         :param val: The value of the property.
         """
+
         self.properties[name] = val
 
     def get_property(self, name: str) -> Any:
@@ -120,6 +129,7 @@ class GMObject:
         :return: The value of the property.
         :rtype: Any
         """
+
         return self.properties[name]
 
     def get_property_default(self, name: str, default: Any) -> Any:
@@ -131,6 +141,7 @@ class GMObject:
         :return: The value of the given property.
         :rtype: Any
         """
+
         return self.properties.get(name, default)
 
     def has_property(self, name: str) -> bool:
@@ -141,12 +152,14 @@ class GMObject:
         :return: True if the property with the given name was found, otherwise False.
         :rtype: bool
         """
+
         return name in self.properties
 
     def clear_properties(self) -> None:
         """
         Removes all custom properties from this object.
         """
+
         self.properties.clear()
 
 
@@ -168,6 +181,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object that was not found.
         :raise KeyError: when the object was not found.
         """
+
         raise KeyError(
             f"GMObjectManager.{method}(), object with that name not found: {name}"
         )
@@ -180,6 +194,7 @@ class GMObjectManager(Iterable):
         :param obj: The new object to be added.
         :raise KeyError: if the name is already in use.
         """
+
         if isinstance(obj, GMObject):
             index = self.get_index(obj.name)
 
@@ -205,6 +220,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object that should be deleted.
         :raise KeyError: if the object was not found.
         """
+
         index = self.get_index(name)
 
         if index is None:
@@ -216,12 +232,14 @@ class GMObjectManager(Iterable):
         """
         Sorts all object according to the update_order.
         """
+
         self.objects.sort(key=lambda o: o.update_order)
 
     def sort_draw(self) -> None:
         """
         Sorts all object according to the draw_order.
         """
+
         self.objects.sort(key=lambda o: o.draw_order)
 
     def get_index(self, name: str) -> int | None:
@@ -232,6 +250,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object.
         :return: The index of the object if it was found, otherwise None
         """
+
         index = None
 
         for i, o in enumerate(self.objects):
@@ -250,6 +269,7 @@ class GMObjectManager(Iterable):
         :rtype: GMObject
         :raise KeyError: if the object was not found.
         """
+
         index = self.get_index(name)
 
         if index is None:
@@ -263,6 +283,7 @@ class GMObjectManager(Iterable):
 
         :param context: The current game context.
         """
+
         for o in self.objects:
             if o.active:
                 o.update(context)
@@ -273,6 +294,7 @@ class GMObjectManager(Iterable):
 
         :param context: The current game context.
         """
+
         for o in self.objects:
             if o.visible:
                 o.draw(context)
@@ -287,6 +309,7 @@ class GMObjectManager(Iterable):
         :rtype: Any
         :raise KeyError: if the object was not found.
         """
+
         return self[name].send_message(msg)
 
     def add_group(self, name: str, group: str | list[str]) -> None:
@@ -297,6 +320,7 @@ class GMObjectManager(Iterable):
         :param group: The name of the group.
         :raise KeyError: if the object was not found.
         """
+
         ob = self[name]
 
         if isinstance(group, str):
@@ -317,6 +341,7 @@ class GMObjectManager(Iterable):
         :param group: The group from which the object should be removed.
         :raise KeyError: if the objectr was not found.
         """
+
         self[name].remove_group(group)
 
     def remove_group_from_all(self, group: str) -> None:
@@ -325,6 +350,7 @@ class GMObjectManager(Iterable):
 
         :param group: The group that is going to be removed from all objects.
         """
+
         for ob in self.objects:
             ob.remove_group(group)
 
@@ -344,6 +370,7 @@ class GMObjectManager(Iterable):
         :return: An iterator over all objects.
         :rtype: Iterator[GMObject]
         """
+
         return iter(self.objects)
 
     def iter_group(self, group: str) -> Iterator[GMObject]:
@@ -354,6 +381,7 @@ class GMObjectManager(Iterable):
         :return: An iterator for all object in the given group.
         :rtype: Iterator[GMObject]
         """
+
         for o in self.objects:
             if o.in_group(group):
                 yield o
@@ -365,6 +393,7 @@ class GMObjectManager(Iterable):
         :param group: The group to which the objects belong.
         :param op: The operation to apply to the objects individually.
         """
+
         for o in self.iter_group(group):
             op(o)
 
@@ -378,6 +407,7 @@ class GMObjectManager(Iterable):
         :return: A list of tuples with the name of the object and the return value.
         :rtype: list[tuple[str, Any]]
         """
+
         result = []
         for o in self.iter_group(group):
             result.append((o.name, op(o)))
@@ -393,6 +423,7 @@ class GMObjectManager(Iterable):
         :param val: The value of the property.
         :raise KeyError: if the object was not found.
         """
+
         self[name].set_property(property, val)
 
     def get_property(self, name: str, property: str) -> Any:
@@ -405,6 +436,7 @@ class GMObjectManager(Iterable):
         :rtype: Any
         :raise KeyError: if the object or the property was not found.
         """
+
         return self[name].get_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
@@ -417,5 +449,26 @@ class GMObjectManager(Iterable):
         :rtype: bool
         :raise KeyError: if the object or the property was not found.
         """
+
         return property in self[name].properties
+
+    def clear_properties(self, name: str) -> None:
+        """
+        Removes all properties from the given object.
+
+        :param name: The name of the object to remove all the properties from.
+        :raise KeyError: if the object was not found.
+        """
+
+        self[name].clear_properties()
+
+    def clear_properties_group(self, group: str) -> None:
+        """
+        Clears all the properties from all the objects in the given group.
+        """
+
+        for o in self.objects:
+            if o.in_group(group):
+                o.clear_properties()
+
 
