@@ -40,10 +40,10 @@ class TestObjectManager(unittest.TestCase):
         self.assertEqual(self.om.get_index(name), n)
 
     def assertObjectGroups(self, name: str, groups: list[str]) -> None:
-        self.assertEqual(self.om.get(name).groups, set(groups))
+        self.assertEqual(self.om[name].groups, set(groups))
 
     def assertObjectProperty(self, name: str, property: str, val: Any):
-        self.assertEqual(self.om.get(name).properties[property], val)
+        self.assertEqual(self.om[name].properties[property], val)
 
     def test_add_object1(self):
         """
@@ -152,11 +152,11 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        obj = self.om.get("test1")
+        obj = self.om["test1"]
         self.assertEqual(obj.name, "test1")
-        obj = self.om.get("test2")
+        obj = self.om["test2"]
         self.assertEqual(obj.name, "test2")
-        obj = self.om.get("test3")
+        obj = self.om["test3"]
         self.assertEqual(obj.name, "test3")
 
     def test_get2(self):
@@ -168,7 +168,7 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test3"))
 
         with self.assertRaises(KeyError):
-            self.om.get("test4")
+            self.om["test4"]
 
     def test_update(self):
         """
@@ -215,7 +215,7 @@ class TestObjectManager(unittest.TestCase):
         Test sending message to an object.
         """
         self.om.add(TestObject("test1"))
-        self.assertEqual(len(self.om.get("test1").properties), 2)
+        self.assertEqual(len(self.om["test1"].properties), 2)
 
         self.om.send_message("test1", "alpha_message")
         self.assertObjectProperty("test1", "message", "alpha_message")
@@ -357,9 +357,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.get("test1").properties["iter_ok"] = "No"
-        self.om.get("test2").properties["iter_ok"] = "No"
-        self.om.get("test3").properties["iter_ok"] = "No"
+        self.om["test1"].properties["iter_ok"] = "No"
+        self.om["test2"].properties["iter_ok"] = "No"
+        self.om["test3"].properties["iter_ok"] = "No"
 
         for ob in self.om:
             ob.properties["iter_ok"] = "Yes"
@@ -380,9 +380,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test2", ["green", "blue", "yellow"])
         self.om.add_group("test3", ["bleeding", "top"])
 
-        self.om.get("test1").properties["Called"] = "No"
-        self.om.get("test2").properties["Called"] = "No"
-        self.om.get("test3").properties["Called"] = "No"
+        self.om["test1"].properties["Called"] = "No"
+        self.om["test2"].properties["Called"] = "No"
+        self.om["test3"].properties["Called"] = "No"
 
         for ob in self.om.iter_group("top"):
             ob.properties["Called"] = "Yes"
@@ -401,8 +401,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test1", ["foo", "bar", "top"])
         self.om.add_group("test2", ["blue", "top"])
 
-        self.om.get("test1").properties["Called"] = "No"
-        self.om.get("test2").properties["Called"] = "No"
+        self.om["test1"].properties["Called"] = "No"
+        self.om["test2"].properties["Called"] = "No"
 
         for ob in self.om.iter_group("yellow"):
             ob.properties["Called"] = "Yes"
@@ -422,9 +422,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test2", ["green", "blue", "yellow"])
         self.om.add_group("test3", ["bleeding", "top"])
 
-        self.om.get("test1").properties["Called"] = "No"
-        self.om.get("test2").properties["Called"] = "No"
-        self.om.get("test3").properties["Called"] = "No"
+        self.om["test1"].properties["Called"] = "No"
+        self.om["test2"].properties["Called"] = "No"
+        self.om["test3"].properties["Called"] = "No"
 
         self.om.apply_group("top", lambda ob: ob.set_property("Called", "Yes"))
 
@@ -444,9 +444,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test2", ["green", "blue", "yellow"])
         self.om.add_group("test3", ["bleeding", "top"])
 
-        self.om.get("test1").properties["Called"] = "No"
-        self.om.get("test2").properties["Called"] = "No"
-        self.om.get("test3").properties["Called"] = "No"
+        self.om["test1"].properties["Called"] = "No"
+        self.om["test2"].properties["Called"] = "No"
+        self.om["test3"].properties["Called"] = "No"
 
         self.om.apply_group(
             "flop", lambda ob: ob.set_property("Called", "Yes")
@@ -468,9 +468,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test2", ["green", "blue", "yellow"])
         self.om.add_group("test3", ["bleeding", "top"])
 
-        self.om.get("test1").properties["id_test"] = "one"
-        self.om.get("test2").properties["id_test"] = "two"
-        self.om.get("test3").properties["id_test"] = "three"
+        self.om["test1"].properties["id_test"] = "one"
+        self.om["test2"].properties["id_test"] = "two"
+        self.om["test3"].properties["id_test"] = "three"
 
         items = self.om.collect_group(
             "top", lambda ob: ob.get_property("id_test"))
@@ -489,9 +489,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test2", ["green", "blue", "yellow"])
         self.om.add_group("test3", ["bleeding", "top"])
 
-        self.om.get("test1").properties["id_test"] = "one"
-        self.om.get("test2").properties["id_test"] = "two"
-        self.om.get("test3").properties["id_test"] = "three"
+        self.om["test1"].properties["id_test"] = "one"
+        self.om["test2"].properties["id_test"] = "two"
+        self.om["test3"].properties["id_test"] = "three"
 
         items = self.om.collect_group(
             "fop", lambda ob: ob.get_property("id_test"))
@@ -503,7 +503,7 @@ class TestObjectManager(unittest.TestCase):
         Test setting a property for an object.
         """
         self.om.add(TestObject("test1"))
-        self.assertEqual(len(self.om.get("test1").properties), 2)
+        self.assertEqual(len(self.om["test1"].properties), 2)
 
         self.om.set_property("test1", "monkey", 12)
         self.assertObjectProperty("test1", "monkey", 12)
@@ -525,7 +525,7 @@ class TestObjectManager(unittest.TestCase):
         Test getting a property from an object.
         """
         self.om.add(TestObject("test1"))
-        self.assertEqual(len(self.om.get("test1").properties), 2)
+        self.assertEqual(len(self.om["test1"].properties), 2)
 
         self.om.set_property("test1", "monkey", 12)
         self.assertEqual(self.om.get_property("test1", "monkey"), 12)
@@ -556,7 +556,7 @@ class TestObjectManager(unittest.TestCase):
         Test checking a property for an object.
         """
         self.om.add(TestObject("test1"))
-        self.assertEqual(len(self.om.get("test1").properties), 2)
+        self.assertEqual(len(self.om["test1"].properties), 2)
 
         self.om.set_property("test1", "monkey", 12)
         self.assertTrue(self.om.has_property("test1", "monkey"))
