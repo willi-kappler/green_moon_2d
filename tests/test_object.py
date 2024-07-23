@@ -572,6 +572,63 @@ class TestObjectManager(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.om.has_property("test2", "monkey")
 
+    def test_get_property_default(self):
+        """
+        Test getting a default value for a unknown property.
+        """
+
+        self.om.add(TestObject("test1"))
+        self.om.set_property("test1", "fuel", 100)
+
+        self.assertEqual(self.om["test1"].get_property_default("fuel", 200), 100)
+        self.assertEqual(self.om["test1"].get_property_default("ammo", 33), 33)
+
+    def test_clear_properties(self):
+        """
+        Test removing all properties from a given object.
+        """
+
+        self.om.add(TestObject("test1"))
+        self.om.set_property("test1", "fuel", 100)
+        self.om.set_property("test1", "ammo", 33)
+
+        self.om.clear_properties("test1")
+
+        self.assertFalse(self.om.has_property("test1", "fuel"))
+        self.assertFalse(self.om.has_property("test1", "ammo"))
+
+    def test_clear_properties_group(self):
+        """
+        Test removing all the properties from all the objects of a given group.
+        """
+
+        self.om.add(TestObject("test1"))
+        self.om.set_property("test1", "fuel", 100)
+        self.om.set_property("test1", "ammo", 33)
+
+        self.om.add(TestObject("test2"))
+        self.om.set_property("test2", "fuel", 200)
+        self.om.set_property("test2", "ammo", 70)
+
+        self.om.add(TestObject("test3"))
+        self.om.set_property("test3", "fuel", 400)
+        self.om.set_property("test3", "ammo", 50)
+
+        self.om.add_group("test1", "enemy")
+        self.om.add_group("test2", "player")
+        self.om.add_group("test3", "enemy")
+
+        self.om.clear_properties_group("enemy")
+
+        self.assertFalse(self.om.has_property("test1", "fuel"))
+        self.assertFalse(self.om.has_property("test1", "ammo"))
+
+        self.assertTrue(self.om.has_property("test2", "fuel"))
+        self.assertTrue(self.om.has_property("test2", "ammo"))
+
+        self.assertFalse(self.om.has_property("test3", "fuel"))
+        self.assertFalse(self.om.has_property("test3", "ammo"))
+
 
 #    def test_(self):
 #        """
