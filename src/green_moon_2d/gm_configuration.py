@@ -17,7 +17,7 @@ class GMConfiguration:
 
     def load_config(self, file_name: str):
         """
-        Load the configuration from the given file name.
+        Load the configuration (JSON format) from the given file name.
 
         :param file_name: File name of the configuration.
         """
