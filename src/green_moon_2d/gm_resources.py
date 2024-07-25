@@ -6,13 +6,14 @@
 import json
 
 import green_moon_2d.gm_animation as gmanim
-
+from green_moon_2d.gm_texture import GMTexture
+from green_moon_2d.gm_font import GMFont
 
 class GMResources:
     def __init__(self):
-        self.texture = {}
-        self.animations = {}
-        self.fonts = {}
+        self.textures: dict[str, GMTexture] = {}
+        self.animations: dict[str, gmanim.GMAnimation] = {}
+        self.fonts: dict[str, GMFont] = {}
 
     def load_resources(self, file_name: str) -> None:
         """
@@ -46,6 +47,10 @@ class GMResources:
             unit_width: int = tex["unit_width"]
             unit_height: int = tex["unit_height"]
 
+            # TODO: load image from file and convert it into a texture.
+            sdl_texture = None
+            new_texture = GMTexture(unit_width, unit_height, sdl_texture)
+            self.textures[name] = new_texture
 
     def create_fonts(self, fonts: list) -> None:
         """
@@ -55,9 +60,17 @@ class GMResources:
         """
 
         for font in fonts:
-            name = font["name"]
-            texture_name = font["texture_name"]
-            char_mapping = font["char_mapping"]
+            name: str = font["name"]
+            texture_name: str = font["texture_name"]
+            char_mapping: list[str] = font["char_mapping"]
+            texture: GMTexture = self.textures[texture_name]
+            mapping: dict[str, int] = {}
+
+            for i, c in enumerate(char_mapping):
+                mapping[c] = i
+
+            new_font = GMFont(texture, mapping)
+            self.fonts[name] = new_font
 
     def create_animations(self, animations: list) -> None:
         """
@@ -67,9 +80,9 @@ class GMResources:
         """
 
         for anim in animations:
-            name = anim["name"]
-            animation_type = anim["animtaion_type"]
-            frames = anim["frames"]
+            name: str = anim["name"]
+            animation_type: str = anim["animtaion_type"]
+            frames: list[tuple[int, int]] = anim["frames"]
 
             new_anim = gmanim.GMAnimation(frames)
 
@@ -89,5 +102,6 @@ class GMResources:
                 case _:
                     raise ValueError(f"GMResources, Unknown animation type: {animation_type}, name: {name}")
 
+            self.animations[name] = new_anim
 
-            
+
