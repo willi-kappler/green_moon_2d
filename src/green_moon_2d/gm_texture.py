@@ -3,7 +3,7 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-from typing import Any
+#from typing import Any
 
 import sdl2
 import sdl2.ext
@@ -12,17 +12,19 @@ from green_moon_2d.gm_context import GMContext
 
 
 class GMTexture:
-    def __init__(self, unit_width: int, unit_height: int, texture: Any):
+    def __init__(self, unit_width: int, unit_height: int, texture: sdl2.SDL_Texture):
         """
         :param unit_width: The width of a single frame / cell.
         :param unit_height: The heiht of a single frame / cell.
         :param texture: The actual graphic texture.
         """
 
-        self.texture: Any = texture
+        self.texture: sdl2.SDL_Texture = texture
         self.unit_width: int = unit_width
         self.unit_height: int = unit_height
-        self.cols: int = texture.width / unit_width
+        #self.cols: int = texture.width / unit_width
+        # TODO: Determine the size of the texture
+        self.cols: int = 0
 
     def draw(self, dx: float, dy: float, index: int, context: GMContext):
         """
