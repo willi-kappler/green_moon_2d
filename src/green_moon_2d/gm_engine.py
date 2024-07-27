@@ -58,8 +58,10 @@ class GMEngine:
             flags = flags | pygame.FULLSCREEN
 
         ctx.screen = pygame.display.set_mode((config.screen_width, config.screen_height), flags)
-        clock = pygame.time.Clock()
         pygame.display.set_caption(config.window_title)
+        ctx.load_resources()
+
+        clock = pygame.time.Clock()
 
         while not ctx.quit_game:
             smgr.update(ctx)
