@@ -28,11 +28,11 @@ class GMTexture:
         :param index: The index of the frame / cell.
         """
 
-        yi = index / self.cols
-        xi = index - (yi * self.cols)
+        yi: int = int(index / self.cols)
+        xi: int = index - (yi * self.cols)
 
-        sx = xi * self.unit_width
-        sy = yi * self.unit_height
+        sx: int = xi * self.unit_width
+        sy: int = yi * self.unit_height
 
         area = pygame.Rect(sx, sy, self.unit_width, self.unit_height)
         subsurface = self.surface.subsurface(area)
