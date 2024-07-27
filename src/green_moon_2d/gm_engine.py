@@ -52,7 +52,11 @@ class GMEngine:
         smgr: GMSceneManager = self.scene_manager
 
         pygame.init()
-        flags = pygame.FULLSCREEN if config.fullscreen else 0
+
+        flags = pygame.SHOWN
+        if config.fullscreen:
+            flags = flags | pygame.FULLSCREEN
+
         ctx.screen = pygame.display.set_mode((config.screen_width, config.screen_height), flags)
         clock = pygame.time.Clock()
         pygame.display.set_caption(config.window_title)

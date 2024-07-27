@@ -87,8 +87,8 @@ class GMContext:
         Toggle between fullscreen and windowed mode.
         """
 
-        self.config.fullscreen = not self.config.fullscreen
         pygame.display.toggle_fullscreen()
+        self.config.fullscreen = pygame.display.is_fullscreen()
 
     def clear(self):
         """
