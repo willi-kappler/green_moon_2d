@@ -6,7 +6,7 @@
         flake8
         ipython
         mypy
-        pysdl2
+        pygame-ce
         ]))
       pyright
       ruff
