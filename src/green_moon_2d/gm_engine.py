@@ -68,6 +68,7 @@ class GMEngine:
             pygame.display.flip()
             ctx.dt = clock.tick(config.fps)
 
+        config.save_config()
         pygame.quit()
 
 

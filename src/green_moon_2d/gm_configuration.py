@@ -13,6 +13,7 @@ class GMConfiguration:
         self.fullscreen: bool = False
         self.window_title: str = "Made with GreenMoon2D"
         self.fps: int = 60
+        self.config_file: str = "config.json"
         self.resource_file: str = "resources.json"
 
     def load_config(self, file_name: str):
@@ -42,5 +43,15 @@ class GMConfiguration:
 
         if "resource_file" in data:
             self.resource_file = data["resource_file"]
+
+        self.config_file = file_name
+
+    def save_config(self):
+        """
+        Saves the game configuration.
+        """
+
+        with open(self.config_file, "w") as f:
+            json.dump(self.__dict__, f)
 
 
