@@ -44,5 +44,3 @@ class GMConfiguration:
             self.resource_file = data["resource_file"]
 
 
-
-
