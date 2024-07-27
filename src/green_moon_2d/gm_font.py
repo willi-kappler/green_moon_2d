@@ -13,6 +13,15 @@ class GMFont:
         self.mapping = mapping
 
     def draw(self, x: float, y: float, c: str, context: GMContext):
+        """
+        Draws one character on the given position using the current texture and mapping.
+
+        :param x: The x position of the character.
+        :param y: The y position of the character.
+        :param c: The character itself.
+        :param context: The current game context.
+        """
+
         i = self.mapping[c]
         self.texture.draw(x, y, i, context)
 
