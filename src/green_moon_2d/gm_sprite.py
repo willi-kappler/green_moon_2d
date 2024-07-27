@@ -14,6 +14,7 @@ class GMSprite(GMObject):
         """
         :param name: The name of the sprite. It must be unique.
         """
+
         super().__init__(name)
 
     @override
