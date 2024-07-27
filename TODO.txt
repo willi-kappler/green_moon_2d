@@ -2,7 +2,6 @@ TODO:
 
 - add more methods for 2d vector.
 
-
 Done:
 
 # Add py.typed to src/green_moon_2d/ path:
@@ -13,5 +12,6 @@ Done:
 # test cases for context.
 # implement __getitem__() for GMObjectManager.
 # add tests for object properties.
+# move to pygame-ce (from pysdl2)
 
 
