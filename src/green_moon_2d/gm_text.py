@@ -3,3 +3,56 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
+from typing import override
+
+import green_moon_2d.gm_object as gmobj
+import green_moon_2d.gm_font as gmfnt
+import green_moon_2d.gm_context as gmctx
+from green_moon_2d.gm_math import GMVec2D
+
+
+class GMText(gmobj.GMObject):
+    def __init__(self, name: str, text: str, pos: tuple[float, float] | GMVec2D, font: gmfnt.GMFont):
+        """
+        :param name: The name of the text object.
+        :param text: The actual text.
+        :param pos: The text position.
+        :param font: The font to use when drawing the text.
+        """
+
+        super().__init__(name)
+        self.text: str = text
+        self.font: gmfnt.GMFont = font
+        self.horizontal: bool = True
+
+        match pos:
+            case (x, y):
+                self.pos.x = x
+                self.pos.y = y
+            case GMVec2D():
+                self.pos = pos
+
+    @override
+    def update(self, context: gmctx.GMContext):
+        """
+        :param context: The current game context.
+        """
+
+        pass
+
+    @override
+    def draw(self, context: gmctx.GMContext):
+        """
+        :param context: The current game context.
+        """
+
+        sx = self.pos.x
+        sy = self.pos.y
+        wx = self.font.texture.unit_width
+
+        for c in self.text:
+            self.font.draw(sx, sy, c, context)
+            sx = sx + wx
+
+
+
