@@ -32,7 +32,7 @@ class GMResources(gmitf.GMResourcesInterface):
             data = json.load(f)
 
         if "textures" in data:
-            self.create_textures(data["texture"])
+            self.create_textures(data["textures"])
 
         if "fonts" in data:
             self.create_fonts(data["fonts"])
