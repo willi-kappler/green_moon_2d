@@ -2,7 +2,7 @@
 version = "0.1"
 name = "GreenMoon2D"
 dependencies = [
-    "pysdl2 >= 0.9.16"
+    "pygame-ce >= 2.4.1"
 ]
 requires-python = ">= 3.12"
 readme = "README.md"
