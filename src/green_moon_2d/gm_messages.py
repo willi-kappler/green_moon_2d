@@ -20,7 +20,7 @@ class GMSceneMessage:
         """
         A message that is send from the current game context to the scene manager.
 
-        :param kind: The kind of the message: "add", "delete", "change", "push", 
+        :param kind: The kind of the message: "add", "delete", "change", "push",
             "pop", "update_stack_top", "draw_stack_top", "update_scene", "draw_scene",
             "send_message"
         :param scene: The actual scene or None.

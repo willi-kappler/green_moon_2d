@@ -11,6 +11,7 @@ import green_moon_2d.gm_animation as gmanim
 from green_moon_2d.gm_texture import GMTexture
 from green_moon_2d.gm_font import GMFont
 
+
 class GMResources:
     def __init__(self):
         self.textures: dict[str, GMTexture] = {}

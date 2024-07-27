@@ -53,7 +53,8 @@ class GMTexture:
 
         context.screen.blit(subsurface, (dx, dy))
 
-    def draw_opt(self, dx: float, dy: float, index: int, context: GMContext,
+    def draw_opt(
+            self, dx: float, dy: float, index: int, context: GMContext,
             angle: float = 0.0, scale: float = 1.0, flip_x: bool = False,
             flip_y: bool = False):
         """
