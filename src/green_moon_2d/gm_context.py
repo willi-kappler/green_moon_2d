@@ -11,10 +11,6 @@ from typing import Any
 
 import pygame
 
-import green_moon_2d.gm_configuration as gmcfg
-import green_moon_2d.gm_interfaces as gmitf
-from green_moon_2d.gm_messages import GMSceneMessage
-
 
 class GMContext:
     """
@@ -25,12 +21,9 @@ class GMContext:
 
     def __init__(self):
         self.game_property: dict[str, Any] = {}
-        self.config: gmcfg.GMConfiguration = gmcfg.GMConfiguration()
         self.quit_game: bool = False
         self.screen: Any = None
-        self.scene_messages: list[GMSceneMessage] = []
         self.dt: int = 0
-        self.resources: gmitf.GMResourcesInterface
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -66,120 +59,24 @@ class GMContext:
 
         return name in self.game_property
 
-    def load_config(self, file_name: str):
-        """
-        Load the configuration from the given file name.
-
-        :param file_name: The name of the configuration file.
-        """
-
-        self.config.load_config(file_name)
-
-    def load_resources(self):
-        """
-        Loads the resources from the configuration file.
-        """
-
-        self.resources.load_resources(self.config.resource_file)
-
     def toggle_fullscreen(self):
         """
         Toggle between fullscreen and windowed mode.
         """
 
         pygame.display.toggle_fullscreen()
-        self.config.fullscreen = pygame.display.is_fullscreen()
 
-    def clear(self):
+    def clear_screen(self):
         """
         Clears the screen with black color.
         """
 
         self.screen.fill("black")
 
-    def add_scene(self, scene: gmitf.GMSceneInterface):
+    def update_input(self):
         """
-        Creates a message to add a new scene to the scene manager.
-
-        :param scene: The new scene to be added.
+        Checks for uer input
         """
 
-        self.scene_messages.append(GMSceneMessage("add", scene=scene))
-
-    def delete_scene(self, name: str):
-        """
-        Create a message to elete the scene with the given name.
-
-        :param name: The name of the scene to be deleted.
-        """
-
-        self.scene_messages.append(GMSceneMessage("delete", scene_name=name))
-
-    def change_scene(self, name: str):
-        """
-        Changes the current scene to the named scene.
-
-        :param name: The name of the scene to change to.
-        """
-
-        self.scene_messages.append(GMSceneMessage("change", scene_name=name))
-
-    def push_and_change_scene(self, name: str):
-        """
-        Creates a message to push the current scene onto the stack and change to the given scene.
-
-        :param name: The name of the scene to be changed to.
-        """
-
-        self.scene_messages.append(GMSceneMessage("push", scene_name=name))
-
-    def pop_scene(self):
-        """
-        Creates a message to pop the scene from the stack and switch to it.
-        """
-
-        self.scene_messages.append(GMSceneMessage("pop"))
-
-    def update_stack_top(self):
-        """
-        Creates a message to
-        """
-
-        self.scene_messages.append(GMSceneMessage("update_stack_top"))
-
-    def draw_stack_top(self):
-        """
-        Creates a message to
-        """
-
-        self.scene_messages.append(GMSceneMessage("draw_stack_top"))
-
-    def update_scene(self, name: str):
-        """
-        Creates a message to
-
-        :param name: The name of the scene where update should be called.
-        """
-
-        self.scene_messages.append(GMSceneMessage("update_scene", scene_name=name))
-
-    def draw_scene(self, name: str):
-        """
-        Creates a message to
-
-        :param name: The name of the scene where draw should be called.
-        """
-
-        self.scene_messages.append(GMSceneMessage("draw_scene", scene_name=name))
-
-    def send_message(self, name: str, custom_message: Any):
-        """
-        Creates a message to
-
-        :param name: The name of the scene where draw should be called.
-        """
-
-        self.scene_messages.append(
-            GMSceneMessage("send_message", scene_name=name, custom_message=custom_message))
-
+        pass
 

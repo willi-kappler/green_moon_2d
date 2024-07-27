@@ -5,10 +5,9 @@
 
 import unittest
 
-from typing import Any
+from typing import Any, override
 
 from green_moon_2d.gm_object import GMObject, GMObjectManager
-from green_moon_2d.gm_context import GMContext
 
 
 class TestObject(GMObject):
@@ -18,12 +17,15 @@ class TestObject(GMObject):
         self.properties["update_called"] = 0
         self.properties["draw_called"] = 0
 
-    def update(self, context: GMContext):
+    @override
+    def update(self):
         self.properties["update_called"] += 1
 
-    def draw(self, context: GMContext):
+    @override
+    def draw(self):
         self.properties["draw_called"] += 1
 
+    @override
     def send_message(self, msg: Any) -> Any:
         if isinstance(msg, str):
             self.properties["message"] = msg
@@ -177,14 +179,13 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
-        context = GMContext()
-        self.om.update(context)
+        self.om.update()
 
         self.assertObjectProperty("test1", "update_called", 1)
         self.assertObjectProperty("test2", "update_called", 1)
 
         self.om.add(TestObject("test3"))
-        self.om.update(context)
+        self.om.update()
 
         self.assertObjectProperty("test1", "update_called", 2)
         self.assertObjectProperty("test2", "update_called", 2)
@@ -197,14 +198,13 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
-        context = GMContext()
-        self.om.draw(context)
+        self.om.draw()
 
         self.assertObjectProperty("test1", "draw_called", 1)
         self.assertObjectProperty("test2", "draw_called", 1)
 
         self.om.add(TestObject("test3"))
-        self.om.draw(context)
+        self.om.draw()
 
         self.assertObjectProperty("test1", "draw_called", 2)
         self.assertObjectProperty("test2", "draw_called", 2)

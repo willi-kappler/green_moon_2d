@@ -9,11 +9,8 @@ This module defines the GMSceneManager and the GMScene base class.
 
 from typing import Any
 
-import green_moon_2d.gm_context as gmctx
-from green_moon_2d.gm_interfaces import GMSceneInterface
 
-
-class GMScene(GMSceneInterface):
+class GMScene:
     """
     This is the base class for a user defined scene.
     You have to provide a scene name and imlement the update() and draw() methods accordingly.
@@ -26,24 +23,21 @@ class GMScene(GMSceneInterface):
 
         self.name: str = name
         self.on_stack: bool = False
+        self.initialized: bool = False
         self.custom_property: dict[str, Any] = {}
 
-    def update(self, context: gmctx.GMContext) -> None:
+    def update(self) -> None:
         """
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
-
-        :param context: The current game context.
         """
 
         pass
 
-    def draw(self, context: gmctx.GMContext) -> None:
+    def draw(self) -> None:
         """
         This method is called once per frame and is used to draw the
         whole scene. You have to implement this method.
-
-        :param context: The current game context.
         """
 
         pass
@@ -83,54 +77,21 @@ class GMSceneManager:
         self.current_scene: GMScene = GMScene("empty")
         self.scene_stack: list[GMScene] = []
 
-    def update(self, context: gmctx.GMContext) -> None:
+    def update(self) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
-        The scene manager also processes all the scene messages here.
-
-        :param context: The current game context.
         """
 
-        self.current_scene.update(context)
+        self.current_scene.update()
 
-        for msg in context.scene_messages:
-            match msg.kind:
-                case "add":
-                    if isinstance(msg.scene, GMScene):
-                        self.add_scene(msg.scene)
-                    else:
-                        raise ValueError(f"Scene message add scene must be of type GMScene: {msg.scene}")
-                case "delete":
-                    self.delete_scene(msg.scene_name)
-                case "change":
-                    self.change_to_scene(msg.scene_name)
-                case "push":
-                    self.push_and_change(msg.scene_name)
-                case "pop":
-                    self.pop_and_change()
-                case "update_stack_top":
-                    self.update_stack_top(context)
-                case "draw_stack_top":
-                    self.draw_stack_top(context)
-                case "update_scene":
-                    self.update_scene(msg.scene_name, context)
-                case "draw_scene":
-                    self.draw_scene(msg.scene_name, context)
-                case "send_message":
-                    self.send_message(msg.scene_name, msg.custom_message)
-                case _:
-                    raise ValueError(f"Unknown scene message kind: {msg.kind}.")
-
-        context.scene_messages.clear()
-
-    def draw(self, context: gmctx.GMContext) -> None:
+    def draw(self) -> None:
         """
         Draws the current scene. This method is called by the engine once per frame.
 
         :param context: The current game context.
         """
 
-        self.current_scene.draw(context)
+        self.current_scene.draw()
 
     def add_scene(self, scene: GMScene) -> None:
         """
@@ -201,43 +162,37 @@ class GMSceneManager:
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
 
-    def update_stack_top(self, context: gmctx.GMContext):
+    def update_stack_top(self):
         """
         Update the scene that is on top of the stack.
-
-        :param context: The current game context.
         """
 
-        self.scene_stack[-1].update(context)
+        self.scene_stack[-1].update()
 
-    def draw_stack_top(self, context: gmctx.GMContext):
+    def draw_stack_top(self):
         """
         Draw the scene that is on top of the stack.
-
-        :param context: The current game context.
         """
 
-        self.scene_stack[-1].draw(context)
+        self.scene_stack[-1].draw()
 
-    def update_scene(self, name: str, context: gmctx.GMContext):
+    def update_scene(self, name: str):
         """
         Update the specific scene given by the name.
 
         :param name: The name of the scene to be updated.
-        :param context: The current game context.
         """
 
-        self.scenes[name].update(context)
+        self.scenes[name].update()
 
-    def draw_scene(self, name: str, context: gmctx.GMContext):
+    def draw_scene(self, name: str):
         """
         Draw the specific scene given by the name.
 
         :param name: The name of the scene to be drawn.
-        :param context: The current game context.
         """
 
-        self.scenes[name].draw(context)
+        self.scenes[name].draw()
 
     def send_message(self, name: str, custom_message: Any):
         """

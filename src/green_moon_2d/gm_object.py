@@ -10,7 +10,6 @@ This module defines the GMObject base class that all game objects should derive 
 from collections.abc import Iterator, Iterable
 from typing import Any, NoReturn
 
-from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_math import GMVec2D
 
 
@@ -34,7 +33,7 @@ class GMObject:
         self.groups: set[str] = set()
         self.properties: dict[str, Any] = {}
 
-    def update(self, context: GMContext) -> None:
+    def update(self) -> None:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
@@ -44,7 +43,7 @@ class GMObject:
 
         pass
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self) -> None:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to draw the object.
@@ -277,7 +276,7 @@ class GMObjectManager(Iterable):
 
         return self.objects[index]
 
-    def update(self, context: GMContext) -> None:
+    def update(self) -> None:
         """
         Updates all the avtive objects. Objects can be sorted by update_order.
 
@@ -286,9 +285,9 @@ class GMObjectManager(Iterable):
 
         for o in self.objects:
             if o.active:
-                o.update(context)
+                o.update()
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self) -> None:
         """
         Draws all the visible objects. Objects can be sorted by draw_order.
 
@@ -297,7 +296,7 @@ class GMObjectManager(Iterable):
 
         for o in self.objects:
             if o.visible:
-                o.draw(context)
+                o.draw()
 
     def send_message(self, name: str, msg: Any) -> Any:
         """

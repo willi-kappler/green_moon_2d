@@ -5,7 +5,7 @@
 
 import pygame
 
-import green_moon_2d.gm_context as gmctx
+import green_moon_2d.gm_engine as gme
 
 
 class GMTexture:
@@ -39,23 +39,22 @@ class GMTexture:
 
         return subsurface
 
-    def draw(self, dx: float, dy: float, index: int, context: gmctx.GMContext):
+    def draw(self, dx: float, dy: float, index: int):
         """
         Draw this texture on the screen given the coordinates and frame index.
 
         :param dx: The center x position.
         :param dy: The center y position.
         :param index: The index of the frame / cell.
-        :param context: The current game context.
         """
 
         subsurface = self.get_subsurface(index)
 
-        context.screen.blit(subsurface, (dx, dy))
+        gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 
     def draw_opt(
-            self, dx: float, dy: float, index: int, context: gmctx.GMContext,
-            angle: float = 0.0, scale: float = 1.0, flip_x: bool = False,
+            self, dx: float, dy: float, index: int, angle: float = 0.0,
+            scale: float = 1.0, flip_x: bool = False,
             flip_y: bool = False):
         """
         Draw this texture on the screen using several options.
@@ -63,7 +62,6 @@ class GMTexture:
         :param dx: The center x position.
         :param dy: The center y position.
         :param index: The index of the frame / cell.
-        :param context: The current game context.
         :param angle: Rotate the texture.
         :param scale: The scale of the texture.
         :param flip_x: True to flip horizontally.
@@ -77,5 +75,5 @@ class GMTexture:
         subsurface = pygame.transform.flip(subsurface, flip_x, flip_y)
         subsurface = pygame.transform.rotozoom(subsurface, angle, scale)
 
-        context.screen.blit(subsurface, (dx, dy))
+        gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 

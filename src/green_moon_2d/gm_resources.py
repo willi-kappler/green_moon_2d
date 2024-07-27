@@ -109,4 +109,13 @@ class GMResources(gmitf.GMResourcesInterface):
 
             self.animations[name] = new_anim
 
+    def get_texture(self, name: str) -> gmtxt.GMTexture:
+        return self.textures[name]
+
+    def get_font(self, name: str) -> gmfnt.GMFont:
+        return self.fonts[name]
+
+    def get_animation(self, name: str) -> gmanim.GMAnimation:
+        return self.animations[name]
+
 

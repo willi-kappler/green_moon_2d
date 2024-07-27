@@ -7,7 +7,6 @@ from typing import override
 
 import green_moon_2d.gm_object as gmobj
 import green_moon_2d.gm_font as gmfnt
-import green_moon_2d.gm_context as gmctx
 from green_moon_2d.gm_math import GMVec2D
 
 
@@ -33,17 +32,15 @@ class GMText(gmobj.GMObject):
                 self.pos = pos
 
     @override
-    def update(self, context: gmctx.GMContext):
+    def update(self):
         """
-        :param context: The current game context.
         """
 
         pass
 
     @override
-    def draw(self, context: gmctx.GMContext):
+    def draw(self):
         """
-        :param context: The current game context.
         """
 
         sx = self.pos.x
@@ -51,7 +48,7 @@ class GMText(gmobj.GMObject):
         wx = self.font.texture.unit_width
 
         for c in self.text:
-            self.font.draw(sx, sy, c, context)
+            self.font.draw(sx, sy, c)
             sx = sx + wx
 
 

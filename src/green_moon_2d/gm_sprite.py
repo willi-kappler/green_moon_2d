@@ -5,7 +5,6 @@
 
 from typing import Any, override
 
-from green_moon_2d.gm_context import GMContext
 from green_moon_2d.gm_object import GMObject
 
 
@@ -18,11 +17,11 @@ class GMSprite(GMObject):
         super().__init__(name)
 
     @override
-    def draw(self, context: GMContext) -> None:
+    def draw(self) -> None:
         raise NotImplementedError
 
     @override
-    def update(self, context: GMContext) -> None:
+    def update(self) -> None:
         raise NotImplementedError
 
     @override
