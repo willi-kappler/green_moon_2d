@@ -1,6 +1,7 @@
 TODO:
 
 - add more methods for 2d vector.
+- add custom settings to configuration class.
 
 Done:
 
