@@ -3,8 +3,7 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-import sdl2  # type: ignore
-import sdl2.ext  # type: ignore
+import pygame
 
 from green_moon_2d.gm_configuration import GMConfiguration
 from green_moon_2d.gm_context import GMContext
@@ -48,26 +47,23 @@ class GMEngine:
         Starts the engine and runs the game loop.
         """
 
-        config = self.context.config
-        ctx = self.context
-        smgr = self.scene_manager
+        config: GMConfiguration = self.context.config
+        ctx: GMContext = self.context
+        smgr: GMSceneManager = self.scene_manager
 
-        sdl2.ext.init(video=True, audio=True, timer=True, controller=True)
-        window = sdl2.ext.Window(config.window_title, (config.screen_width, config.screen_height))
-
-        render_flags = (sdl2.SDL_RENDERER_ACCELERATED | sdl2.SDL_RENDERER_PRESENTVSYNC)
-        ctx.renderer = sdl2.ext.Renderer(window, flags=render_flags)
-        ctx.set_screen_mode()
-
-        window.show()
+        pygame.init()
+        flags = pygame.FULLSCREEN if config.fullscreen else 0
+        ctx.screen = pygame.display.set_mode((config.screen_width, config.screen_height), flags)
+        clock = pygame.time.Clock()
+        pygame.display.set_caption(config.window_title)
 
         while not ctx.quit_game:
             smgr.update(ctx)
             ctx.clear()
             smgr.draw(ctx)
-            ctx.present()
+            pygame.display.flip()
+            ctx.dt = clock.tick(config.fps)
 
-        window.close()
-        sdl2.ext.quit()
+        pygame.quit()
 
 

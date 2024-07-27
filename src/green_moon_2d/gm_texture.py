@@ -3,28 +3,41 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-#from typing import Any
-
-import sdl2
-import sdl2.ext
+import pygame
 
 from green_moon_2d.gm_context import GMContext
 
 
 class GMTexture:
-    def __init__(self, unit_width: int, unit_height: int, texture: sdl2.SDL_Texture):
+    def __init__(self, unit_width: int, unit_height: int, surface: pygame.Surface):
         """
         :param unit_width: The width of a single frame / cell.
         :param unit_height: The heiht of a single frame / cell.
         :param texture: The actual graphic texture.
         """
 
-        self.texture: sdl2.SDL_Texture = texture
+        self.surface: pygame.Surface = surface
         self.unit_width: int = unit_width
         self.unit_height: int = unit_height
-        #self.cols: int = texture.width / unit_width
-        # TODO: Determine the size of the texture
-        self.cols: int = 0
+        self.cols: int = int(surface.get_width() / unit_width)
+
+    def get_subsurface(self, index: int) -> pygame.Surface:
+        """
+        Return a subsurface from the texture given the index.
+
+        :param index: The index of the frame / cell.
+        """
+
+        yi = index / self.cols
+        xi = index - (yi * self.cols)
+
+        sx = xi * self.unit_width
+        sy = yi * self.unit_height
+
+        area = pygame.Rect(sx, sy, self.unit_width, self.unit_height)
+        subsurface = self.surface.subsurface(area)
+
+        return subsurface
 
     def draw(self, dx: float, dy: float, index: int, context: GMContext):
         """
@@ -36,7 +49,9 @@ class GMTexture:
         :param context: The current game context.
         """
 
-        self.draw_opt(dx, dy, index, context)
+        subsurface = self.get_subsurface(index)
+
+        context.screen.blit(subsurface, (dx, dy))
 
     def draw_opt(self, dx: float, dy: float, index: int, context: GMContext,
             angle: float = 0.0, scale: float = 1.0, flip_x: bool = False,
@@ -54,30 +69,12 @@ class GMTexture:
         :param flip_y: True to flip vertically.
         """
 
-        yi = index / self.cols
-        xi = index - (yi * self.cols)
+        dx = (dx - self.unit_width) / 2.0
+        dy = (dy - self.unit_height) / 2.0
 
-        sx = xi * self.unit_width
-        sy = yi * self.unit_height
+        subsurface = self.get_subsurface(index)
+        subsurface = pygame.transform.flip(subsurface, flip_x, flip_y)
+        subsurface = pygame.transform.rotozoom(subsurface, angle, scale)
 
-        # TODO:Use scale for destination rectangle
-        # See: https://github.com/willi-kappler/green_moon_2d/blob/refactor5/src/texture.rs
-
-        dx = dx - (float(self.unit_width) / 2.0)
-        dy = dy - (float(self.unit_height) / 2.0)
-
-        srcrect = (sx, sy, self.unit_width, self.unit_height)
-        dstrect = (dx, dy, self.unit_width * scale, self.unit_height * scale)
-
-        flip = sdl2.SDL_FLIP_NONE
-
-        if flip_x:
-            flip = flip | sdl2.SDL_FLIP_HORIZONTAL
-
-        if flip_y:
-            flip = flip | sdl2.SDL_FLIP_VERTICAL
-
-        context.renderer.copy(self.texture, srcrect, dstrect, angle, flip=flip)
-
-
+        context.screen.blit(subsurface, (dx, dy))
 

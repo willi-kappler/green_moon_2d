@@ -5,15 +5,11 @@
 
 import json
 
-import sdl2
-#import sdl2.ext
-import sdl2.sdlimage
-
+import pygame
 
 import green_moon_2d.gm_animation as gmanim
 from green_moon_2d.gm_texture import GMTexture
 from green_moon_2d.gm_font import GMFont
-from green_moon_2d.gm_context import GMContext
 
 class GMResources:
     def __init__(self):
@@ -21,7 +17,7 @@ class GMResources:
         self.animations: dict[str, gmanim.GMAnimation] = {}
         self.fonts: dict[str, GMFont] = {}
 
-    def load_resources(self, file_name: str, context: GMContext) -> None:
+    def load_resources(self, file_name: str) -> None:
         """
         Load resources (JSON format) from the given file name.
 
@@ -32,7 +28,7 @@ class GMResources:
             data = json.load(f)
 
         if "textures" in data:
-            self.create_textures(data["texture"], context)
+            self.create_textures(data["texture"])
 
         if "fonts" in data:
             self.create_fonts(data["fonts"])
@@ -40,7 +36,7 @@ class GMResources:
         if "animations" in data:
             self.create_animations(data["animations"])
 
-    def create_textures(self, textures: list, context: GMContext) -> None:
+    def create_textures(self, textures: list) -> None:
         """
         Load and create the texutres based on the resource file.
 
@@ -53,9 +49,8 @@ class GMResources:
             unit_width: int = tex["unit_width"]
             unit_height: int = tex["unit_height"]
 
-            #sdl_texture = sdl2.ext.image.load_img(file_name)
-            sdl_texture: sdl2.SDL_Texture = sdl2.sdlimage.IMG_LoadTexture(context.renderer, file_name)
-            new_texture = GMTexture(unit_width, unit_height, sdl_texture)
+            surface = pygame.image.load(file_name)
+            new_texture = GMTexture(unit_width, unit_height, surface)
             self.textures[name] = new_texture
 
     def create_fonts(self, fonts: list) -> None:

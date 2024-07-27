@@ -9,12 +9,12 @@ This module defines the GMContext class which contain all game engine relevant e
 
 from typing import Any
 
-import sdl2  # type: ignore
-import sdl2.ext  # type: ignore
+import pygame
 
 from green_moon_2d.gm_configuration import GMConfiguration
 from green_moon_2d.gm_interfaces import GMSceneInterface
 from green_moon_2d.gm_messages import GMSceneMessage
+from green_moon_2d.gm_resources import GMResources
 
 
 class GMContext:
@@ -28,8 +28,10 @@ class GMContext:
         self.game_property: dict[str, Any] = {}
         self.config = GMConfiguration()
         self.quit_game: bool = False
-        self.renderer: Any = None
+        self.screen: Any = None
         self.scene_messages: list[GMSceneMessage] = []
+        self.dt: int = 0
+        self.resources: GMResources = GMResources()
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -79,18 +81,7 @@ class GMContext:
         Loads the resources from the configuration file.
         """
 
-        raise NotImplementedError
-        # TODO: Load resources from JSON file.
-
-    def set_screen_mode(self):
-        """
-        Sets the window to full screen or windowed mode, depenting on the setting in the config option.
-        """
-
-        if self.config.fullscreen:
-            sdl2.SDL_SetWindowFullscreen(sdl2.SDL_WINDOW_FULLSCREEN)
-        else:
-            sdl2.SDL_SetWindowFullscreen(0)
+        self.resources.load_resources(self.config.resource_file)
 
     def toggle_fullscreen(self):
         """
@@ -98,21 +89,14 @@ class GMContext:
         """
 
         self.config.fullscreen = not self.config.fullscreen
-        self.set_screen_mode()
+        pygame.display.toggle_fullscreen()
 
     def clear(self):
         """
         Clears the screen with black color.
         """
 
-        self.renderer.clear()
-
-    def present(self):
-        """
-        Updates the screen with all changes (batched mode).
-        """
-
-        self.renderer.present()
+        self.screen.fill("black")
 
     def add_scene(self, scene: GMSceneInterface):
         """
@@ -196,9 +180,7 @@ class GMContext:
         :param name: The name of the scene where draw should be called.
         """
 
-        self.scene_messages.append(GMSceneMessage(
-            "draw_scene",
-            scene_name=name,
+        self.scene_messages.append(GMSceneMessage("send_message", scene_name=name,
             custom_message=custom_message))
 
 
