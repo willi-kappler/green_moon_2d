@@ -9,7 +9,7 @@ This module defines the GMSceneManager and the GMScene base class.
 
 from typing import Any
 
-from green_moon_2d.gm_context import GMContext
+import green_moon_2d.gm_context as gmctx
 from green_moon_2d.gm_interfaces import GMSceneInterface
 
 
@@ -28,7 +28,7 @@ class GMScene(GMSceneInterface):
         self.on_stack: bool = False
         self.custom_property: dict[str, Any] = {}
 
-    def update(self, context: GMContext) -> None:
+    def update(self, context: gmctx.GMContext) -> None:
         """
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
@@ -38,7 +38,7 @@ class GMScene(GMSceneInterface):
 
         pass
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self, context: gmctx.GMContext) -> None:
         """
         This method is called once per frame and is used to draw the
         whole scene. You have to implement this method.
@@ -83,7 +83,7 @@ class GMSceneManager:
         self.current_scene: GMScene = GMScene("empty")
         self.scene_stack: list[GMScene] = []
 
-    def update(self, context: GMContext) -> None:
+    def update(self, context: gmctx.GMContext) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
         The scene manager also processes all the scene messages here.
@@ -123,7 +123,7 @@ class GMSceneManager:
 
         context.scene_messages.clear()
 
-    def draw(self, context: GMContext) -> None:
+    def draw(self, context: gmctx.GMContext) -> None:
         """
         Draws the current scene. This method is called by the engine once per frame.
 
@@ -201,7 +201,7 @@ class GMSceneManager:
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
 
-    def update_stack_top(self, context: GMContext):
+    def update_stack_top(self, context: gmctx.GMContext):
         """
         Update the scene that is on top of the stack.
 
@@ -210,7 +210,7 @@ class GMSceneManager:
 
         self.scene_stack[-1].update(context)
 
-    def draw_stack_top(self, context: GMContext):
+    def draw_stack_top(self, context: gmctx.GMContext):
         """
         Draw the scene that is on top of the stack.
 
@@ -219,7 +219,7 @@ class GMSceneManager:
 
         self.scene_stack[-1].draw(context)
 
-    def update_scene(self, name: str, context: GMContext):
+    def update_scene(self, name: str, context: gmctx.GMContext):
         """
         Update the specific scene given by the name.
 
@@ -229,7 +229,7 @@ class GMSceneManager:
 
         self.scenes[name].update(context)
 
-    def draw_scene(self, name: str, context: GMContext):
+    def draw_scene(self, name: str, context: gmctx.GMContext):
         """
         Draw the specific scene given by the name.
 

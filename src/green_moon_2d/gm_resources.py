@@ -4,20 +4,23 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 import json
+from typing import override
 
 import pygame
 
 import green_moon_2d.gm_animation as gmanim
-from green_moon_2d.gm_texture import GMTexture
-from green_moon_2d.gm_font import GMFont
+import green_moon_2d.gm_texture as gmtxt
+import green_moon_2d.gm_font as gmfnt
+import green_moon_2d.gm_interfaces as gmitf
 
 
-class GMResources:
+class GMResources(gmitf.GMResourcesInterface):
     def __init__(self):
-        self.textures: dict[str, GMTexture] = {}
+        self.textures: dict[str, gmtxt.GMTexture] = {}
         self.animations: dict[str, gmanim.GMAnimation] = {}
-        self.fonts: dict[str, GMFont] = {}
+        self.fonts: dict[str, gmfnt.GMFont] = {}
 
+    @override
     def load_resources(self, file_name: str) -> None:
         """
         Load resources (JSON format) from the given file name.
@@ -51,7 +54,7 @@ class GMResources:
             unit_height: int = tex["unit_height"]
 
             surface = pygame.image.load(file_name)
-            new_texture = GMTexture(unit_width, unit_height, surface)
+            new_texture = gmtxt.GMTexture(unit_width, unit_height, surface)
             self.textures[name] = new_texture
 
     def create_fonts(self, fonts: list) -> None:
@@ -65,13 +68,13 @@ class GMResources:
             name: str = font["name"]
             texture_name: str = font["texture_name"]
             char_mapping: list[str] = font["char_mapping"]
-            texture: GMTexture = self.textures[texture_name]
+            texture: gmtxt.GMTexture = self.textures[texture_name]
             mapping: dict[str, int] = {}
 
             for i, c in enumerate(char_mapping):
                 mapping[c] = i
 
-            new_font = GMFont(texture, mapping)
+            new_font = gmfnt.GMFont(texture, mapping)
             self.fonts[name] = new_font
 
     def create_animations(self, animations: list) -> None:

@@ -12,3 +12,7 @@ class GMSceneInterface:
     pass
 
 
+class GMResourcesInterface:
+    def load_resources(self, file_name: str) -> None:
+        pass
+

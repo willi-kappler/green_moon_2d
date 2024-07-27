@@ -5,7 +5,7 @@
 
 import pygame
 
-from green_moon_2d.gm_context import GMContext
+import green_moon_2d.gm_context as gmctx
 
 
 class GMTexture:
@@ -39,7 +39,7 @@ class GMTexture:
 
         return subsurface
 
-    def draw(self, dx: float, dy: float, index: int, context: GMContext):
+    def draw(self, dx: float, dy: float, index: int, context: gmctx.GMContext):
         """
         Draw this texture on the screen given the coordinates and frame index.
 
@@ -54,7 +54,7 @@ class GMTexture:
         context.screen.blit(subsurface, (dx, dy))
 
     def draw_opt(
-            self, dx: float, dy: float, index: int, context: GMContext,
+            self, dx: float, dy: float, index: int, context: gmctx.GMContext,
             angle: float = 0.0, scale: float = 1.0, flip_x: bool = False,
             flip_y: bool = False):
         """

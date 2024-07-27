@@ -11,10 +11,9 @@ from typing import Any
 
 import pygame
 
-from green_moon_2d.gm_configuration import GMConfiguration
-from green_moon_2d.gm_interfaces import GMSceneInterface
+import green_moon_2d.gm_configuration as gmcfg
+import green_moon_2d.gm_interfaces as gmitf
 from green_moon_2d.gm_messages import GMSceneMessage
-from green_moon_2d.gm_resources import GMResources
 
 
 class GMContext:
@@ -26,12 +25,12 @@ class GMContext:
 
     def __init__(self):
         self.game_property: dict[str, Any] = {}
-        self.config = GMConfiguration()
+        self.config: gmcfg.GMConfiguration = gmcfg.GMConfiguration()
         self.quit_game: bool = False
         self.screen: Any = None
         self.scene_messages: list[GMSceneMessage] = []
         self.dt: int = 0
-        self.resources: GMResources = GMResources()
+        self.resources: gmitf.GMResourcesInterface
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -98,7 +97,7 @@ class GMContext:
 
         self.screen.fill("black")
 
-    def add_scene(self, scene: GMSceneInterface):
+    def add_scene(self, scene: gmitf.GMSceneInterface):
         """
         Creates a message to add a new scene to the scene manager.
 
