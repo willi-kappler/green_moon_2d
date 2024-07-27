@@ -24,6 +24,23 @@ class GMContext:
         self.quit_game: bool = False
         self.screen: Any = None
         self.dt: int = 0
+        self.keys: dict[str, bool] = {
+            "ESC": False,
+            "UP": False,
+            "DOWN": False,
+            "LEFT": False,
+            "RIGHT": False,
+            "1": False,
+            "2": False,
+            "3": False,
+            "4": False,
+            "5": False,
+            "6": False,
+            "7": False,
+            "8": False,
+            "9": False,
+            "0": False,
+        }
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -75,8 +92,19 @@ class GMContext:
 
     def update_input(self):
         """
-        Checks for uer input
+        Checks for user input
         """
 
-        pass
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                match event.key:
+                    case pygame.K_ESCAPE:
+                        self.keys["ESC"] = True
+            elif event.type == pygame.KEYUP:
+                match event.key:
+                    case pygame.K_ESCAPE:
+                        self.keys["ESC"] = False
+
+
+
 
