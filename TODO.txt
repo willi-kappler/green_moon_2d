@@ -2,6 +2,11 @@ TODO:
 
 - add more methods for 2d vector.
 - add custom settings to configuration class.
+- add examples for text.
+- add text effects.
+- add movement effects.
+- add examples for sprite.
+
 
 Done:
 
