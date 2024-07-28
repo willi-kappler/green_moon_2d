@@ -31,13 +31,15 @@ class TestScene(GMScene):
 
             self.om = GMObjectManager()
 
-            self.om.add(GMText("text1", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center))
-            self.om.add(GMText("text2", "TO CHANGE FONT", (512.0, 300.0), self.font1, center))
-            self.om.add(GMText("text3", "THIS IS FONT 1", (512.0, 350.0), self.font1, center))
+            self.om.add(GMText("text1", "TEXT 1B", (512.0, 100.0), self.font1, center))
+            self.om.add(GMText("text2", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center))
+            self.om.add(GMText("text3", "TO CHANGE FONT", (512.0, 300.0), self.font1, center))
+            self.om.add(GMText("text4", "THIS IS FONT 1", (512.0, 350.0), self.font1, center))
 
             self.om.add_group("text1", "group1")
             self.om.add_group("text2", "group1")
             self.om.add_group("text3", "group1")
+            self.om.add_group("text4", "group1")
 
             self.initialized = True
 
@@ -48,15 +50,15 @@ class TestScene(GMScene):
 
         if gme.GMGlobalContext.keys["1"]:
             self.om.send_message_group("group1", ("set_font", self.font1))
-            self.om.send_message("text3", ("set_text", "THIS IS FONT 1"))
+            self.om.send_message("text4", ("set_text", "THIS IS FONT 1"))
 
         if gme.GMGlobalContext.keys["2"]:
             self.om.send_message_group("group1", ("set_font", self.font2))
-            self.om.send_message("text3", ("set_text", "THIS IS FONT 2"))
+            self.om.send_message("text4", ("set_text", "THIS IS FONT 2"))
 
         if gme.GMGlobalContext.keys["3"]:
             self.om.send_message_group("group1", ("set_font", self.font3))
-            self.om.send_message("text3", ("set_text", "THIS IS FONT 3"))
+            self.om.send_message("text4", ("set_text", "THIS IS FONT 3"))
 
     @override
     def draw(self):
@@ -73,3 +75,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

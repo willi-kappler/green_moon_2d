@@ -28,9 +28,10 @@ class TestScene(GMScene):
 
             center = GMAlignment.TOP_CENTER
 
-            self.text1 = GMText("text1", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center)
-            self.text2 = GMText("text2", "TO CHANGE FONT", (512.0, 300.0), self.font1, center)
-            self.text3 = GMText("text3", "THIS IS FONT 1", (512.0, 350.0), self.font1, center)
+            self.text1 = GMText("text1", "TEXT 1A", (512.0, 100.0), self.font1, center)
+            self.text2 = GMText("text2", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center)
+            self.text3 = GMText("text3", "TO CHANGE FONT", (512.0, 300.0), self.font1, center)
+            self.text4 = GMText("text4", "THIS IS FONT 1", (512.0, 350.0), self.font1, center)
 
             self.initialized = True
 
@@ -43,25 +44,29 @@ class TestScene(GMScene):
             self.text1.set_font(self.font1)
             self.text2.set_font(self.font1)
             self.text3.set_font(self.font1)
-            self.text3.set_text("THIS IS FONT 1")
+            self.text4.set_font(self.font1)
+            self.text4.set_text("THIS IS FONT 1")
 
         if gme.GMGlobalContext.keys["2"]:
             self.text1.set_font(self.font2)
             self.text2.set_font(self.font2)
             self.text3.set_font(self.font2)
-            self.text3.set_text("THIS IS FONT 2")
+            self.text4.set_font(self.font2)
+            self.text4.set_text("THIS IS FONT 2")
 
         if gme.GMGlobalContext.keys["3"]:
             self.text1.set_font(self.font3)
             self.text2.set_font(self.font3)
             self.text3.set_font(self.font3)
-            self.text3.set_text("THIS IS FONT 3")
+            self.text4.set_font(self.font3)
+            self.text4.set_text("THIS IS FONT 3")
 
     @override
     def draw(self):
         self.text1.draw()
         self.text2.draw()
         self.text3.draw()
+        self.text4.draw()
 
 
 def main():
