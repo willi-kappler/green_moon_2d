@@ -14,6 +14,7 @@ from green_moon_2d.gm_text import GMText
 from green_moon_2d.gm_math import GMAlignment
 from green_moon_2d.gm_object import GMObjectManager
 
+
 class TestScene(GMScene):
     def __init__(self):
         super().__init__("TestScene1")
@@ -61,12 +62,14 @@ class TestScene(GMScene):
     def draw(self):
         self.om.draw()
 
+
 def main():
     engine = gme.GMEngine("config.json", "TestScene1")
 
     scene1 = TestScene()
     gme.GMGlobalScenes.add_scene(scene1)
     engine.run()
+
 
 if __name__ == "__main__":
     main()

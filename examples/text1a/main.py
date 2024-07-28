@@ -13,6 +13,7 @@ from green_moon_2d.gm_scene import GMScene
 from green_moon_2d.gm_text import GMText
 from green_moon_2d.gm_math import GMAlignment
 
+
 class TestScene(GMScene):
     def __init__(self):
         super().__init__("TestScene1")
@@ -56,12 +57,12 @@ class TestScene(GMScene):
             self.text3.set_font(self.font3)
             self.text3.set_text("THIS IS FONT 3")
 
-
     @override
     def draw(self):
         self.text1.draw()
         self.text2.draw()
         self.text3.draw()
+
 
 def main():
     engine = gme.GMEngine("config.json", "TestScene1")
@@ -69,6 +70,7 @@ def main():
     scene1 = TestScene()
     gme.GMGlobalScenes.add_scene(scene1)
     engine.run()
+
 
 if __name__ == "__main__":
     main()
