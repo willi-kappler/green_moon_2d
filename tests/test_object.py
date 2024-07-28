@@ -229,6 +229,23 @@ class TestObjectManager(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.om.send_message("test2", "unknown")
 
+    def send_message_group1(self):
+        self.om.add(TestObject("test1"))
+        self.om.add(TestObject("test2"))
+        self.om.add(TestObject("test3"))
+        self.om.add(TestObject("test4"))
+
+        self.om.add_group("test1", "foo")
+        self.om.add_group("test2", "foo")
+
+        self.om.send_message_group("foo", "beta_message")
+
+        self.assertObjectProperty("test1", "message", "beta_message")
+        self.assertObjectProperty("test2", "message", "beta_message")
+
+        self.assertFalse(self.om.has_property("test3", "message"))
+        self.assertFalse(self.om.has_property("test4", "message"))
+
     def test_add_group1(self):
         """
         Test adding groups to objects.
