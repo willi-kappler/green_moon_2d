@@ -1,0 +1,9 @@
+{
+  "config_file": "config.json",
+  "fps": 60,
+  "fullscreen": false,
+  "resource_file": "resources.json",
+  "screen_height": 768,
+  "screen_width": 1024,
+  "window_title": "GreenMoon2D - Text 1"
+}
