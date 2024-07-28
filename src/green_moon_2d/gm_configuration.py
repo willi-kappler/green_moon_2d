@@ -8,13 +8,13 @@ import json
 
 class GMConfiguration:
     def __init__(self):
-        self.screen_width: int = 800
-        self.screen_height: int = 600
-        self.fullscreen: bool = False
-        self.window_title: str = "Made with GreenMoon2D"
-        self.fps: int = 60
         self.config_file: str = "config.json"
+        self.fps: int = 60
+        self.fullscreen: bool = False
         self.resource_file: str = "resources.json"
+        self.screen_height: int = 600
+        self.screen_width: int = 800
+        self.window_title: str = "Made with GreenMoon2D"
 
     def load_config(self, file_name: str):
         """
@@ -26,23 +26,26 @@ class GMConfiguration:
         with open(file_name, "r") as f:
             data = json.load(f)
 
-        if "screen_width" in data:
-            self.screen_width = data["screen_width"]
-
-        if "screen_height" in data:
-            self.screen_height = data["screen_height"]
-
-        if "fullscreen" in data:
-            self.fullscreen = data["fullscreen"]
-
-        if "window_title" in data:
-            self.window_title = data["window_title"]
+        if "config_file" in data:
+            self.config_file = data["config_file"]
 
         if "fps" in data:
             self.fps = data["fps"]
 
+        if "fullscreen" in data:
+            self.fullscreen = data["fullscreen"]
+
         if "resource_file" in data:
             self.resource_file = data["resource_file"]
+
+        if "screen_height" in data:
+            self.screen_height = data["screen_height"]
+
+        if "screen_width" in data:
+            self.screen_width = data["screen_width"]
+
+        if "window_title" in data:
+            self.window_title = data["window_title"]
 
         self.config_file = file_name
 
