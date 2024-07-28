@@ -53,7 +53,7 @@ class GMResources(gmitf.GMResourcesInterface):
             unit_width: int = tex["unit_width"]
             unit_height: int = tex["unit_height"]
 
-            surface = pygame.image.load(file_name)
+            surface = pygame.image.load(file_name).convert_alpha()
             new_texture = gmtxt.GMTexture(unit_width, unit_height, surface)
             self.textures[name] = new_texture
 
