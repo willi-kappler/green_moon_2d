@@ -11,7 +11,7 @@ maintainers = [
   {name = "Willi Kappler", email = "grandor@gmx.de"}
 ]
 authors = [
-  {name = "Willi Kappler", email = "grandor@gmx.de"}
+  {name = "Willi Kappler", email = "grandor@gmx.de"},
   {name = "Manuel Kappler"}
 ]
 keywords = ["2D", "game", "engine"]
