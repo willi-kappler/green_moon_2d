@@ -100,10 +100,50 @@ class GMContext:
                 match event.key:
                     case pygame.K_ESCAPE:
                         self.keys["ESC"] = True
+                    case pygame.K_0:
+                        self.keys["0"] = True
+                    case pygame.K_1:
+                        self.keys["1"] = True
+                    case pygame.K_2:
+                        self.keys["2"] = True
+                    case pygame.K_3:
+                        self.keys["3"] = True
+                    case pygame.K_4:
+                        self.keys["4"] = True
+                    case pygame.K_5:
+                        self.keys["5"] = True
+                    case pygame.K_6:
+                        self.keys["6"] = True
+                    case pygame.K_7:
+                        self.keys["7"] = True
+                    case pygame.K_8:
+                        self.keys["8"] = True
+                    case pygame.K_9:
+                        self.keys["9"] = True
             elif event.type == pygame.KEYUP:
                 match event.key:
                     case pygame.K_ESCAPE:
                         self.keys["ESC"] = False
+                    case pygame.K_0:
+                        self.keys["0"] = False
+                    case pygame.K_1:
+                        self.keys["1"] = False
+                    case pygame.K_2:
+                        self.keys["2"] = False
+                    case pygame.K_3:
+                        self.keys["3"] = False
+                    case pygame.K_4:
+                        self.keys["4"] = False
+                    case pygame.K_5:
+                        self.keys["5"] = False
+                    case pygame.K_6:
+                        self.keys["6"] = False
+                    case pygame.K_7:
+                        self.keys["7"] = False
+                    case pygame.K_8:
+                        self.keys["8"] = False
+                    case pygame.K_9:
+                        self.keys["9"] = False
 
 
 
