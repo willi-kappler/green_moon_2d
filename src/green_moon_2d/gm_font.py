@@ -11,7 +11,7 @@ class GMFont:
         self.texture = texture
         self.mapping = mapping
 
-    def draw(self, x: float, y: float, c: str):
+    def draw_c(self, x: float, y: float, c: str):
         """
         Draws one character on the given position using the current texture and mapping.
 
@@ -22,4 +22,15 @@ class GMFont:
 
         i = self.mapping[c]
         self.texture.draw(x, y, i)
+
+    def draw_i(self, x: float, y: float, index: int):
+        """
+        Draws one character given by the index at the given position.
+
+        :param x: The x position of the character.
+        :param y: The y position of the character.
+        :param index: The character index according to the mapping.
+        """
+
+        self.texture.draw(x, y, index)
 
