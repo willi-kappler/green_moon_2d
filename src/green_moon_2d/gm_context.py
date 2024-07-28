@@ -100,6 +100,16 @@ class GMContext:
                 match event.key:
                     case pygame.K_ESCAPE:
                         self.keys["ESC"] = True
+                    case pygame.K_SPACE:
+                        self.keys["SPACE"] = True
+                    case pygame.K_UP:
+                        self.keys["UP"] = True
+                    case pygame.K_DOWN:
+                        self.keys["DOWN"] = True
+                    case pygame.K_LEFT:
+                        self.keys["LEFT"] = True
+                    case pygame.K_RIGHT:
+                        self.keys["RIGHT"] = True
                     case pygame.K_0:
                         self.keys["0"] = True
                     case pygame.K_1:
@@ -124,6 +134,16 @@ class GMContext:
                 match event.key:
                     case pygame.K_ESCAPE:
                         self.keys["ESC"] = False
+                    case pygame.K_SPACE:
+                        self.keys["SPACE"] = False
+                    case pygame.K_UP:
+                        self.keys["UP"] = False
+                    case pygame.K_DOWN:
+                        self.keys["DOWN"] = False
+                    case pygame.K_LEFT:
+                        self.keys["LEFT"] = False
+                    case pygame.K_RIGHT:
+                        self.keys["RIGHT"] = False
                     case pygame.K_0:
                         self.keys["0"] = False
                     case pygame.K_1:
