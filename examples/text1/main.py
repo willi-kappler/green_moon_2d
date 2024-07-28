@@ -11,6 +11,7 @@ sys.path.append("../../src/")
 import green_moon_2d.gm_engine as gme
 from green_moon_2d.gm_scene import GMScene
 from green_moon_2d.gm_text import GMText
+from green_moon_2d.gm_math import GMAlignment
 
 class TestScene(GMScene):
     def __init__(self):
@@ -24,16 +25,37 @@ class TestScene(GMScene):
             self.font2 = resources.get_font("font_blagger")
             self.font3 = resources.get_font("font_bbc")
 
-            self.text1 = GMText("text1", "PRESS 1 2 3", (512.0, 200.0), self.font1)
-            self.text2 = GMText("text2", "TO CHANGE FONT", (512.0, 300.0), self.font1)
-            self.text3 = GMText("text3", "THIS IS FONT 1", (512.0, 350.0), self.font1)
+            center = GMAlignment.TOP_CENTER
+
+            self.text1 = GMText("text1", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center)
+            self.text2 = GMText("text2", "TO CHANGE FONT", (512.0, 300.0), self.font1, center)
+            self.text3 = GMText("text3", "THIS IS FONT 1", (512.0, 350.0), self.font1, center)
 
             self.initialized = True
 
     @override
     def update(self):
-        if gme.GMGlobalContext.keys["ESC"] == True:
+        if gme.GMGlobalContext.keys["ESC"]:
             gme.GMGlobalContext.quit_game = True
+
+        if gme.GMGlobalContext.keys["1"]:
+            self.text1.set_font(self.font1)
+            self.text2.set_font(self.font1)
+            self.text3.set_font(self.font1)
+            self.text3.set_text("THIS IS FONT 1")
+
+        if gme.GMGlobalContext.keys["2"]:
+            self.text1.set_font(self.font2)
+            self.text2.set_font(self.font2)
+            self.text3.set_font(self.font2)
+            self.text3.set_text("THIS IS FONT 2")
+
+        if gme.GMGlobalContext.keys["3"]:
+            self.text1.set_font(self.font3)
+            self.text2.set_font(self.font3)
+            self.text3.set_font(self.font3)
+            self.text3.set_text("THIS IS FONT 3")
+
 
     @override
     def draw(self):
