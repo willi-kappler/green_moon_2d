@@ -311,6 +311,22 @@ class GMObjectManager(Iterable):
 
         return self[name].send_message(msg)
 
+    def send_message_group(self, group: str, msg: Any) -> list[tuple[str, Any]]:
+        """
+        Sends a message to all objects of the given group.
+
+        :param group: The name of the group.
+        :param msg: The message to be sent to the group.
+        """
+
+        results = []
+
+        for ob in self.objects:
+            if ob.in_group(group):
+                results.append((ob.name, ob.send_message(msg)))
+
+        return results
+
     def add_group(self, name: str, group: str | list[str]) -> None:
         """
         Add the given object to the given group.
