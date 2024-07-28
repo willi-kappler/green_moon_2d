@@ -52,6 +52,6 @@ class GMConfiguration:
         """
 
         with open(self.config_file, "w") as f:
-            json.dump(self.__dict__, f)
+            json.dump(self.__dict__, f, indent=2, sort_keys=True)
 
 
