@@ -26,6 +26,7 @@ class GMContext:
         self.dt: int = 0
         self.keys: dict[str, bool] = {
             "ESC": False,
+            "SPACE": False,
             "UP": False,
             "DOWN": False,
             "LEFT": False,
@@ -40,6 +41,14 @@ class GMContext:
             "8": False,
             "9": False,
             "0": False,
+            "A": False,
+            "B": False,
+            "C": False,
+            "D": False,
+            "E": False,
+            "F": False,
+            "G": False,
+            "H": False,
         }
 
     def set_property(self, name: str, val: Any) -> None:
@@ -130,6 +139,22 @@ class GMContext:
                         self.keys["8"] = True
                     case pygame.K_9:
                         self.keys["9"] = True
+                    case pygame.K_a:
+                        self.keys["A"] = True
+                    case pygame.K_b:
+                        self.keys["B"] = True
+                    case pygame.K_c:
+                        self.keys["C"] = True
+                    case pygame.K_d:
+                        self.keys["D"] = True
+                    case pygame.K_e:
+                        self.keys["E"] = True
+                    case pygame.K_f:
+                        self.keys["F"] = True
+                    case pygame.K_g:
+                        self.keys["G"] = True
+                    case pygame.K_h:
+                        self.keys["H"] = True
             elif event.type == pygame.KEYUP:
                 match event.key:
                     case pygame.K_ESCAPE:
@@ -164,6 +189,22 @@ class GMContext:
                         self.keys["8"] = False
                     case pygame.K_9:
                         self.keys["9"] = False
+                    case pygame.K_a:
+                        self.keys["A"] = False
+                    case pygame.K_b:
+                        self.keys["B"] = False
+                    case pygame.K_c:
+                        self.keys["C"] = False
+                    case pygame.K_d:
+                        self.keys["D"] = False
+                    case pygame.K_e:
+                        self.keys["E"] = False
+                    case pygame.K_f:
+                        self.keys["F"] = False
+                    case pygame.K_g:
+                        self.keys["G"] = False
+                    case pygame.K_h:
+                        self.keys["H"] = False
 
 
 
