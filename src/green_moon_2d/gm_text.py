@@ -41,7 +41,7 @@ class GMText(gmobj.GMObject):
         self.reset_chars()
 
     @override
-    def draw(self):
+    def draw(self) -> None:
         """
         Draw the text.
         """
@@ -66,10 +66,12 @@ class GMText(gmobj.GMObject):
                 self.set_font(font)
             case ("set_horizontal", bool(horizontal)):
                 self.set_horizontal(horizontal)
-            case ("set_alignment", gmmath.GMAlignment as alignment):
+            case ("set_alignment", gmmath.GMAlignment() as alignment):
                 self.set_alignment(alignment)
+            case "toggle_orientation":
+                self.toggle_orientation()
 
-    def reset_chars(self):
+    def reset_chars(self) -> None:
         """
         Rests the pre-calculated character position and indices.
         Is called whenever a property is set via a setter.
@@ -130,7 +132,7 @@ class GMText(gmobj.GMObject):
             else:
                 y = y + wy
 
-    def set_text(self, text: str):
+    def set_text(self, text: str) -> None:
         """
         Changes the text.
 
@@ -140,7 +142,7 @@ class GMText(gmobj.GMObject):
         self.text = text
         self.reset_chars()
 
-    def set_pos(self, pos: tuple[float, float] | gmmath.GMVec2D):
+    def set_pos(self, pos: tuple[float, float] | gmmath.GMVec2D) -> None:
         """
         Sets the text position.
 
@@ -158,7 +160,7 @@ class GMText(gmobj.GMObject):
 
         self.reset_chars()
 
-    def set_font(self, font: str | gmfnt.GMFont):
+    def set_font(self, font: str | gmfnt.GMFont) -> None:
         """
         Sets the font for this text.
 
@@ -175,7 +177,7 @@ class GMText(gmobj.GMObject):
 
         self.reset_chars()
 
-    def set_horizontal(self, horizontal: bool):
+    def set_horizontal(self, horizontal: bool) -> None:
         """
         Sets the orientation (horizontal / vertical) of the this text.
 
@@ -185,7 +187,7 @@ class GMText(gmobj.GMObject):
         self.horizontal = horizontal
         self.reset_chars()
 
-    def set_alignment(self, alignment: gmmath.GMAlignment):
+    def set_alignment(self, alignment: gmmath.GMAlignment) -> None:
         """
         Sets the alignment for this text.
 
@@ -195,4 +197,10 @@ class GMText(gmobj.GMObject):
         self.alignment = alignment
         self.reset_chars()
 
+    def toggle_orientation(self) -> None:
+        """
+        """
+
+        self.horizontal = not self.horizontal
+        self.reset_chars()
 
