@@ -8,8 +8,23 @@ This module defines all math related functions and classes.
 """
 
 import math
+import enum
 
 from typing import Self
+
+
+class GMAlignment(enum.Enum):
+    TOP_LEFT = enum.auto()
+    TOP_CENTER = enum.auto()
+    TOP_RIGHT = enum.auto()
+
+    MID_LEFT = enum.auto()
+    MID_CENTER = enum.auto()
+    MID_RIGHT = enum.auto()
+
+    BTM_LEFT = enum.auto()
+    BTM_CENTER = enum.auto()
+    BTM_RIGHT = enum.auto()
 
 
 class GMVec2D:
