@@ -3,7 +3,7 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-from typing import override
+from typing import Any, override
 
 import green_moon_2d.gm_object as gmobj
 import green_moon_2d.gm_font as gmfnt
@@ -49,16 +49,41 @@ class GMText(gmobj.GMObject):
         for (x, y, i) in self.chars:
             self.font.draw_i(x, y, i)
 
+    @override
+    def send_message(self, msg: Any) -> Any:
+        """
+        Process messages send to this text object.
+
+        :param msg: The actual message.
+        """
+
+        match msg:
+            case ("set_text", str(text)):
+                self.set_text(text)
+            case ("set_pos", pos):
+                self.set_pos(pos)
+            case ("set_font", font):
+                self.set_font(font)
+            case ("set_horizontal", bool(horizontal)):
+                self.set_horizontal(horizontal)
+            case ("set_alignment", gmmath.GMAlignment as alignment):
+                self.set_alignment(alignment)
+
     def reset_chars(self):
+        """
+        Rests the pre-calculated character position and indices.
+        Is called whenever a property is set via a setter.
+        """
+
         wx: int = self.font.texture.unit_width
         wy: int = self.font.texture.unit_height
 
-        if self.alignment:
-            textwidth: float = wx * len(self.text)
-            textheight: float = wy
-        else:
-            textwidth: float = wx
-            textheight: float = wy * len(self.text)
+        textwidth: float = wx * len(self.text)
+        textheight: float = wy
+
+        if not self.horizontal:
+            textwidth = wx
+            textheight = wy * len(self.text)
 
         textwidth2: float = textwidth / 2.0
         textheight2: float = textheight / 2.0
@@ -113,6 +138,24 @@ class GMText(gmobj.GMObject):
         """
 
         self.text = text
+        self.reset_chars()
+
+    def set_pos(self, pos: tuple[float, float] | gmmath.GMVec2D):
+        """
+        Sets the text position.
+
+        :param pos: The new position, must be a tuple of floats or GMVec2D.
+        """
+
+        match pos:
+            case (x, y):
+                self.pos.x = x
+                self.pos.y = y
+            case gmmath.GMVec2D():
+                self.pos = pos
+            case _:
+                raise ValueError(f"GMText, position must be a tuple of floats or GMVec2D: {pos}")
+
         self.reset_chars()
 
     def set_font(self, font: str | gmfnt.GMFont):
