@@ -55,13 +55,34 @@ class TestScene(GMScene):
         if gme.GMGlobalContext.keys["3"]:
             self.om.send_message("text5", ("set_alignment", GMAlignment.TOP_RIGHT))
 
+        if gme.GMGlobalContext.keys["4"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_LEFT))
+
+        if gme.GMGlobalContext.keys["5"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_CENTER))
+
+        if gme.GMGlobalContext.keys["6"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_RIGHT))
+
+        if gme.GMGlobalContext.keys["7"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_LEFT))
+
+        if gme.GMGlobalContext.keys["8"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_CENTER))
+
+        if gme.GMGlobalContext.keys["9"]:
+            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_RIGHT))
+
+        if gme.GMGlobalContext.keys["H"]:
+            self.om.send_message("text5", "toggle_orientation")
+
     @override
     def draw(self):
         self.om.draw()
 
 
 def main():
-    engine = gme.GMEngine("config.json", "TestScene1")
+    engine = gme.GMEngine("config.json", "TestScene2")
 
     scene1 = TestScene()
     gme.GMGlobalScenes.add_scene(scene1)
