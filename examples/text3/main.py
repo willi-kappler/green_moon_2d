@@ -57,13 +57,13 @@ class TestScene(GMScene):
             self.text_effect.toggle_sine()
 
         if "2" in keys_down:
-            pass
+            self.text_effect.toggle_rotate()
 
         if "3" in keys_down:
-            pass
+            self.text_effect.toggle_scale()
 
         if "4" in keys_down:
-            pass
+            self.text_effect.toggle_jitter()
 
         if "H" in keys_up:
             self.text_effect.toggle_orientation()
