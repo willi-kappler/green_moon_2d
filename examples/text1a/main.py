@@ -37,24 +37,26 @@ class TestScene(GMScene):
 
     @override
     def update(self):
-        if gme.GMGlobalContext.keys["ESC"]:
+        keys_down = gme.GMGlobalContext.keys_down
+
+        if "ESC" in keys_down:
             gme.GMGlobalContext.quit_game = True
 
-        if gme.GMGlobalContext.keys["1"]:
+        if "1" in keys_down:
             self.text1.set_font(self.font1)
             self.text2.set_font(self.font1)
             self.text3.set_font(self.font1)
             self.text4.set_font(self.font1)
             self.text4.set_text("THIS IS FONT 1")
 
-        if gme.GMGlobalContext.keys["2"]:
+        if "2" in keys_down:
             self.text1.set_font(self.font2)
             self.text2.set_font(self.font2)
             self.text3.set_font(self.font2)
             self.text4.set_font(self.font2)
             self.text4.set_text("THIS IS FONT 2")
 
-        if gme.GMGlobalContext.keys["3"]:
+        if "3" in keys_down:
             self.text1.set_font(self.font3)
             self.text2.set_font(self.font3)
             self.text3.set_font(self.font3)

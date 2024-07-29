@@ -33,48 +33,52 @@ class TestScene(GMScene):
             self.om.add(GMText("text2", "PRESS 1 - 9", (512.0, 200.0), font, center))
             self.om.add(GMText("text3", "TO CHANGE ALIGNMENT", (512.0, 300.0), font, center))
             self.om.add(GMText("text4", "PRESS H FOR ORIENTATION", (512.0, 350.0), font, center))
-            self.om.add(GMText("text5", "DEMO TEXT", (512.0, 450.0), font, center))
+            self.demo_text = GMText("text5", "DEMO TEXT", (512.0, 450.0), font, center)
+            self.om.add(self.demo_text)
 
             # Draw text5 after (= on top of) all other texts since it may overlap.
-            self.om["text5"].draw_order = 1
+            self.demo_text.draw_order = 1
             self.om.sort_draw()
 
             self.initialized = True
 
     @override
     def update(self):
-        if gme.GMGlobalContext.keys["ESC"]:
+        keys_up = gme.GMGlobalContext.keys_up
+        keys_down = gme.GMGlobalContext.keys_down
+
+        if "ESC" in keys_down:
             gme.GMGlobalContext.quit_game = True
 
-        if gme.GMGlobalContext.keys["1"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.TOP_LEFT))
+        if "1" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.TOP_LEFT)
 
-        if gme.GMGlobalContext.keys["2"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.TOP_CENTER))
+        if "2" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.TOP_CENTER)
 
-        if gme.GMGlobalContext.keys["3"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.TOP_RIGHT))
+        if "3" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.TOP_RIGHT)
 
-        if gme.GMGlobalContext.keys["4"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_LEFT))
+        if "4" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.MID_LEFT)
 
-        if gme.GMGlobalContext.keys["5"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_CENTER))
+        if "5" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.MID_CENTER)
 
-        if gme.GMGlobalContext.keys["6"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.MID_RIGHT))
+        if "6" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.MID_RIGHT)
 
-        if gme.GMGlobalContext.keys["7"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_LEFT))
+        if "7" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.BTM_LEFT)
 
-        if gme.GMGlobalContext.keys["8"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_CENTER))
+        if "8" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.BTM_CENTER)
 
-        if gme.GMGlobalContext.keys["9"]:
-            self.om.send_message("text5", ("set_alignment", GMAlignment.BTM_RIGHT))
+        if "9" in keys_down:
+            self.demo_text.set_alignment(GMAlignment.BTM_RIGHT)
 
-        if gme.GMGlobalContext.keys["H"]:
-            self.om.send_message("text5", "toggle_orientation")
+        if "H" in keys_up:
+            self.demo_text.toggle_orientation()
 
     @override
     def draw(self):

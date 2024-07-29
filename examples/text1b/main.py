@@ -45,18 +45,20 @@ class TestScene(GMScene):
 
     @override
     def update(self):
-        if gme.GMGlobalContext.keys["ESC"]:
+        keys_down = gme.GMGlobalContext.keys_down
+
+        if "ESC" in keys_down:
             gme.GMGlobalContext.quit_game = True
 
-        if gme.GMGlobalContext.keys["1"]:
+        if "1" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font1))
             self.om.send_message("text4", ("set_text", "THIS IS FONT 1"))
 
-        if gme.GMGlobalContext.keys["2"]:
+        if "2" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font2))
             self.om.send_message("text4", ("set_text", "THIS IS FONT 2"))
 
-        if gme.GMGlobalContext.keys["3"]:
+        if "3" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font3))
             self.om.send_message("text4", ("set_text", "THIS IS FONT 3"))
 

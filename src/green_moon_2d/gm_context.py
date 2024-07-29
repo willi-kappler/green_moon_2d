@@ -24,32 +24,8 @@ class GMContext:
         self.quit_game: bool = False
         self.screen: Any = None
         self.dt: int = 0
-        self.keys: dict[str, bool] = {
-            "ESC": False,
-            "SPACE": False,
-            "UP": False,
-            "DOWN": False,
-            "LEFT": False,
-            "RIGHT": False,
-            "1": False,
-            "2": False,
-            "3": False,
-            "4": False,
-            "5": False,
-            "6": False,
-            "7": False,
-            "8": False,
-            "9": False,
-            "0": False,
-            "A": False,
-            "B": False,
-            "C": False,
-            "D": False,
-            "E": False,
-            "F": False,
-            "G": False,
-            "H": False,
-        }
+        self.keys_up = set()
+        self.keys_down = set()
 
     def set_property(self, name: str, val: Any) -> None:
         """
@@ -104,107 +80,110 @@ class GMContext:
         Checks for user input
         """
 
+        self.keys_up = set()
+        self.keys_down = set()
+
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 match event.key:
                     case pygame.K_ESCAPE:
-                        self.keys["ESC"] = True
+                        self.keys_down.add("ESC")
                     case pygame.K_SPACE:
-                        self.keys["SPACE"] = True
+                        self.keys_down.add("SPACE")
                     case pygame.K_UP:
-                        self.keys["UP"] = True
+                        self.keys_down.add("UP")
                     case pygame.K_DOWN:
-                        self.keys["DOWN"] = True
+                        self.keys_down.add("DOWN")
                     case pygame.K_LEFT:
-                        self.keys["LEFT"] = True
+                        self.keys_down.add("LEFT")
                     case pygame.K_RIGHT:
-                        self.keys["RIGHT"] = True
+                        self.keys_down.add("RIGHT")
                     case pygame.K_0:
-                        self.keys["0"] = True
+                        self.keys_down.add("0")
                     case pygame.K_1:
-                        self.keys["1"] = True
+                        self.keys_down.add("1")
                     case pygame.K_2:
-                        self.keys["2"] = True
+                        self.keys_down.add("2")
                     case pygame.K_3:
-                        self.keys["3"] = True
+                        self.keys_down.add("3")
                     case pygame.K_4:
-                        self.keys["4"] = True
+                        self.keys_down.add("4")
                     case pygame.K_5:
-                        self.keys["5"] = True
+                        self.keys_down.add("5")
                     case pygame.K_6:
-                        self.keys["6"] = True
+                        self.keys_down.add("6")
                     case pygame.K_7:
-                        self.keys["7"] = True
+                        self.keys_down.add("7")
                     case pygame.K_8:
-                        self.keys["8"] = True
+                        self.keys_down.add("8")
                     case pygame.K_9:
-                        self.keys["9"] = True
+                        self.keys_down.add("9")
                     case pygame.K_a:
-                        self.keys["A"] = True
+                        self.keys_down.add("A")
                     case pygame.K_b:
-                        self.keys["B"] = True
+                        self.keys_down.add("B")
                     case pygame.K_c:
-                        self.keys["C"] = True
+                        self.keys_down.add("C")
                     case pygame.K_d:
-                        self.keys["D"] = True
+                        self.keys_down.add("D")
                     case pygame.K_e:
-                        self.keys["E"] = True
+                        self.keys_down.add("E")
                     case pygame.K_f:
-                        self.keys["F"] = True
+                        self.keys_down.add("F")
                     case pygame.K_g:
-                        self.keys["G"] = True
+                        self.keys_down.add("G")
                     case pygame.K_h:
-                        self.keys["H"] = True
+                        self.keys_down.add("H")
             elif event.type == pygame.KEYUP:
                 match event.key:
                     case pygame.K_ESCAPE:
-                        self.keys["ESC"] = False
+                        self.keys_up.add("ESC")
                     case pygame.K_SPACE:
-                        self.keys["SPACE"] = False
+                        self.keys_up.add("SPACE")
                     case pygame.K_UP:
-                        self.keys["UP"] = False
+                        self.keys_up.add("UP")
                     case pygame.K_DOWN:
-                        self.keys["DOWN"] = False
+                        self.keys_up.add("DOWN")
                     case pygame.K_LEFT:
-                        self.keys["LEFT"] = False
+                        self.keys_up.add("LEFT")
                     case pygame.K_RIGHT:
-                        self.keys["RIGHT"] = False
+                        self.keys_up.add("RIGHT")
                     case pygame.K_0:
-                        self.keys["0"] = False
+                        self.keys_up.add("0")
                     case pygame.K_1:
-                        self.keys["1"] = False
+                        self.keys_up.add("1")
                     case pygame.K_2:
-                        self.keys["2"] = False
+                        self.keys_up.add("2")
                     case pygame.K_3:
-                        self.keys["3"] = False
+                        self.keys_up.add("3")
                     case pygame.K_4:
-                        self.keys["4"] = False
+                        self.keys_up.add("4")
                     case pygame.K_5:
-                        self.keys["5"] = False
+                        self.keys_up.add("5")
                     case pygame.K_6:
-                        self.keys["6"] = False
+                        self.keys_up.add("6")
                     case pygame.K_7:
-                        self.keys["7"] = False
+                        self.keys_up.add("7")
                     case pygame.K_8:
-                        self.keys["8"] = False
+                        self.keys_up.add("8")
                     case pygame.K_9:
-                        self.keys["9"] = False
+                        self.keys_up.add("9")
                     case pygame.K_a:
-                        self.keys["A"] = False
+                        self.keys_up.add("A")
                     case pygame.K_b:
-                        self.keys["B"] = False
+                        self.keys_up.add("B")
                     case pygame.K_c:
-                        self.keys["C"] = False
+                        self.keys_up.add("C")
                     case pygame.K_d:
-                        self.keys["D"] = False
+                        self.keys_up.add("D")
                     case pygame.K_e:
-                        self.keys["E"] = False
+                        self.keys_up.add("E")
                     case pygame.K_f:
-                        self.keys["F"] = False
+                        self.keys_up.add("F")
                     case pygame.K_g:
-                        self.keys["G"] = False
+                        self.keys_up.add("G")
                     case pygame.K_h:
-                        self.keys["H"] = False
+                        self.keys_up.add("H")
 
 
 
