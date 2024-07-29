@@ -5,16 +5,16 @@
 
 from typing import Any, override
 
-import green_moon_2d.gm_object as gmobj
-import green_moon_2d.gm_font as gmfnt
-import green_moon_2d.gm_math as gmmath
+from green_moon_2d.gm_object import GMObject
+from green_moon_2d.gm_font import GMFont
+from green_moon_2d.gm_math import GMVec2D, GMAlignment
 import green_moon_2d.gm_engine as gme
 
 
-class GMText(gmobj.GMObject):
+class GMText(GMObject):
     def __init__(
-            self, name: str, text: str, pos: tuple[float, float] | gmmath.GMVec2D,
-            font: gmfnt.GMFont, alignment: gmmath.GMAlignment = gmmath.GMAlignment.TOP_LEFT):
+            self, name: str, text: str, pos: tuple[float, float] | GMVec2D,
+            font: GMFont, alignment: GMAlignment = GMAlignment.TOP_LEFT):
         """
         :param name: The name of the text object.
         :param text: The actual text.
@@ -25,15 +25,15 @@ class GMText(gmobj.GMObject):
         super().__init__(name)
 
         self.text: str = text
-        self.font: gmfnt.GMFont = font
+        self.font: GMFont = font
         self.horizontal: bool = True
-        self.alignment: gmmath.GMAlignment = alignment
+        self.alignment: GMAlignment = alignment
 
         match pos:
             case (x, y):
                 self.pos.x = x
                 self.pos.y = y
-            case gmmath.GMVec2D():
+            case GMVec2D():
                 self.pos = pos
             case _:
                 raise ValueError(f"GMText, position argument must be a tuple of floats or GMVec2D: {pos}")
@@ -66,7 +66,7 @@ class GMText(gmobj.GMObject):
                 self.set_font(font)
             case ("set_horizontal", bool(horizontal)):
                 self.set_horizontal(horizontal)
-            case ("set_alignment", gmmath.GMAlignment() as alignment):
+            case ("set_alignment", GMAlignment() as alignment):
                 self.set_alignment(alignment)
             case "toggle_orientation":
                 self.toggle_orientation()
@@ -94,26 +94,26 @@ class GMText(gmobj.GMObject):
         offsety: float = 0.0
 
         match self.alignment:
-            case gmmath.GMAlignment.TOP_LEFT:
+            case GMAlignment.TOP_LEFT:
                 pass
-            case gmmath.GMAlignment.TOP_CENTER:
+            case GMAlignment.TOP_CENTER:
                 offsetx = textwidth2
-            case gmmath.GMAlignment.TOP_RIGHT:
+            case GMAlignment.TOP_RIGHT:
                 offsetx = textwidth
-            case gmmath.GMAlignment.MID_LEFT:
+            case GMAlignment.MID_LEFT:
                 offsety = textheight2
-            case gmmath.GMAlignment.MID_CENTER:
+            case GMAlignment.MID_CENTER:
                 offsetx = textwidth2
                 offsety = textheight2
-            case gmmath.GMAlignment.MID_RIGHT:
+            case GMAlignment.MID_RIGHT:
                 offsetx = textwidth
                 offsety = textheight2
-            case gmmath.GMAlignment.BTM_LEFT:
+            case GMAlignment.BTM_LEFT:
                 offsety = textheight
-            case gmmath.GMAlignment.BTM_CENTER:
+            case GMAlignment.BTM_CENTER:
                 offsetx = textwidth2
                 offsety = textheight
-            case gmmath.GMAlignment.BTM_RIGHT:
+            case GMAlignment.BTM_RIGHT:
                 offsetx = textwidth
                 offsety = textheight
             case _:
@@ -142,7 +142,7 @@ class GMText(gmobj.GMObject):
         self.text = text
         self.reset_chars()
 
-    def set_pos(self, pos: tuple[float, float] | gmmath.GMVec2D) -> None:
+    def set_pos(self, pos: tuple[float, float] | GMVec2D) -> None:
         """
         Sets the text position.
 
@@ -153,14 +153,14 @@ class GMText(gmobj.GMObject):
             case (x, y):
                 self.pos.x = x
                 self.pos.y = y
-            case gmmath.GMVec2D():
+            case GMVec2D():
                 self.pos = pos
             case _:
                 raise ValueError(f"GMText, position must be a tuple of floats or GMVec2D: {pos}")
 
         self.reset_chars()
 
-    def set_font(self, font: str | gmfnt.GMFont) -> None:
+    def set_font(self, font: str | GMFont) -> None:
         """
         Sets the font for this text.
 
@@ -168,7 +168,7 @@ class GMText(gmobj.GMObject):
         """
 
         match font:
-            case gmfnt.GMFont():
+            case GMFont():
                 self.font = font
             case str():
                 self.font = gme.GMGlobalResources.get_font(font)
@@ -187,7 +187,7 @@ class GMText(gmobj.GMObject):
         self.horizontal = horizontal
         self.reset_chars()
 
-    def set_alignment(self, alignment: gmmath.GMAlignment) -> None:
+    def set_alignment(self, alignment: GMAlignment) -> None:
         """
         Sets the alignment for this text.
 

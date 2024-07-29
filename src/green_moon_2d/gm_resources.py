@@ -4,23 +4,20 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 import json
-from typing import override
 
 import pygame
 
-import green_moon_2d.gm_animation as gmanim
-import green_moon_2d.gm_texture as gmtxt
-import green_moon_2d.gm_font as gmfnt
-import green_moon_2d.gm_interfaces as gmitf
+from green_moon_2d.gm_animation import GMAnimation, GMAnimType
+from green_moon_2d.gm_texture import GMTexture
+from green_moon_2d.gm_font import GMFont
 
 
-class GMResources(gmitf.GMResourcesInterface):
+class GMResources:
     def __init__(self):
-        self.textures: dict[str, gmtxt.GMTexture] = {}
-        self.animations: dict[str, gmanim.GMAnimation] = {}
-        self.fonts: dict[str, gmfnt.GMFont] = {}
+        self.textures: dict[str, GMTexture] = {}
+        self.animations: dict[str, GMAnimation] = {}
+        self.fonts: dict[str, GMFont] = {}
 
-    @override
     def load_resources(self, file_name: str) -> None:
         """
         Load resources (JSON format) from the given file name.
@@ -54,7 +51,7 @@ class GMResources(gmitf.GMResourcesInterface):
             unit_height: int = tex["unit_height"]
 
             surface = pygame.image.load(file_name).convert_alpha()
-            new_texture = gmtxt.GMTexture(unit_width, unit_height, surface)
+            new_texture = GMTexture(unit_width, unit_height, surface)
             self.textures[name] = new_texture
 
     def create_fonts(self, fonts: list) -> None:
@@ -68,13 +65,13 @@ class GMResources(gmitf.GMResourcesInterface):
             name: str = font["name"]
             texture_name: str = font["texture_name"]
             char_mapping: list[str] = font["char_mapping"]
-            texture: gmtxt.GMTexture = self.textures[texture_name]
+            texture: GMTexture = self.textures[texture_name]
             mapping: dict[str, int] = {}
 
             for i, c in enumerate(char_mapping):
                 mapping[c] = i
 
-            new_font = gmfnt.GMFont(texture, mapping)
+            new_font = GMFont(texture, mapping)
             self.fonts[name] = new_font
 
     def create_animations(self, animations: list) -> None:
@@ -89,33 +86,33 @@ class GMResources(gmitf.GMResourcesInterface):
             animation_type: str = anim["animtaion_type"]
             frames: list[tuple[int, int]] = anim["frames"]
 
-            new_anim = gmanim.GMAnimation(frames)
+            new_anim = GMAnimation(frames)
 
             match animation_type:
                 case "forward":
-                    new_anim.change_type(gmanim.GMAnimType.FORWARD)
+                    new_anim.change_type(GMAnimType.FORWARD)
                 case "backward":
-                    new_anim.change_type(gmanim.GMAnimType.BACKWARD)
+                    new_anim.change_type(GMAnimType.BACKWARD)
                 case "loop_forward":
-                    new_anim.change_type(gmanim.GMAnimType.FORWARD_LOOP)
+                    new_anim.change_type(GMAnimType.FORWARD_LOOP)
                 case "loop_backward":
-                    new_anim.change_type(gmanim.GMAnimType.BACKWARD_LOOP)
+                    new_anim.change_type(GMAnimType.BACKWARD_LOOP)
                 case "ping_pong_forward":
-                    new_anim.change_type(gmanim.GMAnimType.PINGPONG_F)
+                    new_anim.change_type(GMAnimType.PINGPONG_F)
                 case "ping_pong_backward":
-                    new_anim.change_type(gmanim.GMAnimType.PINGPONG_B)
+                    new_anim.change_type(GMAnimType.PINGPONG_B)
                 case _:
                     raise ValueError(f"GMResources, Unknown animation type: {animation_type}, name: {name}")
 
             self.animations[name] = new_anim
 
-    def get_texture(self, name: str) -> gmtxt.GMTexture:
+    def get_texture(self, name: str) -> GMTexture:
         return self.textures[name]
 
-    def get_font(self, name: str) -> gmfnt.GMFont:
+    def get_font(self, name: str) -> GMFont:
         return self.fonts[name]
 
-    def get_animation(self, name: str) -> gmanim.GMAnimation:
+    def get_animation(self, name: str) -> GMAnimation:
         return self.animations[name]
 
 
