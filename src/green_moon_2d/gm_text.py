@@ -4,6 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 from typing import Any, override
+import math
 
 from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_font import GMFont
@@ -199,8 +200,91 @@ class GMText(GMObject):
 
     def toggle_orientation(self) -> None:
         """
+        Toggle the orientation from horizontal to vertical and back again.
         """
 
         self.horizontal = not self.horizontal
         self.reset_chars()
+
+class GMTextEffect1(GMText):
+    def __init__(
+            self, name: str, text: str, pos: tuple[float, float] | GMVec2D,
+            font: GMFont, alignment: GMAlignment = GMAlignment.TOP_LEFT):
+        """
+        :param name: The name of the text object.
+        :param text: The actual text.
+        :param pos: The text position.
+        :param font: The font to use when drawing the text.
+        """
+
+        super().__init__(name, text, pos, font, alignment)
+
+        self.effect_sine: bool = False
+        self.effect_rotate: bool = False
+        self.effect_scale: bool = False
+        self.effect_jitter: bool = False
+
+        # Sine effect settings:
+        self.sine_amplitude: float = 20.0
+        self.sine_frequency: float = 0.1
+        self.sine_offset: float = 0.4
+        self.sine_dt: float = 0.0
+
+        self.chars_copy = self.chars.copy()
+
+
+    @override
+    def update(self) -> None:
+        """
+        Updates all the text effects.
+        """
+
+        self.chars = self.chars_copy.copy()
+
+        if self.effect_sine:
+            self.sine_dt = self.sine_dt + self.sine_frequency
+            if self.sine_dt > math.tau:
+                self.sine_dt = self.sine_dt - math.tau
+
+            offset = 0.0
+
+            if self.horizontal:
+                for j, (x, y, i) in enumerate(self.chars):
+                    ny = y + (self.sine_amplitude * math.sin(self.sine_dt + offset))
+                    offset = offset + self.sine_offset
+                    self.chars[j] = (x, ny, i)
+            else:
+                for j, (x, y, i) in enumerate(self.chars):
+                    nx = x + (self.sine_amplitude * math.sin(self.sine_dt + offset))
+                    offset = offset + self.sine_offset
+                    self.chars[j] = (nx, y, i)
+
+    @override
+    def draw(self) -> None:
+        """
+        Draw the text.
+        """
+
+        for (x, y, i) in self.chars:
+            self.font.draw_i(x, y, i)
+
+    @override
+    def reset_chars(self):
+        """
+        Re-calculate all the character positions and indices.
+        """
+
+        super().reset_chars()
+
+        self.chars_copy = self.chars.copy()
+
+    def toggle_sine(self):
+        """
+        Turn the sine effect on or off.
+        """
+
+        self.effect_sine = not self.effect_sine
+
+
+
 
