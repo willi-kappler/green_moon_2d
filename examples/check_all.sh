@@ -4,7 +4,7 @@ reset
 
 export PYTHONPATH=$PYTHONPATH:"../src/"
 
-FOLDERS=("text1a" "text1b" "text2")
+FOLDERS=("text1a" "text1b" "text2" "text3")
 
 for f in ${FOLDERS[@]}; do
     echo "---------- New folder: $f"
