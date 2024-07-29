@@ -4,9 +4,6 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 from typing import override
-import sys
-
-sys.path.append("../../src/")
 
 import green_moon_2d.gm_engine as gme
 from green_moon_2d.gm_scene import GMScene
@@ -34,7 +31,8 @@ class TestScene(GMScene):
             self.om.add(GMText("text1", "TEXT 1B", (512.0, 100.0), self.font1, center))
             self.om.add(GMText("text2", "PRESS 1 2 OR 3", (512.0, 200.0), self.font1, center))
             self.om.add(GMText("text3", "TO CHANGE FONT", (512.0, 300.0), self.font1, center))
-            self.om.add(GMText("text4", "THIS IS FONT 1", (512.0, 350.0), self.font1, center))
+            self.font_text = GMText("text4", "THIS IS FONT 1", (512.0, 350.0), self.font1, center)
+            self.om.add(self.font_text)
 
             self.om.add_group("text1", "group1")
             self.om.add_group("text2", "group1")
@@ -52,15 +50,15 @@ class TestScene(GMScene):
 
         if "1" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font1))
-            self.om.send_message("text4", ("set_text", "THIS IS FONT 1"))
+            self.font_text.set_text("THIS IS FONT 1")
 
         if "2" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font2))
-            self.om.send_message("text4", ("set_text", "THIS IS FONT 2"))
+            self.font_text.set_text("THIS IS FONT 2")
 
         if "3" in keys_down:
             self.om.send_message_group("group1", ("set_font", self.font3))
-            self.om.send_message("text4", ("set_text", "THIS IS FONT 3"))
+            self.font_text.set_text("THIS IS FONT 3")
 
     @override
     def draw(self):

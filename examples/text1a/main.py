@@ -4,9 +4,6 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 from typing import override
-import sys
-
-sys.path.append("../../src/")
 
 import green_moon_2d.gm_engine as gme
 from green_moon_2d.gm_scene import GMScene
