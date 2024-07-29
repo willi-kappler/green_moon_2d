@@ -31,7 +31,7 @@ class TestScene(GMScene):
 
             self.om.add(GMText("text1", "TEXT 2", (512.0, 100.0), font, center))
             self.om.add(GMText("text2", "PRESS 1 - 9", (512.0, 200.0), font, center))
-            self.om.add(GMText("text3", "TO CHANGE ALIGNMENT", (512.0, 300.0), font, center))
+            self.om.add(GMText("text3", "TO CHANGE ALIGNMENT", (512.0, 250.0), font, center))
             self.om.add(GMText("text4", "PRESS H FOR ORIENTATION", (512.0, 350.0), font, center))
             self.demo_text = GMText("text5", "DEMO TEXT", (512.0, 450.0), font, center)
             self.om.add(self.demo_text)
