@@ -206,7 +206,16 @@ class GMText(GMObject):
         self.horizontal = not self.horizontal
         self.reset_chars()
 
+
 class GMTextEffect1(GMText):
+    """
+    This class contains four text effects: sine wave, rotate, scale and jitter.
+    Sine wave moves the characters along a sine curve.
+    Rotate will rotate each character individually.
+    Scale will scale each character individually up and down.
+    Jitter will add some random jitter to each character position.
+    """
+
     def __init__(
             self, name: str, text: str, pos: tuple[float, float] | GMVec2D,
             font: GMFont, alignment: GMAlignment = GMAlignment.TOP_LEFT):
@@ -230,8 +239,17 @@ class GMTextEffect1(GMText):
         self.sine_offset: float = 0.4
         self.sine_dt: float = 0.0
 
-        self.chars_copy = self.chars.copy()
+        # Rotate effect settings:
+        self.rotate_frequency: float = 2.0
+        self.rotate_offset: float = 2.0
+        self.rotate_dt: float = 0.0
 
+        self.scale_amplitude: float = 0.4
+        self.scale_frequency: float = 0.1
+        self.scale_offset: float = 0.1
+        self.scale_dt: float = 0.0
+
+        self.chars_copy = self.chars.copy()
 
     @override
     def update(self) -> None:
@@ -240,13 +258,12 @@ class GMTextEffect1(GMText):
         """
 
         self.chars = self.chars_copy.copy()
+        offset: float = 0.0
 
         if self.effect_sine:
             self.sine_dt = self.sine_dt + self.sine_frequency
             if self.sine_dt > math.tau:
                 self.sine_dt = self.sine_dt - math.tau
-
-            offset = 0.0
 
             if self.horizontal:
                 for j, (x, y, i) in enumerate(self.chars):
@@ -259,14 +276,45 @@ class GMTextEffect1(GMText):
                     offset = offset + self.sine_offset
                     self.chars[j] = (nx, y, i)
 
+        if self.effect_rotate:
+            self.rotate_dt = self.rotate_dt + self.rotate_frequency
+            if self.rotate_dt > 360.0:
+                self.rotate_dt = self.rotate_dt - 360.0
+            elif self.rotate_dt < -360.0:
+                self.rotate_dt = self.rotate_dt + 360.0
+
+            offset = 0.0
+
+            for i in range(len(self.chars)):
+                self.rotate_angles[i] = self.rotate_dt + offset
+                offset = offset + self.rotate_offset
+
+        if self.effect_scale:
+            self.scale_dt = self.scale_dt + self.scale_frequency
+            if self.scale_dt > math.tau:
+                self.scale_dt = self.scale_dt - math.tau
+
+            offset = 0.0
+
+            for i in range(len(self.chars)):
+                self.scale_values[i] = 1.0 + (self.scale_amplitude *
+                    math.sin(self.scale_dt + offset))
+                offset = offset + self.scale_offset
+
+        if self.effect_jitter:
+            pass
+
     @override
     def draw(self) -> None:
         """
         Draw the text.
         """
 
-        for (x, y, i) in self.chars:
-            self.font.draw_i(x, y, i)
+        for i in range(len(self.chars)):
+            (x, y, j) = self.chars[i]
+            angle = self.rotate_angles[i]
+            scale = self.scale_values[i]
+            self.font.texture.draw_opt(x, y, j, angle, scale)
 
     @override
     def reset_chars(self):
@@ -278,12 +326,48 @@ class GMTextEffect1(GMText):
 
         self.chars_copy = self.chars.copy()
 
+        self.rotate_angles = []
+        self.scale_values = []
+
+        for _ in range(len(self.chars)):
+            self.rotate_angles.append(0.0)
+            self.scale_values.append(1.0)
+
     def toggle_sine(self):
         """
         Turn the sine effect on or off.
         """
 
         self.effect_sine = not self.effect_sine
+
+    def toggle_rotate(self):
+        """
+        Turn the rotate effect on or off.
+        """
+
+        self.effect_rotate = not self.effect_rotate
+
+        if not self.effect_rotate:
+            for i in range(len(self.chars)):
+                self.rotate_angles[i] = 0.0
+
+    def toggle_scale(self):
+        """
+        Turn the scale effect on or off.
+        """
+
+        self.effect_scale = not self.effect_scale
+
+        if not self.effect_scale:
+            for i in range(len(self.chars)):
+                self.scale_values[i] = 1.0
+
+    def toggle_jitter(self):
+        """
+        Turn the jitter effect on or off.
+        """
+
+        self.effect_jitter = not self.effect_jitter
 
 
 
