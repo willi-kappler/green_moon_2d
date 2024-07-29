@@ -48,6 +48,9 @@ class GMTexture:
         :param index: The index of the frame / cell.
         """
 
+        dx = (dx - (self.unit_width / 2.0))
+        dy = (dy - (self.unit_height / 2.0))
+
         subsurface = self.get_subsurface(index)
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
@@ -68,8 +71,8 @@ class GMTexture:
         :param flip_y: True to flip vertically.
         """
 
-        dx = (dx - self.unit_width) / 2.0
-        dy = (dy - self.unit_height) / 2.0
+        dx = (dx - (self.unit_width / 2.0))
+        dy = (dy - (self.unit_height / 2.0))
 
         subsurface = self.get_subsurface(index)
         subsurface = pygame.transform.flip(subsurface, flip_x, flip_y)
