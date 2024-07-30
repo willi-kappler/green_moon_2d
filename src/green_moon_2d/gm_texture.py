@@ -6,6 +6,7 @@
 import pygame
 
 import green_moon_2d.gm_engine as gme
+from green_moon_2d.gm_math import GMVec2D
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ class GMTexture:
 
         return subsurface
 
-    def draw(self, dx: float, dy: float, index: int):
+    def draw(self, dx: float, dy: float, index: int) -> None:
         """
         Draw this texture on the screen given the coordinates and frame index.
 
@@ -60,10 +61,18 @@ class GMTexture:
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 
-    def draw_opt(
-            self, dx: float, dy: float, index: int, angle: float = 0.0,
-            scale: float = 1.0, flip_x: bool = False,
-            flip_y: bool = False):
+    def draw_p(self, pos: GMVec2D, index: int) -> None:
+        """
+        Draw this texture on the screen given the coordinates and frame index.
+
+        :param pos: The postion as GMVec2D.
+        :param index: The index of the frame / cell.
+        """
+
+        self.draw(pos.x, pos.y, index)
+
+    def draw_opt(self, dx: float, dy: float, index: int, angle: float = 0.0,
+            scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
         """
         Draw this texture on the screen using several options.
 
@@ -86,4 +95,20 @@ class GMTexture:
         dy = (dy - (h / 2.0))
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
+
+    def draw_p_opt(self, pos: GMVec2D, index: int, angle: float = 0.0,
+            scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
+        """
+        Draw this texture on the screen using several options.
+
+        :param pos: The postion as GMVec2D.
+        :param index: The index of the frame / cell.
+        :param angle: Rotate the texture.
+        :param scale: The scale of the texture.
+        :param flip_x: True to flip horizontally.
+        :param flip_y: True to flip vertically.
+        """
+
+        self.draw_opt(pos.x, pos.y, index, angle, scale, flip_x, flip_y)
+
 
