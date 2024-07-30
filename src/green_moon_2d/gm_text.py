@@ -5,10 +5,12 @@
 
 from typing import Any, override
 import math
+import random
 
 from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_font import GMFont
 from green_moon_2d.gm_math import GMVec2D, GMAlignment
+from green_moon_2d.gm_timer import GMTimer
 import green_moon_2d.gm_engine as gme
 
 import logging
@@ -264,6 +266,9 @@ class GMTextEffect1(GMText):
         self.scale_offset: float = 0.1
         self.scale_dt: float = 0.0
 
+        self.jitter_radius: float = 5.0
+        self.jitter_timer: GMTimer = GMTimer(100)
+
         self.chars_copy = self.chars.copy()
 
     @override
@@ -317,7 +322,12 @@ class GMTextEffect1(GMText):
                 offset = offset + self.scale_offset
 
         if self.effect_jitter:
-            pass
+            if self.jitter_timer.finished():
+                for i in range(len(self.chars)):
+                    jx = (random.random() - 2.0) * self.jitter_radius
+                    jy = (random.random() - 2.0) * self.jitter_radius
+                    self.jitter_positions[i] = (jx, jy)
+                self.jitter_timer.restart()
 
     @override
     def draw(self) -> None:
@@ -326,10 +336,11 @@ class GMTextEffect1(GMText):
         """
 
         for i in range(len(self.chars)):
-            (x, y, j) = self.chars[i]
+            (x, y, n) = self.chars[i]
             angle = self.rotate_angles[i]
             scale = self.scale_values[i]
-            self.font.texture.draw_opt(x, y, j, angle, scale)
+            (jx, jy) = self.jitter_positions[i]
+            self.font.texture.draw_opt(x + jx, y + jy, n, angle, scale)
 
     @override
     def reset_chars(self):
@@ -341,12 +352,14 @@ class GMTextEffect1(GMText):
 
         self.chars_copy = self.chars.copy()
 
-        self.rotate_angles = []
-        self.scale_values = []
+        self.rotate_angles: list[float] = []
+        self.scale_values: list[float] = []
+        self.jitter_positions: list[tuple[float, float]] = []
 
         for _ in range(len(self.chars)):
             self.rotate_angles.append(0.0)
             self.scale_values.append(1.0)
+            self.jitter_positions.append((0.0, 0.0))
 
     def toggle_sine(self):
         """
