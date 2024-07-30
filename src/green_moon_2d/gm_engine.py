@@ -11,13 +11,13 @@ from green_moon_2d.gm_scene import GMSceneManager
 from green_moon_2d.gm_resources import GMResources
 
 
+import logging
+logger = logging.getLogger(__name__)
+
 GMGlobalContext: GMContext = GMContext()
 GMGlobalScenes: GMSceneManager = GMSceneManager()
 GMGlobalConfig: GMConfiguration = GMConfiguration()
 GMGlobalResources: GMResources = GMResources()
-
-import logging
-logger = logging.getLogger(__name__)
 
 
 class GMEngine:
