@@ -324,8 +324,8 @@ class GMTextEffect1(GMText):
         if self.effect_jitter:
             if self.jitter_timer.finished():
                 for i in range(len(self.chars)):
-                    jx = (random.random() - 2.0) * self.jitter_radius
-                    jy = (random.random() - 2.0) * self.jitter_radius
+                    jx = (random.random() - 0.5) * self.jitter_radius * 2.0
+                    jy = (random.random() - 0.5) * self.jitter_radius * 2.0
                     self.jitter_positions[i] = (jx, jy)
                 self.jitter_timer.restart()
 
@@ -405,6 +405,9 @@ class GMTextEffect1(GMText):
 
         self.effect_jitter = not self.effect_jitter
 
+        if not self.effect_jitter:
+            for i in range(len(self.chars)):
+                self.jitter_positions[i] = (0.0, 0.0)
 
 
 
