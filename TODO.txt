@@ -2,12 +2,11 @@ TODO:
 
 - add more methods for 2d vector.
 - add custom settings to configuration class.
-- add examples for text.
-- add text effects.
+# add examples for text.
+# add text effects.
 - add movement effects.
 - add examples for sprite.
 - check for more keys.
-- add log messages.
 
 
 Done:
@@ -23,5 +22,6 @@ Done:
 # move to pygame-ce (from pysdl2)
 # align text.
 # vertical text.
+# add log messages.
 
 
