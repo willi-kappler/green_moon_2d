@@ -1,4 +1,6 @@
 old/
 old2/
 __pycache__
+*.log
+.coverage
 
