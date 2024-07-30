@@ -76,12 +76,14 @@ class GMTexture:
         :param flip_y: True to flip vertically.
         """
 
-        dx = (dx - (self.unit_width / 2.0))
-        dy = (dy - (self.unit_height / 2.0))
-
         subsurface = self.get_subsurface(index)
         subsurface = pygame.transform.flip(subsurface, flip_x, flip_y)
         subsurface = pygame.transform.rotozoom(subsurface, angle, scale)
+
+        (w, h) = subsurface.get_size()
+
+        dx = (dx - (w / 2.0))
+        dy = (dy - (h / 2.0))
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 
