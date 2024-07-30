@@ -16,7 +16,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         with self.assertRaises(AssertionError):
-            a1 = GMAnimation([])
+            a1 = GMAnimation("empty", [])
             a1.current_frame = 0
 
     def test_change_type(self):
@@ -26,7 +26,7 @@ class TestAnimation(unittest.TestCase):
 
         frames = [(1, 100), (2, 100), (3, 200)]
         last_frame = len(frames) - 1
-        a1 = GMAnimation(frames)
+        a1 = GMAnimation("anim1", frames)
 
         self.assertEqual(a1.anim_type, GMAnimType.FORWARD)
 
@@ -59,7 +59,7 @@ class TestAnimation(unittest.TestCase):
         Test returning the correct frame index.
         """
 
-        a1 = GMAnimation([(5, 100), (10, 100), (8, 300)])
+        a1 = GMAnimation("anim1", [(5, 100), (10, 100), (8, 300)])
         self.assertEqual(a1.get_frame_index(), 5)
 
         a1.current_frame = 1
@@ -73,7 +73,7 @@ class TestAnimation(unittest.TestCase):
         Test setting the correct timer duration.
         """
 
-        a1 = GMAnimation([(5, 100), (10, 550), (8, 310)])
+        a1 = GMAnimation("anim1", [(5, 100), (10, 550), (8, 310)])
         a1.set_timer_duration()
         self.assertEqual(a1.timer.duration, 100)
 
@@ -90,7 +90,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with FORWARD type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.update()
         self.assertEqual(a1.current_frame, 0)
         self.assertEqual(a1.get_frame_index(), 2)
@@ -126,7 +126,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with BACKWARD type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.change_type(GMAnimType.BACKWARD)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
@@ -163,7 +163,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with FORWARD_LOOP type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.change_type(GMAnimType.FORWARD_LOOP)
         a1.update()
         self.assertEqual(a1.current_frame, 0)
@@ -200,7 +200,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with BACKWARD_LOOP type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.change_type(GMAnimType.BACKWARD_LOOP)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
@@ -237,7 +237,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with PINGPONG_F type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.change_type(GMAnimType.PINGPONG_F)
         a1.update()
         self.assertEqual(a1.current_frame, 0)
@@ -290,7 +290,7 @@ class TestAnimation(unittest.TestCase):
         Test updating the animation with PINGPONG_B type.
         """
 
-        a1 = GMAnimation([(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
         a1.change_type(GMAnimType.PINGPONG_B)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
