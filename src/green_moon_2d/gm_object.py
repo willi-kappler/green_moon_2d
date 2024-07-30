@@ -12,6 +12,9 @@ from typing import Any, NoReturn
 
 from green_moon_2d.gm_math import GMVec2D
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMObject:
     """
@@ -22,6 +25,7 @@ class GMObject:
         """
         :param name: The name of this object. It must be unique.
         """
+
         self.name: str = name
         self.pos: GMVec2D = GMVec2D(0.0, 0.0)
         self.vel: GMVec2D = GMVec2D(0.0, 0.0)
@@ -169,6 +173,8 @@ class GMObjectManager(Iterable):
     """
 
     def __init__(self):
+        logger.debug("Create a new GMObjectManager.")
+
         self.objects = []
 
     def _object_not_found(self, method: str, name: str) -> NoReturn:
@@ -376,6 +382,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object.
         :raise KeyError: if the object was not found.
         """
+
         self[name].clear_groups()
 
     def __iter__(self) -> Iterator[GMObject]:

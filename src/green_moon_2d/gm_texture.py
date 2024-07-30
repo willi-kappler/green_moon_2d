@@ -7,6 +7,9 @@ import pygame
 
 import green_moon_2d.gm_engine as gme
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMTexture:
     def __init__(self, unit_width: int, unit_height: int, surface: pygame.Surface):
@@ -15,6 +18,8 @@ class GMTexture:
         :param unit_height: The heiht of a single frame / cell.
         :param texture: The actual graphic texture.
         """
+
+        logger.debug(f"Create a new GMTexture with unit dimensions: {unit_width} x {unit_height}.")
 
         self.surface: pygame.Surface = surface
         self.unit_width: int = unit_width

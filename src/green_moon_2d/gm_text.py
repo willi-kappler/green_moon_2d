@@ -11,6 +11,9 @@ from green_moon_2d.gm_font import GMFont
 from green_moon_2d.gm_math import GMVec2D, GMAlignment
 import green_moon_2d.gm_engine as gme
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMText(GMObject):
     def __init__(
@@ -24,6 +27,8 @@ class GMText(GMObject):
         """
 
         super().__init__(name)
+
+        logger.debug(f"Create a new text with name: {name} and text: {text}.")
 
         self.text: str = text
         self.font: GMFont = font
@@ -168,6 +173,8 @@ class GMText(GMObject):
         :param font: Can be a GMFont or the font name as string.
         """
 
+        logger.debug(f"Change the font to: {font}.")
+
         match font:
             case GMFont():
                 self.font = font
@@ -185,6 +192,8 @@ class GMText(GMObject):
         :param horizontal: If true the orientation is horizontal else vertical.
         """
 
+        logger.debug(f"Change horizontal orientation: {horizontal}.")
+
         self.horizontal = horizontal
         self.reset_chars()
 
@@ -195,6 +204,8 @@ class GMText(GMObject):
         :param alignment: The alignment (enum GMAlignment).
         """
 
+        logger.debug(f"Set alignment: {alignment}.")
+
         self.alignment = alignment
         self.reset_chars()
 
@@ -202,6 +213,8 @@ class GMText(GMObject):
         """
         Toggle the orientation from horizontal to vertical and back again.
         """
+
+        logger.debug("Toggle orientation.")
 
         self.horizontal = not self.horizontal
         self.reset_chars()
@@ -227,6 +240,8 @@ class GMTextEffect1(GMText):
         """
 
         super().__init__(name, text, pos, font, alignment)
+
+        logger.debug("Create a new GMTextEffect1.")
 
         self.effect_sine: bool = False
         self.effect_rotate: bool = False
@@ -338,12 +353,16 @@ class GMTextEffect1(GMText):
         Turn the sine effect on or off.
         """
 
+        logger.debug("Toggle sine.")
+
         self.effect_sine = not self.effect_sine
 
     def toggle_rotate(self):
         """
         Turn the rotate effect on or off.
         """
+
+        logger.debug("Toggle rotate.")
 
         self.effect_rotate = not self.effect_rotate
 
@@ -356,6 +375,8 @@ class GMTextEffect1(GMText):
         Turn the scale effect on or off.
         """
 
+        logger.debug("Toggle scale.")
+
         self.effect_scale = not self.effect_scale
 
         if not self.effect_scale:
@@ -366,6 +387,8 @@ class GMTextEffect1(GMText):
         """
         Turn the jitter effect on or off.
         """
+
+        logger.debug("Toggle jitter.")
 
         self.effect_jitter = not self.effect_jitter
 

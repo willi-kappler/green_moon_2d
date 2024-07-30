@@ -11,9 +11,14 @@ from green_moon_2d.gm_animation import GMAnimation, GMAnimType
 from green_moon_2d.gm_texture import GMTexture
 from green_moon_2d.gm_font import GMFont
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMResources:
     def __init__(self):
+        logger.debug("Create a new GMResources.")
+
         self.textures: dict[str, GMTexture] = {}
         self.animations: dict[str, GMAnimation] = {}
         self.fonts: dict[str, GMFont] = {}
@@ -24,6 +29,8 @@ class GMResources:
 
         :param file_name: File name of the resource file.
         """
+
+        logger.debug(f"Load resources from file: {file_name}.")
 
         with open(file_name, "r") as f:
             data = json.load(f)
@@ -71,7 +78,7 @@ class GMResources:
             for i, c in enumerate(char_mapping):
                 mapping[c] = i
 
-            new_font = GMFont(texture, mapping)
+            new_font = GMFont(name, texture, mapping)
             self.fonts[name] = new_font
 
     def create_animations(self, animations: list) -> None:
@@ -86,7 +93,7 @@ class GMResources:
             animation_type: str = anim["animtaion_type"]
             frames: list[tuple[int, int]] = anim["frames"]
 
-            new_anim = GMAnimation(frames)
+            new_anim = GMAnimation(name, frames)
 
             match animation_type:
                 case "forward":

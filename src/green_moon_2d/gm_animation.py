@@ -12,6 +12,9 @@ from enum import Enum, auto
 
 from green_moon_2d.gm_timer import GMTimer
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMAnimType(Enum):
     """
@@ -41,10 +44,15 @@ class GMAnimation:
     (2, 200) means: index 2 in the sprite sheet and display duration of 200 ms.
     """
 
-    def __init__(self, frames: list[tuple[int, int]]):
+    def __init__(self, name: str, frames: list[tuple[int, int]]):
         """
+        :param name: The name of this animation.
         :param frames: A list of tuples containing the index and the duration.
         """
+
+        logger.debug(f"Create a new GMAnimation, name: {name}, frames: {frames}.")
+
+        self.name: str = name
         self.current_frame: int = 0
         self.anim_type: GMAnimType = GMAnimType.FORWARD
         self.frames: list[tuple[int, int]] = frames
@@ -60,6 +68,7 @@ class GMAnimation:
         Depening on the animation type different actions are performed.
         See description of GMAnimType.
         """
+
         if self.active and self.timer.finished():
             match self.anim_type:
                 case GMAnimType.FORWARD:
@@ -107,6 +116,9 @@ class GMAnimation:
 
         :param new_type: The new type for this animation.
         """
+
+        logger.debug(f"Change animation type: {new_type}.")
+
         self.anim_type = new_type
 
         match self.anim_type:
@@ -135,12 +147,14 @@ class GMAnimation:
         :return: The current frame index.
         :rtype: int
         """
+
         return self.frames[self.current_frame][0]
 
     def set_timer_duration(self) -> None:
         """
         Sets the new duration and restarts the timer.
         """
+
         new_duration = self.frames[self.current_frame][1]
         self.timer.set_duration_restart(new_duration)
 

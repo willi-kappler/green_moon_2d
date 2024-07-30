@@ -11,6 +11,9 @@ from typing import Any
 
 import pygame
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMContext:
     """
@@ -20,6 +23,8 @@ class GMContext:
     """
 
     def __init__(self):
+        logger.debug("Create a new GMContext.")
+
         self.game_property: dict[str, Any] = {}
         self.quit_game: bool = False
         self.screen: Any = None
@@ -65,6 +70,8 @@ class GMContext:
         """
         Toggle between fullscreen and windowed mode.
         """
+
+        logger.debug("Toggle fullscreen.")
 
         pygame.display.toggle_fullscreen()
 
@@ -184,7 +191,5 @@ class GMContext:
                         self.keys_up.add("G")
                     case pygame.K_h:
                         self.keys_up.add("H")
-
-
 
 

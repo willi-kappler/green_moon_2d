@@ -5,9 +5,14 @@
 
 import json
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMConfiguration:
     def __init__(self):
+        logger.debug("Create a new GMConfiguration.")
+
         self.config_file: str = "config.json"
         self.fps: int = 60
         self.fullscreen: bool = False
@@ -22,6 +27,8 @@ class GMConfiguration:
 
         :param file_name: File name of the configuration.
         """
+
+        logger.debug(f"Load configuration from file: {file_name}.")
 
         with open(file_name, "r") as f:
             data = json.load(f)
@@ -53,6 +60,8 @@ class GMConfiguration:
         """
         Saves the game configuration.
         """
+
+        logger.debug("Save the configuration.")
 
         with open(self.config_file, "w") as f:
             json.dump(self.__dict__, f, indent=2, sort_keys=True)

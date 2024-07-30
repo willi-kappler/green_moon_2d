@@ -11,6 +11,9 @@ from green_moon_2d.gm_text import GMText
 from green_moon_2d.gm_math import GMAlignment
 from green_moon_2d.gm_object import GMObjectManager
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class TestScene(GMScene):
     def __init__(self):
@@ -66,6 +69,9 @@ class TestScene(GMScene):
 
 
 def main():
+    logging.basicConfig(filename="example.log", level=logging.DEBUG)
+    logging.info("This is the example text1b.")
+
     engine = gme.GMEngine("config.json", "TestScene1")
 
     scene1 = TestScene()

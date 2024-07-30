@@ -9,6 +9,9 @@ This module defines the GMSceneManager and the GMScene base class.
 
 from typing import Any
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMScene:
     """
@@ -20,6 +23,8 @@ class GMScene:
         """
         :param name: The name of the new scene. It must be unique.
         """
+
+        logger.debug(f"Create a new GMScene with name: {name}.")
 
         self.name: str = name
         self.on_stack: bool = False
@@ -73,6 +78,8 @@ class GMSceneManager:
     """
 
     def __init__(self):
+        logger.debug("Create a new GMSceneManager.")
+
         self.scenes: dict[str, GMScene] = {}
         self.current_scene: GMScene = GMScene("empty")
         self.scene_stack: list[GMScene] = []
@@ -103,6 +110,8 @@ class GMSceneManager:
 
         assert isinstance(scene, GMScene), "GMSceneManager.add_scene(), new scene must be a subclass of GMScene"
 
+        logger.debug(f"Add a new scene with name: {scene.name}.")
+
         self.scenes[scene.name] = scene
 
     def delete_scene(self, name: str) -> None:
@@ -113,6 +122,8 @@ class GMSceneManager:
         :raise KeyError: if the scene with the given name is not found.
         """
 
+        logger.debug(f"Delete scene with name: {name}.")
+
         del self.scenes[name]
 
     def change_to_scene(self, name: str) -> None:
@@ -122,6 +133,8 @@ class GMSceneManager:
         :param name: The name of the scene to be deleted.
         :raise KeyError: if the scene with the given name is not found.
         """
+
+        logger.debug(f"Change to scene with name: {name}.")
 
         self.current_scene.leave()
         self.current_scene = self.scenes[name]
@@ -135,6 +148,8 @@ class GMSceneManager:
         :raise KeyError: if the scene with the given name is not found.
         """
 
+        logger.debug("Push current scene and change to scene with name: {name}.")
+
         self.scene_stack.append(self.current_scene)
         self.current_scene.on_stack = True
         self.change_to_scene(name)
@@ -145,6 +160,8 @@ class GMSceneManager:
 
         :raise ValueError: if the stack is empty.
         """
+
+        logger.debug("Pop scene from stack and change to it.")
 
         self.current_scene.leave()
         self.current_scene = self.scene_stack.pop()

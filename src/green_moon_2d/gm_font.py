@@ -5,11 +5,25 @@
 
 from green_moon_2d.gm_texture import GMTexture
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMFont:
-    def __init__(self, texture: GMTexture, mapping: dict[str, int]):
+    def __init__(self, name: str, texture: GMTexture, mapping: dict[str, int]):
+        """
+        :param name: The name of this font.
+        :param mapping: The character to index mapping for this font.
+        """
+
+        logger.debug(f"Create a new GMFont, name: {name}, mapping: {mapping}")
+
+        self.name: str = name
         self.texture = texture
         self.mapping = mapping
+
+    def __repr__(self) -> str:
+        return f"GMFONT({self.name})"
 
     def draw_c(self, x: float, y: float, c: str):
         """

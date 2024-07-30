@@ -16,9 +16,14 @@ GMGlobalScenes: GMSceneManager = GMSceneManager()
 GMGlobalConfig: GMConfiguration = GMConfiguration()
 GMGlobalResources: GMResources = GMResources()
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GMEngine:
     def __init__(self, config_file, first_scene: str):
+        logger.debug("Create a new GMEngine.")
+
         self.first_scene = first_scene
         GMGlobalConfig.load_config(config_file)
 
@@ -26,6 +31,8 @@ class GMEngine:
         """
         Starts the engine and runs the game loop.
         """
+
+        logger.info("Run the engine.")
 
         pygame.init()
 
@@ -51,5 +58,7 @@ class GMEngine:
 
         GMGlobalConfig.save_config()
         pygame.quit()
+
+        logger.info("Exit the engine.")
 
 
