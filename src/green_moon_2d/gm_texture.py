@@ -3,6 +3,8 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
+from typing import override
+
 import pygame
 
 import green_moon_2d.gm_engine as gme
@@ -12,7 +14,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GMTexture:
+class GMTextureInterface:
+    def __init__(self, unit_width: int, unit_height: int):
+        """
+        :param unit_width: The width of a single frame / cell.
+        :param unit_height: The heiht of a single frame / cell.
+        """
+
+        self.unit_width: int = unit_width
+        self.unit_height: int = unit_height
+
+    def draw(self, dx: float, dy: float, index: int) -> None:
+        pass
+
+    def draw_p(self, pos: GMVec2D, index: int) -> None:
+        pass
+
+    def draw_opt(self, dx: float, dy: float, index: int, angle: float = 0.0,
+            scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
+        pass
+
+    def draw_p_opt(self, pos: GMVec2D, index: int, angle: float = 0.0,
+            scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
+        pass
+
+
+class GMTexture(GMTextureInterface):
     def __init__(self, unit_width: int, unit_height: int, surface: pygame.Surface):
         """
         :param unit_width: The width of a single frame / cell.
@@ -20,11 +47,11 @@ class GMTexture:
         :param texture: The actual graphic texture.
         """
 
+        super().__init__(unit_width, unit_height)
+
         logger.debug(f"Create a new GMTexture with unit dimensions: {unit_width} x {unit_height}.")
 
         self.surface: pygame.Surface = surface
-        self.unit_width: int = unit_width
-        self.unit_height: int = unit_height
         self.cols: int = int(surface.get_width() / unit_width)
 
     def get_subsurface(self, index: int) -> pygame.Surface:
@@ -45,6 +72,7 @@ class GMTexture:
 
         return subsurface
 
+    @override
     def draw(self, dx: float, dy: float, index: int) -> None:
         """
         Draw this texture on the screen given the coordinates and frame index.
@@ -61,6 +89,7 @@ class GMTexture:
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 
+    @override
     def draw_p(self, pos: GMVec2D, index: int) -> None:
         """
         Draw this texture on the screen given the coordinates and frame index.
@@ -71,6 +100,7 @@ class GMTexture:
 
         self.draw(pos.x, pos.y, index)
 
+    @override
     def draw_opt(self, dx: float, dy: float, index: int, angle: float = 0.0,
             scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
         """
@@ -96,6 +126,7 @@ class GMTexture:
 
         gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
 
+    @override
     def draw_p_opt(self, pos: GMVec2D, index: int, angle: float = 0.0,
             scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
         """

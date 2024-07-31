@@ -7,14 +7,14 @@ from typing import Any, override
 
 from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_animation import GMAnimation
-from green_moon_2d.gm_texture import GMTexture
+from green_moon_2d.gm_texture import GMTextureInterface
 
 import logging
 logger = logging.getLogger(__name__)
 
 
 class GMSprite(GMObject):
-    def __init__(self, name: str, animation: GMAnimation, texture: GMTexture):
+    def __init__(self, name: str, animation: GMAnimation, texture: GMTextureInterface):
         """
         :param name: The name of the sprite. It must be unique.
         :param animation: The animation for this sprite.
@@ -24,7 +24,7 @@ class GMSprite(GMObject):
         super().__init__(name)
 
         self.animation: GMAnimation = animation
-        self.texture: GMTexture = texture
+        self.texture: GMTextureInterface = texture
         self.angle: float = 0.0
         self.scale: float = 1.0
         self.flip_x: bool = False
@@ -41,5 +41,17 @@ class GMSprite(GMObject):
 
     @override
     def send_message(self, msg: Any) -> Any:
-        if isinstance(msg, str):
-            raise NotImplementedError
+        """
+        Process messages send to this text object.
+
+        :param msg: The actual message.
+        """
+
+        match msg:
+            case ("set_animation", GMAnimation() as animation):
+                self.animation = animation
+
+
+
+
+

@@ -3,14 +3,14 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-from green_moon_2d.gm_texture import GMTexture
+from green_moon_2d.gm_texture import GMTextureInterface
 
 import logging
 logger = logging.getLogger(__name__)
 
 
 class GMFont:
-    def __init__(self, name: str, texture: GMTexture, mapping: dict[str, int]):
+    def __init__(self, name: str, texture: GMTextureInterface, mapping: dict[str, int]):
         """
         :param name: The name of this font.
         :param mapping: The character to index mapping for this font.
