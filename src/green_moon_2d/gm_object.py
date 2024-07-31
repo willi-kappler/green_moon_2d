@@ -76,15 +76,17 @@ class GMObject:
             case ("set_pos", pos):
                 self.set_pos(pos)
             case ("set_vel", vel):
-                raise NotImplementedError
-                # TODO: set velocity
+                self.set_vel(vel)
             case ("set_acc", acc):
-                raise NotImplementedError
-                # TODO: set acceleration
+                self.set_acc(acc)
             case ("set_active", bool(active)):
                 self.active = active
+            case "toggle_active":
+                self.active = not self.active
             case ("set_visible", bool(visible)):
                 self.visible = visible
+            case "toggle_visible":
+                self.visible = not self.visible
             case ("set_draw_order", int(order)):
                 self.draw_order = order
             case ("set_update_order", int(order)):
@@ -123,6 +125,32 @@ class GMObject:
             case (float(x), float(y)):
                 self.pos.x = x
                 self.pos.y = y
+
+    def set_vel(self, vel: tuple[float, float] | GMVec2D) -> None:
+        """
+        Sets the velocity of this object.
+        :param vel: Can be a tuple of floats or a GMVec2D.
+        """
+
+        match vel:
+            case GMVec2D():
+                self.vel = vel
+            case (float(x), float(y)):
+                self.vel.x = x
+                self.vel.y = y
+
+    def set_acc(self, acc: tuple[float, float] | GMVec2D) -> None:
+        """
+        Sets the acceleration of this object.
+        :param acc: Can be a tuple of floats or a GMVec2D.
+        """
+
+        match acc:
+            case GMVec2D():
+                self.acc = acc
+            case (float(x), float(y)):
+                self.acc.x = x
+                self.acc.y = y
 
     def add_group(self, name: str) -> None:
         """
