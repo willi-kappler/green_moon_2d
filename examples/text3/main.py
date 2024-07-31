@@ -15,9 +15,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class TestScene(GMScene):
+class ExampleScene(GMScene):
     def __init__(self):
-        super().__init__("TestScene3")
+        super().__init__("ExampleScene")
 
     @override
     def enter(self):
@@ -80,9 +80,9 @@ def main():
     logging.basicConfig(filename="example.log", level=logging.DEBUG)
     logging.info("This is the example text3.")
 
-    engine = gme.GMEngine("config.json", "TestScene3")
+    engine = gme.GMEngine("config.json", "ExampleScene")
 
-    scene = TestScene()
+    scene = ExampleScene()
     gme.GMGlobalScenes.add_scene(scene)
     engine.run()
 
