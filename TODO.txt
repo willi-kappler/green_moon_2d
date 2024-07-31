@@ -5,12 +5,15 @@ TODO:
 - add movement effects.
 - add examples for sprite.
 - check for more keys / other input.
-# implement GMObject::send_message() for basic settings.
-- add test cases for GMTexture (GMTextureInterface)
-- add test cases for GMFont
-- add test cases for GMText
-- add test cases for GMSprite
-- add some calculation to GMTextureInterface
+- add test cases for GMTexture (GMTextureInterface).
+- add test cases for GMFont.
+- add test cases for GMText.
+- add test cases for GMSprite.
+- add some calculation to GMTextureInterface.
+- rename GMObject to GMGFXObject and create a new simple GMObject as a base.
+- add "fixed" to GMRepetition.
+
+
 
 Done:
 
@@ -29,5 +32,6 @@ Done:
 # add examples for text.
 # add text effects.
 # add GMTextureInterface in order to test GMFont, GMText, GMSprite, etc.
+# implement GMObject::send_message() for basic settings.
 
 
