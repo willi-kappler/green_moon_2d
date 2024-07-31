@@ -9,9 +9,6 @@ from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_animation import GMAnimation
 from green_moon_2d.gm_texture import GMTextureInterface
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 class GMSprite(GMObject):
     def __init__(self, name: str, animation: GMAnimation, texture: GMTextureInterface):
