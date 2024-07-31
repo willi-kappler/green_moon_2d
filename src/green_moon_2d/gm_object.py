@@ -27,6 +27,7 @@ class GMObject:
         """
 
         self.name: str = name
+        self.object_manager: GMObjectManager
         self.pos: GMVec2D = GMVec2D(0.0, 0.0)
         self.vel: GMVec2D = GMVec2D(0.0, 0.0)
         self.acc: GMVec2D = GMVec2D(0.0, 0.0)
@@ -285,6 +286,7 @@ class GMObjectManager(Iterable):
                         f"that already exists: {obj.name}"
                     )
 
+                obj.object_manager = self
                 self.objects.append(obj)
             case Iterable():
                 for item in obj:
