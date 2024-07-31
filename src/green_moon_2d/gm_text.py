@@ -80,7 +80,7 @@ class GMText(GMObject):
             case "toggle_orientation":
                 self.toggle_orientation()
             case _:
-                # Delegate to base class:
+                # Delegate all other messages to the base class:
                 super().send_message(msg)
 
     def reset_chars(self) -> None:
