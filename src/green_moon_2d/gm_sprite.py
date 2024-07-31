@@ -38,11 +38,12 @@ class GMSprite(GMObject):
     @override
     def update(self) -> None:
         self.animation.update()
+        self.move()
 
     @override
     def send_message(self, msg: Any) -> Any:
         """
-        Process messages send to this text object.
+        Process messages send to this sprite.
 
         :param msg: The actual message.
         """
@@ -50,6 +51,23 @@ class GMSprite(GMObject):
         match msg:
             case ("set_animation", GMAnimation() as animation):
                 self.animation = animation
+            case ("set_texture", GMTextureInterface() as texture):
+                self.texture = texture
+            case ("set_angle", float(angle)):
+                self.angle = angle
+            case ("set_scale", float(scale)):
+                self.scale = scale
+            case ("set_flip_x", bool(flip_x)):
+                self.flip_x = flip_x
+            case "toggle_flip_x":
+                self.flip_x = not self.flip_x
+            case ("set_flip_y", bool(flip_y)):
+                self.flip_y = flip_y
+            case "toggle_flip_y":
+                self.flip_y = not self.flip_y
+            case _:
+                # Delegate all other messages to the base class:
+                super().send_message(msg)
 
 
 
