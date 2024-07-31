@@ -6,7 +6,8 @@
 import unittest
 import time
 
-from green_moon_2d.gm_animation import GMAnimType, GMAnimation
+from green_moon_2d.gm_animation import GMAnimation
+from green_moon_2d.gm_math import GMRepetition
 
 
 class TestAnimation(unittest.TestCase):
@@ -19,7 +20,7 @@ class TestAnimation(unittest.TestCase):
             a1 = GMAnimation("empty", [])
             a1.current_frame = 0
 
-    def test_change_type(self):
+    def test_change_repetition(self):
         """
         Test changing the type of the animation.
         """
@@ -28,30 +29,30 @@ class TestAnimation(unittest.TestCase):
         last_frame = len(frames) - 1
         a1 = GMAnimation("anim1", frames)
 
-        self.assertEqual(a1.anim_type, GMAnimType.FORWARD)
+        self.assertEqual(a1.repetition, GMRepetition.FORWARD)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.FORWARD)
+        a1.change_repetition(GMRepetition.FORWARD)
         self.assertEqual(a1.current_frame, 0)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.BACKWARD)
+        a1.change_repetition(GMRepetition.BACKWARD)
         self.assertEqual(a1.current_frame, last_frame)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.FORWARD_LOOP)
+        a1.change_repetition(GMRepetition.FORWARD_LOOP)
         self.assertEqual(a1.current_frame, 0)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.BACKWARD_LOOP)
+        a1.change_repetition(GMRepetition.BACKWARD_LOOP)
         self.assertEqual(a1.current_frame, last_frame)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.PINGPONG_F)
+        a1.change_repetition(GMRepetition.PINGPONG_F)
         self.assertEqual(a1.current_frame, 0)
 
         a1.current_frame = 1
-        a1.change_type(GMAnimType.PINGPONG_B)
+        a1.change_repetition(GMRepetition.PINGPONG_B)
         self.assertEqual(a1.current_frame, last_frame)
 
     def test_get_frame_index(self):
@@ -127,7 +128,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
-        a1.change_type(GMAnimType.BACKWARD)
+        a1.change_repetition(GMRepetition.BACKWARD)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
         self.assertEqual(a1.get_frame_index(), 1)
@@ -164,7 +165,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
-        a1.change_type(GMAnimType.FORWARD_LOOP)
+        a1.change_repetition(GMRepetition.FORWARD_LOOP)
         a1.update()
         self.assertEqual(a1.current_frame, 0)
         self.assertEqual(a1.get_frame_index(), 2)
@@ -201,7 +202,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
-        a1.change_type(GMAnimType.BACKWARD_LOOP)
+        a1.change_repetition(GMRepetition.BACKWARD_LOOP)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
         self.assertEqual(a1.get_frame_index(), 1)
@@ -238,7 +239,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
-        a1.change_type(GMAnimType.PINGPONG_F)
+        a1.change_repetition(GMRepetition.PINGPONG_F)
         a1.update()
         self.assertEqual(a1.current_frame, 0)
         self.assertEqual(a1.get_frame_index(), 2)
@@ -267,7 +268,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 2)
         self.assertEqual(a1.get_frame_index(), 7)
-        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_B)
+        self.assertEqual(a1.repetition, GMRepetition.PINGPONG_B)
 
         time.sleep(0.11)
         a1.update()
@@ -283,7 +284,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 1)
         self.assertEqual(a1.get_frame_index(), 4)
-        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_F)
+        self.assertEqual(a1.repetition, GMRepetition.PINGPONG_F)
 
     def test_update6(self):
         """
@@ -291,7 +292,7 @@ class TestAnimation(unittest.TestCase):
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
-        a1.change_type(GMAnimType.PINGPONG_B)
+        a1.change_repetition(GMRepetition.PINGPONG_B)
         a1.update()
         self.assertEqual(a1.current_frame, 3)
         self.assertEqual(a1.get_frame_index(), 1)
@@ -320,7 +321,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 1)
         self.assertEqual(a1.get_frame_index(), 4)
-        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_F)
+        self.assertEqual(a1.repetition, GMRepetition.PINGPONG_F)
 
         time.sleep(0.21)
         a1.update()
@@ -336,7 +337,7 @@ class TestAnimation(unittest.TestCase):
         a1.update()
         self.assertEqual(a1.current_frame, 2)
         self.assertEqual(a1.get_frame_index(), 7)
-        self.assertEqual(a1.anim_type, GMAnimType.PINGPONG_B)
+        self.assertEqual(a1.repetition, GMRepetition.PINGPONG_B)
 
 
 if __name__ == "__main__":

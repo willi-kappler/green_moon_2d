@@ -27,6 +27,42 @@ class GMAlignment(enum.Enum):
     BTM_RIGHT = enum.auto()
 
 
+class GMRepetition(enum.Enum):
+    """
+    This class defins the various repetition types.
+    FORWARD: Runs something forward once.
+    BACKWARD: Runs something backward once.
+    FORWARD_LOOP: Runs something forward in a loop.
+    BACKWARD_LOOP: Runs something backward in a loop.
+    PINGPONG_F: Runs something forward once and then backward once and then repeats.
+    """
+
+    FORWARD = enum.auto()
+    BACKWARD = enum.auto()
+    FORWARD_LOOP = enum.auto()
+    BACKWARD_LOOP = enum.auto()
+    PINGPONG_F = enum.auto()
+    PINGPONG_B = enum.auto()
+
+    @staticmethod
+    def from_str(repetition: str) -> "GMRepetition":
+        match repetition:
+            case "forward":
+                return GMRepetition.FORWARD
+            case "backward":
+                return GMRepetition.BACKWARD
+            case "loop_forward":
+                return GMRepetition.FORWARD_LOOP
+            case "loop_backward":
+                return GMRepetition.BACKWARD_LOOP
+            case "ping_pong_forward":
+                return GMRepetition.PINGPONG_F
+            case "ping_pong_backward":
+                return GMRepetition.PINGPONG_B
+            case _:
+                raise ValueError(f"GMResources, Unknown repetition: {repetition}")
+
+
 class GMVec2D:
     """
     This class defines a 2D vector.

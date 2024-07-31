@@ -7,9 +7,10 @@ import json
 
 import pygame
 
-from green_moon_2d.gm_animation import GMAnimation, GMAnimType
+from green_moon_2d.gm_animation import GMAnimation
 from green_moon_2d.gm_texture import GMTexture
 from green_moon_2d.gm_font import GMFont
+from green_moon_2d.gm_math import GMRepetition
 
 import logging
 logger = logging.getLogger(__name__)
@@ -90,26 +91,11 @@ class GMResources:
 
         for anim in animations:
             name: str = anim["name"]
-            animation_type: str = anim["animtaion_type"]
+            repetition: str = anim["repetition"]
             frames: list[tuple[int, int]] = anim["frames"]
 
             new_anim = GMAnimation(name, frames)
-
-            match animation_type:
-                case "forward":
-                    new_anim.change_type(GMAnimType.FORWARD)
-                case "backward":
-                    new_anim.change_type(GMAnimType.BACKWARD)
-                case "loop_forward":
-                    new_anim.change_type(GMAnimType.FORWARD_LOOP)
-                case "loop_backward":
-                    new_anim.change_type(GMAnimType.BACKWARD_LOOP)
-                case "ping_pong_forward":
-                    new_anim.change_type(GMAnimType.PINGPONG_F)
-                case "ping_pong_backward":
-                    new_anim.change_type(GMAnimType.PINGPONG_B)
-                case _:
-                    raise ValueError(f"GMResources, Unknown animation type: {animation_type}, name: {name}")
+            new_anim.change_repetition(GMRepetition.from_str(repetition))
 
             self.animations[name] = new_anim
 
