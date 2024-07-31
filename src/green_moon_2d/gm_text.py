@@ -38,7 +38,7 @@ class GMText(GMObject):
         self.alignment: GMAlignment = alignment
 
         match pos:
-            case (x, y):
+            case (float(x), float(y)):
                 self.pos.x = x
                 self.pos.y = y
             case GMVec2D():
@@ -70,6 +70,7 @@ class GMText(GMObject):
                 self.set_text(text)
             case ("set_pos", pos):
                 self.set_pos(pos)
+                self.reset_chars()
             case ("set_font", font):
                 self.set_font(font)
             case ("set_horizontal", bool(horizontal)):
@@ -78,6 +79,9 @@ class GMText(GMObject):
                 self.set_alignment(alignment)
             case "toggle_orientation":
                 self.toggle_orientation()
+            case _:
+                # Delegate to base class:
+                super().send_message(msg)
 
     def reset_chars(self) -> None:
         """
@@ -148,24 +152,6 @@ class GMText(GMObject):
         """
 
         self.text = text
-        self.reset_chars()
-
-    def set_pos(self, pos: tuple[float, float] | GMVec2D) -> None:
-        """
-        Sets the text position.
-
-        :param pos: The new position, must be a tuple of floats or GMVec2D.
-        """
-
-        match pos:
-            case (x, y):
-                self.pos.x = x
-                self.pos.y = y
-            case GMVec2D():
-                self.pos = pos
-            case _:
-                raise ValueError(f"GMText, position must be a tuple of floats or GMVec2D: {pos}")
-
         self.reset_chars()
 
     def set_font(self, font: str | GMFont) -> None:

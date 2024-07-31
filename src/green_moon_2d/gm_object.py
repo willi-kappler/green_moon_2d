@@ -41,8 +41,6 @@ class GMObject:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
-
-        :param context: The current game context.
         """
 
         pass
@@ -51,8 +49,6 @@ class GMObject:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to draw the object.
-
-        :param context: The current game context.
         """
 
         pass
@@ -75,7 +71,58 @@ class GMObject:
         :rtype: Any
         """
 
-        pass
+        match msg:
+            # Properties:
+            case ("set_pos", pos):
+                self.set_pos(pos)
+            case ("set_vel", vel):
+                raise NotImplementedError
+                # TODO: set velocity
+            case ("set_acc", acc):
+                raise NotImplementedError
+                # TODO: set acceleration
+            case ("set_active", bool(active)):
+                self.active = active
+            case ("set_visible", bool(visible)):
+                self.visible = visible
+            case ("set_draw_order", int(order)):
+                self.draw_order = order
+            case ("set_update_order", int(order)):
+                self.update_order = order
+            # Methoda:
+            case "move":
+                self.move()
+            case ("add_group", str(name)):
+                self.add_group(name)
+            case ("remove_group", str(name)):
+                self.remove_group(name)
+            case ("in_group", str(name)):
+                return self.in_group(name)
+            case "clear_groups":
+                self.clear_groups()
+            case ("set_property", str(name), val):
+                self.set_property(name, val)
+            case ("get_property", str(name)):
+                return self.get_property(name)
+            case ("get_property_default", str(name), default):
+                return self.get_property_default(name, default)
+            case ("has_property", str(name)):
+                return self.has_property(name)
+            case "clear_properties":
+                self.clear_properties()
+
+    def set_pos(self, pos: tuple[float, float] | GMVec2D) -> None:
+        """
+        Sets the position of this object.
+        :param pos: Can be a tuple of floats or a GMVec2D.
+        """
+
+        match pos:
+            case GMVec2D():
+                self.pos = pos
+            case (float(x), float(y)):
+                self.pos.x = x
+                self.pos.y = y
 
     def add_group(self, name: str) -> None:
         """
@@ -284,7 +331,7 @@ class GMObjectManager(Iterable):
 
     def update(self) -> None:
         """
-        Updates all the avtive objects. Objects can be sorted by update_order.
+        Updates all the active objects. Objects can be sorted by update_order.
 
         :param context: The current game context.
         """
