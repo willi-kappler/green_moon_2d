@@ -4,8 +4,13 @@ TODO:
 - add custom settings to configuration class.
 - add movement effects.
 - add examples for sprite.
-- check for more keys.
-
+- check for more keys / other input.
+# implement GMObject::send_message() for basic settings.
+- add test cases for GMTexture (GMTextureInterface)
+- add test cases for GMFont
+- add test cases for GMText
+- add test cases for GMSprite
+- add some calculation to GMTextureInterface
 
 Done:
 
@@ -23,5 +28,6 @@ Done:
 # add log messages.
 # add examples for text.
 # add text effects.
+# add GMTextureInterface in order to test GMFont, GMText, GMSprite, etc.
 
 
