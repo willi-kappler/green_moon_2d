@@ -29,7 +29,8 @@ class GMAlignment(enum.Enum):
 
 class GMRepetition(enum.Enum):
     """
-    This class defins the various repetition types.
+    This class defins the various repetition types:
+    FIXED: Does nothing.
     FORWARD: Runs something forward once.
     BACKWARD: Runs something backward once.
     FORWARD_LOOP: Runs something forward in a loop.
@@ -37,6 +38,7 @@ class GMRepetition(enum.Enum):
     PINGPONG_F: Runs something forward once and then backward once and then repeats.
     """
 
+    FIXED = enum.auto()
     FORWARD = enum.auto()
     BACKWARD = enum.auto()
     FORWARD_LOOP = enum.auto()
@@ -47,6 +49,8 @@ class GMRepetition(enum.Enum):
     @staticmethod
     def from_str(repetition: str) -> "GMRepetition":
         match repetition:
+            case "fixed":
+                return GMRepetition.FIXED
             case "forward":
                 return GMRepetition.FORWARD
             case "backward":

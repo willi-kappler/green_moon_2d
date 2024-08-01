@@ -22,7 +22,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_change_repetition(self):
         """
-        Test changing the type of the animation.
+        Test changing the repetition type of the animation.
         """
 
         frames = [(1, 100), (2, 100), (3, 200)]
@@ -30,6 +30,10 @@ class TestAnimation(unittest.TestCase):
         a1 = GMAnimation("anim1", frames)
 
         self.assertEqual(a1.repetition, GMRepetition.FORWARD)
+
+        a1.current_frame = 1
+        a1.change_repetition(GMRepetition.FIXED)
+        self.assertEqual(a1.current_frame, 0)
 
         a1.current_frame = 1
         a1.change_repetition(GMRepetition.FORWARD)
@@ -88,7 +92,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update1(self):
         """
-        Test updating the animation with FORWARD type.
+        Test updating the animation with FORWARD repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -124,7 +128,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update2(self):
         """
-        Test updating the animation with BACKWARD type.
+        Test updating the animation with BACKWARD repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -161,7 +165,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update3(self):
         """
-        Test updating the animation with FORWARD_LOOP type.
+        Test updating the animation with FORWARD_LOOP repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -198,7 +202,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update4(self):
         """
-        Test updating the animation with BACKWARD_LOOP type.
+        Test updating the animation with BACKWARD_LOOP repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -235,7 +239,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update5(self):
         """
-        Test updating the animation with PINGPONG_F type.
+        Test updating the animation with PINGPONG_F repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -288,7 +292,7 @@ class TestAnimation(unittest.TestCase):
 
     def test_update6(self):
         """
-        Test updating the animation with PINGPONG_B type.
+        Test updating the animation with PINGPONG_B repetition.
         """
 
         a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
@@ -338,6 +342,37 @@ class TestAnimation(unittest.TestCase):
         self.assertEqual(a1.current_frame, 2)
         self.assertEqual(a1.get_frame_index(), 7)
         self.assertEqual(a1.repetition, GMRepetition.PINGPONG_B)
+
+    def test_update7(self):
+        """
+        Test updating the animation with FIXED repetition.
+        """
+
+        a1 = GMAnimation("anim1", [(2, 100), (4, 200), (7, 100), (1, 200)])
+        a1.change_repetition(GMRepetition.FIXED)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.10)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.11)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
+
+        time.sleep(0.21)
+        a1.update()
+        self.assertEqual(a1.current_frame, 0)
+        self.assertEqual(a1.get_frame_index(), 2)
 
 
 if __name__ == "__main__":

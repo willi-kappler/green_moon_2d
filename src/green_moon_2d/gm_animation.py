@@ -51,6 +51,9 @@ class GMAnimation:
 
         if self.active and self.timer.finished():
             match self.repetition:
+                case GMRepetition.FIXED:
+                    # Nothing to do.
+                    pass
                 case GMRepetition.FORWARD:
                     self.current_frame += 1
                     if self.current_frame >= len(self.frames):
@@ -88,6 +91,17 @@ class GMAnimation:
                         self.repetition = GMRepetition.PINGPONG_F
                     self.set_timer_duration()
 
+    def finished(self) -> bool:
+        match self.repetition:
+            case GMRepetition.FIXED:
+                return True
+            case GMRepetition.FORWARD:
+                return self.current_frame == (len(self.frames) - 1)
+            case GMRepetition.BACKWARD:
+                return self.current_frame == 0
+            case _:
+                return False
+
     def change_repetition(self, repetition: GMRepetition) -> None:
         """
         Change the type of this animation.
@@ -99,9 +113,9 @@ class GMAnimation:
 
         logger.debug(f"Change animation repetition: {repetition}.")
 
-        self.repetition = repetition
-
         match repetition:
+            case GMRepetition.FIXED:
+                self.current_frame = 0
             case GMRepetition.FORWARD:
                 self.current_frame = 0
             case GMRepetition.BACKWARD:
@@ -117,6 +131,7 @@ class GMAnimation:
                 self.current_frame = len(self.frames) - 1
                 assert (len(self.frames) > 1)
 
+        self.repetition = repetition
         self.active = True
         self.set_timer_duration()
 
