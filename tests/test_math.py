@@ -110,25 +110,15 @@ class TestCircle(unittest.TestCase):
 
         c1 = gmath.GMCircle(5.0, 5.0, 2.0)
 
-        self.assertEqual(c1.orbitCircle(0.0), gmath.GMVec2D(7.0, 5.0))
-        self.assertEqual(c1.orbitCircle(90.0), gmath.GMVec2D(5.0, 7.0))
-        self.assertEqual(c1.orbitCircle(180.0), gmath.GMVec2D(3.0, 5.0))
-        self.assertEqual(c1.orbitCircle(270.0), gmath.GMVec2D(5.0, 3.0))
-        self.assertEqual(c1.orbitCircle(360.0), gmath.GMVec2D(7.0, 5.0))
-        self.assertEqual(c1.orbitCircle(-90.0), gmath.GMVec2D(5.0, 3.0))
-        self.assertEqual(c1.orbitCircle(-180.0), gmath.GMVec2D(3.0, 5.0))
-        self.assertEqual(c1.orbitCircle(-270.0), gmath.GMVec2D(5.0, 7.0))
-        self.assertEqual(c1.orbitCircle(-360.0), gmath.GMVec2D(7.0, 5.0))
-
-        self.assertTupleClose(c1.orbitTuple(0.0), (7.0, 5.0))
-        self.assertTupleClose(c1.orbitTuple(90.0), (5.0, 7.0))
-        self.assertTupleClose(c1.orbitTuple(180.0), (3.0, 5.0))
-        self.assertTupleClose(c1.orbitTuple(270.0), (5.0, 3.0))
-        self.assertTupleClose(c1.orbitTuple(360.0), (7.0, 5.0))
-        self.assertTupleClose(c1.orbitTuple(-90.0), (5.0, 3.0))
-        self.assertTupleClose(c1.orbitTuple(-180.0), (3.0, 5.0))
-        self.assertTupleClose(c1.orbitTuple(-270.0), (5.0, 7.0))
-        self.assertTupleClose(c1.orbitTuple(-360.0), (7.0, 5.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, 0.0), (7.0, 5.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, 90.0), (5.0, 7.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, 180.0), (3.0, 5.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, 270.0), (5.0, 3.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, 360.0), (7.0, 5.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, -90.0), (5.0, 3.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, -180.0), (3.0, 5.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, -270.0), (5.0, 7.0))
+        self.assertTupleClose(gmath.gm_orbit_circle3(c1, -360.0), (7.0, 5.0))
 
 
 if __name__ == "__main__":

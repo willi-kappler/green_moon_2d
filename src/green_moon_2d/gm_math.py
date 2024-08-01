@@ -251,31 +251,31 @@ class GMCircle:
             case _:
                 raise ValueError(f"Point must be a GMVec2D or a tuple of floats: {point}")
 
-    def orbitTuple(self, angle: float) -> tuple[float, float]:
-        """
-        Returns the coordinates of a point orbiting this circle.
 
-        :param angle: The angle in degrees for the point.
-        :return: A tuple of tqo floats of the orbiting point.
-        :rtype: tuple[float, float]
-        """
+def gm_orbit_circle1(x: float, y: float, r: float, angle: float) -> tuple[float, float]:
+    """
+    Returns the coordinates of a point orbiting a circle.
 
-        rad = math.radians(angle)
-        px = self.cx + (self.r * math.cos(rad))
-        py = self.cy + (self.r * math.sin(rad))
-        return (px, py)
+    :param x: X position of the circle center.
+    :param y: Y position of the circle center.
+    :param r: The radius of the circle.
+    :param angle: The angle of the point around the circle.
+    :return: A tuple of floats with the x and y coordinates of the point.
+    :rtype: tuple[float, float]
+    """
 
-    def orbitCircle(self, angle: float) -> GMVec2D:
-        """
-        Returns the coordinates of a point orbiting this circle.
+    rad = math.radians(angle)
+    px = x + (r * math.cos(rad))
+    py = y + (r * math.sin(rad))
+    return (px, py)
 
-        :param angle: The angle in degrees for the point.
-        :return: A vector of the orbiting point.
-        :rtype: GMVec2D
-        """
 
-        (px, py) = self.orbitTuple(angle)
-        return GMVec2D(px, py)
+def gm_orbit_circle2(pos: GMVec2D, r: float, angle: float) -> tuple[float, float]:
+    return gm_orbit_circle1(pos.x, pos.y, r, angle)
+
+
+def gm_orbit_circle3(circle: GMCircle, angle: float) -> tuple[float, float]:
+    return gm_orbit_circle1(circle.cx, circle.cy, circle.r, angle)
 
 
 
