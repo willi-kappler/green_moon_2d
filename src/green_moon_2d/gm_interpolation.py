@@ -4,6 +4,7 @@
 # See: https://github.com/willi-kappler/green_moon_2d
 
 from typing import Any, override
+import math
 
 from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_math import GMRepetition
@@ -14,7 +15,7 @@ def gm_curve_linear(x: float) -> float:
 
 
 class GMInterpolate(GMObject):
-    def __init__(self, name: str, start, end, speed: float, current_step: float):
+    def __init__(self, name: str, start, end, speed: float = 0.1, current_step: float = 0.0):
         super().__init__(name)
 
         self.start = start
@@ -53,8 +54,15 @@ class GMInterpolate(GMObject):
         # TODO: implement send_message
 
     def is_finished(self) -> bool:
-        raise NotImplementedError
-        # TODO: implement is_finished
+        match self.repetition:
+            case GMRepetition.FIXED:
+                return True
+            case GMRepetition.FORWARD:
+                return math.isclose(self.current_step, 1.0)
+            case GMRepetition.BACKWARD:
+                return math.isclose(self.current_step, 0.0)
+            case _:
+                return False
 
 
 
