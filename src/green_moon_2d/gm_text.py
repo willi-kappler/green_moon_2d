@@ -347,6 +347,48 @@ class GMTextEffect1(GMText):
             self.scale_values.append(1.0)
             self.jitter_positions.append((0.0, 0.0))
 
+    def send_message(self, msg: Any) -> Any:
+        match msg:
+            case ("effect_sine", bool(active)):
+                self.effect_sine = active
+            case ("effect_rotate", bool(active)):
+                self.effect_rotate = active
+            case ("effect_scale", bool(active)):
+                self.effect_scale = active
+            case ("effect_jitter", bool(active)):
+                self.effect_jitter = active
+            case "toggle_sine":
+                self.toggle_sine()
+            case "toggle_rotate":
+                self.toggle_rotate()
+            case "toggle_scale":
+                self.toggle_scale()
+            case "toggle_jitter":
+                self.toggle_jitter()
+            case ("set_sine_amplitude", float(amplitude)):
+                self.sine_amplitude = amplitude
+            case ("set_sine_frequency", float(frequency)):
+                self.sine_frequency = frequency
+            case ("set_sine_offset", float(offset)):
+                self.sine_offset = offset
+            case ("set_rotate_frequency", float(frequency)):
+                self.rotate_frequency = frequency
+            case ("set_rotate_offset", float(offset)):
+                self.rotate_offset = offset
+            case ("set_scale_amplitude", float(amplitude)):
+                self.scale_amplitude = amplitude
+            case ("set_scale_frequency", float(frequency)):
+                self.frequency = frequency
+            case ("set_scale_offset", float(offset)):
+                self.scale_offset = offset
+            case ("set_jitter_radius", float(radius)):
+                self.jitter_radius = radius
+            case ("set_jitter_timer", int(duration)):
+                self.jitter_timer.set_duration(duration)
+            case _:
+                # Delegate all other messages to the base class:
+                super().send_message(msg)
+
     def toggle_sine(self):
         """
         Turn the sine effect on or off.
