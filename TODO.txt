@@ -10,7 +10,8 @@ TODO:
 - add test cases for GMText.
 - add test cases for GMSprite.
 - add some calculation to GMTextureInterface.
-- rename GMObject to GMGFXObject and create a new simple GMObject as a base.
+- add text case for object.move.(dt)
+(rename GMObject to GMGFXObject and create a new simple GMObject as a base.)
 
 
 
