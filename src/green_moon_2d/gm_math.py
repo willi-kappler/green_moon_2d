@@ -139,6 +139,19 @@ class GMVec2D:
             case _:
                 raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
 
+    def __mul__(self, other: float) -> Self:
+        """
+        Multiplies a value with the x and y component of this vector, returns a new vector.
+        :param other: The factor to multiply with, float.
+        :return: The new scaled vector.
+        :rtype: GMVec2D
+        """
+
+        x = self.x * other
+        y = self.y * other
+        cls = type(self)
+        return cls(x, y)
+
 
 class GMCircle:
     """

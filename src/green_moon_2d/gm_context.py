@@ -28,7 +28,6 @@ class GMContext:
         self.game_property: dict[str, Any] = {}
         self.quit_game: bool = False
         self.screen: Any = None
-        self.dt: int = 0
         self.keys_up = set()
         self.keys_down = set()
 

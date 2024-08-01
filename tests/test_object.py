@@ -18,7 +18,7 @@ class TestObject(GMObject):
         self.properties["draw_called"] = 0
 
     @override
-    def update(self):
+    def update(self, dt: float):
         self.properties["update_called"] += 1
 
     @override
@@ -179,13 +179,13 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
-        self.om.update()
+        self.om.update(0.0)
 
         self.assertObjectProperty("test1", "update_called", 1)
         self.assertObjectProperty("test2", "update_called", 1)
 
         self.om.add(TestObject("test3"))
-        self.om.update()
+        self.om.update(0.0)
 
         self.assertObjectProperty("test1", "update_called", 2)
         self.assertObjectProperty("test2", "update_called", 2)

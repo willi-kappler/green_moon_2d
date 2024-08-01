@@ -238,17 +238,17 @@ class GMTextEffect1(GMText):
 
         # Sine effect settings:
         self.sine_amplitude: float = 20.0
-        self.sine_frequency: float = 0.1
+        self.sine_frequency: float = 0.006
         self.sine_offset: float = 0.4
         self.sine_dt: float = 0.0
 
         # Rotate effect settings:
-        self.rotate_frequency: float = 2.0
+        self.rotate_frequency: float = 0.08
         self.rotate_offset: float = 2.0
         self.rotate_dt: float = 0.0
 
         self.scale_amplitude: float = 0.4
-        self.scale_frequency: float = 0.1
+        self.scale_frequency: float = 0.006
         self.scale_offset: float = 0.1
         self.scale_dt: float = 0.0
 
@@ -258,7 +258,7 @@ class GMTextEffect1(GMText):
         self.chars_copy = self.chars.copy()
 
     @override
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         """
         Updates all the text effects.
         """
@@ -267,7 +267,7 @@ class GMTextEffect1(GMText):
         offset: float = 0.0
 
         if self.effect_sine:
-            self.sine_dt = self.sine_dt + self.sine_frequency
+            self.sine_dt = self.sine_dt + (self.sine_frequency * dt)
             if self.sine_dt > math.tau:
                 self.sine_dt = self.sine_dt - math.tau
 
@@ -283,7 +283,7 @@ class GMTextEffect1(GMText):
                     self.chars[j] = (nx, y, i)
 
         if self.effect_rotate:
-            self.rotate_dt = self.rotate_dt + self.rotate_frequency
+            self.rotate_dt = self.rotate_dt + (self.rotate_frequency * dt)
             if self.rotate_dt > 360.0:
                 self.rotate_dt = self.rotate_dt - 360.0
             elif self.rotate_dt < -360.0:
@@ -296,7 +296,7 @@ class GMTextEffect1(GMText):
                 offset = offset + self.rotate_offset
 
         if self.effect_scale:
-            self.scale_dt = self.scale_dt + self.scale_frequency
+            self.scale_dt = self.scale_dt + (self.scale_frequency * dt)
             if self.scale_dt > math.tau:
                 self.scale_dt = self.scale_dt - math.tau
 

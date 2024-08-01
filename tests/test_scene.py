@@ -21,7 +21,7 @@ class TestScene(GMScene):
         self.custom_property["send_message_value"] = None
 
     @override
-    def update(self):
+    def update(self, dt: float):
         self.custom_property["update_called"] += 1
 
     @override
@@ -251,11 +251,11 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneUpdate("test1", 0)
         self.assertSceneUpdate("test2", 0)
 
-        self.sm.update()
+        self.sm.update(0.0)
         self.assertSceneUpdate("test1", 1)
         self.assertSceneUpdate("test2", 0)
         self.sm.change_to_scene("test2")
-        self.sm.update()
+        self.sm.update(0.0)
         self.assertSceneUpdate("test1", 1)
         self.assertSceneUpdate("test2", 1)
 
@@ -290,7 +290,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneUpdate("test2", 0)
 
         self.sm.push_and_change("test2")
-        self.sm.update_stack_top()
+        self.sm.update_stack_top(0.0)
 
         self.assertSceneUpdate("test1", 1)
         self.assertSceneUpdate("test2", 0)
@@ -323,12 +323,12 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneUpdate("test1", 0)
         self.assertSceneUpdate("test2", 0)
 
-        self.sm.update_scene("test2")
+        self.sm.update_scene("test2", 0.0)
 
         self.assertSceneUpdate("test1", 0)
         self.assertSceneUpdate("test2", 1)
 
-        self.sm.update_scene("test1")
+        self.sm.update_scene("test1", 0.0)
 
         self.assertSceneUpdate("test1", 1)
         self.assertSceneUpdate("test2", 1)

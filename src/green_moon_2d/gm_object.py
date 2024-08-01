@@ -38,10 +38,11 @@ class GMObject:
         self.groups: set[str] = set()
         self.properties: dict[str, Any] = {}
 
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
+        :param :dt The time in ms since the previous frame.
         """
 
         pass
@@ -54,14 +55,14 @@ class GMObject:
 
         pass
 
-    def move(self) -> None:
+    def move(self, dt: float) -> None:
         """
         This method can be called once per frame if needed.
         It moves this object according to the given velocity and acceleration.
         """
 
-        self.vel += self.acc
-        self.pos += self.vel
+        self.vel = self.vel + (self.acc * dt)
+        self.pos = self.pos + (self.vel * dt)
 
     def send_message(self, msg: Any) -> Any:
         """
@@ -93,8 +94,8 @@ class GMObject:
             case ("set_update_order", int(order)):
                 self.update_order = order
             # Methoda:
-            case "move":
-                self.move()
+            case ("move", float(dt)):
+                self.move(dt)
             case ("add_group", str(name)):
                 self.add_group(name)
             case ("remove_group", str(name)):
@@ -359,7 +360,7 @@ class GMObjectManager(Iterable):
 
         return self.objects[index]
 
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         """
         Updates all the active objects. Objects can be sorted by update_order.
 
@@ -368,7 +369,7 @@ class GMObjectManager(Iterable):
 
         for o in self.objects:
             if o.active:
-                o.update()
+                o.update(dt)
 
     def draw(self) -> None:
         """

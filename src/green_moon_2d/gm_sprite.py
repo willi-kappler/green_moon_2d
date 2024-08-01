@@ -33,9 +33,9 @@ class GMSprite(GMObject):
         self.texture.draw_p_opt(self.pos, index, self.angle, self.scale, self.flip_x, self.flip_y)
 
     @override
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         self.animation.update()
-        self.move()
+        self.move(dt)
 
     @override
     def send_message(self, msg: Any) -> Any:

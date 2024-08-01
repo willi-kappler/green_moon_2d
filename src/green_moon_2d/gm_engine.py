@@ -47,14 +47,15 @@ class GMEngine:
         GMGlobalScenes.start_scene(self.first_scene)
 
         clock = pygame.time.Clock()
+        dt: float = 0.0
 
         while not GMGlobalContext.quit_game:
             GMGlobalContext.update_input()
-            GMGlobalScenes.update()
+            GMGlobalScenes.update(dt)
             GMGlobalContext.clear_screen()
             GMGlobalScenes.draw()
             pygame.display.flip()
-            GMGlobalContext.dt = clock.tick(GMGlobalConfig.fps)
+            dt = float(clock.tick(GMGlobalConfig.fps))
 
         GMGlobalConfig.save_config()
         pygame.quit()

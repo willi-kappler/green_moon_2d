@@ -43,7 +43,7 @@ class ExampleScene(GMScene):
             self.initialized = True
 
     @override
-    def update(self):
+    def update(self, dt: float):
         keys_up = gme.GMGlobalContext.keys_up
         keys_down = gme.GMGlobalContext.keys_down
 

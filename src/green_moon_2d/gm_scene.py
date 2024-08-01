@@ -31,10 +31,11 @@ class GMScene:
         self.initialized: bool = False
         self.custom_property: dict[str, Any] = {}
 
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         """
         This method is called once per frame and is used to update the
         internal state of the scene. You have to implement this method.
+        :param :dt The time in ms since the previous frame.
         """
 
         pass
@@ -84,12 +85,13 @@ class GMSceneManager:
         self.current_scene: GMScene = GMScene("empty")
         self.scene_stack: list[GMScene] = []
 
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         """
         Updates the current scene. This method is called by the engine once per frame.
+        :param :dt The time in ms since the previous frame.
         """
 
-        self.current_scene.update()
+        self.current_scene.update(dt)
 
     def draw(self) -> None:
         """
@@ -179,12 +181,12 @@ class GMSceneManager:
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
 
-    def update_stack_top(self):
+    def update_stack_top(self, dt: float):
         """
         Update the scene that is on top of the stack.
         """
 
-        self.scene_stack[-1].update()
+        self.scene_stack[-1].update(dt)
 
     def draw_stack_top(self):
         """
@@ -193,14 +195,14 @@ class GMSceneManager:
 
         self.scene_stack[-1].draw()
 
-    def update_scene(self, name: str):
+    def update_scene(self, name: str, dt: float):
         """
         Update the specific scene given by the name.
 
         :param name: The name of the scene to be updated.
         """
 
-        self.scenes[name].update()
+        self.scenes[name].update(dt)
 
     def draw_scene(self, name: str):
         """

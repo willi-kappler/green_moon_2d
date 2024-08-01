@@ -44,7 +44,7 @@ class GMInterpolate(GMObject):
         self.current_value = self.start
 
     @override
-    def update(self) -> None:
+    def update(self, dt: float) -> None:
         raise NotImplementedError
         # TODO: implement update
 

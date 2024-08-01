@@ -36,7 +36,7 @@ class ExampleScene(GMScene):
             self.initialized = True
 
     @override
-    def update(self):
+    def update(self, dt: float):
         keys_down = gme.GMGlobalContext.keys_down
 
         if "ESC" in keys_down:
