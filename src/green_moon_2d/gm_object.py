@@ -93,7 +93,7 @@ class GMObject:
                 self.draw_order = order
             case ("set_update_order", int(order)):
                 self.update_order = order
-            # Methoda:
+            # Methods:
             case ("move", float(dt)):
                 self.move(dt)
             case ("add_group", str(name)):
