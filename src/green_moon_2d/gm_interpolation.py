@@ -45,13 +45,41 @@ class GMInterpolate(GMObject):
 
     @override
     def update(self, dt: float) -> None:
-        raise NotImplementedError
-        # TODO: implement update
+        match self.repetition:
+            case GMRepetition.FIXED:
+                pass
+            case GMRepetition.FORWARD:
+                pass
+            case GMRepetition.BACKWARD:
+                pass
+            case GMRepetition.FORWARD_LOOP:
+                pass
+            case GMRepetition.BACKWARD_LOOP:
+                pass
+            case GMRepetition.PINGPONG_F:
+                pass
+            case GMRepetition.PINGPONG_B:
+                pass
 
     @override
     def send_message(self, msg: Any) -> Any:
-        raise NotImplementedError
-        # TODO: implement send_message
+        match msg:
+            case ("set_start", start):
+                self.start = start
+                self.calculate_diff()
+            case ("set_end", end):
+                self.end = end
+                self.calculate_diff()
+            case ("set_speed", float(speed)):
+                self.speed = speed
+            case ("set_repetition", GMRepetition() as repetition):
+                self.set_repetition(repetition)
+            case ("set_curve", curve):
+                self.curve = curve
+            case "is_finished":
+                return self.is_finished()
+            case _:
+                super().send_message(msg)
 
     def is_finished(self) -> bool:
         match self.repetition:
@@ -60,11 +88,12 @@ class GMInterpolate(GMObject):
             case GMRepetition.FORWARD:
                 return math.isclose(self.current_step, 1.0)
             case GMRepetition.BACKWARD:
-                return math.isclose(self.current_step, 0.0)
+                return math.isclose(self.current_step, 1.0)
             case _:
                 return False
 
-
+    def set_repetition(self, repetition: GMRepetition) -> None:
+        pass
 
 
 
