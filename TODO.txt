@@ -11,7 +11,6 @@ TODO:
 - add test cases for GMSprite.
 - add some calculation to GMTextureInterface.
 - rename GMObject to GMGFXObject and create a new simple GMObject as a base.
-- add "fixed" to GMRepetition.
 
 
 
@@ -33,5 +32,6 @@ Done:
 # add text effects.
 # add GMTextureInterface in order to test GMFont, GMText, GMSprite, etc.
 # implement GMObject::send_message() for basic settings.
+# add "fixed" to GMRepetition.
 
 
