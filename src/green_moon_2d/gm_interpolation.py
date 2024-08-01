@@ -14,6 +14,25 @@ def gm_curve_linear(x: float) -> float:
     return x
 
 
+def gm_curve_x2_up(x: float) -> float:
+    return x*x
+
+
+def gm_curve_x2_down(x: float) -> float:
+    return 1 - (x*x)
+
+
+def gm_curve_slope_in_out(x: float) -> float:
+    if x < 0.5:
+        return math.pow(x, 4.0) * 8.0
+    else:
+        return 1.0 - (math.pow(x - 1.0, 4.0) * 8.0)
+
+
+def gm_curve_sinus(x: float) -> float:
+    return (math.sin((x * math.pi) - (math.pi / 2.0)) + 1.0) / 2.0
+
+
 class GMInterpolate(GMObject):
     def __init__(self, name: str, start, end, speed: float = 0.1, current_step: float = 0.0):
         super().__init__(name)
@@ -47,19 +66,38 @@ class GMInterpolate(GMObject):
     def update(self, dt: float) -> None:
         match self.repetition:
             case GMRepetition.FIXED:
+                # Nothing to do.
                 pass
             case GMRepetition.FORWARD:
-                pass
+                if self.current_step < 1.0:
+                    self.current_step = self.current_step + (self.speed * dt)
+                    if self.current_step > 1.0:
+                        self.current_step = 1.0
             case GMRepetition.BACKWARD:
-                pass
+                if self.current_step > 0.0:
+                    self.current_step = self.current_step - (self.speed * dt)
+                    if self.current_step < 0.0:
+                        self.current_step = 0.0
             case GMRepetition.FORWARD_LOOP:
-                pass
+                self.current_step = self.current_step + (self.speed * dt)
+                if self.current_step > 1.0:
+                    self.current_step = 0.0
             case GMRepetition.BACKWARD_LOOP:
-                pass
+                self.current_step = self.current_step - (self.speed * dt)
+                if self.current_step < 0.0:
+                    self.current_step = 1.0
             case GMRepetition.PINGPONG_F:
-                pass
+                self.current_step = self.current_step + (self.speed * dt)
+                if self.current_step > 1.0:
+                    self.current_step = 1.0
+                    self.repetition = GMRepetition.PINGPONG_B
             case GMRepetition.PINGPONG_B:
-                pass
+                self.current_step = self.current_step - (self.speed * dt)
+                if self.current_step < 0.0:
+                    self.current_step = 0.0
+                    self.repetition = GMRepetition.PINGPONG_F
+
+        self.calculate_value()
 
     @override
     def send_message(self, msg: Any) -> Any:
@@ -88,12 +126,29 @@ class GMInterpolate(GMObject):
             case GMRepetition.FORWARD:
                 return math.isclose(self.current_step, 1.0)
             case GMRepetition.BACKWARD:
-                return math.isclose(self.current_step, 1.0)
+                return math.isclose(self.current_step, 0.0)
             case _:
                 return False
 
     def set_repetition(self, repetition: GMRepetition) -> None:
-        pass
+        match repetition:
+            case GMRepetition.FIXED:
+                self.current_step = 0.0
+            case GMRepetition.FORWARD:
+                self.current_step = 0.0
+            case GMRepetition.BACKWARD:
+                self.current_step = 1.0
+            case GMRepetition.FORWARD_LOOP:
+                self.current_step = 0.0
+            case GMRepetition.BACKWARD_LOOP:
+                self.current_step = 1.0
+            case GMRepetition.PINGPONG_F:
+                self.current_step = 0.0
+            case GMRepetition.PINGPONG_B:
+                self.current_step = 1.0
+
+        self.repetition = repetition
+
 
 
 
