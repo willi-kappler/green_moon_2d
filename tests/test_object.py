@@ -8,6 +8,7 @@ import unittest
 from typing import Any, override
 
 from green_moon_2d.gm_object import GMObject, GMObjectManager
+# from green_moon_2d.gm_math import GMVec2D
 
 
 class TestObject(GMObject):
@@ -24,11 +25,6 @@ class TestObject(GMObject):
     @override
     def draw(self):
         self.properties["draw_called"] += 1
-
-    @override
-    def send_message(self, msg: Any) -> Any:
-        if isinstance(msg, str):
-            self.properties["message"] = msg
 
 
 class TestObjectManager(unittest.TestCase):
@@ -212,17 +208,17 @@ class TestObjectManager(unittest.TestCase):
 
     def test_send_message1(self):
         """
-        Test sending message to an object.
+        Test sending a message to an object.
         """
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
-        self.om.send_message("test1", "alpha_message")
+        self.om.send_message("test1", ("set_property", "message", "alpha_message"))
         self.assertObjectProperty("test1", "message", "alpha_message")
 
     def test_send_message2(self):
         """
-        Test sending message to an unknown object.
+        Test sending a message to an unknown object.
         """
         self.om.add(TestObject("test1"))
 
@@ -646,6 +642,91 @@ class TestObjectManager(unittest.TestCase):
         self.assertFalse(self.om.has_property("test3", "fuel"))
         self.assertFalse(self.om.has_property("test3", "ammo"))
 
+    def test_object_move(self):
+        """
+        Test moving an object around.
+        """
+
+        o = TestObject("test1")
+        o.pos.x = 50.0
+        o.pos.y = 70.0
+        o.vel.x = 2.0
+        o.vel.y = 5.0
+        o.acc.x = 0.5
+        o.acc.y = -10.0
+
+        o.move(1.0)
+
+        self.assertAlmostEqual(o.vel.x, 2.5)
+        self.assertAlmostEqual(o.vel.y, -5.0)
+        self.assertAlmostEqual(o.pos.x, 52.5)
+        self.assertAlmostEqual(o.pos.y, 65.0)
+
+        o.move(2.0)
+
+        self.assertAlmostEqual(o.vel.x, 3.5)
+        self.assertAlmostEqual(o.vel.y, -25.0)
+        self.assertAlmostEqual(o.pos.x, 59.5)
+        self.assertAlmostEqual(o.pos.y, 15.0)
+
+    def test_object_send_message1(self):
+        """
+        Test sending messages to an object.
+        """
+
+        o = TestObject("test1")
+
+        o.send_message(("set_pos", (3.5, -7.2)))
+        self.assertAlmostEqual(o.pos.x, 3.5)
+        self.assertAlmostEqual(o.pos.y, -7.2)
+
+        o.send_message(("set_vel", (1.7, 9.9)))
+        self.assertAlmostEqual(o.vel.x, 1.7)
+        self.assertAlmostEqual(o.vel.y, 9.9)
+
+        o.send_message(("set_acc", (12.3, -0.8)))
+        self.assertAlmostEqual(o.acc.x, 12.3)
+        self.assertAlmostEqual(o.acc.y, -0.8)
+
+        o.send_message(("set_active", True))
+        self.assertTrue(o.active)
+
+        o.send_message(("set_active", False))
+        self.assertFalse(o.active)
+
+        o.send_message("toggle_active")
+        self.assertTrue(o.active)
+        o.send_message("toggle_active")
+        self.assertFalse(o.active)
+
+        o.send_message(("set_visible", True))
+        self.assertTrue(o.visible)
+
+        o.send_message(("set_visible", False))
+        self.assertFalse(o.visible)
+
+        o.send_message("toggle_visible")
+        self.assertTrue(o.visible)
+        o.send_message("toggle_visible")
+        self.assertFalse(o.visible)
+
+        o.send_message(("set_draw_order", 3))
+        self.assertEqual(o.draw_order, 3)
+
+        o.send_message(("set_update_order", 5))
+        self.assertEqual(o.update_order, 5)
+
+    def test_object_send_message2(self):
+        """
+        Test sending messages to an object.
+        """
+
+        o = TestObject("test1")
+
+        o.send_message(("move", 2.0))
+
+        # TODO: send various messages.
+        raise NotImplementedError
 
 #    def test_(self):
 #        """
@@ -656,3 +737,4 @@ class TestObjectManager(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
