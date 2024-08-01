@@ -5,12 +5,16 @@ TODO:
 - add movement effects.
 - add examples for sprite.
 - check for more keys / other input.
-- add test cases for GMTexture (GMTextureInterface).
-- add test cases for GMFont.
 - add test cases for GMText.
 - add test cases for GMSprite.
-- add some calculation to GMTextureInterface.
-- add text case for object.move.(dt)
+- add test cases for sending messages to an object.
+
+
+Maybe:
+
+(add test cases for GMFont.)
+(add test cases for GMTexture (GMTextureInterface).)
+(add some calculation to GMTextureInterface.)
 (rename GMObject to GMGFXObject and create a new simple GMObject as a base.)
 
 
@@ -34,5 +38,7 @@ Done:
 # add GMTextureInterface in order to test GMFont, GMText, GMSprite, etc.
 # implement GMObject::send_message() for basic settings.
 # add "fixed" to GMRepetition.
+# add text case for object.move.(dt)
+# add more messages to send_message in GMTextEffect1.
 
 
