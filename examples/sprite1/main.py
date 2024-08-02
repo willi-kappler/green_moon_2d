@@ -21,7 +21,7 @@ class ExampleScene(GMScene):
         super().__init__("ExampleScene")
 
     @override
-    def enter(self):
+    def enter(self) -> None:
         if not self.initialized:
             self.om = GMObjectManager()
 
@@ -35,8 +35,8 @@ class ExampleScene(GMScene):
             self.initialized = True
 
     @override
-    def update(self):
-        self.om.update()
+    def update(self, dt: float) -> None:
+        self.om.update(dt)
 
         keys_down = gme.GMGlobalContext.keys_down
 
@@ -45,11 +45,12 @@ class ExampleScene(GMScene):
 
 
     @override
-    def draw(self):
+    def draw(self) -> None:
+        gme.GMGlobalContext.clear_screen()
         self.om.draw()
 
 
-def main():
+def main() -> None:
     logging.basicConfig(filename="example.log", level=logging.DEBUG)
     logging.info("This is the example sprite1.")
 

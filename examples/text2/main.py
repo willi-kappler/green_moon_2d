@@ -20,7 +20,7 @@ class ExampleScene(GMScene):
         super().__init__("ExampleScene")
 
     @override
-    def enter(self):
+    def enter(self) -> None:
         if not self.initialized:
             resources = gme.GMGlobalResources
             font = resources.get_font("font_cuddly")
@@ -43,7 +43,7 @@ class ExampleScene(GMScene):
             self.initialized = True
 
     @override
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         keys_up = gme.GMGlobalContext.keys_up
         keys_down = gme.GMGlobalContext.keys_down
 
@@ -81,11 +81,12 @@ class ExampleScene(GMScene):
             self.demo_text.toggle_orientation()
 
     @override
-    def draw(self):
+    def draw(self) -> None:
+        gme.GMGlobalContext.clear_screen()
         self.om.draw()
 
 
-def main():
+def main() -> None:
     logging.basicConfig(filename="example.log", level=logging.DEBUG)
     logging.info("This is the example text2.")
 

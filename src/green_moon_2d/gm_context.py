@@ -65,7 +65,7 @@ class GMContext:
 
         return name in self.game_property
 
-    def toggle_fullscreen(self):
+    def toggle_fullscreen(self) -> None:
         """
         Toggle between fullscreen and windowed mode.
         """
@@ -74,14 +74,15 @@ class GMContext:
 
         pygame.display.toggle_fullscreen()
 
-    def clear_screen(self):
+    def clear_screen(self, color=0) -> None:
         """
-        Clears the screen with black color.
+        Clears the screen with the given color (default is black).
         """
 
-        self.screen.fill("black")
+        # Fill with black color
+        self.screen.fill(color)
 
-    def update_input(self):
+    def update_input(self) -> None:
         """
         Checks for user input
         """

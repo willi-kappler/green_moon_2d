@@ -27,7 +27,7 @@ class GMEngine:
         self.first_scene = first_scene
         GMGlobalConfig.load_config(config_file)
 
-    def run(self):
+    def run(self) -> None:
         """
         Starts the engine and runs the game loop.
         """
@@ -52,7 +52,6 @@ class GMEngine:
         while not GMGlobalContext.quit_game:
             GMGlobalContext.update_input()
             GMGlobalScenes.update(dt)
-            GMGlobalContext.clear_screen()
             GMGlobalScenes.draw()
             pygame.display.flip()
             dt = float(clock.tick(GMGlobalConfig.fps))

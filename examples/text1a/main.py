@@ -19,7 +19,7 @@ class ExampleScene(GMScene):
         super().__init__("ExampleScene")
 
     @override
-    def enter(self):
+    def enter(self) -> None:
         if not self.initialized:
             resources = gme.GMGlobalResources
             self.font1 = resources.get_font("font_cuddly")
@@ -36,7 +36,7 @@ class ExampleScene(GMScene):
             self.initialized = True
 
     @override
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         keys_down = gme.GMGlobalContext.keys_down
 
         if "ESC" in keys_down:
@@ -64,14 +64,15 @@ class ExampleScene(GMScene):
             self.text4.set_text("THIS IS FONT 3")
 
     @override
-    def draw(self):
+    def draw(self) -> None:
+        gme.GMGlobalContext.clear_screen()
         self.text1.draw()
         self.text2.draw()
         self.text3.draw()
         self.text4.draw()
 
 
-def main():
+def main() -> None:
     logging.basicConfig(filename="example.log", level=logging.DEBUG)
     logging.info("This is the example text1a.")
 
