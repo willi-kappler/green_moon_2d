@@ -21,6 +21,7 @@ class TestObject(GMObject):
     @override
     def update(self, dt: float):
         self.properties["update_called"] += 1
+        _ = dt
 
     @override
     def draw(self):
@@ -257,7 +258,7 @@ class TestObjectManager(unittest.TestCase):
         self.assertObjectGroups("test1", ["foo"])
         self.assertObjectGroups("test2", [])
 
-        self.om.add_group("test1", ["bar", "baz"])
+        self.om.add_groups("test1", ["bar", "baz"])
         self.om.add_group("test2", "green")
 
         self.assertObjectGroups("test1", ["foo", "bar", "baz"])
@@ -279,8 +280,8 @@ class TestObjectManager(unittest.TestCase):
         """
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
-        self.om.add_group("test1", ["foo", "bar"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test1", ["foo", "bar"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
 
         self.assertObjectGroups("test1", ["foo", "bar"])
         self.assertObjectGroups("test2", ["green", "blue", "yellow"])
@@ -320,9 +321,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow", "top"])
-        self.om.add_group("test3", ["poison"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow", "top"])
+        self.om.add_group("test3", "poison")
 
         self.assertObjectGroups("test1", ["foo", "bar", "top"])
         self.assertObjectGroups("test2", ["green", "blue", "yellow", "top"])
@@ -341,8 +342,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow", "top"])
 
         self.assertObjectGroups("test1", ["foo", "bar", "top"])
         self.assertObjectGroups("test2", ["green", "blue", "yellow", "top"])
@@ -389,9 +390,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
-        self.om.add_group("test3", ["bleeding", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test3", ["bleeding", "top"])
 
         self.om["test1"].properties["Called"] = "No"
         self.om["test2"].properties["Called"] = "No"
@@ -411,8 +412,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["blue", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["blue", "top"])
 
         self.om["test1"].properties["Called"] = "No"
         self.om["test2"].properties["Called"] = "No"
@@ -431,9 +432,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
-        self.om.add_group("test3", ["bleeding", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test3", ["bleeding", "top"])
 
         self.om["test1"].properties["Called"] = "No"
         self.om["test2"].properties["Called"] = "No"
@@ -453,9 +454,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
-        self.om.add_group("test3", ["bleeding", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test3", ["bleeding", "top"])
 
         self.om["test1"].properties["Called"] = "No"
         self.om["test2"].properties["Called"] = "No"
@@ -477,9 +478,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
-        self.om.add_group("test3", ["bleeding", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test3", ["bleeding", "top"])
 
         self.om["test1"].properties["id_test"] = "one"
         self.om["test2"].properties["id_test"] = "two"
@@ -498,9 +499,9 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
 
-        self.om.add_group("test1", ["foo", "bar", "top"])
-        self.om.add_group("test2", ["green", "blue", "yellow"])
-        self.om.add_group("test3", ["bleeding", "top"])
+        self.om.add_groups("test1", ["foo", "bar", "top"])
+        self.om.add_groups("test2", ["green", "blue", "yellow"])
+        self.om.add_groups("test3", ["bleeding", "top"])
 
         self.om["test1"].properties["id_test"] = "one"
         self.om["test2"].properties["id_test"] = "two"
@@ -563,6 +564,56 @@ class TestObjectManager(unittest.TestCase):
 
         with self.assertRaises(KeyError):
             self.om.get_property("test1", "monkey")
+
+    def test_remove_property1(self):
+        """
+        Test removing a property from an object.
+        """
+
+        self.om.add(TestObject("test1"))
+        self.om.set_property("test1", "jump_height", 20)
+        self.om.set_property("test1", "fire_rate", 12)
+
+        self.om.remove_property("test1", "fire_rate")
+        self.assertTrue(self.om.has_property("test1", "jump_height"))
+        self.assertFalse(self.om.has_property("test1", "fire_rate"))
+
+    def test_remove_property2(self):
+        """
+        Test removing an unknown property from an object.
+        """
+
+        self.om.add(TestObject("test1"))
+
+        with self.assertRaises(KeyError):
+            self.om.remove_property("test1", "fire_rate")
+
+    def test_remove_property3(self):
+        """
+        Test removing a property from a group of objects.
+        """
+
+        o = TestObject("test1")
+        o.add_group("alpha")
+        o.set_property("speed", 50)
+        o.set_property("health", 200)
+        self.om.add(o)
+
+        o = TestObject("test2")
+        o.add_group("alpha")
+        o.set_property("speed", 70)
+        o.set_property("health", 150)
+        self.om.add(o)
+
+        o = TestObject("test3")
+        o.set_property("speed", 120)
+        o.set_property("health", 110)
+        self.om.add(o)
+
+        self.om.remove_property_group("alpha", "speed")
+        self.assertFalse(self.om.has_property("test1", "speed"))
+        self.assertFalse(self.om.has_property("test2", "speed"))
+        self.assertTrue(self.om.has_property("test3", "speed"))
 
     def test_has_property1(self):
         """
@@ -723,10 +774,64 @@ class TestObjectManager(unittest.TestCase):
 
         o = TestObject("test1")
 
+        o.pos.x = 10.0
+        o.pos.y = 14.5
+        o.vel.x = 2.5
+        o.vel.y = -1.5
+        o.acc.x = 2.0
+        o.acc.y = -10.0
         o.send_message(("move", 2.0))
+        self.assertAlmostEqual(o.vel.x, 6.5)
+        self.assertAlmostEqual(o.vel.y, -21.5)
+        self.assertAlmostEqual(o.pos.x, 23.0)
+        self.assertAlmostEqual(o.pos.y, -28.5)
 
-        # TODO: send various messages.
-        raise NotImplementedError
+        o.send_message(("add_group", "foo"))
+        self.assertIn("foo", o.groups)
+
+        res = o.send_message(("in_group", "foo"))
+        self.assertTrue(res)
+
+        o.send_message(("remove_group", "foo"))
+        self.assertNotIn("foo", o.groups)
+
+        o.send_message(("add_groups", ["g1", "g2", "g3"]))
+        self.assertIn("g1", o.groups)
+        self.assertIn("g2", o.groups)
+        self.assertIn("g3", o.groups)
+        o.clear_groups()
+
+        o.add_groups(["foo1", "foo2", "foo3"])
+        self.assertIn("foo1", o.groups)
+        self.assertIn("foo2", o.groups)
+        self.assertIn("foo3", o.groups)
+        o.send_message("clear_groups")
+        self.assertNotIn("foo1", o.groups)
+        self.assertNotIn("foo2", o.groups)
+        self.assertNotIn("foo3", o.groups)
+
+        o.send_message(("set_property", "angry", True))
+        self.assertTrue(o.get_property("angry"))
+
+        res = o.send_message(("get_property", "angry"))
+        self.assertTrue(res)
+
+        o.set_property("health", 500)
+        o.set_property("speed", 10)
+
+        o.send_message(("remove_property", "speed"))
+        self.assertTrue(o.has_property("angry"))
+        self.assertTrue(o.has_property("health"))
+        self.assertFalse(o.has_property("speed"))
+
+        res = o.send_message(("get_property_default", "fingers", 5))
+        self.assertEqual(res, 5)
+
+        res = o.send_message(("has_property", "angry"))
+        self.assertTrue(res)
+
+        o.send_message("clear_properties")
+        self.assertFalse(o.has_property("angry"))
 
 #    def test_(self):
 #        """

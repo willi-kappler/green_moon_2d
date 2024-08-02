@@ -45,7 +45,7 @@ class GMObject:
         :param :dt The time in ms since the previous frame.
         """
 
-        pass
+        _ = dt
 
     def draw(self) -> None:
         """
@@ -98,6 +98,8 @@ class GMObject:
                 self.move(dt)
             case ("add_group", str(name)):
                 self.add_group(name)
+            case ("add_groups", list(groups)):
+                self.add_groups(groups)
             case ("remove_group", str(name)):
                 self.remove_group(name)
             case ("in_group", str(name)):
@@ -108,6 +110,8 @@ class GMObject:
                 self.set_property(name, val)
             case ("get_property", str(name)):
                 return self.get_property(name)
+            case ("remove_property", str(name)):
+                return self.remove_property(name)
             case ("get_property_default", str(name), default):
                 return self.get_property_default(name, default)
             case ("has_property", str(name)):
@@ -163,6 +167,16 @@ class GMObject:
 
         self.groups.add(name)
 
+    def add_groups(self, groups: list[str]) -> None:
+        """
+        Add adds this object to the given groups.
+
+        :param groups: A list of group names.
+        """
+
+        for name in groups:
+            self.groups.add(name)
+
     def remove_group(self, name: str) -> None:
         """
         Removes this object from the given group.
@@ -211,6 +225,16 @@ class GMObject:
         """
 
         return self.properties[name]
+
+    def remove_property(self, name: str) -> Any:
+        """
+        Removes the property with the given name.
+
+        :param name: The name of the property.
+        :raise KeyError: If the property with that name doesn't exist.
+        """
+
+        del self.properties[name]
 
     def get_property_default(self, name: str, default: Any) -> Any:
         """
@@ -411,7 +435,7 @@ class GMObjectManager(Iterable):
 
         return results
 
-    def add_group(self, name: str, group: str | list[str]) -> None:
+    def add_group(self, name: str, group: str) -> None:
         """
         Add the given object to the given group.
 
@@ -421,16 +445,19 @@ class GMObjectManager(Iterable):
         """
 
         ob = self[name]
+        ob.add_group(group)
 
-        match group:
-            case str():
-                ob.add_group(group)
-            case list():
-                for g in group:
-                    ob.add_group(g)
-            case _:
-                raise ValueError(
-                    f"GMObjectManager.add_group(), group must be string or list of strings for object {name}")
+    def add_groups(self, name: str, groups: list[str]) -> None:
+        """
+        Add the given object to the given groups.
+
+        :param name: The name of the object.
+        :param groups: A list of group names.
+        :raise KeyError: if the object was not found.
+        """
+
+        ob = self[name]
+        ob.add_groups(groups)
 
     def remove_group(self, name: str, group: str) -> None:
         """
@@ -521,7 +548,7 @@ class GMObjectManager(Iterable):
         :param name: The name of the object.
         :param property: The name of the property.
         :param val: The value of the property.
-        :raise KeyError: if the object was not found.
+        :raise KeyError: If the object was not found.
         """
 
         self[name].set_property(property, val)
@@ -534,10 +561,32 @@ class GMObjectManager(Iterable):
         :param property: The name of the property.
         :return: The value of the given property for the given object.
         :rtype: Any
-        :raise KeyError: if the object or the property was not found.
+        :raise KeyError: If the object or the property was not found.
         """
 
         return self[name].get_property(property)
+
+    def remove_property(self, name: str, property: str):
+        """
+        Removes the property from the given object.
+        :param name: The name of the object.
+        :param property: The name of the property.
+        :raise KeyError: If the object or the property is not found.
+        """
+
+        self[name].remove_property(property)
+
+    def remove_property_group(self, group: str, property: str):
+        """
+        Removes the property from all objects of the given group.
+        :param group: The name of the group.
+        :param property: The name of the property.
+        :raise KeyError: If the property was not found.
+        """
+
+        for o in self.objects:
+            if o.in_group(group):
+                o.remove_property(property)
 
     def has_property(self, name: str, property: str) -> bool:
         """

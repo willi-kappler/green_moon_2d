@@ -8,6 +8,8 @@ TODO:
 - add test cases for GMText.
 - add test cases for GMSprite.
 - add test cases for sending messages to an object.
+- object.add_properties(Iterable)
+- om.add_properties_group(Iterable)
 
 
 Maybe:
@@ -40,5 +42,7 @@ Done:
 # add "fixed" to GMRepetition.
 # add text case for object.move.(dt)
 # add more messages to send_message in GMTextEffect1.
+# object.add_groups(Iterable)
+# object.remove_property(name)
 
 
