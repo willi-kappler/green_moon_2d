@@ -23,6 +23,7 @@ class TestScene(GMScene):
     @override
     def update(self, dt: float):
         self.custom_property["update_called"] += 1
+        _ = dt
 
     @override
     def draw(self):
@@ -40,6 +41,10 @@ class TestScene(GMScene):
     def send_message(self, custom_message: Any):
         self.custom_property["send_message_called"] += 1
         self.custom_property["send_message_value"] = custom_message
+
+        match custom_message:
+            case ("double", int(val)):
+                return val * 2
 
 
 class TestSceneManager(unittest.TestCase):
@@ -80,6 +85,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test adding one scene.
         """
+
         self.assertEqual(len(self.sm.scenes), 0)
         self.sm.add_scene(TestScene("test1"))
         self.assertEqual(len(self.sm.scenes), 1)
@@ -89,6 +95,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test adding two scenes.
         """
+
         self.assertEqual(len(self.sm.scenes), 0)
         self.sm.add_scene(TestScene("test1"))
         self.assertEqual(len(self.sm.scenes), 1)
@@ -103,6 +110,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test adding a scene with the same name (replace).
         """
+
         new_scene = TestScene("test1")
         new_scene.custom_property["replaced"] = "No"
         self.sm.add_scene(new_scene)
@@ -117,6 +125,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test delete scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.delete_scene("test1")
         self.assertEqual(len(self.sm.scenes), 0)
@@ -125,6 +134,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test delete scene where name is not found.
         """
+
         self.sm.add_scene(TestScene("test1"))
 
         with self.assertRaises(KeyError):
@@ -137,6 +147,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test change to scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.add_scene(TestScene("test3"))
@@ -163,6 +174,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test change to scene where name is not found.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.start_scene("test1")
 
@@ -173,6 +185,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test push and change scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.add_scene(TestScene("test3"))
@@ -194,6 +207,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test push and change scene where name is not found.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.add_scene(TestScene("test3"))
@@ -206,6 +220,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test pop and change scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.add_scene(TestScene("test3"))
@@ -224,6 +239,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test pop and change scene where the scene stack is empty.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.start_scene("test1")
 
@@ -234,6 +250,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test setting the start scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.assertEqual(self.sm.current_scene.name, "empty")
 
@@ -244,6 +261,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling update on the current scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -263,6 +281,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling draw on the current scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -282,6 +301,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling update on the top stack scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -299,6 +319,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling draw on the top stack scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -316,6 +337,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling update on a specific scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -337,6 +359,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test calling draw on a specific scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -358,6 +381,7 @@ class TestSceneManager(unittest.TestCase):
         """
         Test sending a custom message to a scene.
         """
+
         self.sm.add_scene(TestScene("test1"))
         self.sm.add_scene(TestScene("test2"))
         self.sm.start_scene("test1")
@@ -374,6 +398,9 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneSendMessage("test2", 1)
         self.assertSceneSendMessageValue("test1", "the first message")
         self.assertSceneSendMessageValue("test2", "the second message")
+
+        res = self.sm.send_message("test1", ("double", 3))
+        self.assertEqual(res, 6)
 
 
 if __name__ == "__main__":
