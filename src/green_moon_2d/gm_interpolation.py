@@ -58,7 +58,7 @@ class GMInterpolate(GMObject):
 
         self.current_value = self.start + (self.diff * curve_value)
 
-    def reset(self):
+    def reset(self) -> None:
         self.current_step = 0.0
         self.current_value = self.start
 

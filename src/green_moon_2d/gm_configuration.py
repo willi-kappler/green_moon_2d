@@ -21,7 +21,7 @@ class GMConfiguration:
         self.screen_width: int = 800
         self.window_title: str = "Made with GreenMoon2D"
 
-    def load_config(self, file_name: str):
+    def load_config(self, file_name: str) -> None:
         """
         Load the configuration (JSON format) from the given file name.
 
@@ -56,7 +56,7 @@ class GMConfiguration:
 
         self.config_file = file_name
 
-    def save_config(self):
+    def save_config(self) -> None:
         """
         Saves the game configuration.
         """

@@ -25,7 +25,7 @@ class GMFont:
     def __repr__(self) -> str:
         return f"GMFONT({self.name})"
 
-    def draw_c(self, x: float, y: float, c: str):
+    def draw_c(self, x: float, y: float, c: str) -> None:
         """
         Draws one character on the given position using the current texture and mapping.
 
@@ -37,7 +37,7 @@ class GMFont:
         i = self.mapping[c]
         self.texture.draw(x, y, i)
 
-    def draw_i(self, x: float, y: float, index: int):
+    def draw_i(self, x: float, y: float, index: int) -> None:
         """
         Draws one character given by the index at the given position.
 

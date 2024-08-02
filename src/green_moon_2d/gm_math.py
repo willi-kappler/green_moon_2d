@@ -122,7 +122,7 @@ class GMVec2D:
             case _:
                 raise ValueError(f"Type of other must be a GMVec2D or a tuple of floats: {other}")
 
-    def add2(self, other: Self | tuple[float, float]):
+    def add2(self, other: Self | tuple[float, float]) -> None:
         """
         Adds the values of other to this vector.
 
@@ -211,7 +211,7 @@ class GMCircle:
             case _:
                 raise ValueError(f"Other must be a GMVec2D or a tuple of floats: {other}")
 
-    def add2(self, other: GMVec2D | tuple[float, float]):
+    def add2(self, other: GMVec2D | tuple[float, float]) -> None:
         """
         Add other to the component of this circle and moves the center.
 

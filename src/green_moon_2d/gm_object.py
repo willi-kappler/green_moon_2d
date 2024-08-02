@@ -205,7 +205,7 @@ class GMObject:
 
         self.groups.clear()
 
-    def set_property(self, name: str, val: Any):
+    def set_property(self, name: str, val: Any) -> None:
         """
         Sets the property with the given name to the given value.
 
@@ -566,7 +566,7 @@ class GMObjectManager(Iterable):
 
         return self[name].get_property(property)
 
-    def remove_property(self, name: str, property: str):
+    def remove_property(self, name: str, property: str) -> None:
         """
         Removes the property from the given object.
         :param name: The name of the object.
@@ -576,7 +576,7 @@ class GMObjectManager(Iterable):
 
         self[name].remove_property(property)
 
-    def remove_property_group(self, group: str, property: str):
+    def remove_property_group(self, group: str, property: str) -> None:
         """
         Removes the property from all objects of the given group.
         :param group: The name of the group.

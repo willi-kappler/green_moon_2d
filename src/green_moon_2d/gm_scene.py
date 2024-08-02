@@ -38,7 +38,7 @@ class GMScene:
         :param :dt The time in ms since the previous frame.
         """
 
-        pass
+        _ = dt
 
     def draw(self) -> None:
         """
@@ -64,13 +64,13 @@ class GMScene:
 
         pass
 
-    def send_message(self, custom_message: Any):
+    def send_message(self, custom_message: Any) -> Any:
         """
         This method can be used to send a custom message from one
         scene (usually the currently active one) to another scene.
         """
 
-        pass
+        _ = custom_message
 
 
 class GMSceneManager:
@@ -181,21 +181,21 @@ class GMSceneManager:
         self.current_scene = self.scenes[name]
         self.current_scene.enter()
 
-    def update_stack_top(self, dt: float):
+    def update_stack_top(self, dt: float) -> None:
         """
         Update the scene that is on top of the stack.
         """
 
         self.scene_stack[-1].update(dt)
 
-    def draw_stack_top(self):
+    def draw_stack_top(self) -> None:
         """
         Draw the scene that is on top of the stack.
         """
 
         self.scene_stack[-1].draw()
 
-    def update_scene(self, name: str, dt: float):
+    def update_scene(self, name: str, dt: float) -> None:
         """
         Update the specific scene given by the name.
 
@@ -204,7 +204,7 @@ class GMSceneManager:
 
         self.scenes[name].update(dt)
 
-    def draw_scene(self, name: str):
+    def draw_scene(self, name: str) -> None:
         """
         Draw the specific scene given by the name.
 
@@ -213,7 +213,7 @@ class GMSceneManager:
 
         self.scenes[name].draw()
 
-    def send_message(self, name: str, custom_message: Any):
+    def send_message(self, name: str, custom_message: Any) -> Any:
         """
         Sends a custom message to the scene given by the name.
 
@@ -221,7 +221,7 @@ class GMSceneManager:
         :param custom_message: The custom message that is sent to the scene.
         """
 
-        self.scenes[name].send_message(custom_message)
+        return self.scenes[name].send_message(custom_message)
 
 
 

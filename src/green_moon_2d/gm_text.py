@@ -329,7 +329,7 @@ class GMTextEffect1(GMText):
             self.font.texture.draw_opt(x + jx, y + jy, n, angle, scale)
 
     @override
-    def reset_chars(self):
+    def reset_chars(self) -> None:
         """
         Re-calculate all the character positions and indices.
         """
@@ -389,7 +389,7 @@ class GMTextEffect1(GMText):
                 # Delegate all other messages to the base class:
                 super().send_message(msg)
 
-    def toggle_sine(self):
+    def toggle_sine(self) -> None:
         """
         Turn the sine effect on or off.
         """
@@ -398,7 +398,7 @@ class GMTextEffect1(GMText):
 
         self.effect_sine = not self.effect_sine
 
-    def toggle_rotate(self):
+    def toggle_rotate(self) -> None:
         """
         Turn the rotate effect on or off.
         """
@@ -411,7 +411,7 @@ class GMTextEffect1(GMText):
             for i in range(len(self.chars)):
                 self.rotate_angles[i] = 0.0
 
-    def toggle_scale(self):
+    def toggle_scale(self) -> None:
         """
         Turn the scale effect on or off.
         """
@@ -424,7 +424,7 @@ class GMTextEffect1(GMText):
             for i in range(len(self.chars)):
                 self.scale_values[i] = 1.0
 
-    def toggle_jitter(self):
+    def toggle_jitter(self) -> None:
         """
         Turn the jitter effect on or off.
         """
