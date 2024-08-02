@@ -48,6 +48,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test adding a new object.
         """
+
         # self.assertEqual(len(self.om.objects), 0)
         self.assertNumObjects(0)
         self.om.add(TestObject("test1"))
@@ -60,6 +61,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test adding a new object with a used name.
         """
+
         self.om.add(TestObject("test1"))
         with self.assertRaises(KeyError):
             self.om.add(TestObject("test1"))
@@ -68,6 +70,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test deleting an object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -83,6 +86,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test deleting an object that doesn't exist.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         with self.assertRaises(KeyError):
@@ -92,6 +96,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test sorting using the update order.
         """
+
         o1 = TestObject("test1")
         o1.update_order = 2
         o2 = TestObject("test2")
@@ -113,6 +118,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test sorting useing the draw order.
         """
+
         o1 = TestObject("test1")
         o1.draw_order = 2
         o2 = TestObject("test2")
@@ -134,6 +140,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test get the index of an object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -147,6 +154,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test get object by name.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -162,6 +170,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test get object ba name with an unknown name.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -173,6 +182,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test calling update on all objects.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -192,6 +202,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test calling draw on all objects.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -211,6 +222,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test sending a message to an object.
         """
+
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
@@ -221,6 +233,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test sending a message to an unknown object.
         """
+
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
@@ -247,6 +260,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test adding groups to objects.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -268,6 +282,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test adding a group to an unknown object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -278,6 +293,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test removing a group from an object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add_groups("test1", ["foo", "bar"])
@@ -339,6 +355,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test removing all groups from an object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -357,6 +374,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test removing all groups from an unknown object.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -367,6 +385,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test iterating over all objects.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -386,6 +405,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test iterating over all objects that belong to a group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -409,6 +429,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test iteration over all objects that belong to an unknown group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
 
@@ -428,6 +449,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test applying a function to all objects of a group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -450,6 +472,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test applying a function to all object of an unknown group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -474,6 +497,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test collecting data from all objects of a group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -495,6 +519,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test collecting data from an unknown group.
         """
+
         self.om.add(TestObject("test1"))
         self.om.add(TestObject("test2"))
         self.om.add(TestObject("test3"))
@@ -516,6 +541,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test setting a property for an object.
         """
+
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
@@ -529,15 +555,61 @@ class TestObjectManager(unittest.TestCase):
         """
         Test setting a property for an unknown object.
         """
+
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
             self.om.set_property("test2", "monkey", 12)
 
+    def test_set_property3(self):
+        """
+        Test setting multiple properties for an object.
+        """
+
+        self.om.add(TestObject("test1"))
+        self.om.set_properties("test1", [("health", 100), ("mana", 200), ("speed", 10)])
+        res = self.om.get_property("test1", "health")
+        self.assertEqual(res, 100)
+        res = self.om.get_property("test1", "mana")
+        self.assertEqual(res, 200)
+        res = self.om.get_property("test1", "speed")
+        self.assertEqual(res, 10)
+
+    def test_set_property4(self):
+        """
+        Test setting multiple properties for a group.
+        """
+
+        o = TestObject("test1")
+        o.add_group("g1")
+        self.om.add(o)
+
+        o = TestObject("test2")
+        o.add_group("g1")
+        self.om.add(o)
+
+        o = TestObject("test3")
+        o.add_group("g2")
+        self.om.add(o)
+
+        self.om.set_properties_group("g1", [("health", 100), ("mana", 200), ("speed", 10)])
+        self.assertEqual(self.om.get_property("test1", "health"), 100)
+        self.assertEqual(self.om.get_property("test1", "mana"), 200)
+        self.assertEqual(self.om.get_property("test1", "speed"), 10)
+
+        self.assertEqual(self.om.get_property("test2", "health"), 100)
+        self.assertEqual(self.om.get_property("test2", "mana"), 200)
+        self.assertEqual(self.om.get_property("test2", "speed"), 10)
+
+        self.assertFalse(self.om.has_property("test3", "health"), False)
+        self.assertFalse(self.om.has_property("test3", "mana"), False)
+        self.assertFalse(self.om.has_property("test3", "speed"), False)
+
     def test_get_property1(self):
         """
         Test getting a property from an object.
         """
+
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
@@ -551,6 +623,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test getting a property from an unknown object.
         """
+
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
@@ -560,6 +633,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test getting an unknown property from an object.
         """
+
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
@@ -619,6 +693,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test checking a property for an object.
         """
+
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
@@ -631,6 +706,7 @@ class TestObjectManager(unittest.TestCase):
         """
         Test checking a property for an unknown object.
         """
+
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
@@ -832,6 +908,11 @@ class TestObjectManager(unittest.TestCase):
 
         o.send_message("clear_properties")
         self.assertFalse(o.has_property("angry"))
+
+        o.send_message(("set_properties", [("angry", True), ("health", 500), ("speed", 10)]))
+        self.assertTrue(o.get_property("angry"))
+        self.assertEqual(o.get_property("health"), 500)
+        self.assertEqual(o.get_property("speed"), 10)
 
 #    def test_(self):
 #        """

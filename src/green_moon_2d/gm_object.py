@@ -108,6 +108,8 @@ class GMObject:
                 self.clear_groups()
             case ("set_property", str(name), val):
                 self.set_property(name, val)
+            case ("set_properties", properties):
+                self.set_properties(properties)
             case ("get_property", str(name)):
                 return self.get_property(name)
             case ("remove_property", str(name)):
@@ -214,6 +216,16 @@ class GMObject:
         """
 
         self.properties[name] = val
+
+    def set_properties(self, properties: Iterable[tuple[str, Any]]) -> None:
+        """
+        Sets multiple properties at once.
+
+        :param properties: The properties to set.
+        """
+
+        for name, val in properties:
+            self.properties[name] = val
 
     def get_property(self, name: str) -> Any:
         """
@@ -553,6 +565,42 @@ class GMObjectManager(Iterable):
 
         self[name].set_property(property, val)
 
+    def set_property_group(self, group: str, property: str, val: Any) -> None:
+        """
+        Sets the property for all objects of the given group.
+
+        :param group: The name of the group.
+        :param property: The name of the property.
+        :param val: The value of the property.
+        :raise KeyError: If the object was not found.
+        """
+
+        for o in self.iter_group(group):
+            o.set_property(property, val)
+
+    def set_properties(self, name: str, properties: Iterable[tuple[str, Any]]) -> None:
+        """
+        Sets multiple properties at once.
+
+        :param name: The name of the object.
+        :param properties: The properties to set.
+        :raise KeyError: If the object was not found.
+        """
+
+        self[name].set_properties(properties)
+
+    def set_properties_group(self, group: str, properties: Iterable[tuple[str, Any]]) -> None:
+        """
+        Sets multiple properties at once for all objects of the given group.
+
+        :param group: The name of the group.
+        :param properties: The properties to set.
+        :raise KeyError: If the object was not found.
+        """
+
+        for o in self.iter_group(group):
+            o.set_properties(properties)
+
     def get_property(self, name: str, property: str) -> Any:
         """
         Returns the property of the given object.
@@ -619,5 +667,4 @@ class GMObjectManager(Iterable):
         for o in self.objects:
             if o.in_group(group):
                 o.clear_properties()
-
 
