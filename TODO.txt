@@ -7,9 +7,7 @@ TODO:
 - check for more keys / other input.
 - add test cases for GMText.
 - add test cases for GMSprite.
-- add test cases for sending messages to an object.
-- object.add_properties(Iterable).
-- om.add_properties_group(Iterable).
+- add test cases for GMInterpolation.
 
 
 Maybe:
@@ -46,4 +44,7 @@ Done:
 # object.remove_property(name)
 # context.clear() use fill(number) instead of fill(str).
 # engine: don't call clear_screen(), let user do it if needed.
+# object.add_properties(Iterable).
+# om.add_properties_group(Iterable).
+# add test cases for sending messages to an object.
 
