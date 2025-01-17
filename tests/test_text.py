@@ -23,26 +23,43 @@ class TestTexture(GMTextureInterface):
 
     @override
     def draw(self, dx: float, dy: float, index: int) -> None:
-        pass
+        _ = dx
+        _ = dy
+        _ = index
 
     @override
     def draw_p(self, pos: GMVec2D, index: int) -> None:
-        pass
+        _ = pos
+        _ = index
 
     @override
     def draw_opt(self, dx: float, dy: float, index: int, angle: float = 0.0,
             scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
-        pass
+        _ = dx
+        _ = dy
+        _ = index
+        _ = angle
+        _ = scale
+        _ = flip_x
+        _ = flip_y
 
     @override
     def draw_p_opt(self, pos: GMVec2D, index: int, angle: float = 0.0,
             scale: float = 1.0, flip_x: bool = False, flip_y: bool = False) -> None:
-        pass
+        _ = pos
+        _ = index
+        _ = angle
+        _ = scale
+        _ = flip_x
+        _ = flip_y
 
 
 class TestObjectManager(unittest.TestCase):
     def setUp(self):
         self.texture = TestTexture(32, 32)
-        self.font = GMFont("test", self.texture, {})
+        mapping = {}
+        for i, c in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!.,-+_#"):
+            mapping[c] = i
+        self.font = GMFont("test", self.texture, mapping)
 
 
