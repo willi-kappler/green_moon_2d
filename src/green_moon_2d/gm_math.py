@@ -82,6 +82,10 @@ class GMVec2D:
         self.x: float = x
         self.y: float = y
 
+    @classmethod
+    def from_tuple(cls, pos: tuple[float, float]):
+        return cls(pos[0], pos[1])
+
     def __eq__(self, other) -> bool:
         """
         Compares this vector to the other element wise.
