@@ -5,13 +5,14 @@
 
 from typing import Any, override
 
+from green_moon_2d.gm_math import GMVec2D
 from green_moon_2d.gm_object import GMObject
 from green_moon_2d.gm_animation import GMAnimation
 from green_moon_2d.gm_texture import GMTextureInterface
 
 
 class GMSprite(GMObject):
-    def __init__(self, name: str, animation: GMAnimation, texture: GMTextureInterface):
+    def __init__(self, pos: tuple[float, float] | GMVec2D, name: str, animation: GMAnimation, texture: GMTextureInterface):
         """
         :param name: The name of the sprite. It must be unique.
         :param animation: The animation for this sprite.
@@ -19,6 +20,7 @@ class GMSprite(GMObject):
         """
 
         super().__init__(name)
+        self.set_pos(pos)
 
         self.animation: GMAnimation = animation
         self.texture: GMTextureInterface = texture
