@@ -108,4 +108,7 @@ class GMResources:
     def get_animation(self, name: str) -> GMAnimation:
         return self.animations[name]
 
+    def get_empty_animation(self) -> GMAnimation:
+        return GMAnimation.empty()
+
 
