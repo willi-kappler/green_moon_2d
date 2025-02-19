@@ -26,11 +26,20 @@ class ExampleScene(GMScene):
             self.om = GMObjectManager()
 
             resources = gme.GMGlobalResources
-            self.font1 = resources.get_font("font_cuddly")
+            font1 = resources.get_font("font_cuddly")
+            self.om.add(GMText("text1", "SPRITE 1", (512.0, 100.0), font1, GMAlignment.TOP_CENTER))
 
-            center = GMAlignment.TOP_CENTER
+            texture = resources.get_texture("tex_bat1")
+            animation = resources.get_animation("anim_bat1")
+            self.om.add(GMSprite((512.0, 200.0), "bat1", animation, texture))
 
-            self.om.add(GMText("text1", "SPRITE 1", (512.0, 100.0), self.font1, center))
+            texture = resources.get_texture("tex_ghost1")
+            animation = resources.get_animation("anim_ghost1")
+            self.om.add(GMSprite((512.0, 250.0), "ghost1", animation, texture))
+
+            texture = resources.get_texture("tex_ice_cream1")
+            animation = resources.get_empty_animation()
+            self.om.add(GMSprite((512.0, 300.0), "ice1", animation, texture))
 
             self.initialized = True
 
