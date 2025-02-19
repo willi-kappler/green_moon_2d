@@ -41,6 +41,12 @@ class GMAnimation:
         self.timer: GMTimer = GMTimer(self.frames[0][1])
         self.active: bool = True
 
+    @classmethod
+    def empty(cls):
+        anim = cls("empty", [(0, 0)])
+        anim.repetition = GMRepetition.FIXED
+        return anim
+
     def update(self) -> None:
         """
         This method is called once per frame and checks the timer (duration) and moves on to the next
