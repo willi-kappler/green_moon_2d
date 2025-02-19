@@ -41,7 +41,6 @@ class GMLine(GMObject):
         # Default values:
         self.mode = (GMLineMode.COUNT, 3)
         self.repeat: GMLineRepeat = GMLineRepeat.RAMP
-        self.dt_offset: float = 0.0
 
         match initial:
             case GMObject():
@@ -80,10 +79,8 @@ class GMLine(GMObject):
 
     @override
     def update(self, dt: float) -> None:
-        local_dt: float = dt
         for o in self.line_objs:
-            o.update(local_dt)
-            local_dt += self.dt_offset
+            o.update(dt)
 
     @override
     def send_message(self, msg: Any) -> Any:
