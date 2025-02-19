@@ -59,30 +59,122 @@
     "animations": [
         {
             "name": "anim_bat1",
-            "animation_type": "ping_pong_forward",
-            "frames": [[0, 0.08], [1, 0.08], [2, 0.08]]
+            "repetition": "ping_pong_forward",
+            "frames": [
+                [
+                    0,
+                    0.08
+                ],
+                [
+                    1,
+                    0.08
+                ],
+                [
+                    2,
+                    0.08
+                ]
+            ]
         },
         {
             "name": "anim_explosion1",
-            "animation_type": "loop_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1], [3, 0.1], [4, 0.1], [5, 0.1], [6, 1.00]]
+            "repetition": "loop_forward",
+            "frames": [
+                [
+                    0,
+                    0.1
+                ],
+                [
+                    1,
+                    0.1
+                ],
+                [
+                    2,
+                    0.1
+                ],
+                [
+                    3,
+                    0.1
+                ],
+                [
+                    4,
+                    0.1
+                ],
+                [
+                    5,
+                    0.1
+                ],
+                [
+                    6,
+                    1.00
+                ]
+            ]
         },
         {
             "name": "anim_ghost1",
-            "animation_type": "ping_pong_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+            "repetition": "ping_pong_forward",
+            "frames": [
+                [
+                    0,
+                    0.1
+                ],
+                [
+                    1,
+                    0.1
+                ],
+                [
+                    2,
+                    0.1
+                ]
+            ]
         },
         {
             "name": "anim_head1",
-            "animation_type": "loop_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1]]
+            "repetition": "loop_forward",
+            "frames": [
+                [
+                    0,
+                    0.1
+                ],
+                [
+                    1,
+                    0.1
+                ],
+                [
+                    2,
+                    0.1
+                ]
+            ]
         },
         {
             "name": "anim_ice_troll1",
-            "animation_type": "loop_forward",
-            "frames": [[0, 0.1], [1, 0.1], [2, 0.1], [3, 0.1], [4, 0.1], [5, 0.1]]
+            "repetition": "loop_forward",
+            "frames": [
+                [
+                    0,
+                    0.1
+                ],
+                [
+                    1,
+                    0.1
+                ],
+                [
+                    2,
+                    0.1
+                ],
+                [
+                    3,
+                    0.1
+                ],
+                [
+                    4,
+                    0.1
+                ],
+                [
+                    5,
+                    0.1
+                ]
+            ]
         }
     ],
     "sounds": []
 }
-
