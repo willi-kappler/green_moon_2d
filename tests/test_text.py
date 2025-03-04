@@ -12,6 +12,7 @@ from green_moon_2d.gm_font import GMFont
 from green_moon_2d.gm_math import GMVec2D, GMAlignment
 from green_moon_2d.gm_texture import GMTextureInterface
 
+
 class TestTexture(GMTextureInterface):
     def __init__(self, unit_width: int, unit_height: int):
         """
