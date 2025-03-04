@@ -6,14 +6,16 @@
 from typing import Any, override
 
 from green_moon_2d.gm_math import GMVec2D
-from green_moon_2d.gm_object import GMObject
+from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_animation import GMAnimation
 from green_moon_2d.gm_texture import GMTextureInterface
 
 
 class GMSprite(GMObject):
-    def __init__(self, pos: tuple[float, float] | GMVec2D, name: str, animation: GMAnimation, texture: GMTextureInterface):
+    def __init__(self, pos: tuple[float, float] | GMVec2D, name: str,
+        animation: GMAnimation, texture: GMTextureInterface):
         """
+        :param pos: The position of the sprite on the screen.
         :param name: The name of the sprite. It must be unique.
         :param animation: The animation for this sprite.
         :param texture: The texture / sprite sheet for this sprite.
@@ -35,9 +37,8 @@ class GMSprite(GMObject):
         self.texture.draw_p_opt(self.pos, index, self.angle, self.scale, self.flip_x, self.flip_y)
 
     @override
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, om: GMObjectManager) -> None:
         self.animation.update()
-        self.move(dt)
 
     @override
     def send_message(self, msg: Any) -> Any:
