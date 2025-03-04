@@ -7,7 +7,7 @@ from typing import Any, override
 import math
 import random
 
-from green_moon_2d.gm_object import GMObject
+from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_font import GMFont
 from green_moon_2d.gm_math import GMVec2D, GMAlignment
 from green_moon_2d.gm_timer import GMTimer
@@ -258,7 +258,7 @@ class GMTextEffect1(GMText):
         self.chars_copy = self.chars.copy()
 
     @override
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, om: GMObjectManager) -> None:
         """
         Updates all the text effects.
         """
