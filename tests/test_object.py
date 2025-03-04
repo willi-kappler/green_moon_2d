@@ -19,9 +19,8 @@ class TestObject(GMObject):
         self.properties["draw_called"] = 0
 
     @override
-    def update(self, dt: float):
+    def update(self, dt: float, om: GMObjectManager):
         self.properties["update_called"] += 1
-        _ = dt
 
     @override
     def draw(self):
@@ -769,33 +768,6 @@ class TestObjectManager(unittest.TestCase):
         self.assertFalse(self.om.has_property("test3", "fuel"))
         self.assertFalse(self.om.has_property("test3", "ammo"))
 
-    def test_object_move(self):
-        """
-        Test moving an object around.
-        """
-
-        o = TestObject("test1")
-        o.pos.x = 50.0
-        o.pos.y = 70.0
-        o.vel.x = 2.0
-        o.vel.y = 5.0
-        o.acc.x = 0.5
-        o.acc.y = -10.0
-
-        o.move(1.0)
-
-        self.assertAlmostEqual(o.vel.x, 2.5)
-        self.assertAlmostEqual(o.vel.y, -5.0)
-        self.assertAlmostEqual(o.pos.x, 52.5)
-        self.assertAlmostEqual(o.pos.y, 65.0)
-
-        o.move(2.0)
-
-        self.assertAlmostEqual(o.vel.x, 3.5)
-        self.assertAlmostEqual(o.vel.y, -25.0)
-        self.assertAlmostEqual(o.pos.x, 59.5)
-        self.assertAlmostEqual(o.pos.y, 15.0)
-
     def test_object_send_message1(self):
         """
         Test sending messages to an object.
@@ -806,14 +778,6 @@ class TestObjectManager(unittest.TestCase):
         o.send_message(("set_pos", (3.5, -7.2)))
         self.assertAlmostEqual(o.pos.x, 3.5)
         self.assertAlmostEqual(o.pos.y, -7.2)
-
-        o.send_message(("set_vel", (1.7, 9.9)))
-        self.assertAlmostEqual(o.vel.x, 1.7)
-        self.assertAlmostEqual(o.vel.y, 9.9)
-
-        o.send_message(("set_acc", (12.3, -0.8)))
-        self.assertAlmostEqual(o.acc.x, 12.3)
-        self.assertAlmostEqual(o.acc.y, -0.8)
 
         o.send_message(("set_active", True))
         self.assertTrue(o.active)
@@ -852,13 +816,7 @@ class TestObjectManager(unittest.TestCase):
 
         o.pos.x = 10.0
         o.pos.y = 14.5
-        o.vel.x = 2.5
-        o.vel.y = -1.5
-        o.acc.x = 2.0
-        o.acc.y = -10.0
         o.send_message(("move", 2.0))
-        self.assertAlmostEqual(o.vel.x, 6.5)
-        self.assertAlmostEqual(o.vel.y, -21.5)
         self.assertAlmostEqual(o.pos.x, 23.0)
         self.assertAlmostEqual(o.pos.y, -28.5)
 
