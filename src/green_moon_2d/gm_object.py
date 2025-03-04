@@ -29,8 +29,6 @@ class GMObject:
         self.name: str = name
         self.object_manager: GMObjectManager
         self.pos: GMVec2D = GMVec2D(0.0, 0.0)
-        self.vel: GMVec2D = GMVec2D(0.0, 0.0)
-        self.acc: GMVec2D = GMVec2D(0.0, 0.0)
         self.active: bool = True
         self.visible: bool = True
         self.draw_order: int = 0
@@ -38,14 +36,14 @@ class GMObject:
         self.groups: set[str] = set()
         self.properties: dict[str, Any] = {}
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, om) -> None:
         """
         This method is called once per frame, you should implement it if needed.
         It is used to update the internal state of the object.
         :param :dt The time in ms since the previous frame.
         """
 
-        _ = dt
+        pass
 
     def draw(self) -> None:
         """
@@ -54,15 +52,6 @@ class GMObject:
         """
 
         pass
-
-    def move(self, dt: float) -> None:
-        """
-        This method can be called once per frame if needed.
-        It moves this object according to the given velocity and acceleration.
-        """
-
-        self.vel = self.vel + (self.acc * dt)
-        self.pos = self.pos + (self.vel * dt)
 
     def send_message(self, msg: Any) -> Any:
         """
@@ -77,10 +66,6 @@ class GMObject:
             # Properties:
             case ("set_pos", pos):
                 self.set_pos(pos)
-            case ("set_vel", vel):
-                self.set_vel(vel)
-            case ("set_acc", acc):
-                self.set_acc(acc)
             case ("set_active", bool(active)):
                 self.active = active
             case "toggle_active":
@@ -94,8 +79,6 @@ class GMObject:
             case ("set_update_order", int(order)):
                 self.update_order = order
             # Methods:
-            case ("move", float(dt)):
-                self.move(dt)
             case ("add_group", str(name)):
                 self.add_group(name)
             case ("add_groups", list(groups)):
@@ -133,32 +116,6 @@ class GMObject:
             case (float(x), float(y)):
                 self.pos.x = x
                 self.pos.y = y
-
-    def set_vel(self, vel: tuple[float, float] | GMVec2D) -> None:
-        """
-        Sets the velocity of this object.
-        :param vel: Can be a tuple of floats or a GMVec2D.
-        """
-
-        match vel:
-            case GMVec2D():
-                self.vel = vel
-            case (float(x), float(y)):
-                self.vel.x = x
-                self.vel.y = y
-
-    def set_acc(self, acc: tuple[float, float] | GMVec2D) -> None:
-        """
-        Sets the acceleration of this object.
-        :param acc: Can be a tuple of floats or a GMVec2D.
-        """
-
-        match acc:
-            case GMVec2D():
-                self.acc = acc
-            case (float(x), float(y)):
-                self.acc.x = x
-                self.acc.y = y
 
     def add_group(self, name: str) -> None:
         """
@@ -399,17 +356,19 @@ class GMObjectManager(Iterable):
     def update(self, dt: float) -> None:
         """
         Updates all the active objects. Objects can be sorted by update_order.
+        See sort_update() method.
 
         :param context: The current game context.
         """
 
         for o in self.objects:
             if o.active:
-                o.update(dt)
+                o.update(dt, self)
 
     def draw(self) -> None:
         """
         Draws all the visible objects. Objects can be sorted by draw_order.
+        See sort_draw() method.
 
         :param context: The current game context.
         """
