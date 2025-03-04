@@ -6,7 +6,7 @@
 from typing import Any, override
 import math
 
-from green_moon_2d.gm_object import GMObject
+from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_math import GMRepetition
 
 
@@ -63,7 +63,7 @@ class GMInterpolate(GMObject):
         self.current_value = self.start
 
     @override
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, om: GMObjectManager) -> None:
         match self.repetition:
             case GMRepetition.FIXED:
                 # Nothing to do.
