@@ -10,7 +10,7 @@ from copy import deepcopy
 import math
 
 # Local imports:
-from green_moon_2d.gm_object import GMObject
+from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_math import GMVec2D
 
 
@@ -39,7 +39,7 @@ class GMLine(GMObject):
         self.pos2: GMVec2D = pos2
 
         # Default values:
-        self.mode = (GMLineMode.COUNT, 3)
+        self.mode: tuple[GMLineMode, Any] = (GMLineMode.COUNT, 3)
         self.repeat: GMLineRepeat = GMLineRepeat.RAMP
 
         match initial:
@@ -50,9 +50,9 @@ class GMLine(GMObject):
                     for o in initial:
                         if not isinstance(o, GMObject):
                             raise ValueError("All items in list must be of type GMObject.")
-                    self.initial: list[GMObject] = initial
+                    self.initial = initial
                 else:
-                    raise ValueError(f"You must provide at least one object in list.")
+                    raise ValueError("You must provide at least one object in list.")
             case _:
                 raise TypeError("Initial value must be of type GMObject or list[GMObject].")
 
@@ -78,9 +78,9 @@ class GMLine(GMObject):
             o.draw()
 
     @override
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, om: GMObjectManager) -> None:
         for o in self.line_objs:
-            o.update(dt)
+            o.update(dt, om)
 
     @override
     def send_message(self, msg: Any) -> Any:
@@ -108,7 +108,7 @@ class GMLine(GMObject):
             self.mode = (GMLineMode.COUNT, count)
             self.create_line_objs()
         else:
-            raise ValueError(f"Count must be > 0, but is 0.")
+            raise ValueError("Count must be > 0, but is 0.")
 
     def create_line_objs(self):
         n: int = 0
@@ -119,10 +119,10 @@ class GMLine(GMObject):
 
         match self.mode:
             case (GMLineMode.COUNT, c):
-                n: int = c
+                n = c
             case (GMLineMode.SPACING, s):
-                l: float = math.hypot(lx, ly)
-                n: int = math.floor(l / s)
+                ll: float = math.hypot(lx, ly)
+                n = math.floor(ll / s)
 
         dx: float = lx / n
         dy: float = ly / n
@@ -138,9 +138,9 @@ class GMLine(GMObject):
         else:
             match self.repeat:
                 case GMLineRepeat.RAMP:
-                    i: int = 0
+                    i = 0
                     for j in range(0, n):
-                        o: GMObject = deepcopy(self.initial[i])
+                        o = deepcopy(self.initial[i])
                         o.pos.x = sx + (j * dx)
                         o.pos.y = sy + (j * dy)
                         self.line_objs.append(o)
