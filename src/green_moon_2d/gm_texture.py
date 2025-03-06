@@ -7,7 +7,6 @@ from typing import override
 
 import pygame
 
-import green_moon_2d.gm_engine as gme
 from green_moon_2d.gm_math import GMVec2D
 
 import logging
@@ -40,11 +39,13 @@ class GMTextureInterface:
 
 
 class GMTexture(GMTextureInterface):
-    def __init__(self, unit_width: int, unit_height: int, surface: pygame.Surface):
+    def __init__(self, unit_width: int, unit_height: int,
+            surface: pygame.Surface, screen: pygame.Surface):
         """
         :param unit_width: The width of a single frame / cell.
         :param unit_height: The heiht of a single frame / cell.
         :param texture: The actual graphic texture.
+        :param screen: The screen to bilt this texture to.
         """
 
         super().__init__(unit_width, unit_height)
@@ -53,6 +54,7 @@ class GMTexture(GMTextureInterface):
 
         self.surface: pygame.Surface = surface
         self.cols: int = int(surface.get_width() / unit_width)
+        self.screen: pygame.Surface = screen
 
     def get_subsurface(self, index: int) -> pygame.Surface:
         """
@@ -87,7 +89,7 @@ class GMTexture(GMTextureInterface):
 
         subsurface = self.get_subsurface(index)
 
-        gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
+        self.screen.blit(subsurface, (dx, dy))
 
     @override
     def draw_p(self, pos: GMVec2D, index: int) -> None:
@@ -124,7 +126,7 @@ class GMTexture(GMTextureInterface):
         dx = (dx - (w / 2.0))
         dy = (dy - (h / 2.0))
 
-        gme.GMGlobalContext.screen.blit(subsurface, (dx, dy))
+        self.screen.blit(subsurface, (dx, dy))
 
     @override
     def draw_p_opt(self, pos: GMVec2D, index: int, angle: float = 0.0,

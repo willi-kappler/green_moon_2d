@@ -23,6 +23,7 @@ class GMResources:
         self.textures: dict[str, GMTexture] = {}
         self.animations: dict[str, GMAnimation] = {}
         self.fonts: dict[str, GMFont] = {}
+        self.screen: pygame.Surface = pygame.Surface((0,0))
 
     def load_resources(self, file_name: str) -> None:
         """
@@ -59,7 +60,7 @@ class GMResources:
             unit_height: int = tex["unit_height"]
 
             surface = pygame.image.load(file_name).convert_alpha()
-            new_texture = GMTexture(unit_width, unit_height, surface)
+            new_texture = GMTexture(unit_width, unit_height, surface, self.screen)
             self.textures[name] = new_texture
 
     def create_fonts(self, fonts: list) -> None:

@@ -42,6 +42,7 @@ class GMEngine:
 
         GMGlobalContext.screen = pygame.display.set_mode(
             (GMGlobalConfig.screen_width, GMGlobalConfig.screen_height), flags)
+        GMGlobalResources.screen = GMGlobalContext.screen
         pygame.display.set_caption(GMGlobalConfig.window_title)
         GMGlobalResources.load_resources(GMGlobalConfig.resource_file)
         GMGlobalScenes.start_scene(self.first_scene)
