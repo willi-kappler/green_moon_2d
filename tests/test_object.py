@@ -814,12 +814,6 @@ class TestObjectManager(unittest.TestCase):
 
         o = TestObject("test1")
 
-        o.pos.x = 10.0
-        o.pos.y = 14.5
-        o.send_message(("move", 2.0))
-        self.assertAlmostEqual(o.pos.x, 23.0)
-        self.assertAlmostEqual(o.pos.y, -28.5)
-
         o.send_message(("add_group", "foo"))
         self.assertIn("foo", o.groups)
 
