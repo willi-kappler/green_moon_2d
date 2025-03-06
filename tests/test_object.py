@@ -7,6 +7,7 @@ import unittest
 
 from typing import Any, override
 
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 # from green_moon_2d.gm_math import GMVec2D
 
@@ -225,7 +226,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
         self.assertEqual(len(self.om["test1"].properties), 2)
 
-        self.om.send_message("test1", ("set_property", "message", "alpha_message"))
+        msg = GMMessage.single("test1", "set_property", ("message", "alpha_message"))
+        self.om.send_message(msg)
         self.assertObjectProperty("test1", "message", "alpha_message")
 
     def test_send_message2(self):
@@ -236,7 +238,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add(TestObject("test1"))
 
         with self.assertRaises(KeyError):
-            self.om.send_message("test2", "unknown")
+            msg = GMMessage.single("test2", "foo", None)
+            self.om.send_message(msg)
 
     def send_message_group1(self):
         self.om.add(TestObject("test1"))
@@ -247,7 +250,8 @@ class TestObjectManager(unittest.TestCase):
         self.om.add_group("test1", "foo")
         self.om.add_group("test2", "foo")
 
-        self.om.send_message_group("foo", "beta_message")
+        msg = GMMessage.group("foo", "beta_message", None)
+        self.om.send_message(msg)
 
         self.assertObjectProperty("test1", "message", "beta_message")
         self.assertObjectProperty("test2", "message", "beta_message")
@@ -775,36 +779,36 @@ class TestObjectManager(unittest.TestCase):
 
         o = TestObject("test1")
 
-        o.send_message(("set_pos", (3.5, -7.2)))
+        o.send_message(GMMessage.single("", "set_pos", (3.5, -7.2)))
         self.assertAlmostEqual(o.pos.x, 3.5)
         self.assertAlmostEqual(o.pos.y, -7.2)
 
-        o.send_message(("set_active", True))
+        o.send_message(GMMessage.single("", "set_active", True))
         self.assertTrue(o.active)
 
-        o.send_message(("set_active", False))
+        o.send_message(GMMessage.single("", "set_active", False))
         self.assertFalse(o.active)
 
-        o.send_message("toggle_active")
+        o.send_message(GMMessage.single("", "toggle_active", None))
         self.assertTrue(o.active)
-        o.send_message("toggle_active")
+        o.send_message(GMMessage.single("", "toggle_active", None))
         self.assertFalse(o.active)
 
-        o.send_message(("set_visible", True))
+        o.send_message(GMMessage.single("", "set_visible", True))
         self.assertTrue(o.visible)
 
-        o.send_message(("set_visible", False))
+        o.send_message(GMMessage.single("", "set_visible", False))
         self.assertFalse(o.visible)
 
-        o.send_message("toggle_visible")
+        o.send_message(GMMessage.single("", "toggle_visible", None))
         self.assertTrue(o.visible)
-        o.send_message("toggle_visible")
+        o.send_message(GMMessage.single("", "toggle_visible", None))
         self.assertFalse(o.visible)
 
-        o.send_message(("set_draw_order", 3))
+        o.send_message(GMMessage.single("", "set_draw_order", 3))
         self.assertEqual(o.draw_order, 3)
 
-        o.send_message(("set_update_order", 5))
+        o.send_message(GMMessage.single("", "set_update_order", 5))
         self.assertEqual(o.update_order, 5)
 
     def test_object_send_message2(self):
@@ -814,16 +818,16 @@ class TestObjectManager(unittest.TestCase):
 
         o = TestObject("test1")
 
-        o.send_message(("add_group", "foo"))
+        o.send_message(GMMessage.single("", "add_group", "foo"))
         self.assertIn("foo", o.groups)
 
-        res = o.send_message(("in_group", "foo"))
+        res = o.send_message(GMMessage.single("", "in_group", "foo"))
         self.assertTrue(res)
 
-        o.send_message(("remove_group", "foo"))
+        o.send_message(GMMessage.single("", "remove_group", "foo"))
         self.assertNotIn("foo", o.groups)
 
-        o.send_message(("add_groups", ["g1", "g2", "g3"]))
+        o.send_message(GMMessage.single("", "add_groups", ["g1", "g2", "g3"]))
         self.assertIn("g1", o.groups)
         self.assertIn("g2", o.groups)
         self.assertIn("g3", o.groups)
@@ -833,35 +837,35 @@ class TestObjectManager(unittest.TestCase):
         self.assertIn("foo1", o.groups)
         self.assertIn("foo2", o.groups)
         self.assertIn("foo3", o.groups)
-        o.send_message("clear_groups")
+        o.send_message(GMMessage.single("", "clear_groups", None))
         self.assertNotIn("foo1", o.groups)
         self.assertNotIn("foo2", o.groups)
         self.assertNotIn("foo3", o.groups)
 
-        o.send_message(("set_property", "angry", True))
+        o.send_message(GMMessage.single("", "set_property", ("angry", True)))
         self.assertTrue(o.get_property("angry"))
 
-        res = o.send_message(("get_property", "angry"))
+        res = o.send_message(GMMessage.single("", "get_property", "angry"))
         self.assertTrue(res)
 
         o.set_property("health", 500)
         o.set_property("speed", 10)
 
-        o.send_message(("remove_property", "speed"))
+        o.send_message(GMMessage.single("", "remove_property", "speed"))
         self.assertTrue(o.has_property("angry"))
         self.assertTrue(o.has_property("health"))
         self.assertFalse(o.has_property("speed"))
 
-        res = o.send_message(("get_property_default", "fingers", 5))
+        res = o.send_message(GMMessage.single("", "get_property_default", ("fingers", 5)))
         self.assertEqual(res, 5)
 
-        res = o.send_message(("has_property", "angry"))
+        res = o.send_message(GMMessage.single("", "has_property", "angry"))
         self.assertTrue(res)
 
-        o.send_message("clear_properties")
+        o.send_message(GMMessage.single("", "clear_properties", None))
         self.assertFalse(o.has_property("angry"))
 
-        o.send_message(("set_properties", [("angry", True), ("health", 500), ("speed", 10)]))
+        o.send_message(GMMessage.single("", "set_properties", [("angry", True), ("health", 500), ("speed", 10)]))
         self.assertTrue(o.get_property("angry"))
         self.assertEqual(o.get_property("health"), 500)
         self.assertEqual(o.get_property("speed"), 10)

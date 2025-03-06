@@ -11,6 +11,7 @@ from collections.abc import Iterator, Iterable
 from typing import Any, NoReturn
 
 from green_moon_2d.gm_math import GMVec2D
+from green_moon_2d.gm_message import GMMessage, GMMessageType
 
 import logging
 logger = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ class GMObject:
 
         pass
 
-    def send_message(self, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         This method can be implemented to send a custom message to the object.
 
@@ -62,17 +63,23 @@ class GMObject:
         :rtype: Any
         """
 
-        match msg:
+        command = msg.command
+        value = msg.value
+        msg2 = (command, value)
+
+        match msg2:
             # Properties:
             case ("set_pos", pos):
                 self.set_pos(pos)
+            case ("get_pos", _):
+                return self.pos
             case ("set_active", bool(active)):
                 self.active = active
-            case "toggle_active":
+            case ("toggle_active", _):
                 self.active = not self.active
             case ("set_visible", bool(visible)):
                 self.visible = visible
-            case "toggle_visible":
+            case ("toggle_visible", _):
                 self.visible = not self.visible
             case ("set_draw_order", int(order)):
                 self.draw_order = order
@@ -87,9 +94,9 @@ class GMObject:
                 self.remove_group(name)
             case ("in_group", str(name)):
                 return self.in_group(name)
-            case "clear_groups":
+            case ("clear_groups", _):
                 self.clear_groups()
-            case ("set_property", str(name), val):
+            case ("set_property", (str(name), val)):
                 self.set_property(name, val)
             case ("set_properties", properties):
                 self.set_properties(properties)
@@ -97,11 +104,11 @@ class GMObject:
                 return self.get_property(name)
             case ("remove_property", str(name)):
                 return self.remove_property(name)
-            case ("get_property_default", str(name), default):
+            case ("get_property_default", (str(name), default)):
                 return self.get_property_default(name, default)
             case ("has_property", str(name)):
                 return self.has_property(name)
-            case "clear_properties":
+            case ("clear_properties", _):
                 self.clear_properties()
 
     def set_pos(self, pos: tuple[float, float] | GMVec2D) -> None:
@@ -377,7 +384,7 @@ class GMObjectManager(Iterable):
             if o.visible:
                 o.draw()
 
-    def send_message(self, name: str, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> list[tuple[str, Any]]:
         """
         Sends a message to the given object.
 
@@ -388,9 +395,23 @@ class GMObjectManager(Iterable):
         :raise KeyError: if the object was not found.
         """
 
-        return self[name].send_message(msg)
+        result: list = []
 
-    def send_message_group(self, group: str, msg: Any) -> list[tuple[str, Any]]:
+        match msg.msg_type:
+            case GMMessageType.SINGLE | GMMessageType.MULTIPLE:
+                for name in msg.targets:
+                    result.append((name, self[name].send_message(msg)))
+
+            case GMMessageType.GROUP | GMMessageType.MULTI_GROUP:
+                for group in msg.targets:
+                    result.extend(self.send_message_group(group, msg))
+
+            case _:
+                raise ValueError(f"Unknown message type: {msg}")
+
+        return result
+
+    def send_message_group(self, group: str, msg: GMMessage) -> list[tuple[str, Any]]:
         """
         Sends a message to all objects of the given group.
 

@@ -14,17 +14,17 @@ from typing import Self
 
 
 class GMAlignment(enum.Enum):
-    TOP_LEFT = enum.auto()
-    TOP_CENTER = enum.auto()
-    TOP_RIGHT = enum.auto()
+    TOP_LEFT = 0
+    TOP_CENTER = 1
+    TOP_RIGHT = 2
 
-    MID_LEFT = enum.auto()
-    MID_CENTER = enum.auto()
-    MID_RIGHT = enum.auto()
+    MID_LEFT = 3
+    MID_CENTER = 4
+    MID_RIGHT = 5
 
-    BTM_LEFT = enum.auto()
-    BTM_CENTER = enum.auto()
-    BTM_RIGHT = enum.auto()
+    BTM_LEFT = 6
+    BTM_CENTER = 7
+    BTM_RIGHT = 8
 
 
 class GMRepetition(enum.Enum):
@@ -263,7 +263,7 @@ def gm_orbit_circle1(x: float, y: float, r: float, angle: float) -> tuple[float,
     :param x: X position of the circle center.
     :param y: Y position of the circle center.
     :param r: The radius of the circle.
-    :param angle: The angle of the point around the circle.
+    :param angle: The angle of the point around the circle in degree.
     :return: A tuple of floats with the x and y coordinates of the point.
     :rtype: tuple[float, float]
     """
@@ -275,10 +275,29 @@ def gm_orbit_circle1(x: float, y: float, r: float, angle: float) -> tuple[float,
 
 
 def gm_orbit_circle2(pos: GMVec2D, r: float, angle: float) -> tuple[float, float]:
+    """
+    Returns the coordinates of a point orbiting a circle.
+
+    :param pos: The position of the circle center as a GMVec2D.
+    :param r: The radius of the circle.
+    :param angle: The angle of the point around the circle in degree.
+    :return: A tuple of floats with the x and y coordinates of the point.
+    :rtype: tuple[float, float]
+    """
+
     return gm_orbit_circle1(pos.x, pos.y, r, angle)
 
 
 def gm_orbit_circle3(circle: GMCircle, angle: float) -> tuple[float, float]:
+    """
+    Returns the coordinates of a point orbiting a circle.
+
+    :param circle: The circle as a GMCircle.
+    :param angle: The angle of the point around the circle in degree.
+    :return: A tuple of floats with the x and y coordinates of the point.
+    :rtype: tuple[float, float]
+    """
+
     return gm_orbit_circle1(circle.cx, circle.cy, circle.r, angle)
 
 

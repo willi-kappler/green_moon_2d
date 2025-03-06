@@ -23,7 +23,7 @@ class GMResources:
         self.textures: dict[str, GMTexture] = {}
         self.animations: dict[str, GMAnimation] = {}
         self.fonts: dict[str, GMFont] = {}
-        self.screen: pygame.Surface = pygame.Surface((0,0))
+        self.screen: pygame.Surface = pygame.Surface((0, 0))
 
     def load_resources(self, file_name: str) -> None:
         """

@@ -5,14 +5,16 @@
 
 from typing import Any, override
 
-from green_moon_2d.gm_math import GMVec2D
+import green_moon_2d.gm_math as gmm
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 
 import logging
 logger = logging.getLogger(__name__)
 
 class GMMVCircle(GMObject):
-    def __init__(self, pos: tuple[float, float] | GMVec2D, name: str, radius: float, speed: float):
+    def __init__(self, pos: tuple[float, float] | gmm.GMVec2D,
+            name: str, radius: float, speed: float):
         """
         :param pos: The position of the circular movement on the screen.
         :param name: The name of the movement. It must be unique.
@@ -25,26 +27,20 @@ class GMMVCircle(GMObject):
 
         self.radius: float = radius
         self.speed: float = speed
+        # Angle in degree
+        self.angle: float = 0.0
 
-        self.target: str = ""
-        self.target_part: str = ""
-        self.command: str = ""
-
-    def set_target(self, target: str):
-        self.target = target
-
-    def set_target_part(self, target_part: str):
-        self.target_part = target_part
-
-    def set_command(self, command: str):
-        self.command = command
+        self.user_message: GMMessage = GMMessage.empty()
 
     @override
     def update(self, dt: float, om: GMObjectManager) -> None:
-        pass
+        self.angle += self.speed * dt
+        t: tuple[float, float] = gmm.gm_orbit_circle2(self.pos, self.radius, self.angle)
+        self.user_message.value = t
+        om.send_message(self.user_message)
 
     @override
-    def send_message(self, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         Process messages send to this circular movement.
 

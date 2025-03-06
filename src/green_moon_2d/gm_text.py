@@ -7,6 +7,7 @@ from typing import Any, override
 import math
 import random
 
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_font import GMFont
 from green_moon_2d.gm_math import GMVec2D, GMAlignment
@@ -347,8 +348,12 @@ class GMTextEffect1(GMText):
             self.scale_values.append(1.0)
             self.jitter_positions.append((0.0, 0.0))
 
-    def send_message(self, msg: Any) -> Any:
-        match msg:
+    def send_message(self, msg: GMMessage) -> Any:
+        command = msg.command
+        value = msg.value
+        msg2 = (command, value)
+
+        match msg2:
             case ("effect_sine", bool(active)):
                 self.effect_sine = active
             case ("effect_rotate", bool(active)):
@@ -357,13 +362,13 @@ class GMTextEffect1(GMText):
                 self.effect_scale = active
             case ("effect_jitter", bool(active)):
                 self.effect_jitter = active
-            case "toggle_sine":
+            case ("toggle_sine", _):
                 self.toggle_sine()
-            case "toggle_rotate":
+            case ("toggle_rotate", _):
                 self.toggle_rotate()
-            case "toggle_scale":
+            case ("toggle_scale", _):
                 self.toggle_scale()
-            case "toggle_jitter":
+            case ("toggle_jitter", _):
                 self.toggle_jitter()
             case ("set_sine_amplitude", float(amplitude)):
                 self.sine_amplitude = amplitude

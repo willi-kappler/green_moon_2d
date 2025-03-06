@@ -6,6 +6,7 @@
 import unittest
 from typing import Any, override
 
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_scene import GMScene, GMSceneManager
 
 
@@ -38,11 +39,11 @@ class TestScene(GMScene):
         self.custom_property["leave_called"] += 1
 
     @override
-    def send_message(self, custom_message: Any):
+    def send_message(self, msg: GMMessage):
         self.custom_property["send_message_called"] += 1
-        self.custom_property["send_message_value"] = custom_message
+        self.custom_property["send_message_command"] = msg.command
 
-        match custom_message:
+        match (msg.command, msg.value):
             case ("double", int(val)):
                 return val * 2
 
@@ -76,7 +77,7 @@ class TestSceneManager(unittest.TestCase):
         self.assertEqual(self.sm.scenes[name].custom_property["send_message_called"], val)
 
     def assertSceneSendMessageValue(self, name: str, val: Any):
-        self.assertEqual(self.sm.scenes[name].custom_property["send_message_value"], val)
+        self.assertEqual(self.sm.scenes[name].custom_property["send_message_command"], val)
 
     def setUp(self):
         self.sm = GMSceneManager()
@@ -388,19 +389,19 @@ class TestSceneManager(unittest.TestCase):
         self.assertSceneSendMessage("test1", 0)
         self.assertSceneSendMessage("test2", 0)
 
-        self.sm.send_message("test1", "the first message")
+        self.sm.send_message(GMMessage.single("test1", "the first message", None))
         self.assertSceneSendMessage("test1", 1)
         self.assertSceneSendMessage("test2", 0)
         self.assertSceneSendMessageValue("test1", "the first message")
 
-        self.sm.send_message("test2", "the second message")
+        self.sm.send_message(GMMessage.single("test2", "the second message", None))
         self.assertSceneSendMessage("test1", 1)
         self.assertSceneSendMessage("test2", 1)
         self.assertSceneSendMessageValue("test1", "the first message")
         self.assertSceneSendMessageValue("test2", "the second message")
 
-        res = self.sm.send_message("test1", ("double", 3))
-        self.assertEqual(res, 6)
+        res = self.sm.send_message(GMMessage.single("test1", "double", 3))
+        self.assertEqual(res, [("test1", 6)])
 
 
 if __name__ == "__main__":

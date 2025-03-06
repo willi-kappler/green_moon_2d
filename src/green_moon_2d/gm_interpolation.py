@@ -6,6 +6,7 @@
 from typing import Any, override
 import math
 
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_math import GMRepetition
 
@@ -100,21 +101,35 @@ class GMInterpolate(GMObject):
         self.calculate_value()
 
     @override
-    def send_message(self, msg: Any) -> Any:
-        match msg:
+    def send_message(self, msg: GMMessage) -> Any:
+        command: str = msg.command
+        value: Any = msg.value
+        msg2 = (command, value)
+
+        match msg2:
             case ("set_start", start):
                 self.start = start
                 self.calculate_diff()
+            case ("get_start", _):
+                return self.start
             case ("set_end", end):
                 self.end = end
                 self.calculate_diff()
+            case ("get_end", _):
+                return self.end
             case ("set_speed", float(speed)):
                 self.speed = speed
+            case ("get_speed", _):
+                return self.speed
             case ("set_repetition", GMRepetition() as repetition):
                 self.set_repetition(repetition)
+            case ("get_repetition", _):
+                return self.repetition
             case ("set_curve", curve):
                 self.curve = curve
-            case "is_finished":
+            case ("get_curve", _):
+                return self.curve
+            case ("is_finished", _):
                 return self.is_finished()
             case _:
                 super().send_message(msg)

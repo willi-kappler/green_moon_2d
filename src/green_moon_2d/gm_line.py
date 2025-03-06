@@ -10,6 +10,7 @@ from copy import deepcopy
 import math
 
 # Local imports:
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_math import GMVec2D
 
@@ -83,7 +84,7 @@ class GMLine(GMObject):
             o.update(dt, om)
 
     @override
-    def send_message(self, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         Process messages send to this line object.
 

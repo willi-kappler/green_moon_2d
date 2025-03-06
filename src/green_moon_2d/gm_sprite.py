@@ -6,6 +6,7 @@
 from typing import Any, override
 
 from green_moon_2d.gm_math import GMVec2D
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_animation import GMAnimation
 from green_moon_2d.gm_texture import GMTextureInterface
@@ -13,7 +14,7 @@ from green_moon_2d.gm_texture import GMTextureInterface
 
 class GMSprite(GMObject):
     def __init__(self, pos: tuple[float, float] | GMVec2D, name: str,
-        animation: GMAnimation, texture: GMTextureInterface):
+            animation: GMAnimation, texture: GMTextureInterface):
         """
         :param pos: The position of the sprite on the screen.
         :param name: The name of the sprite. It must be unique.
@@ -41,29 +42,41 @@ class GMSprite(GMObject):
         self.animation.update()
 
     @override
-    def send_message(self, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         Process messages send to this sprite.
 
         :param msg: The actual message.
         """
 
-        match msg:
+        command: str = msg.command
+        value: Any = msg.value
+        msg2 = (command, value)
+
+        match msg2:
             case ("set_animation", GMAnimation() as animation):
                 self.animation = animation
             case ("set_texture", GMTextureInterface() as texture):
                 self.texture = texture
             case ("set_angle", float(angle)):
                 self.angle = angle
+            case ("get_angle", _):
+                return self.angle
             case ("set_scale", float(scale)):
                 self.scale = scale
+            case ("get_scale", _):
+                return self.scale
             case ("set_flip_x", bool(flip_x)):
                 self.flip_x = flip_x
-            case "toggle_flip_x":
+            case ("get_flip_x", _):
+                return self.flip_x
+            case ("toggle_flip_x", _):
                 self.flip_x = not self.flip_x
             case ("set_flip_y", bool(flip_y)):
                 self.flip_y = flip_y
-            case "toggle_flip_y":
+            case ("get_flip_y", _):
+                return self.flip_y
+            case ("toggle_flip_y", _):
                 self.flip_y = not self.flip_y
             case _:
                 # Delegate all other messages to the base class:

@@ -10,6 +10,8 @@ This module defines the GMSceneManager and the GMScene base class.
 from typing import Any
 
 import logging
+
+from green_moon_2d.gm_message import GMMessage, GMMessageType
 logger = logging.getLogger(__name__)
 
 
@@ -64,13 +66,11 @@ class GMScene:
 
         pass
 
-    def send_message(self, custom_message: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         This method can be used to send a custom message from one
         scene (usually the currently active one) to another scene.
         """
-
-        _ = custom_message
 
 
 class GMSceneManager:
@@ -213,15 +213,22 @@ class GMSceneManager:
 
         self.scenes[name].draw()
 
-    def send_message(self, name: str, custom_message: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         Sends a custom message to the scene given by the name.
 
-        :param name: The name of the scene to send the custom message to.
-        :param custom_message: The custom message that is sent to the scene.
+        :param msg: The custom message that is sent to the scene.
         """
 
-        return self.scenes[name].send_message(custom_message)
+        result = []
+        msg_type = msg.msg_type
 
+        match msg_type:
+            case GMMessageType.SINGLE | GMMessageType.MULTIPLE:
+                for name in msg.targets:
+                    result.append((name, self.scenes[name].send_message(msg)))
+            case _:
+                raise ValueError(f"Message type not supported in scenes: {msg}")
 
+        return result
 
