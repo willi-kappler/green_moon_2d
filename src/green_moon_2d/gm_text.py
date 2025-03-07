@@ -59,14 +59,18 @@ class GMText(GMObject):
             self.font.draw_i(x, y, i)
 
     @override
-    def send_message(self, msg: Any) -> Any:
+    def send_message(self, msg: GMMessage) -> Any:
         """
         Process messages send to this text object.
 
         :param msg: The actual message.
         """
 
-        match msg:
+        command = msg.command
+        value = msg.value
+        msg2 = (command, value)
+
+        match msg2:
             case ("set_text", str(text)):
                 self.set_text(text)
             case ("set_pos", pos):
@@ -78,7 +82,7 @@ class GMText(GMObject):
                 self.set_horizontal(horizontal)
             case ("set_alignment", GMAlignment() as alignment):
                 self.set_alignment(alignment)
-            case "toggle_orientation":
+            case ("toggle_orientation", _):
                 self.toggle_orientation()
             case _:
                 # Delegate all other messages to the base class:

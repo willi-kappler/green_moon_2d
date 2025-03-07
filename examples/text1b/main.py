@@ -6,6 +6,7 @@
 from typing import override
 
 import green_moon_2d.gm_engine as gme
+from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_scene import GMScene
 from green_moon_2d.gm_text import GMText
 from green_moon_2d.gm_math import GMAlignment
@@ -52,15 +53,17 @@ class ExampleScene(GMScene):
             gme.GMGlobalContext.quit_game = True
 
         if "1" in keys_down:
-            self.om.send_message_group("group1", ("set_font", self.font1))
+            # Send single message directly as group message:
+            self.om.send_message_group("group1", GMMessage.single("", "set_font", self.font1))
             self.font_text.set_text("THIS IS FONT 1")
 
         if "2" in keys_down:
-            self.om.send_message_group("group1", ("set_font", self.font2))
+            # Send message as group message:
+            self.om.send_message(GMMessage.group("group1", "set_font", self.font2))
             self.font_text.set_text("THIS IS FONT 2")
 
         if "3" in keys_down:
-            self.om.send_message_group("group1", ("set_font", self.font3))
+            self.om.send_message(GMMessage.group("group1", "set_font", self.font3))
             self.font_text.set_text("THIS IS FONT 3")
 
     @override
