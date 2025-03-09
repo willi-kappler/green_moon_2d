@@ -73,6 +73,14 @@ class GMObject:
                 self.set_pos(pos)
             case ("get_pos", _):
                 return self.pos
+            case ("set_x", float(x)):
+                self.pos.x = x
+            case ("get_x", _):
+                return self.pos.x
+            case ("set_y", float(y)):
+                self.pos.y = y
+            case ("get_y", _):
+                return self.pos.y
             case ("set_active", bool(active)):
                 self.active = active
             case ("toggle_active", _):
