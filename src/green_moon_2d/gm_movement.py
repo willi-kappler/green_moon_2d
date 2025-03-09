@@ -47,6 +47,19 @@ class GMMVCircle(GMObject):
         :param msg: The actual message.
         """
 
-        match msg:
-            case ():
-                pass
+        command = msg.command
+        value = msg.value
+        msg2 = (command, value)
+
+        match msg2:
+            case ("set_radius", float(radius)):
+                self.radius = radius
+            case ("get_radius", _):
+                return self.radius
+            case ("set_speed", float(speed)):
+                self.speed = speed
+            case ("get_speed", _):
+                return self.speed
+            case _:
+                self.user_message.send_message(msg)
+
