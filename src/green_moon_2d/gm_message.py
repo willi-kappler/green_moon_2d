@@ -3,7 +3,7 @@
 #
 # See: https://github.com/willi-kappler/green_moon_2d
 
-from typing import Any
+from typing import Any, Self
 
 import enum
 
@@ -76,4 +76,28 @@ class GMMessage:
     def mult_group_child(target: list[str], child: str, command: str, value: Any) -> "GMMessage":
         msg = GMMessage(GMMessageType.MULTI_GROUP, target, child, command, value)
         return msg
+
+    def send_message(self, msg: Self):
+        """
+        Process messages send to this circular movement.
+
+        :param msg: The actual message.
+        """
+
+        command = msg.command
+        value = msg.value
+        msg2 = (command, value)
+
+        match msg2:
+            case ("set_targets", list(targets)):
+                self.targets = targets
+            case ("set_msg_type", msg_type):
+                self.msg_type = msg_type
+            case ("set_targets_type", (targets, msg_type)):
+                self.targets = targets
+                self.msg_type = msg_type
+            case ("set_command", str(command)):
+                self.command = command
+            case _:
+                raise ValueError(f"Unknown message: {msg}")
 
