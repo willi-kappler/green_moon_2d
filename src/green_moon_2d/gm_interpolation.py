@@ -112,6 +112,16 @@ class GMInterpolate(GMObject):
                 self.calculate_diff()
             case ("get_start", _):
                 return self.start
+            case ("set_start_x", float(x)):
+                self.start.x = x
+                self.calculate_diff()
+            case ("get_start_x", _):
+                return self.start.x
+            case ("set_start_y", float(y)):
+                self.start.y = y
+                self.calculate_diff()
+            case ("get_start_y", _):
+                return self.start.y
             case ("set_end", end):
                 self.end = end
                 self.calculate_diff()
@@ -163,7 +173,4 @@ class GMInterpolate(GMObject):
                 self.current_step = 1.0
 
         self.repetition = repetition
-
-
-
 
