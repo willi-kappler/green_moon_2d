@@ -118,6 +118,8 @@ class GMObject:
                 return self.has_property(name)
             case ("clear_properties", _):
                 self.clear_properties()
+            case _:
+                raise ValueError(f"Unknown message: {msg}")
 
     def set_pos(self, pos: tuple[float, float] | GMVec2D) -> None:
         """
