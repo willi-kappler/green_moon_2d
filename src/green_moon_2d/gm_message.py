@@ -17,10 +17,10 @@ class GMMessageType(enum.Enum):
 
 class GMMessage:
     def __init__(self, msg_type: GMMessageType, target: str | list[str],
-            child: str, command: str, value: Any):
+            children: list[str], command: str, value: Any):
         self.msg_type: GMMessageType = msg_type
         self.targets: list[str] = []
-        self.child: str = child
+        self.children: list[str] = children
         self.command: str = command
         self.value: Any = value
 
@@ -34,48 +34,60 @@ class GMMessage:
 
     @staticmethod
     def empty() -> "GMMessage":
-        msg = GMMessage(GMMessageType.SINGLE, "", "", "", None)
+        msg = GMMessage(GMMessageType.SINGLE, "", [], "", None)
         return msg
 
     @staticmethod
     def single(target: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.SINGLE, target, "", command, value)
+        msg = GMMessage(GMMessageType.SINGLE, target, [], command, value)
         return msg
 
     @staticmethod
-    def single_child(target: str, child: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.SINGLE, target, child, command, value)
+    def single_child(target: str, children: list[str], command: str, value: Any) -> "GMMessage":
+        msg = GMMessage(GMMessageType.SINGLE, target, children, command, value)
         return msg
 
     @staticmethod
     def multiple(target: list[str], command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.MULTIPLE, target, "", command, value)
+        msg = GMMessage(GMMessageType.MULTIPLE, target, [], command, value)
         return msg
 
     @staticmethod
-    def multiple_child(target: list[str], child: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.MULTIPLE, target, child, command, value)
+    def multiple_child(target: list[str], children: list[str], command: str, value: Any) -> "GMMessage":
+        msg = GMMessage(GMMessageType.MULTIPLE, target, children, command, value)
         return msg
 
     @staticmethod
     def group(target: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.GROUP, target, "", command, value)
+        msg = GMMessage(GMMessageType.GROUP, target, [], command, value)
         return msg
 
     @staticmethod
-    def group_child(target: str, child: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.GROUP, target, child, command, value)
+    def group_child(target: str, children: list[str], command: str, value: Any) -> "GMMessage":
+        msg = GMMessage(GMMessageType.GROUP, target, children, command, value)
         return msg
 
     @staticmethod
     def multi_group(target: list[str], command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.MULTI_GROUP, target, "", command, value)
+        msg = GMMessage(GMMessageType.MULTI_GROUP, target, [], command, value)
         return msg
 
     @staticmethod
-    def mult_group_child(target: list[str], child: str, command: str, value: Any) -> "GMMessage":
-        msg = GMMessage(GMMessageType.MULTI_GROUP, target, child, command, value)
+    def mult_group_child(target: list[str], children: list[str], command: str, value: Any) -> "GMMessage":
+        msg = GMMessage(GMMessageType.MULTI_GROUP, target, children, command, value)
         return msg
+
+    def __repr__(self) -> str:
+        return f"GMMessage({self.msg_type}, {self.children}, {self.command}, {self.targets}, {self.value})"
+
+    def next_child(self) -> str:
+        if len(self.children) > 0:
+            return self.children.pop(0)
+        else:
+            return ""
+
+    def insert_child(self, child: str):
+        self.children.insert(0, child)
 
     def send_message(self, msg: Self):
         """
@@ -98,6 +110,8 @@ class GMMessage:
                 self.msg_type = msg_type
             case ("set_command", str(command)):
                 self.command = command
+            case ("set_children", list(children)):
+                self.children = children
             case _:
                 raise ValueError(f"Unknown message: {msg}")
 
