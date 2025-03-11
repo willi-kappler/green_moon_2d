@@ -9,6 +9,7 @@ import green_moon_2d.gm_math as gmm
 from green_moon_2d.gm_message import GMMessage
 from green_moon_2d.gm_object import GMObject, GMObjectManager
 from green_moon_2d.gm_interpolation import GMInterpolate
+from green_moon_2d.gm_timer import GMTimer
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,13 +58,20 @@ class GMMUMap(GMObject):
                 return self.om.send_message(self.user_message)
 
 class GMMUTimer(GMObject):
-    def __init__(self, name: str, delay: float):
+    def __init__(self, name: str, delay: int, repeat: bool = False):
         super().__init__(name)
-        self.timer = GMMUTimer("mu_timer", delay)
+        self.timer: GMTimer = GMTimer(delay)
+        self.user_message: GMMessage = GMMessage.empty()
+        self.repeat: bool = repeat
 
     @override
-    def update(self, dt: float, om) -> None:
-        pass
+    def update(self, dt: float, om: GMObjectManager) -> None:
+        if self.timer.finished():
+            if self.repeat:
+                self.timer.restart()
+            else:
+                self.timer.active = False
+            om.send_message(self.user_message)
 
     @override
     def send_message(self, msg: GMMessage) -> Any:
