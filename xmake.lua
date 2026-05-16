@@ -1,10 +1,13 @@
 set_project("green_moon_2d")
-    set_languages("c++23")
-    set_version("0.2.0")
-    set_optimize("fastest")
-    -- set_defaultmode("debug")
-    set_defaultmode("release")
-    add_rules("mode.debug", "mode.release")
+set_languages("c++23")
+set_version("0.1.0")
+set_optimize("fastest")
+-- set_defaultmode("debug")
+set_defaultmode("release")
+add_rules("mode.debug", "mode.release")
+
+-- set_optimize("aggressive") -- Becomes -Ofast on GCC/Clang
+-- add_vectorexts("native")   -- Becomes -march=native on GCC/Clang
 
 -- Clean configuration:
 -- xmake f -c
@@ -37,6 +40,11 @@ if is_kind("gcc", "clang") then
         -- Clang prefers the boolean flag without the numeric level
         add_cxxflags("-Wimplicit-fallthrough")
     end
+    -- Optimization:
+    add_cxflags("-march=native")
+    add_cxflags("-Ofast")
+
+    -- Warnings:
 --    add_cxxflags("-Wnull-dereference", "-Wswitch-enum")
     add_cxxflags("-Wconversion", "-Wshadow", "-Wsign-conversion", "-Wdouble-promotion", "-Wformat=2")
     add_cxxflags("-Wundef", "-Wcast-qual", "-Wnon-virtual-dtor", "-Wold-style-cast")
@@ -61,6 +69,7 @@ end
 add_requires("taocpp-json 2025.03.11")
 add_requires("snitch")
 add_requires("spdlog", {configs = {header_only = false}})
+add_requires("raylib")
 -- add_requires("argparse")
 
 target("green_moon_2d")
@@ -71,6 +80,7 @@ target("green_moon_2d")
     add_files("src/gm2d/*.cpp")
     add_packages("taocpp-json")
     add_packages("spdlog")
+    add_packages("raylib-6.0")
     -- For spdlog, so that every object file sees the global logger:
     add_defines("SPDLOG_COMPILED_LIB", {public = true})
     -- Tell xmake which headers to give to the user when installing it:
@@ -82,6 +92,7 @@ target("gm2d_test")
     add_packages("taocpp-json")
     add_packages("snitch")
     add_packages("spdlog")
+    add_packages("raylib")
     add_deps("green_moon_2d")
     add_includedirs("src")
     set_default(false) -- Don't build by default
