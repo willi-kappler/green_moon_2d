@@ -18,12 +18,13 @@ class GMVec2D {
     public:
         // Constructor:
         GMVec2D();
+        GMVec2D(const GMVec2D &);
         GMVec2D(std::float32_t);
         GMVec2D(std::float32_t, std::float32_t);
 
         void add(std::float32_t);
         void add(std::float32_t, std::float32_t);
-        void add(GMVec2D);
+        void add(const GMVec2D &);
 
         void mul(std::float32_t);
 
@@ -41,22 +42,23 @@ class GMVec2D {
 };
 }
 
+/*
 // Operators:
-bool operator==(const gm2d::GMVec2D&, const gm2d::GMVec2D&);
-bool operator!=(const gm2d::GMVec2D&, const gm2d::GMVec2D&);
+bool operator==(const gm2d::GMVec2D &, const gm2d::GMVec2D &);
+bool operator!=(const gm2d::GMVec2D &, const gm2d::GMVec2D &);
 
-gm2d::GMVec2D operator+(const gm2d::GMVec2D&, const gm2d::GMVec2D&);
-gm2d::GMVec2D operator+(const gm2d::GMVec2D&, const std::float32_t);
-void operator+=(gm2d::GMVec2D&, const gm2d::GMVec2D&);
-void operator+=(gm2d::GMVec2D&, const std::float32_t);
+gm2d::GMVec2D operator+(const gm2d::GMVec2D &, const gm2d::GMVec2D& );
+gm2d::GMVec2D operator+(const gm2d::GMVec2D &, const std::float32_t);
+void operator+=(gm2d::GMVec2D &, const gm2d::GMVec2D &);
+void operator+=(gm2d::GMVec2D &, const std::float32_t);
 
-gm2d::GMVec2D operator-(const gm2d::GMVec2D&, const gm2d::GMVec2D&);
-gm2d::GMVec2D operator-(const gm2d::GMVec2D&, const std::float32_t);
-void operator-=(gm2d::GMVec2D&, const gm2d::GMVec2D&);
-void operator-=(gm2d::GMVec2D&, const std::float32_t);
+gm2d::GMVec2D operator-(const gm2d::GMVec2D &, const gm2d::GMVec2D &);
+gm2d::GMVec2D operator-(const gm2d::GMVec2D &, const std::float32_t);
+void operator-=(gm2d::GMVec2D &, const gm2d::GMVec2D &);
+void operator-=(gm2d::GMVec2D &, const std::float32_t);
 
-gm2d::GMVec2D operator*(const gm2d::GMVec2D&, const std::float32_t);
-void operator*=(gm2d::GMVec2D&, const std::float32_t);
-
+gm2d::GMVec2D operator*(const gm2d::GMVec2D &, const std::float32_t);
+void operator*=(gm2d::GMVec2D &, const std::float32_t);
+*/
 
 #endif // FILE_GM_MATH_HPP_INCLUDED
