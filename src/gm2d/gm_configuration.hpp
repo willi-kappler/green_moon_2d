@@ -10,4 +10,8 @@
 #ifndef FILE_GM_CONFIG_HPP_INCLUDED
 #define FILE_GM_CONFIG_HPP_INCLUDED
 
+namespace gm2d {
+
+}
+
 #endif // FILE_GM_CONFIG_HPP_INCLUDED

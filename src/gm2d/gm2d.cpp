@@ -6,3 +6,11 @@
 
     This file defines the main library file
 */
+
+// Local includes:
+#include "gm2d.hpp"
+
+namespace gm2d {
+
+}
+

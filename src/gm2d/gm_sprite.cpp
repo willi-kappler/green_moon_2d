@@ -6,3 +6,10 @@
 
     This file defines the sprite class
 */
+
+// Local includes:
+#include "gm_sprite.hpp"
+
+namespace gm2d {
+
+}

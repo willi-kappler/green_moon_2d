@@ -10,6 +10,7 @@
 // Local includes:
 #include "gm_message.hpp"
 
+namespace gm2d {
 GMMessage::GMMessage(GMMessageType type):
     msg_type(type),
     msg_data()
@@ -29,3 +30,4 @@ GMHandleResult::GMHandleResult(GMHandleResultType type, std::any data):
     result_type(type),
     result_data(data)
 {}
+}

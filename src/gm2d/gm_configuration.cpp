@@ -6,3 +6,10 @@
 
     This file defines the configuration options
 */
+
+// Local includes:
+#include "gm_configuration.hpp"
+
+namespace gm2d {
+
+}

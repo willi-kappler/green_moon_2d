@@ -11,6 +11,8 @@
 #include "gm_object.hpp"
 #include "gm_exceptions.hpp"
 
+
+namespace gm2d{
 GMObject::GMObject(std::string_view name, bool active = true, int16_t update_order = 0):
     obj_name(name),
     obj_active(active),
@@ -81,4 +83,5 @@ GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t dra
     }
 
     return GMHandleResult();
+}
 }

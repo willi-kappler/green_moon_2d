@@ -15,7 +15,7 @@
 #include <format>
 #include <string_view>
 
-
+namespace gm2d {
 enum struct GMMessageType: uint32_t {
     SetActive = 0,
     GetActive,
@@ -43,55 +43,55 @@ enum struct GMHandleResultType: uint32_t {
 
     Custom
 };
-
+}
 
 template <>
-struct std::formatter<GMMessageType> : std::formatter<std::string_view> {
-    auto format(GMMessageType m, format_context& ctx) const {
+struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
+    auto format(gm2d::GMMessageType m, format_context& ctx) const {
         std::string_view name;
 
         switch (m) {
-            case GMMessageType::SetActive:
+            case gm2d::GMMessageType::SetActive:
                 name = "SetActive";
             break;
 
-            case GMMessageType::GetActive:
+            case gm2d::GMMessageType::GetActive:
                 name = "GetActive";
             break;
 
-            case GMMessageType::ToggleActive:
+            case gm2d::GMMessageType::ToggleActive:
                 name = "ToggleActive";
             break;
 
-            case GMMessageType::SetUpdateOrder:
+            case gm2d::GMMessageType::SetUpdateOrder:
                 name = "SetUpdateOrder";
             break;
 
-            case GMMessageType::GetUpdateOrder:
+            case gm2d::GMMessageType::GetUpdateOrder:
                 name = "GetUpdateOrder";
             break;
 
-            case GMMessageType::SetVisible:
+            case gm2d::GMMessageType::SetVisible:
                 name = "SetVisible";
             break;
 
-            case GMMessageType::GetVisible:
+            case gm2d::GMMessageType::GetVisible:
                 name = "GetVisible";
             break;
 
-            case GMMessageType::ToggleVisible:
+            case gm2d::GMMessageType::ToggleVisible:
                 name = "ToggleVisible";
             break;
 
-            case GMMessageType::SetDrawOrder:
+            case gm2d::GMMessageType::SetDrawOrder:
                 name = "SetDrawOrder";
             break;
 
-            case GMMessageType::GetDrawOrder:
+            case gm2d::GMMessageType::GetDrawOrder:
                 name = "GetDrawOrder";
             break;
 
-            case GMMessageType::Custom:
+            case gm2d::GMMessageType::Custom:
                 name = "Custom";
             break;
 
@@ -103,5 +103,6 @@ struct std::formatter<GMMessageType> : std::formatter<std::string_view> {
         return std::formatter<std::string_view>::format(name, ctx);
     }
 };
+
 
 #endif // FILE_GM_MESSAGE_TYPE_HPP_INCLUDED

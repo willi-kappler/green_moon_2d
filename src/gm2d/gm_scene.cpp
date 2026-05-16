@@ -7,3 +7,9 @@
     This file defines the scene manager
 */
 
+// Local includes:
+#include "gm_scene.hpp"
+
+namespace gm2d {
+
+}

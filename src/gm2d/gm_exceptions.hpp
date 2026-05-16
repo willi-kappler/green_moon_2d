@@ -19,11 +19,14 @@
 // Local includes:
 #include "gm_message_type.hpp"
 
+namespace gm2d {
+
 class GMUnknownMessageType: public std::runtime_error {
 public:
   GMUnknownMessageType(GMMessageType msg_type, std::string_view obj_name):
     std::runtime_error(std::format("Unknown message type: {}, object name: {}", msg_type, obj_name)) { }
 };
 
+}
 
 #endif // FILE_GM_EXCEPTIONS_HPP_INCLUDED

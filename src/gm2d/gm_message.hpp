@@ -18,6 +18,7 @@
 #include "gm_message_type.hpp"
 
 
+namespace gm2d {
 class GMMessage {
     public:
         // Constructors:
@@ -41,3 +42,4 @@ class GMHandleResult {
 };
 
 #endif // FILE_GM_MESSAGE_HPP_INCLUDED
+}

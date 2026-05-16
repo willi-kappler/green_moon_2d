@@ -6,3 +6,10 @@
 
     This file defines the animation class
 */
+
+// Local includes:
+#include "gm_animation.hpp"
+
+namespace gm2d {
+
+}

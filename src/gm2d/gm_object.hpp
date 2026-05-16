@@ -18,6 +18,8 @@
 // Local includes:
 #include "gm_message.hpp"
 
+
+namespace gm2d {
 class GMObject {
     public:
         // Constructor:
@@ -49,5 +51,6 @@ class GMGFXObject: public GMObject {
 class GMObjectManager {
 
 };
+}
 
 #endif // FILE_GM_OBJECT_HPP_INCLUDED

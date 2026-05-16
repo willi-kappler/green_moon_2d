@@ -6,3 +6,10 @@
 
     This file defines the resource manager
 */
+
+// Local includes:
+#include "gm_resources.hpp"
+
+namespace gm2d {
+
+}
