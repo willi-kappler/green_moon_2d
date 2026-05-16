@@ -42,3 +42,6 @@
 
 .xmake/
 build/
+
+src/old/
+examples/old/
