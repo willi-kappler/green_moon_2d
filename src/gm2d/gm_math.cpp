@@ -108,4 +108,57 @@ void GMVec2D::rotate2(std::float32_t a) {
     x = x2;
     y = y2;
 }
+
+bool GMVec2D::operator==(const GMVec2D &other) {
+    return (x == other.x) && (y == other.y);
+}
+
+bool GMVec2D::operator!=(const GMVec2D &other) {
+    return (x != other.x) || (y != other.y);
+}
+
+GMVec2D GMVec2D::operator+(const GMVec2D &other) {
+    return GMVec2D(x + other.x, y + other.y);
+}
+
+GMVec2D GMVec2D::operator+(const std::float32_t a) {
+    return GMVec2D(x + a, y + a);
+}
+
+void GMVec2D::operator+=(const GMVec2D &other) {
+    x += other.x;
+    y += other.y;
+}
+
+void GMVec2D::operator+=(const std::float32_t a) {
+    x += a;
+    y += a;
+}
+
+GMVec2D GMVec2D::operator-(const GMVec2D &other) {
+    return GMVec2D(x - other.x, y - other.y);
+}
+
+GMVec2D GMVec2D::operator-(const std::float32_t a) {
+    return GMVec2D(x - a, y - a);
+}
+
+void GMVec2D::operator-=(const GMVec2D &other) {
+    x -= other.x;
+    y -= other.y;
+}
+
+void GMVec2D::operator-=(const std::float32_t a) {
+    x -= a;
+    y -= a;
+}
+
+GMVec2D GMVec2D::operator*(const std::float32_t a) {
+    return GMVec2D(x * a, y * a);
+}
+
+void GMVec2D::operator*=(const std::float32_t a) {
+    x *= a;
+    y *= a;
+}
 }

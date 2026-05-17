@@ -22,6 +22,7 @@ class GMVec2D {
         GMVec2D(std::float32_t);
         GMVec2D(std::float32_t, std::float32_t);
 
+        // Methods:
         void add(std::float32_t);
         void add(std::float32_t, std::float32_t);
         void add(const GMVec2D &);
@@ -37,6 +38,24 @@ class GMVec2D {
         [[nodiscard]] GMVec2D rotate1(std::float32_t);
         void rotate2(std::float32_t);
 
+        // Operators:
+        bool operator==(const GMVec2D &);
+        bool operator!=(const GMVec2D &);
+
+        GMVec2D operator+(const GMVec2D &);
+        GMVec2D operator+(const std::float32_t);
+        void operator+=(const GMVec2D &);
+        void operator+=(const std::float32_t);
+
+        GMVec2D operator-(const GMVec2D &);
+        GMVec2D operator-(const std::float32_t);
+        void operator-=(const GMVec2D &);
+        void operator-=(const std::float32_t);
+
+        GMVec2D operator*(const std::float32_t);
+        void operator*=(const std::float32_t);
+
+        // Members:
         std::float32_t x;
         std::float32_t y;
 };
