@@ -5,8 +5,12 @@
     https://github.com/willi-kappler/green_moon_2d
 
     This file contains all the test cases.
+    Run with:
+    normal: xmake run -w ./ gm2d_test
+    debug:  xmake run -d -w ./ gm2d_test
+    List all tests: xmake run -w ./ gm2d_test -l
 */
 
-int main() {
-    return 0;
-}
+#define SNITCH_IMPLEMENTATION
+#include <snitch/snitch.hpp>
+//#include <snitch_all.hpp>

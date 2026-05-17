@@ -20,11 +20,6 @@ GMVec2D::GMVec2D():
     y(0.0f32)
 {}
 
-GMVec2D::GMVec2D(const GMVec2D &other):
-    x(other.x),
-    y(other.y)
-{}
-
 GMVec2D::GMVec2D(std::float32_t a):
     x(a),
     y(a)
@@ -33,6 +28,11 @@ GMVec2D::GMVec2D(std::float32_t a):
 GMVec2D::GMVec2D(std::float32_t a, std::float32_t b):
     x(a),
     y(b)
+{}
+
+GMVec2D::GMVec2D(const GMVec2D &other):
+    x(other.x),
+    y(other.y)
 {}
 
 void GMVec2D::add(std::float32_t a) {
@@ -109,19 +109,24 @@ void GMVec2D::rotate2(std::float32_t a) {
     y = y2;
 }
 
-bool GMVec2D::operator==(const GMVec2D &other) {
+void GMVec2D::operator=(const GMVec2D &other) {
+    x = other.x;
+    y = other.y;
+}
+
+[[nodiscard]] bool GMVec2D::operator==(const GMVec2D &other) {
     return (x == other.x) && (y == other.y);
 }
 
-bool GMVec2D::operator!=(const GMVec2D &other) {
+[[nodiscard]] bool GMVec2D::operator!=(const GMVec2D &other) {
     return (x != other.x) || (y != other.y);
 }
 
-GMVec2D GMVec2D::operator+(const GMVec2D &other) {
+[[nodiscard]] GMVec2D GMVec2D::operator+(const GMVec2D &other) {
     return GMVec2D(x + other.x, y + other.y);
 }
 
-GMVec2D GMVec2D::operator+(const std::float32_t a) {
+[[nodiscard]] GMVec2D GMVec2D::operator+(const std::float32_t a) {
     return GMVec2D(x + a, y + a);
 }
 
@@ -135,11 +140,11 @@ void GMVec2D::operator+=(const std::float32_t a) {
     y += a;
 }
 
-GMVec2D GMVec2D::operator-(const GMVec2D &other) {
+[[nodiscard]] GMVec2D GMVec2D::operator-(const GMVec2D &other) {
     return GMVec2D(x - other.x, y - other.y);
 }
 
-GMVec2D GMVec2D::operator-(const std::float32_t a) {
+[[nodiscard]] GMVec2D GMVec2D::operator-(const std::float32_t a) {
     return GMVec2D(x - a, y - a);
 }
 
@@ -153,7 +158,7 @@ void GMVec2D::operator-=(const std::float32_t a) {
     y -= a;
 }
 
-GMVec2D GMVec2D::operator*(const std::float32_t a) {
+[[nodiscard]] GMVec2D GMVec2D::operator*(const std::float32_t a) {
     return GMVec2D(x * a, y * a);
 }
 
@@ -161,4 +166,9 @@ void GMVec2D::operator*=(const std::float32_t a) {
     x *= a;
     y *= a;
 }
+
+[[nodiscard]] bool approx(std::float32_t a, std::float32_t b) {
+    return std::abs(a - b) <= 0.00001f32;
+}
+
 }

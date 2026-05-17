@@ -41,8 +41,7 @@ if is_kind("gcc", "clang") then
         add_cxxflags("-Wimplicit-fallthrough")
     end
     -- Optimization:
-    add_cxflags("-march=native")
-    add_cxflags("-Ofast")
+    add_cxflags("-march=native", "-Ofast")
 
     -- Warnings:
 --    add_cxxflags("-Wnull-dereference", "-Wswitch-enum")
@@ -69,7 +68,7 @@ end
 add_requires("taocpp-json 2025.03.11")
 add_requires("snitch")
 add_requires("spdlog", {configs = {header_only = false}})
-add_requires("raylib")
+-- add_requires("raylib")
 -- add_requires("argparse")
 
 target("green_moon_2d")
@@ -80,7 +79,7 @@ target("green_moon_2d")
     add_files("src/gm2d/*.cpp")
     add_packages("taocpp-json")
     add_packages("spdlog")
-    add_packages("raylib-6.0")
+    -- add_packages("raylib")
     -- For spdlog, so that every object file sees the global logger:
     add_defines("SPDLOG_COMPILED_LIB", {public = true})
     -- Tell xmake which headers to give to the user when installing it:
@@ -88,7 +87,7 @@ target("green_moon_2d")
 
 target("gm2d_test")
     set_kind("binary")
-    add_files("tests/test_all.cpp")
+    add_files("tests/*.cpp")
     add_packages("taocpp-json")
     add_packages("snitch")
     add_packages("spdlog")
