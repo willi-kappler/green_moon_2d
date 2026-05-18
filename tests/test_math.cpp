@@ -8,7 +8,6 @@
 
     Run only configuration tests:
     xmake run -w ./ gm2d_test [math]
-
 */
 
 // External includes:

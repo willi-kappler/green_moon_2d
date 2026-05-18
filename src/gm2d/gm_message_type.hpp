@@ -24,12 +24,19 @@ enum struct GMMessageType: uint32_t {
     SetUpdateOrder,
     GetUpdateOrder,
 
+    AddGroup,
+    RemoveGroup,
+
     SetVisible,
     GetVisible,
     ToggleVisible,
 
     SetDrawOrder,
     GetDrawOrder,
+
+    SetPosition,
+    GetPosition,
+    AddPosition,
 
     Custom
 };
@@ -40,6 +47,7 @@ enum struct GMHandleResultType: uint32_t {
     UpdateOrder,
     Visible,
     DrawOrder,
+    Position,
 
     Custom
 };
@@ -71,6 +79,14 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetUpdateOrder";
             break;
 
+            case gm2d::GMMessageType::AddGroup:
+                name = "AddGroup";
+            break;
+
+            case gm2d::GMMessageType::RemoveGroup:
+                name = "RemoveGroup";
+            break;
+
             case gm2d::GMMessageType::SetVisible:
                 name = "SetVisible";
             break;
@@ -91,6 +107,18 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetDrawOrder";
             break;
 
+            case gm2d::GMMessageType::SetPosition:
+                name = "SetPosition";
+            break;
+
+            case gm2d::GMMessageType::GetPosition:
+                name = "GetPosition";
+            break;
+
+            case gm2d::GMMessageType::AddPosition:
+                name = "AddPosition";
+            break;
+
             case gm2d::GMMessageType::Custom:
                 name = "Custom";
             break;
@@ -104,5 +132,47 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
     }
 };
 
+template <>
+struct std::formatter<gm2d::GMHandleResultType> : std::formatter<std::string_view> {
+    auto format(gm2d::GMHandleResultType r, format_context& ctx) const {
+        std::string_view name;
+
+        switch (r) {
+            case gm2d::GMHandleResultType::Empty:
+                name = "Empty";
+            break;
+
+            case gm2d::GMHandleResultType::Active:
+                name = "Active";
+            break;
+
+            case gm2d::GMHandleResultType::UpdateOrder:
+                name = "UpdateOrder";
+            break;
+
+            case gm2d::GMHandleResultType::Visible:
+                name = "Visible";
+            break;
+
+            case gm2d::GMHandleResultType::DrawOrder:
+                name = "DrawOrder";
+            break;
+
+            case gm2d::GMHandleResultType::Position:
+                name = "Position";
+            break;
+
+            case gm2d::GMHandleResultType::Custom:
+                name = "Custom";
+            break;
+
+            default:
+                name = std::format("Unknown: {}", static_cast<uint16_t>(r));
+            break;
+        }
+
+        return std::formatter<std::string_view>::format(name, ctx);
+    }
+};
 
 #endif // FILE_GM_MESSAGE_TYPE_HPP_INCLUDED
