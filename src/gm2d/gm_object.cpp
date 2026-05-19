@@ -169,11 +169,15 @@ void GMObjectManager::gm_update() {
     });
 
     for (auto &obj: normal_objects) {
-        obj->gm_update();
+        if (obj->obj_active) {
+            obj->gm_update();
+        }
     }
 
     for (auto &obj: gfx_objects) {
-        obj->gm_update();
+        if (obj->obj_active) {
+            obj->gm_update();
+        }
     }
 }
 
@@ -185,7 +189,9 @@ void GMObjectManager::gm_draw() {
     });
 
     for (auto &obj: gfx_objects) {
-        obj->gm_draw();
+        if (obj->gfx_visible) {
+            obj->gm_draw();
+        }
     }
 }
 
