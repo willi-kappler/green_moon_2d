@@ -73,19 +73,19 @@ class GMObjectManager {
 
         void gm_draw();
 
-        void gm_add_object();
-        void gm_remove_object();
-        void gm_replace_object();
+        void gm_add_object(GMObject);
+        void gm_remove_object(std::string_view);
+        void gm_replace_object(GMObject);
         void gm_clear_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_object();
+        [[nodiscard]] GMHandleResult gm_send_message_object(std::string_view, const GMMessage &);
         // TODO: send message to group
         // TODO: find object
 
-        void gm_add_gfx_object();
-        void gm_remove_gfx_object();
-        void gm_replace_gfx_object();
+        void gm_add_gfx_object(GMGFXObject);
+        void gm_remove_gfx_object(std::string_view);
+        void gm_replace_gfx_object(GMGFXObject);
         void gm_clear_gfx_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_gfx_object();
+        [[nodiscard]] GMHandleResult gm_send_message_gfx_object(std::string_view, const GMMessage &);
         // TODO: send message to gfx group
         // TODO: find gfx object
 

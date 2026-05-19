@@ -189,5 +189,94 @@ void GMObjectManager::gm_draw() {
     }
 }
 
+void GMObjectManager::gm_add_object(GMObject new_obj) {
+    for (auto &o: normal_objects) {
+        if (o->obj_name == new_obj.obj_name) {
+            throw GMObjectNameDuplicate("GMObjectManager::gm_add_object", o->obj_name);
+        }
+    }
+
+    normal_objects.push_back(std::make_unique<GMObject>(new_obj));
+}
+
+void GMObjectManager::gm_remove_object(std::string_view name) {
+    for (size_t i = 0; i < normal_objects.size(); i++) {
+        if (normal_objects[i]->obj_name == name) {
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_remove_object", name);
+}
+
+void GMObjectManager::gm_replace_object(GMObject new_obj) {
+    for (size_t i = 0; i < normal_objects.size(); i++) {
+        if (normal_objects[i]->obj_name == new_obj.obj_name) {
+            normal_objects[i] = std::make_unique<GMObject>(new_obj);
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_replace_object", new_obj.obj_name);
+}
+
+void GMObjectManager::gm_clear_objects() {
+    normal_objects.clear();
+}
+
+[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_object(std::string_view name, const GMMessage &msg) {
+    for (auto &o: normal_objects) {
+        if (o->obj_name == name) {
+            return o->gm_handle_message(msg);
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_send_message_object", name);
+}
+
+void GMObjectManager::gm_add_gfx_object(GMGFXObject new_obj) {
+    for (auto &o: gfx_objects) {
+        if (o->obj_name == new_obj.obj_name) {
+            throw GMObjectNameDuplicate("GMObjectManager::gm_add_gfx_object", o->obj_name);
+        }
+    }
+
+    gfx_objects.push_back(std::make_unique<GMGFXObject>(new_obj));
+}
+
+void GMObjectManager::gm_remove_gfx_object(std::string_view name) {
+    for (size_t i = 0; i < gfx_objects.size(); i++) {
+        if (gfx_objects[i]->obj_name == name) {
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_remove_gfx_object", name);
+}
+
+void GMObjectManager::gm_replace_gfx_object(GMGFXObject new_obj) {
+    for (size_t i = 0; i < gfx_objects.size(); i++) {
+        if (gfx_objects[i]->obj_name == new_obj.obj_name) {
+            gfx_objects[i] = std::make_unique<GMGFXObject>(new_obj);
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_replace_gfx_object", new_obj.obj_name);
+}
+
+void GMObjectManager::gm_clear_gfx_objects() {
+    gfx_objects.clear();
+}
+
+[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_gfx_object(std::string_view name, const GMMessage &msg) {
+    for (auto &o: gfx_objects) {
+        if (o->obj_name == name) {
+            return o->gm_handle_message(msg);
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_send_message_gfx_object", name);
+}
 
 }
