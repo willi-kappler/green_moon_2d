@@ -156,13 +156,13 @@ GMObjectManager::GMObjectManager():
 {}
 
 void GMObjectManager::gm_update() {
-    std::stable_sort(normal_objects.begin(), normal_objects.end(), [](
+    std::sort(normal_objects.begin(), normal_objects.end(), [](
         const std::unique_ptr<GMObject> &obj1,
         const std::unique_ptr<GMObject> &obj2) {
         return obj1->obj_update_order < obj2->obj_update_order;
     });
 
-    std::stable_sort(gfx_objects.begin(), gfx_objects.end(), [](
+    std::sort(gfx_objects.begin(), gfx_objects.end(), [](
         const std::unique_ptr<GMGFXObject> &obj1,
         const std::unique_ptr<GMGFXObject> &obj2) {
         return obj1->obj_update_order < obj2->obj_update_order;
@@ -182,7 +182,7 @@ void GMObjectManager::gm_update() {
 }
 
 void GMObjectManager::gm_draw() {
-    std::stable_sort(gfx_objects.begin(), gfx_objects.end(), [](
+    std::sort(gfx_objects.begin(), gfx_objects.end(), [](
         const std::unique_ptr<GMGFXObject> &obj1,
         const std::unique_ptr<GMGFXObject> &obj2) {
         return obj1->gfx_draw_order < obj2->gfx_draw_order;
