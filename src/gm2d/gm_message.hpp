@@ -13,19 +13,24 @@
 // STD includes:
 #include <cstdint>
 #include <any>
+#include <string>
 
 // Local includes:
 #include "gm_message_type.hpp"
 
 
 namespace gm2d {
+
+// Messages from and to objects:
 class GMMessage {
     public:
         // Constructors:
-        GMMessage(GMMessageType);
-        GMMessage(GMMessageType, std::any);
+        GMMessage(std::string, std::string, GMMessageType);
+        GMMessage(std::string, std::string, GMMessageType, std::any);
 
 
+        const std::string msg_sender;
+        const std::string msg_receiver;
         const GMMessageType msg_type;
         std::any msg_data;
 };
@@ -34,12 +39,41 @@ class GMHandleResult {
     public:
         // Constructors:
         GMHandleResult();
-        GMHandleResult(GMHandleResultType, std::any);
+        GMHandleResult(std::string, std::string, GMHandleResultType, std::any);
+        // [[nodiscard]] GMHandleResult operator=(const GMHandleResult &);
 
 
+        const std::string result_sender;
+        const std::string result_receiver;
         const GMHandleResultType result_type;
         std::any result_data;
 };
+
+// Messages to the object manager:
+class GMOMgrMessage {
+    public:
+        // Constructors:
+        GMOMgrMessage(GMOMgrMessageType);
+        GMOMgrMessage(GMOMgrMessageType, std::any);
+
+
+        const GMOMgrMessageType msg_type;
+        std::any msg_data;
+};
+
+// Messages to the scene manager:
+class GMSMgrMessage {
+    public:
+        // Constructors:
+        GMSMgrMessage(GMSMgrMessageType);
+        GMSMgrMessage(GMSMgrMessageType, std::any);
+
+
+        const GMSMgrMessageType msg_type;
+        std::any msg_data;
+};
+
+
 
 #endif // FILE_GM_MESSAGE_HPP_INCLUDED
 }

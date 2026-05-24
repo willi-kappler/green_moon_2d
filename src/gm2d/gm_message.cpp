@@ -11,23 +11,51 @@
 #include "gm_message.hpp"
 
 namespace gm2d {
-GMMessage::GMMessage(GMMessageType type):
-    msg_type(type),
-    msg_data()
+GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageType type):
+    GMMessage(sender, receiver, type, {})
 {}
 
-GMMessage::GMMessage(GMMessageType type, std::any data):
+GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageType type, std::any data):
+    msg_sender(sender),
+    msg_receiver(receiver),
     msg_type(type),
     msg_data(data)
 {}
 
 GMHandleResult::GMHandleResult():
-    result_type(GMHandleResultType::Empty),
-    result_data()
+    GMHandleResult("", "", GMHandleResultType::Empty, {})
 {}
 
-GMHandleResult::GMHandleResult(GMHandleResultType type, std::any data):
+GMHandleResult::GMHandleResult(std::string sender, std::string receiver, GMHandleResultType type, std::any data):
+    result_sender(sender),
+    result_receiver(receiver),
     result_type(type),
     result_data(data)
 {}
+/*
+[[nodiscard]] GMHandleResult GMHandleResult::operator=(const GMHandleResult &other) {
+
+}
+*/
+
+GMOMgrMessage::GMOMgrMessage(GMOMgrMessageType type):
+    msg_type(type),
+    msg_data()
+{}
+
+GMOMgrMessage::GMOMgrMessage(GMOMgrMessageType type, std::any data):
+    msg_type(type),
+    msg_data(data)
+{}
+
+GMSMgrMessage::GMSMgrMessage(GMSMgrMessageType type):
+    msg_type(type),
+    msg_data()
+{}
+
+GMSMgrMessage::GMSMgrMessage(GMSMgrMessageType type, std::any data):
+    msg_type(type),
+    msg_data(data)
+{}
+
 }

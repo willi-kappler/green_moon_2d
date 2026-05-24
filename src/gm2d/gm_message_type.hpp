@@ -17,6 +17,7 @@
 
 namespace gm2d {
 enum struct GMMessageType: uint32_t {
+    // Normal objects:
     SetActive = 0,
     GetActive,
     ToggleActive,
@@ -27,6 +28,7 @@ enum struct GMMessageType: uint32_t {
     AddGroup,
     RemoveGroup,
 
+    // GFX objects:
     SetVisible,
     GetVisible,
     ToggleVisible,
@@ -37,6 +39,10 @@ enum struct GMMessageType: uint32_t {
     SetPosition,
     GetPosition,
     AddPosition,
+
+    // Special messages:
+    MessageToChild,
+    MultiMessage,
 
     Custom
 };
@@ -51,6 +57,24 @@ enum struct GMHandleResultType: uint32_t {
 
     Custom
 };
+
+enum struct GMOMgrMessageType: uint32_t {
+    AddObject = 0,
+    RemoveObject,
+    AddObjectToGroup,
+    RemoveObjectFromGroup,
+
+    Custom
+};
+
+enum struct GMSMgrMessageType: uint32_t {
+    AddScene = 0,
+    RemoveScene,
+    ChangeToScene,
+
+    Custom
+};
+
 }
 
 template <>

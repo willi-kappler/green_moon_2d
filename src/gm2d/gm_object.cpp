@@ -30,7 +30,7 @@ GMObject::GMObject(std::string_view name, bool active = true, int16_t update_ord
         break;
 
         case GMMessageType::GetActive:
-            return GMHandleResult(GMHandleResultType::Active, obj_active);
+            return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Active, obj_active);
         break;
 
         case GMMessageType::ToggleActive:
@@ -42,7 +42,7 @@ GMObject::GMObject(std::string_view name, bool active = true, int16_t update_ord
         break;
 
         case GMMessageType::GetUpdateOrder:
-            return GMHandleResult(GMHandleResultType::UpdateOrder, obj_update_order);
+            return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::UpdateOrder, obj_update_order);
         break;
 
         case GMMessageType::AddGroup:
@@ -112,7 +112,7 @@ GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t dra
         break;
 
         case GMMessageType::GetVisible:
-            return GMHandleResult(GMHandleResultType::Visible, gfx_visible);
+            return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Visible, gfx_visible);
         break;
 
         case GMMessageType::ToggleVisible:
@@ -124,7 +124,7 @@ GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t dra
         break;
 
         case GMMessageType::GetDrawOrder:
-            return GMHandleResult(GMHandleResultType::DrawOrder, gfx_draw_order);
+            return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::DrawOrder, gfx_draw_order);
         break;
 
         case GMMessageType::SetPosition:
@@ -132,7 +132,7 @@ GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t dra
         break;
 
         case GMMessageType::GetPosition:
-            return GMHandleResult(GMHandleResultType::Position, gfx_pos);
+            return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Position, gfx_pos);
         break;
 
         case GMMessageType::AddPosition:
@@ -230,14 +230,29 @@ void GMObjectManager::gm_clear_objects() {
     normal_objects.clear();
 }
 
-[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_object(std::string_view name, const GMMessage &msg) {
+[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_object(const GMMessage &msg) {
     for (auto &o: normal_objects) {
-        if (o->obj_name == name) {
+        if (o->obj_name == msg.msg_receiver) {
             return o->gm_handle_message(msg);
         }
     }
 
-    throw GMObjectNotFound("GMObjectManager::gm_send_message_object", name);
+    throw GMObjectNotFound("GMObjectManager::gm_send_message_object", msg.msg_receiver);
+}
+
+void GMObjectManager::gm_apply_objects(std::span<std::string_view> objects, std::function<void(GMObject &)> callback) {
+    if (objects.size() == 0) {
+        return;
+    }
+
+    for (auto &o: normal_objects) {
+        for (auto name: objects) {
+            if (o->obj_name == name) {
+                callback(*o);
+                break;
+            }
+        }
+    }
 }
 
 void GMObjectManager::gm_add_gfx_object(GMGFXObject new_obj) {
@@ -275,14 +290,73 @@ void GMObjectManager::gm_clear_gfx_objects() {
     gfx_objects.clear();
 }
 
-[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_gfx_object(std::string_view name, const GMMessage &msg) {
+[[nodiscard]] GMHandleResult GMObjectManager::gm_send_message_gfx_object(const GMMessage &msg) {
     for (auto &o: gfx_objects) {
-        if (o->obj_name == name) {
+        if (o->obj_name == msg.msg_receiver) {
             return o->gm_handle_message(msg);
         }
     }
 
-    throw GMObjectNotFound("GMObjectManager::gm_send_message_gfx_object", name);
+    throw GMObjectNotFound("GMObjectManager::gm_send_message_gfx_object", msg.msg_receiver);
+}
+
+void GMObjectManager::gm_apply_gfx_objects(std::span<std::string_view> objects, std::function<void(GMGFXObject &)> callback) {
+    if (objects.size() == 0) {
+        return;
+    }
+
+    for (auto &o: gfx_objects) {
+        for (auto name: objects) {
+            if (o->obj_name == name) {
+                callback(*o);
+                break;
+            }
+        }
+    }
+}
+
+[[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
+    GMObjectManager::gm_send_message_group(std::string_view group, const GMMessage &msg) {
+    std::vector<std::pair<std::string, GMHandleResult>> all_results;
+
+    for (auto &o: normal_objects) {
+        if (o->gm_is_in_group(group)) {
+            GMHandleResult single_result = o->gm_handle_message(msg);
+            all_results.push_back({o->obj_name, single_result});
+        }
+    }
+
+    return all_results;
+}
+
+[[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
+    GMObjectManager::gm_send_message_gfx_group(std::string_view group, const GMMessage &msg) {
+    std::vector<std::pair<std::string, GMHandleResult>> all_results;
+
+    for (auto &o: gfx_objects) {
+        if (o->gm_is_in_group(group)) {
+            GMHandleResult single_result = o->gm_handle_message(msg);
+            all_results.push_back({o->obj_name, single_result});
+        }
+    }
+
+    return all_results;
+}
+
+void GMObjectManager::gm_apply_group(std::string_view group, std::function<void(GMObject &)> callback) {
+    for (auto &o: normal_objects) {
+        if (o->gm_is_in_group(group)) {
+            callback(*o);
+        }
+    }
+}
+
+void GMObjectManager::gm_apply_gfx_group(std::string_view group, std::function<void(GMGFXObject &)> callback) {
+    for (auto &o: gfx_objects) {
+        if (o->gm_is_in_group(group)) {
+            callback(*o);
+        }
+    }
 }
 
 }

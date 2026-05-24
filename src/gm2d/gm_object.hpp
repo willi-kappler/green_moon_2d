@@ -16,6 +16,9 @@
 #include <string_view>
 #include <vector>
 #include <memory>
+#include <utility>
+#include <span>
+#include <functional>
 
 // Local includes:
 #include "gm_message.hpp"
@@ -39,6 +42,10 @@ class GMObject {
         void gm_add_group(const std::string &);
         void gm_remove_group(std::string_view);
         [[nodiscard]] bool gm_is_in_group(std::string_view);
+
+        // Messages to the object manager:
+        // void gm_msg_to_obj_manager(const GMOMgrMessage &);
+
 
         const std::string obj_name;
         bool obj_active;
@@ -77,17 +84,22 @@ class GMObjectManager {
         void gm_remove_object(std::string_view);
         void gm_replace_object(GMObject);
         void gm_clear_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_object(std::string_view, const GMMessage &);
-        // TODO: send message to group
-        // TODO: find object
+        [[nodiscard]] GMHandleResult gm_send_message_object(const GMMessage &);
+        void gm_apply_objects(std::span<std::string_view>, std::function<void(GMObject &)>);
 
         void gm_add_gfx_object(GMGFXObject);
         void gm_remove_gfx_object(std::string_view);
         void gm_replace_gfx_object(GMGFXObject);
         void gm_clear_gfx_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_gfx_object(std::string_view, const GMMessage &);
-        // TODO: send message to gfx group
-        // TODO: find gfx object
+        [[nodiscard]] GMHandleResult gm_send_message_gfx_object(const GMMessage &);
+        void gm_apply_gfx_objects(std::span<std::string_view>, std::function<void(GMGFXObject &)>);
+
+        [[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
+            gm_send_message_group(std::string_view, const GMMessage &);
+        [[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
+            gm_send_message_gfx_group(std::string_view, const GMMessage &);
+        void gm_apply_group(std::string_view, std::function<void(GMObject &)>);
+        void gm_apply_gfx_group(std::string_view, std::function<void(GMGFXObject &)>);
 
     private:
         std::vector<std::unique_ptr<GMObject>> normal_objects;
