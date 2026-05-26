@@ -33,7 +33,10 @@ class GMObject {
         virtual ~GMObject() = default;
 
         // Handle message:
-        [[nodiscard]] virtual GMHandleResult gm_handle_message(const GMMessage &);
+        virtual void gm_handle_message(const GMMessage &);
+
+        // Send message:
+        void gm_send_message(const GMMessage);
 
         // Update:
         void virtual gm_update();
@@ -46,10 +49,10 @@ class GMObject {
         // Messages to the object manager:
         // void gm_msg_to_obj_manager(const GMOMgrMessage &);
 
-
         const std::string obj_name;
         bool obj_active;
         int16_t obj_update_order;
+        std::vector<GMMessage> outgoing_messages;
 
     private:
         std::vector<std::string> obj_groups;
@@ -62,7 +65,7 @@ class GMGFXObject: public GMObject {
         virtual ~GMGFXObject() = default;
 
         // Handle message:
-        [[nodiscard]] GMHandleResult gm_handle_message(const GMMessage &) override;
+        void gm_handle_message(const GMMessage &) override;
 
         // Draw:
         void virtual gm_draw();
@@ -84,20 +87,15 @@ class GMObjectManager {
         void gm_remove_object(std::string_view);
         void gm_replace_object(GMObject);
         void gm_clear_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_object(const GMMessage &);
+        void gm_send_message(const GMMessage &);
         void gm_apply_objects(std::span<std::string_view>, std::function<void(GMObject &)>);
 
         void gm_add_gfx_object(GMGFXObject);
         void gm_remove_gfx_object(std::string_view);
         void gm_replace_gfx_object(GMGFXObject);
         void gm_clear_gfx_objects();
-        [[nodiscard]] GMHandleResult gm_send_message_gfx_object(const GMMessage &);
         void gm_apply_gfx_objects(std::span<std::string_view>, std::function<void(GMGFXObject &)>);
 
-        [[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
-            gm_send_message_group(std::string_view, const GMMessage &);
-        [[nodiscard]] std::vector<std::pair<std::string, GMHandleResult>>
-            gm_send_message_gfx_group(std::string_view, const GMMessage &);
         void gm_apply_group(std::string_view, std::function<void(GMObject &)>);
         void gm_apply_gfx_group(std::string_view, std::function<void(GMGFXObject &)>);
 

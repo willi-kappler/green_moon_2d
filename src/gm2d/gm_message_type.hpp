@@ -20,10 +20,12 @@ enum struct GMMessageType: uint32_t {
     // Normal objects:
     SetActive = 0,
     GetActive,
+    GetActiveResult,
     ToggleActive,
 
     SetUpdateOrder,
     GetUpdateOrder,
+    GetUpdateOrderResult,
 
     AddGroup,
     RemoveGroup,
@@ -31,31 +33,25 @@ enum struct GMMessageType: uint32_t {
     // GFX objects:
     SetVisible,
     GetVisible,
+    GetVisibleResult,
     ToggleVisible,
 
     SetDrawOrder,
     GetDrawOrder,
+    GetDrawOrderResult,
 
     SetPosition,
     GetPosition,
+    GetPositionResult,
     AddPosition,
 
     // Special messages:
     MessageToChild,
     MultiMessage,
 
-    Custom
-};
-
-enum struct GMHandleResultType: uint32_t {
-    Empty = 0,
-    Active,
-    UpdateOrder,
-    Visible,
-    DrawOrder,
-    Position,
-
-    Custom
+    // Custom messages:
+    Custom,
+    CustomResult
 };
 
 enum struct GMOMgrMessageType: uint32_t {
@@ -91,6 +87,10 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetActive";
             break;
 
+            case gm2d::GMMessageType::GetActiveResult:
+                name = "GetActiveResult";
+            break;
+
             case gm2d::GMMessageType::ToggleActive:
                 name = "ToggleActive";
             break;
@@ -101,6 +101,10 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
 
             case gm2d::GMMessageType::GetUpdateOrder:
                 name = "GetUpdateOrder";
+            break;
+
+            case gm2d::GMMessageType::GetUpdateOrderResult:
+                name = "GetUpdateOrderResult";
             break;
 
             case gm2d::GMMessageType::AddGroup:
@@ -119,6 +123,10 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetVisible";
             break;
 
+            case gm2d::GMMessageType::GetVisibleResult:
+                name = "GetVisibleResult";
+            break;
+
             case gm2d::GMMessageType::ToggleVisible:
                 name = "ToggleVisible";
             break;
@@ -131,6 +139,10 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetDrawOrder";
             break;
 
+            case gm2d::GMMessageType::GetDrawOrderResult:
+                name = "GetDrawOrderResult";
+            break;
+
             case gm2d::GMMessageType::SetPosition:
                 name = "SetPosition";
             break;
@@ -139,59 +151,32 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
                 name = "GetPosition";
             break;
 
+            case gm2d::GMMessageType::GetPositionResult:
+                name = "GetPositionResult";
+            break;
+
             case gm2d::GMMessageType::AddPosition:
                 name = "AddPosition";
+            break;
+
+            case gm2d::GMMessageType::MessageToChild:
+                name = "MessageToChild";
+            break;
+
+            case gm2d::GMMessageType::MultiMessage:
+                name = "MultiMessage";
             break;
 
             case gm2d::GMMessageType::Custom:
                 name = "Custom";
             break;
 
+            case gm2d::GMMessageType::CustomResult:
+                name = "CustomResult";
+            break;
+
             default:
                 name = std::format("Unknown: {}", static_cast<uint16_t>(m));
-            break;
-        }
-
-        return std::formatter<std::string_view>::format(name, ctx);
-    }
-};
-
-template <>
-struct std::formatter<gm2d::GMHandleResultType> : std::formatter<std::string_view> {
-    auto format(gm2d::GMHandleResultType r, format_context& ctx) const {
-        std::string_view name;
-
-        switch (r) {
-            case gm2d::GMHandleResultType::Empty:
-                name = "Empty";
-            break;
-
-            case gm2d::GMHandleResultType::Active:
-                name = "Active";
-            break;
-
-            case gm2d::GMHandleResultType::UpdateOrder:
-                name = "UpdateOrder";
-            break;
-
-            case gm2d::GMHandleResultType::Visible:
-                name = "Visible";
-            break;
-
-            case gm2d::GMHandleResultType::DrawOrder:
-                name = "DrawOrder";
-            break;
-
-            case gm2d::GMHandleResultType::Position:
-                name = "Position";
-            break;
-
-            case gm2d::GMHandleResultType::Custom:
-                name = "Custom";
-            break;
-
-            default:
-                name = std::format("Unknown: {}", static_cast<uint16_t>(r));
             break;
         }
 

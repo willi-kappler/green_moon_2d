@@ -35,20 +35,6 @@ class GMMessage {
         std::any msg_data;
 };
 
-class GMHandleResult {
-    public:
-        // Constructors:
-        GMHandleResult();
-        GMHandleResult(std::string, std::string, GMHandleResultType, std::any);
-        // [[nodiscard]] GMHandleResult operator=(const GMHandleResult &);
-
-
-        const std::string result_sender;
-        const std::string result_receiver;
-        const GMHandleResultType result_type;
-        std::any result_data;
-};
-
 // Messages to the object manager:
 class GMOMgrMessage {
     public:
@@ -57,6 +43,7 @@ class GMOMgrMessage {
         GMOMgrMessage(GMOMgrMessageType, std::any);
 
 
+        const std::string msg_sender;
         const GMOMgrMessageType msg_type;
         std::any msg_data;
 };
@@ -69,6 +56,7 @@ class GMSMgrMessage {
         GMSMgrMessage(GMSMgrMessageType, std::any);
 
 
+        const std::string msg_sender;
         const GMSMgrMessageType msg_type;
         std::any msg_data;
 };
