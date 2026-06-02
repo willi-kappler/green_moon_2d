@@ -12,34 +12,14 @@
 
 namespace gm2d {
 GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageType type):
-    GMMessage(sender, receiver, type, {})
+    GMMessage(sender, receiver, type, GMMessageCategory::Normal, {})
 {}
 
-GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageType type, std::any data):
+GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageType type, GMMessageCategory category, std::any data):
     msg_sender(sender),
     msg_receiver(receiver),
     msg_type(type),
+    msg_category(category),
     msg_data(data)
 {}
-
-GMOMgrMessage::GMOMgrMessage(GMOMgrMessageType type):
-    msg_type(type),
-    msg_data()
-{}
-
-GMOMgrMessage::GMOMgrMessage(GMOMgrMessageType type, std::any data):
-    msg_type(type),
-    msg_data(data)
-{}
-
-GMSMgrMessage::GMSMgrMessage(GMSMgrMessageType type):
-    msg_type(type),
-    msg_data()
-{}
-
-GMSMgrMessage::GMSMgrMessage(GMSMgrMessageType type, std::any data):
-    msg_type(type),
-    msg_data(data)
-{}
-
 }
