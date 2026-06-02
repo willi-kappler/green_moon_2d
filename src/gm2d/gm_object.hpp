@@ -83,6 +83,8 @@ class GMObjectManager {
 
         void gm_draw();
 
+        // Maybe use std::function_ref instead of std::function ?
+
         void gm_add_object(GMObject);
         void gm_remove_object(std::string_view);
         void gm_replace_object(GMObject);
