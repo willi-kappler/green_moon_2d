@@ -45,6 +45,17 @@ enum struct GMMessageType: uint32_t {
     GetPositionResult,
     AddPosition,
 
+    // Object manager messages:
+    AddObject,
+    RemoveObject,
+    AddObjectToGroup,
+    RemoveObjectFromGroup,
+
+    // Scene manager messages:
+    AddScene,
+    RemoveScene,
+    ChangeToScene,
+
     // Special messages:
     MessageToChild,
     MultiMessage,
@@ -54,21 +65,14 @@ enum struct GMMessageType: uint32_t {
     CustomResult
 };
 
-enum struct GMOMgrMessageType: uint32_t {
-    AddObject = 0,
-    RemoveObject,
-    AddObjectToGroup,
-    RemoveObjectFromGroup,
-
-    Custom
-};
-
-enum struct GMSMgrMessageType: uint32_t {
-    AddScene = 0,
-    RemoveScene,
-    ChangeToScene,
-
-    Custom
+enum struct GMMessageCategory {
+    Normal = 0,
+    GFX,
+    NormalGroup,
+    GFXGroup,
+    CombinedGroup,
+    ObjectManager,
+    SceneManager,
 };
 
 }
@@ -176,7 +180,50 @@ struct std::formatter<gm2d::GMMessageType> : std::formatter<std::string_view> {
             break;
 
             default:
-                name = std::format("Unknown: {}", static_cast<uint16_t>(m));
+                name = std::format("Unknown message type: {}", static_cast<uint16_t>(m));
+            break;
+        }
+
+        return std::formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct std::formatter<gm2d::GMMessageCategory> : std::formatter<std::string_view> {
+    auto format(gm2d::GMMessageCategory m, format_context& ctx) const {
+        std::string_view name;
+
+        switch (m) {
+            case gm2d::GMMessageCategory::Normal:
+                name = "Normal";
+            break;
+
+            case gm2d::GMMessageCategory::GFX:
+                name = "GFX";
+            break;
+
+            case gm2d::GMMessageCategory::NormalGroup:
+                name = "NormalGroup";
+            break;
+
+            case gm2d::GMMessageCategory::GFXGroup:
+                name = "GFXGroup";
+            break;
+
+            case gm2d::GMMessageCategory::CombinedGroup:
+                name = "CombinedGroup";
+            break;
+
+            case gm2d::GMMessageCategory::ObjectManager:
+                name = "ObjectManager";
+            break;
+
+            case gm2d::GMMessageCategory::SceneManager:
+                name = "SceneManager";
+            break;
+
+            default:
+                name = std::format("Unknown message category: {}", static_cast<uint16_t>(m));
             break;
         }
 

@@ -39,6 +39,14 @@ public:
     std::runtime_error(std::format("Object not found ({}): {}", where, obj_name)) { }
 };
 
+class GMInvalidCategory: public std::runtime_error {
+public:
+  GMInvalidCategory(std::string_view where, GMMessageCategory category, std::string_view data):
+    std::runtime_error(std::format("Invalid category ({}): category: {}, data: {}", where, category, data)) { }
+  GMInvalidCategory(std::string_view where, GMMessageCategory category):
+    std::runtime_error(std::format("Invalid category ({}): category: {}", where, category)) { }
+};
+
 }
 
 #endif // FILE_GM_EXCEPTIONS_HPP_INCLUDED

@@ -26,6 +26,7 @@
 
 
 namespace gm2d {
+
 class GMObject {
     public:
         // Constructor:
@@ -83,23 +84,21 @@ class GMObjectManager {
 
         void gm_draw();
 
+<<<<<<< HEAD
         // Maybe use std::function_ref instead of std::function ?
 
         void gm_add_object(GMObject);
         void gm_remove_object(std::string_view);
         void gm_replace_object(GMObject);
         void gm_clear_objects();
+=======
+        void gm_add_object(GMObject, GMMessageCategory);
+        void gm_remove_object(std::string_view, GMMessageCategory);
+        void gm_replace_object(GMObject, GMMessageCategory);
+        void gm_clear_objects(GMMessageCategory);
+>>>>>>> 86e53b803ee9735a326df5b8e320588fa165ec07
         void gm_send_message(const GMMessage &);
-        void gm_apply_objects(std::span<std::string_view>, std::function<void(GMObject &)>);
-
-        void gm_add_gfx_object(GMGFXObject);
-        void gm_remove_gfx_object(std::string_view);
-        void gm_replace_gfx_object(GMGFXObject);
-        void gm_clear_gfx_objects();
-        void gm_apply_gfx_objects(std::span<std::string_view>, std::function<void(GMGFXObject &)>);
-
-        void gm_apply_group(std::string_view, std::function<void(GMObject &)>);
-        void gm_apply_gfx_group(std::string_view, std::function<void(GMGFXObject &)>);
+        void gm_apply(std::span<std::string_view>, GMMessageCategory, std::function<void(GMObject &)>);
 
     private:
         std::vector<std::unique_ptr<GMObject>> normal_objects;
