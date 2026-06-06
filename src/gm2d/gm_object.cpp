@@ -23,6 +23,7 @@ GMObject::GMObject(std::string_view name, bool active = true, int16_t update_ord
     obj_groups()
 {}
 
+/*
 void GMObject::gm_handle_message(const GMMessage &message) {
     switch (message.msg_type) {
         case GMMessageType::SetActive:
@@ -57,15 +58,24 @@ void GMObject::gm_handle_message(const GMMessage &message) {
         }
         break;
 
+        case GMMessageType::ClearGroups:
+        {
+            gm_clear_groups();
+        }
+        break;
+
         default:
             throw GMUnknownMessageType(message.msg_type, obj_name);
         break;
     }
 }
+*/
 
+/*
 void GMObject::gm_send_message(const GMMessage message) {
     outgoing_messages.push_back(message);
 }
+*/
 
 void GMObject::gm_update() {
 }
@@ -90,6 +100,10 @@ void GMObject::gm_remove_group(std::string_view grp) {
     }
 }
 
+void GMObject::gm_clear_groups() {
+    obj_groups.clear();
+}
+
 [[nodiscard]] bool GMObject::gm_is_in_group(std::string_view grp) {
     for (const std::string& str: obj_groups) {
         if (str == grp) {
@@ -107,6 +121,7 @@ GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t dra
     gfx_pos()
 {}
 
+/*
 void GMGFXObject::gm_handle_message(const GMMessage &message) {
     switch(message.msg_type) {
         case GMMessageType::SetVisible:
@@ -146,6 +161,7 @@ void GMGFXObject::gm_handle_message(const GMMessage &message) {
         break;
     }
 }
+*/
 
 void GMGFXObject::gm_draw() {
 }
@@ -195,6 +211,7 @@ void GMObjectManager::gm_draw() {
     }
 }
 
+/*
 void GMObjectManager::gm_add_object(GMObject new_obj, GMMessageCategory category = GMMessageCategory::Normal) {
     switch (category) {
         case GMMessageCategory::Normal:
@@ -437,4 +454,6 @@ void GMObjectManager::gm_apply(std::span<std::string_view> items,
         break;
     }
 }
+*/
+
 }

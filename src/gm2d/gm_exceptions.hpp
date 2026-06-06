@@ -21,11 +21,13 @@
 
 namespace gm2d {
 
+/*
 class GMUnknownMessageType: public std::runtime_error {
 public:
   GMUnknownMessageType(GMMessageType msg_type, std::string_view obj_name):
     std::runtime_error(std::format("Unknown message type: {}, object name: {}", msg_type, obj_name)) { }
 };
+*/
 
 class GMObjectNameDuplicate: public std::runtime_error {
 public:
@@ -39,6 +41,7 @@ public:
     std::runtime_error(std::format("Object not found ({}): {}", where, obj_name)) { }
 };
 
+/*
 class GMInvalidCategory: public std::runtime_error {
 public:
   GMInvalidCategory(std::string_view where, GMMessageCategory category, std::string_view data):
@@ -46,6 +49,7 @@ public:
   GMInvalidCategory(std::string_view where, GMMessageCategory category):
     std::runtime_error(std::format("Invalid category ({}): category: {}", where, category)) { }
 };
+*/
 
 }
 

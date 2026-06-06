@@ -37,7 +37,13 @@ class GMObject {
         virtual void gm_handle_message(const GMMessage &);
 
         // Send message:
-        void gm_send_message(const GMMessage);
+        void gm_send_normal_message(GMMessage);
+        void gm_send_normal_message_group(GMMessage);
+        void gm_send_gfx_message(GMMessage);
+        void gm_send_gfx_message_group(GMMessage);
+        void gm_send_combined_group(GMMessage);
+        void gm_send_obj_mgr(GMMessage);
+        void gm_send_scene_mgr(GMMessage);
 
         // Update:
         void virtual gm_update();
@@ -45,15 +51,19 @@ class GMObject {
         // Group
         void gm_add_group(const std::string &);
         void gm_remove_group(std::string_view);
+        void gm_clear_groups();
         [[nodiscard]] bool gm_is_in_group(std::string_view);
-
-        // Messages to the object manager:
-        // void gm_msg_to_obj_manager(const GMOMgrMessage &);
 
         const std::string obj_name;
         bool obj_active;
         int16_t obj_update_order;
-        std::vector<GMMessage> outgoing_messages;
+        std::vector<GMMessage> normal_messages;
+        std::vector<GMMessage> normal_group_messages;
+        std::vector<GMMessage> gfx_messages;
+        std::vector<GMMessage> gfx_group_messages;
+        std::vector<GMMessage> combined_group_messages;
+        std::vector<GMMessage> obj_mgr_messages;
+        std::vector<GMMessage> scene_mgr_messages;
 
     private:
         std::vector<std::string> obj_groups;
@@ -84,21 +94,14 @@ class GMObjectManager {
 
         void gm_draw();
 
-<<<<<<< HEAD
-        // Maybe use std::function_ref instead of std::function ?
-
-        void gm_add_object(GMObject);
-        void gm_remove_object(std::string_view);
-        void gm_replace_object(GMObject);
-        void gm_clear_objects();
-=======
+        /*
         void gm_add_object(GMObject, GMMessageCategory);
         void gm_remove_object(std::string_view, GMMessageCategory);
         void gm_replace_object(GMObject, GMMessageCategory);
         void gm_clear_objects(GMMessageCategory);
->>>>>>> 86e53b803ee9735a326df5b8e320588fa165ec07
         void gm_send_message(const GMMessage &);
         void gm_apply(std::span<std::string_view>, GMMessageCategory, std::function<void(GMObject &)>);
+        */
 
     private:
         std::vector<std::unique_ptr<GMObject>> normal_objects;
