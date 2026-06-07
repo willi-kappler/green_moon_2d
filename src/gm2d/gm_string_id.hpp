@@ -18,6 +18,10 @@ struct GMStringId {
     uint32_t value;
 
     bool operator==(const GMStringId& other) const = default;
+
+    explicit operator uint32_t() const {
+        return value;
+    }
 };
 
 // The compile-time FNV-1a 32-bit hashing function

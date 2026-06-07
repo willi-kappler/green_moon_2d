@@ -23,8 +23,8 @@ GMObject::GMObject(GMStringId name_id):
     obj_update_order(0),
     obj_draw_order(0),
     obj_position(),
-    obj_groups(),
-    obj_messages()
+    obj_messages(),
+    obj_groups()
 {}
 
 [[nodiscard]] GMObject& GMObject::with_active(bool active) & {
@@ -91,24 +91,31 @@ void GMObject::gm_handle_message(const GMMessage &message) {
         break;
 
         case GMMessageType::GetVisible:
+            // TODO
         break;
 
         case GMMessageType::ToggleVisible:
+            obj_visible = !obj_visible;
         break;
 
         case GMMessageType::SetDrawOrder:
+            obj_draw_order = std::any_cast<int16_t>(message.msg_data);
         break;
 
         case GMMessageType::GetDrawOrder:
+            // TODO
         break;
 
         case GMMessageType::SetPosition:
+            obj_position = std::any_cast<GMVec2D>(message.msg_data);
         break;
 
         case GMMessageType::GetPosition:
+            // TODO
         break;
 
         case GMMessageType::AddPosition:
+            obj_position += std::any_cast<GMVec2D>(message.msg_data);
         break;
 
         default:
@@ -163,338 +170,172 @@ void GMObject::gm_clear_groups() {
     return false;
 }
 
-/*
-void GMGFXObject::gm_handle_message(const GMMessage &message) {
-    switch(message.msg_type) {
-        case GMMessageType::SetVisible:
-            gfx_visible = std::any_cast<bool>(message.msg_data);
-        break;
-
-        case GMMessageType::GetVisible:
-            // return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Visible, gfx_visible);
-        break;
-
-        case GMMessageType::ToggleVisible:
-            gfx_visible = !gfx_visible;
-        break;
-
-        case GMMessageType::SetDrawOrder:
-            gfx_draw_order = std::any_cast<int16_t>(message.msg_data);
-        break;
-
-        case GMMessageType::GetDrawOrder:
-            // return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::DrawOrder, gfx_draw_order);
-        break;
-
-        case GMMessageType::SetPosition:
-            gfx_pos = std::any_cast<GMVec2D>(message.msg_data);
-        break;
-
-        case GMMessageType::GetPosition:
-            // return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Position, gfx_pos);
-        break;
-
-        case GMMessageType::AddPosition:
-            gfx_pos += std::any_cast<GMVec2D>(message.msg_data);
-        break;
-
-        default:
-            return GMObject::gm_handle_message(message);
-        break;
-    }
-}
-*/
-
-
 GMObjectManager::GMObjectManager():
     objects()
 {}
 
-/*
 void GMObjectManager::gm_update() {
-    std::sort(normal_objects.begin(), normal_objects.end(), [](
+    std::sort(objects.begin(), objects.end(), [](
         const std::unique_ptr<GMObject> &obj1,
-        const std::unique_ptr<GMObject> &obj2) {
+        const std::unique_ptr<GMObject> &obj2){
         return obj1->obj_update_order < obj2->obj_update_order;
     });
 
-    std::sort(gfx_objects.begin(), gfx_objects.end(), [](
-        const std::unique_ptr<GMGFXObject> &obj1,
-        const std::unique_ptr<GMGFXObject> &obj2) {
-        return obj1->obj_update_order < obj2->obj_update_order;
-    });
+    std::vector<GMMessage> messages;
 
-    for (auto &obj: normal_objects) {
+    for (auto &obj: objects) {
         if (obj->obj_active) {
             obj->gm_update();
         }
-    }
 
-    for (auto &obj: gfx_objects) {
-        if (obj->obj_active) {
-            obj->gm_update();
+        // Process outgoing messages from current object:
+        messages = std::move(obj->obj_messages);
+
+        for (auto &message: messages) {
+            gm_send_message(message);
         }
     }
 }
 
 void GMObjectManager::gm_draw() {
-    std::sort(gfx_objects.begin(), gfx_objects.end(), [](
-        const std::unique_ptr<GMGFXObject> &obj1,
-        const std::unique_ptr<GMGFXObject> &obj2) {
-        return obj1->gfx_draw_order < obj2->gfx_draw_order;
+    std::sort(objects.begin(), objects.end(), [](
+        const std::unique_ptr<GMObject> &obj1,
+        const std::unique_ptr<GMObject> &obj2){
+        return obj1->obj_draw_order < obj2->obj_draw_order;
     });
 
-    for (auto &obj: gfx_objects) {
-        if (obj->gfx_visible) {
+    for (auto &obj: objects) {
+        if (obj->obj_visible) {
             obj->gm_draw();
         }
     }
 }
-*/
 
-/*
-void GMObjectManager::gm_add_object(GMObject new_obj, GMMessageCategory category = GMMessageCategory::Normal) {
-    switch (category) {
-        case GMMessageCategory::Normal:
-            for (auto &o: normal_objects) {
-                if (o->obj_name == new_obj.obj_name) {
-                    throw GMObjectNameDuplicate("GMObjectManager::gm_add_object, normal", o->obj_name);
-                }
-            }
-
-            normal_objects.push_back(std::make_unique<GMObject>(new_obj));
-        break;
-
-        case GMMessageCategory::GFX:
-            for (auto &o: gfx_objects) {
-                if (o->obj_name == new_obj.obj_name) {
-                    throw GMObjectNameDuplicate("GMObjectManager::gm_add_object, gfx", o->obj_name);
-                }
-            }
-
-            gfx_objects.push_back(std::make_unique<GMGFXObject>(new_obj));
-        break;
-
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_add_object", category, new_obj.obj_name);
-        break;
+void GMObjectManager::gm_add_object(GMObject new_obj) {
+    for (auto &obj: objects) {
+        if (obj->obj_name_id == new_obj.obj_name_id) {
+            throw GMObjectNameDuplicate("GMObjectManager::gm_add_object", obj->obj_name_id);
+        }
     }
+
+    objects.push_back(std::make_unique<GMObject>(new_obj));
 }
 
-void GMObjectManager::gm_remove_object(std::string_view name, GMMessageCategory category = GMMessageCategory::Normal) {
-    switch (category) {
-        case GMMessageCategory::Normal:
-            for (size_t i = 0; i < normal_objects.size(); i++) {
-                if (normal_objects[i]->obj_name == name) {
-                    // TODO: remove object
+void GMObjectManager::gm_remove_object(GMStringId name_id) {
+    for (size_t i = 0; i < objects.size(); i++) {
+        if (objects[i]->obj_name_id == name_id) {
+            // TODO: remove object
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_remove_object", name_id);
+}
+
+void GMObjectManager::gm_replace_object(GMStringId name_id, GMObject new_obj) {
+    for (size_t i = 0; i < objects.size(); i++) {
+        if (objects[i]->obj_name_id == name_id) {
+            objects[i] = std::make_unique<GMObject>(new_obj);
+            return;
+        }
+    }
+
+    throw GMObjectNotFound("GMObjectManager::gm_replace_object", name_id);
+}
+
+void GMObjectManager::gm_clear_objects() {
+    objects.clear();
+}
+
+void GMObjectManager::gm_send_message(const GMMessage &message) {
+    if (message.msg_receiver == GMID("ObjectManager")) {
+        gm_handle_message(message);
+    } else if (message.msg_receiver == GMID("SceneManager")) {
+        scene_messages.push_back(message);
+    } else {
+        if (message.msg_group) {
+            for (auto &obj: objects) {
+                if (obj->gm_is_in_group(message.msg_receiver)) {
+                    obj->gm_handle_message(message);
+                }
+            }
+        } else {
+            for (auto &obj: objects) {
+                if (obj->obj_name_id == message.msg_receiver) {
+                    obj->gm_send_message(message);
                     return;
                 }
             }
 
-            throw GMObjectNotFound("GMObjectManager::gm_remove_object, normal", name);
-        break;
-
-        case GMMessageCategory::GFX:
-            for (size_t i = 0; i < gfx_objects.size(); i++) {
-                if (gfx_objects[i]->obj_name == name) {
-                    // TODO: remove object
-                    return;
-                }
-            }
-
-            throw GMObjectNotFound("GMObjectManager::gm_remove_object, gfx", name);
-        break;
-
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_remove_object", category, name);
-        break;
+            throw GMObjectNotFound("GMObjectManager::gm_send_message", message.msg_receiver);
+        }
     }
 }
 
-void GMObjectManager::gm_replace_object(GMObject new_obj, GMMessageCategory category = GMMessageCategory::Normal) {
-    switch (category) {
-        case GMMessageCategory::Normal:
-            for (size_t i = 0; i < normal_objects.size(); i++) {
-                if (normal_objects[i]->obj_name == new_obj.obj_name) {
-                    normal_objects[i] = std::make_unique<GMObject>(new_obj);
-                    return;
-                }
+void GMObjectManager::gm_handle_message(const GMMessage &message) {
+    if (message.msg_receiver == GMID("ObjectManager")) {
+        switch (message.msg_type) {
+            case GMMessageType::AddObject:
+            {
+                GMObject new_object = std::any_cast<GMObject>(message.msg_data);
+                gm_add_object(new_object);
             }
+            break;
 
-            throw GMObjectNotFound("GMObjectManager::gm_replace_object, normal", new_obj.obj_name);
-        break;
-
-        case GMMessageCategory::GFX:
-            for (size_t i = 0; i < gfx_objects.size(); i++) {
-                if (gfx_objects[i]->obj_name == new_obj.obj_name) {
-                    gfx_objects[i] = std::make_unique<GMGFXObject>(new_obj);
-                    return;
-                }
+            case GMMessageType::RemoveObject:
+            {
+                GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+                gm_remove_object(name_id);
             }
+            break;
 
-            throw GMObjectNotFound("GMObjectManager::gm_replace_object, gfx", new_obj.obj_name);
-        break;
+            case GMMessageType::ReplaceObject:
+            {
+                auto [name_id, new_object] = std::any_cast<std::pair<GMStringId, GMObject>>(message.msg_data);
+                gm_replace_object(name_id, new_object);
+            }
+            break;
 
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_replace_object", category, new_obj.obj_name);
-        break;
+            case GMMessageType::ClearObjects:
+                gm_clear_objects();
+            break;
+
+            default:
+                throw GMUnknownMessageType(message.msg_type, GMID("ObjectManager"));
+            break;
+        }
+    } else {
+        throw GMInvalidReceiver("GMObjectManager::gm_handle_message", message.msg_receiver);
     }
 }
 
-void GMObjectManager::gm_clear_objects(GMMessageCategory category = GMMessageCategory::Normal) {
-    switch (category) {
-        case GMMessageCategory::Normal:
-            normal_objects.clear();
-        break;
+void GMObjectManager::gm_apply(GMStringId name_id, std::function<void(GMObject &)> fun) {
+    for (auto &obj: objects) {
+        if (obj->obj_name_id == name_id) {
+            fun(*obj);
+            return;
+        }
+    }
 
-        case GMMessageCategory::GFX:
-            gfx_objects.clear();
-        break;
+    throw GMObjectNotFound("GMObjectManager::gm_apply", name_id);
+}
 
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_clear_object", category);
-        break;
+void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void(GMObject &)> fun) {
+    for (auto name_id: items) {
+        for (auto &obj: objects) {
+            if (obj->obj_name_id == name_id) {
+                fun(*obj);
+                break;
+            }
+        }
     }
 }
 
-void GMObjectManager::gm_send_message(const GMMessage &msg) {
-    switch (msg.msg_category) {
-        case GMMessageCategory::Normal:
-            for (auto &o: normal_objects) {
-                if (o->obj_name == msg.msg_receiver) {
-                    o->gm_handle_message(msg);
-                    return;
-                }
-            }
-
-            throw GMObjectNotFound("GMObjectManager::gm_send_message, normal", msg.msg_receiver);
-        break;
-
-        case GMMessageCategory::GFX:
-            for (auto &o: gfx_objects) {
-                if (o->obj_name == msg.msg_receiver) {
-                    o->gm_handle_message(msg);
-                    return;
-                }
-            }
-
-            throw GMObjectNotFound("GMObjectManager::gm_send_message, gfx", msg.msg_receiver);
-        break;
-
-        case GMMessageCategory::NormalGroup:
-            for (auto &o: normal_objects) {
-                if (o->gm_is_in_group(msg.msg_receiver)) {
-                    o->gm_handle_message(msg);
-                }
-            }
-        break;
-
-        case GMMessageCategory::GFXGroup:
-            for (auto &o: gfx_objects) {
-                if (o->gm_is_in_group(msg.msg_receiver)) {
-                    o->gm_handle_message(msg);
-                }
-            }
-        break;
-
-        case GMMessageCategory::CombinedGroup:
-            for (auto &o: normal_objects) {
-                if (o->gm_is_in_group(msg.msg_receiver)) {
-                    o->gm_handle_message(msg);
-                }
-            }
-
-            for (auto &o: gfx_objects) {
-                if (o->gm_is_in_group(msg.msg_receiver)) {
-                    o->gm_handle_message(msg);
-                }
-            }
-        break;
-
-        case GMMessageCategory::ObjectManager:
-            // TODO
-        break;
-
-        case GMMessageCategory::SceneManager:
-            // TODO
-        break;
-
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_send_message", msg.msg_category);
-        break;
+void GMObjectManager::gm_apply_group(GMStringId group, std::function<void(GMObject &)> fun) {
+    for (auto &obj: objects) {
+        if (obj->gm_is_in_group(group)) {
+            fun(*obj);
+        }
     }
 }
-
-void GMObjectManager::gm_apply(std::span<std::string_view> items,
-    GMMessageCategory category = GMMessageCategory::Normal, std::function<void(GMObject &)> callback) {
-    if (items.size() == 0) {
-        return;
-    }
-
-    switch (category) {
-        case GMMessageCategory::Normal:
-            for (auto name: items) {
-                for (auto &o: normal_objects) {
-                    if (o->obj_name == name) {
-                        callback(*o);
-                        break;
-                    }
-                }
-            }
-        break;
-
-        case GMMessageCategory::GFX:
-            for (auto name: items) {
-                for (auto &o: gfx_objects) {
-                    if (o->obj_name == name) {
-                        callback(*o);
-                        break;
-                    }
-                }
-            }
-        break;
-
-        case GMMessageCategory::NormalGroup:
-            for (auto &o: normal_objects) {
-                for (auto group: items) {
-                    if (o->gm_is_in_group(group)) {
-                        callback(*o);
-                    }
-                }
-            }
-        break;
-
-        case GMMessageCategory::GFXGroup:
-            for (auto &o: gfx_objects) {
-                for (auto group: items) {
-                    if (o->gm_is_in_group(group)) {
-                        callback(*o);
-                    }
-                }
-            }
-        break;
-
-        case GMMessageCategory::CombinedGroup:
-            for (auto group: items) {
-                for (auto &o: normal_objects) {
-                    if (o->gm_is_in_group(group)) {
-                        callback(*o);
-                    }
-                }
-
-                for (auto &o: gfx_objects) {
-                    if (o->gm_is_in_group(group)) {
-                        callback(*o);
-                    }
-                }
-            }
-        break;
-
-        default:
-            throw GMInvalidCategory("GMObjectManager::gm_apply", category);
-        break;
-    }
-}
-*/
-
 }

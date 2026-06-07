@@ -39,6 +39,12 @@ public:
     std::runtime_error(std::format("Object not found ({}): {}", where, obj_name.value)) { }
 };
 
+class GMInvalidReceiver: public std::runtime_error {
+public:
+  GMInvalidReceiver(std::string_view where, GMStringId receiver):
+    std::runtime_error(std::format("Invalid receiver ({}): {}", where, receiver.value)) { }
+};
+
 /*
 class GMInvalidCategory: public std::runtime_error {
 public:

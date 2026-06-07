@@ -64,10 +64,10 @@ class GMObject {
         int16_t obj_update_order;
         int16_t obj_draw_order;
         GMVec2D obj_position;
+        std::vector<GMMessage> obj_messages;
 
     private:
         std::vector<GMStringId> obj_groups;
-        std::vector<GMMessage> obj_messages;
 };
 
 class GMObjectManager {
@@ -75,17 +75,18 @@ class GMObjectManager {
         GMObjectManager();
 
         void gm_update();
-
         void gm_draw();
-
         void gm_add_object(GMObject);
         void gm_remove_object(GMStringId);
         void gm_replace_object(GMStringId, GMObject);
         void gm_clear_objects();
         void gm_send_message(const GMMessage &);
+        void gm_handle_message(const GMMessage &);
         void gm_apply(GMStringId, std::function<void(GMObject &)>);
-        void gm_apply(std::span<GMStringId>, std::function<void(GMObject &)>);
+        void gm_apply_n(std::span<GMStringId>, std::function<void(GMObject &)>);
         void gm_apply_group(GMStringId, std::function<void(GMObject &)>);
+
+        std::vector<GMMessage> scene_messages;
 
     private:
         std::vector<std::unique_ptr<GMObject>> objects;

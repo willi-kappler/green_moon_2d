@@ -51,8 +51,8 @@ enum struct GMMessageType: uint32_t {
     // Object manager messages:
     AddObject,
     RemoveObject,
-    AddObjectToGroup,
-    RemoveObjectFromGroup,
+    ReplaceObject,
+    ClearObjects,
 
     // Scene manager messages:
     AddScene,
