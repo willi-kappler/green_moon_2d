@@ -17,50 +17,22 @@
 
 // Local includes:
 #include "gm_message_type.hpp"
-
+#include "gm_string_id.hpp"
 
 namespace gm2d {
 class GMMessage {
     public:
         // Constructors:
-        GMMessage(std::string, std::string, GMMessageSenderKind, std::any);
+        GMMessage(GMStringId, GMStringId, GMMessageType);
+        GMMessage(GMStringId, GMStringId, GMMessageType, bool);
+        GMMessage(GMStringId, GMStringId, GMMessageType, std::any);
+        GMMessage(GMStringId, GMStringId, GMMessageType, bool, std::any);
 
-        const std::string msg_sender;
-        const std::string msg_receiver;
-        const GMMessageSenderKind msg_sender_kind;
+        const GMStringId msg_sender;
+        const GMStringId msg_receiver;
+        const GMMessageType msg_type;
+        const bool msg_group;
         std::any msg_data;
-};
-
-class GMNormalMessage: public GMMessage {
-    public:
-        // Constructors:
-        GMNormalMessage(std::string, std::string, GMNormalMessageType, GMMessageSenderKind, std::any);
-
-        const GMNormalMessageType msg_type;
-};
-
-class GMGFXMessage: public GMMessage {
-    public:
-        // Constructors:
-        GMGFXMessage(std::string, std::string, GMGFXMessageType, GMMessageSenderKind, std::any);
-
-        const GMGFXMessageType msg_type;
-};
-
-class GMObjMgrMessage: public GMMessage {
-    public:
-        // Constructors:
-        GMObjMgrMessage(std::string, std::string, GMObjMgrMessageType, GMMessageSenderKind, std::any);
-
-        const GMObjMgrMessageType msg_type;
-};
-
-class GMSceneMgrMessage: public GMMessage {
-    public:
-        // Constructors:
-        GMSceneMgrMessage(std::string, std::string, GMSceneMgrMessageType, GMMessageSenderKind, std::any);
-
-        const GMSceneMgrMessageType msg_type;
 };
 }
 #endif // FILE_GM_MESSAGE_HPP_INCLUDED

@@ -11,30 +11,23 @@
 #include "gm_message.hpp"
 
 namespace gm2d {
-GMMessage::GMMessage(std::string sender, std::string receiver, GMMessageSenderKind sender_kind, std::any data):
+GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type):
+    GMMessage(sender, receiver, type, false, {})
+{}
+
+GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, bool group_message):
+    GMMessage(sender, receiver, type, group_message, {})
+{}
+
+GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, std::any data):
+    GMMessage(sender, receiver, type, false, data)
+{}
+
+GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, bool group_message, std::any data):
     msg_sender(sender),
     msg_receiver(receiver),
-    msg_sender_kind(sender_kind),
+    msg_type(type),
+    msg_group(group_message),
     msg_data(data)
-{}
-
-GMNormalMessage::GMNormalMessage(std::string sender, std::string receiver, GMNormalMessageType type, GMMessageSenderKind sender_kind, std::any data):
-    GMMessage(sender, receiver, sender_kind, data),
-    msg_type(type)
-{}
-
-GMGFXMessage::GMGFXMessage(std::string sender, std::string receiver, GMGFXMessageType type, GMMessageSenderKind sender_kind, std::any data):
-    GMMessage(sender, receiver, sender_kind, data),
-    msg_type(type)
-{}
-
-GMObjMgrMessage::GMObjMgrMessage(std::string sender, std::string receiver, GMObjMgrMessageType type, GMMessageSenderKind sender_kind, std::any data):
-    GMMessage(sender, receiver, sender_kind, data),
-    msg_type(type)
-{}
-
-GMSceneMgrMessage::GMSceneMgrMessage(std::string sender, std::string receiver, GMSceneMgrMessageType type, GMMessageSenderKind sender_kind, std::any data):
-    GMMessage(sender, receiver, sender_kind, data),
-    msg_type(type)
 {}
 }

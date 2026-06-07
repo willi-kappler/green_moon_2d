@@ -18,27 +18,25 @@
 
 // Local includes:
 #include "gm_message_type.hpp"
+#include "gm_string_id.hpp"
 
 namespace gm2d {
-
-/*
 class GMUnknownMessageType: public std::runtime_error {
 public:
-  GMUnknownMessageType(GMMessageType msg_type, std::string_view obj_name):
-    std::runtime_error(std::format("Unknown message type: {}, object name: {}", msg_type, obj_name)) { }
+  GMUnknownMessageType(GMMessageType msg_type, GMStringId obj_name):
+    std::runtime_error(std::format("Unknown message type: {}, object id: {}", msg_type, obj_name.value)) { }
 };
-*/
 
 class GMObjectNameDuplicate: public std::runtime_error {
 public:
-  GMObjectNameDuplicate(std::string_view where, std::string_view obj_name):
-    std::runtime_error(std::format("Object already exists ({}): {}", where, obj_name)) { }
+  GMObjectNameDuplicate(std::string_view where, GMStringId obj_name):
+    std::runtime_error(std::format("Object already exists ({}): {}", where, obj_name.value)) { }
 };
 
 class GMObjectNotFound: public std::runtime_error {
 public:
-  GMObjectNotFound(std::string_view where, std::string_view obj_name):
-    std::runtime_error(std::format("Object not found ({}): {}", where, obj_name)) { }
+  GMObjectNotFound(std::string_view where, GMStringId obj_name):
+    std::runtime_error(std::format("Object not found ({}): {}", where, obj_name.value)) { }
 };
 
 /*

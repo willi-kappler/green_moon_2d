@@ -16,14 +16,42 @@
 
 
 namespace gm2d{
-GMObject::GMObject(std::string_view name, bool active = true, int16_t update_order = 0):
-    obj_name(name),
-    obj_active(active),
-    obj_update_order(update_order),
-    obj_groups()
+GMObject::GMObject(GMStringId name_id):
+    obj_name_id(name_id),
+    obj_active(false),
+    obj_visible(false),
+    obj_update_order(0),
+    obj_draw_order(0),
+    obj_position(),
+    obj_groups(),
+    obj_messages()
 {}
 
-/*
+[[nodiscard]] GMObject& GMObject::with_active(bool active) & {
+    obj_active = active;
+    return *this;
+}
+
+[[nodiscard]] GMObject& GMObject::with_visible(bool visible) & {
+    obj_visible = visible;
+    return *this;
+}
+
+[[nodiscard]] GMObject& GMObject::with_update_order(int16_t update_order) & {
+    obj_update_order = update_order;
+    return *this;
+}
+
+[[nodiscard]] GMObject& GMObject::with_draw_order(int16_t draw_order) & {
+    obj_draw_order = draw_order;
+    return *this;
+}
+
+[[nodiscard]] GMObject& GMObject::with_position(GMVec2D position) & {
+    obj_position = position;
+    return *this;
+}
+
 void GMObject::gm_handle_message(const GMMessage &message) {
     switch (message.msg_type) {
         case GMMessageType::SetActive:
@@ -47,41 +75,62 @@ void GMObject::gm_handle_message(const GMMessage &message) {
         break;
 
         case GMMessageType::AddGroup:
-        {
-            gm_add_group(std::any_cast<std::string>(message.msg_data));
-        }
+            gm_add_group(std::any_cast<GMStringId>(message.msg_data));
         break;
 
         case GMMessageType::RemoveGroup:
-        {
-            gm_remove_group(std::any_cast<std::string>(message.msg_data));
-        }
+            gm_remove_group(std::any_cast<GMStringId>(message.msg_data));
         break;
 
         case GMMessageType::ClearGroups:
-        {
             gm_clear_groups();
-        }
+        break;
+
+        case GMMessageType::SetVisible:
+            obj_visible = std::any_cast<bool>(message.msg_data);
+        break;
+
+        case GMMessageType::GetVisible:
+        break;
+
+        case GMMessageType::ToggleVisible:
+        break;
+
+        case GMMessageType::SetDrawOrder:
+        break;
+
+        case GMMessageType::GetDrawOrder:
+        break;
+
+        case GMMessageType::SetPosition:
+        break;
+
+        case GMMessageType::GetPosition:
+        break;
+
+        case GMMessageType::AddPosition:
         break;
 
         default:
-            throw GMUnknownMessageType(message.msg_type, obj_name);
+            throw GMUnknownMessageType(message.msg_type, obj_name_id);
         break;
     }
 }
-*/
 
-/*
 void GMObject::gm_send_message(const GMMessage message) {
-    outgoing_messages.push_back(message);
+    obj_messages.push_back(message);
 }
-*/
 
 void GMObject::gm_update() {
+    // TODO: throw exception
 }
 
-void GMObject::gm_add_group(const std::string &grp) {
-    for (const std::string& str: obj_groups) {
+void GMObject::gm_draw() {
+    // TODO: throw exception
+}
+
+void GMObject::gm_add_group(const GMStringId grp) {
+    for (const GMStringId& str: obj_groups) {
         if (str == grp) {
             return;
         }
@@ -90,7 +139,7 @@ void GMObject::gm_add_group(const std::string &grp) {
     obj_groups.push_back(grp);
 }
 
-void GMObject::gm_remove_group(std::string_view grp) {
+void GMObject::gm_remove_group(const GMStringId grp) {
     for (size_t i = 0; i < obj_groups.size(); i++) {
         if (obj_groups[i] == grp) {
             std::swap(obj_groups[i], obj_groups.back());
@@ -104,8 +153,8 @@ void GMObject::gm_clear_groups() {
     obj_groups.clear();
 }
 
-[[nodiscard]] bool GMObject::gm_is_in_group(std::string_view grp) {
-    for (const std::string& str: obj_groups) {
+[[nodiscard]] bool GMObject::gm_is_in_group(const GMStringId grp) {
+    for (const GMStringId& str: obj_groups) {
         if (str == grp) {
             return true;
         }
@@ -113,13 +162,6 @@ void GMObject::gm_clear_groups() {
 
     return false;
 }
-
-GMGFXObject::GMGFXObject(std::string_view name, bool visible = true, int16_t draw_order = 0):
-    GMObject(name),
-    gfx_visible(visible),
-    gfx_draw_order(draw_order),
-    gfx_pos()
-{}
 
 /*
 void GMGFXObject::gm_handle_message(const GMMessage &message) {
@@ -163,14 +205,12 @@ void GMGFXObject::gm_handle_message(const GMMessage &message) {
 }
 */
 
-void GMGFXObject::gm_draw() {
-}
 
 GMObjectManager::GMObjectManager():
-    normal_objects(),
-    gfx_objects()
+    objects()
 {}
 
+/*
 void GMObjectManager::gm_update() {
     std::sort(normal_objects.begin(), normal_objects.end(), [](
         const std::unique_ptr<GMObject> &obj1,
@@ -210,6 +250,7 @@ void GMObjectManager::gm_draw() {
         }
     }
 }
+*/
 
 /*
 void GMObjectManager::gm_add_object(GMObject new_obj, GMMessageCategory category = GMMessageCategory::Normal) {

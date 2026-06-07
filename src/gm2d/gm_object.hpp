@@ -23,67 +23,51 @@
 // Local includes:
 #include "gm_message.hpp"
 #include "gm_math.hpp"
-
+#include "gm_string_id.hpp"
 
 namespace gm2d {
-
 class GMObject {
     public:
         // Constructor:
-        GMObject(std::string_view, bool, int16_t);
+        GMObject(GMStringId);
         virtual ~GMObject() = default;
+
+        // Fluent builder pattern:
+        [[nodiscard]] GMObject& with_active(bool) &;
+        [[nodiscard]] GMObject& with_visible(bool) &;
+        [[nodiscard]] GMObject& with_update_order(int16_t) &;
+        [[nodiscard]] GMObject& with_draw_order(int16_t) &;
+        [[nodiscard]] GMObject& with_position(GMVec2D) &;
 
         // Handle message:
         virtual void gm_handle_message(const GMMessage &);
 
         // Send message:
-        void gm_send_normal_message(GMMessage);
-        void gm_send_normal_message_group(GMMessage);
-        void gm_send_gfx_message(GMMessage);
-        void gm_send_gfx_message_group(GMMessage);
-        void gm_send_combined_group(GMMessage);
-        void gm_send_obj_mgr(GMMessage);
-        void gm_send_scene_mgr(GMMessage);
+        void gm_send_message(GMMessage);
 
         // Update:
         void virtual gm_update();
 
-        // Group
-        void gm_add_group(const std::string &);
-        void gm_remove_group(std::string_view);
-        void gm_clear_groups();
-        [[nodiscard]] bool gm_is_in_group(std::string_view);
-
-        const std::string obj_name;
-        bool obj_active;
-        int16_t obj_update_order;
-        std::vector<GMMessage> normal_messages;
-        std::vector<GMMessage> normal_group_messages;
-        std::vector<GMMessage> gfx_messages;
-        std::vector<GMMessage> gfx_group_messages;
-        std::vector<GMMessage> combined_group_messages;
-        std::vector<GMMessage> obj_mgr_messages;
-        std::vector<GMMessage> scene_mgr_messages;
-
-    private:
-        std::vector<std::string> obj_groups;
-};
-
-class GMGFXObject: public GMObject {
-    public:
-        // Constructor:
-        GMGFXObject(std::string_view, bool, int16_t);
-        virtual ~GMGFXObject() = default;
-
-        // Handle message:
-        void gm_handle_message(const GMMessage &) override;
-
         // Draw:
         void virtual gm_draw();
 
-        bool gfx_visible;
-        int16_t gfx_draw_order;
-        GMVec2D gfx_pos;
+        // Group:
+        void gm_add_group(const GMStringId);
+        void gm_remove_group(const GMStringId);
+        void gm_clear_groups();
+        [[nodiscard]] bool gm_is_in_group(const GMStringId);
+
+        // Member variables:
+        const GMStringId obj_name_id;
+        bool obj_active;
+        bool obj_visible;
+        int16_t obj_update_order;
+        int16_t obj_draw_order;
+        GMVec2D obj_position;
+
+    private:
+        std::vector<GMStringId> obj_groups;
+        std::vector<GMMessage> obj_messages;
 };
 
 class GMObjectManager {
@@ -94,18 +78,17 @@ class GMObjectManager {
 
         void gm_draw();
 
-        /*
-        void gm_add_object(GMObject, GMMessageCategory);
-        void gm_remove_object(std::string_view, GMMessageCategory);
-        void gm_replace_object(GMObject, GMMessageCategory);
-        void gm_clear_objects(GMMessageCategory);
+        void gm_add_object(GMObject);
+        void gm_remove_object(GMStringId);
+        void gm_replace_object(GMStringId, GMObject);
+        void gm_clear_objects();
         void gm_send_message(const GMMessage &);
-        void gm_apply(std::span<std::string_view>, GMMessageCategory, std::function<void(GMObject &)>);
-        */
+        void gm_apply(GMStringId, std::function<void(GMObject &)>);
+        void gm_apply(std::span<GMStringId>, std::function<void(GMObject &)>);
+        void gm_apply_group(GMStringId, std::function<void(GMObject &)>);
 
     private:
-        std::vector<std::unique_ptr<GMObject>> normal_objects;
-        std::vector<std::unique_ptr<GMGFXObject>> gfx_objects;
+        std::vector<std::unique_ptr<GMObject>> objects;
 
 };
 }
