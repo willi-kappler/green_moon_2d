@@ -13,26 +13,74 @@
 // STD includes:
 #include <cstdint>
 #include <any>
-#include <string>
+// #include <string>
 
 // Local includes:
 #include "gm_message_type.hpp"
 #include "gm_string_id.hpp"
 
 namespace gm2d {
-class GMMessage {
+class GMObjectMessage {
     public:
         // Constructors:
-        GMMessage(GMStringId, GMStringId, GMMessageType);
-        GMMessage(GMStringId, GMStringId, GMMessageType, bool);
-        GMMessage(GMStringId, GMStringId, GMMessageType, std::any);
-        GMMessage(GMStringId, GMStringId, GMMessageType, bool, std::any);
+        GMObjectMessage(GMStringId, GMStringId, GMObjectMessageType);
+
+        // Fluent builder pattern:
+        [[nodiscard]] GMObjectMessage& with_sender_type(GMMessageSenderType) &;
+        [[nodiscard]] GMObjectMessage& with_msg_data(std::any) &;
 
         const GMStringId msg_sender;
         const GMStringId msg_receiver;
-        const GMMessageType msg_type;
-        const bool msg_group;
+        const GMObjectMessageType msg_type;
+        GMMessageSenderType msg_sender_type;
         std::any msg_data;
 };
+
+class GMObjMgrMessage {
+    public:
+        // Constructors:
+        GMObjMgrMessage(GMObjMgrMessageType);
+        GMObjMgrMessage(GMObjMgrMessageType, std::any);
+
+        const GMObjMgrMessageType msg_type;
+        std::any msg_data;
+};
+
+class GMSceneMessage {
+    public:
+        // Constructors:
+        GMSceneMessage(GMStringId, GMStringId, GMSceneMessageType);
+
+        // Fluent builder pattern:
+        [[nodiscard]] GMSceneMessage& with_sender_type(GMMessageSenderType) &;
+        [[nodiscard]] GMSceneMessage& with_msg_data(std::any) &;
+
+        const GMStringId msg_sender;
+        const GMStringId msg_receiver;
+        const GMSceneMessageType msg_type;
+        GMMessageSenderType msg_sender_type;
+        std::any msg_data;
+};
+
+class GMSceneMgrMessage {
+    public:
+        // Constructors:
+        GMSceneMgrMessage(GMSceneMgrMessageType);
+        GMSceneMgrMessage(GMSceneMgrMessageType, std::any);
+
+        const GMSceneMgrMessageType msg_type;
+        std::any msg_data;
+};
+
+class GMEngineMessage {
+    public:
+        // Constructors:
+        GMEngineMessage(GMEngineMessageType);
+        GMEngineMessage(GMEngineMessageType, std::any);
+
+        const GMEngineMessageType msg_type;
+        std::any msg_data;
+};
+
 }
 #endif // FILE_GM_MESSAGE_HPP_INCLUDED

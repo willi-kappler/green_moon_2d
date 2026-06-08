@@ -11,23 +11,70 @@
 #include "gm_message.hpp"
 
 namespace gm2d {
-GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type):
-    GMMessage(sender, receiver, type, false, {})
-{}
-
-GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, bool group_message):
-    GMMessage(sender, receiver, type, group_message, {})
-{}
-
-GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, std::any data):
-    GMMessage(sender, receiver, type, false, data)
-{}
-
-GMMessage::GMMessage(GMStringId sender, GMStringId receiver, GMMessageType type, bool group_message, std::any data):
+GMObjectMessage::GMObjectMessage(GMStringId sender, GMStringId receiver, GMObjectMessageType type):
     msg_sender(sender),
     msg_receiver(receiver),
     msg_type(type),
-    msg_group(group_message),
+    msg_sender_type(GMMessageSenderType::Object),
+    msg_data()
+{}
+
+[[nodiscard]] GMObjectMessage& GMObjectMessage::with_sender_type(GMMessageSenderType type) & {
+    msg_sender_type = type;
+    return *this;
+}
+
+[[nodiscard]] GMObjectMessage& GMObjectMessage::with_msg_data(std::any data) & {
+    msg_data = data;
+    return *this;
+}
+
+GMObjMgrMessage::GMObjMgrMessage(GMObjMgrMessageType type):
+    msg_type(type),
+    msg_data()
+{}
+
+GMObjMgrMessage::GMObjMgrMessage(GMObjMgrMessageType type, std::any data):
+    msg_type(type),
     msg_data(data)
 {}
+
+GMSceneMessage::GMSceneMessage(GMStringId sender, GMStringId receiver, GMSceneMessageType type):
+    msg_sender(sender),
+    msg_receiver(receiver),
+    msg_type(type),
+    msg_sender_type(GMMessageSenderType::Scene),
+    msg_data()
+{}
+
+[[nodiscard]] GMSceneMessage& GMSceneMessage::with_sender_type(GMMessageSenderType type) & {
+    msg_sender_type = type;
+    return *this;
+}
+
+[[nodiscard]] GMSceneMessage& GMSceneMessage::with_msg_data(std::any data) & {
+    msg_data = data;
+    return *this;
+}
+
+GMSceneMgrMessage::GMSceneMgrMessage(GMSceneMgrMessageType type):
+    msg_type(type),
+    msg_data()
+{}
+
+GMSceneMgrMessage::GMSceneMgrMessage(GMSceneMgrMessageType type, std::any data):
+    msg_type(type),
+    msg_data(data)
+{}
+
+GMEngineMessage::GMEngineMessage(GMEngineMessageType type):
+    msg_type(type),
+    msg_data()
+{}
+
+GMEngineMessage::GMEngineMessage(GMEngineMessageType type, std::any data):
+    msg_type(type),
+    msg_data(data)
+{}
+
 }

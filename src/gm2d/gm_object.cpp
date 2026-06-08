@@ -23,7 +23,6 @@ GMObject::GMObject(GMStringId name_id):
     obj_update_order(0),
     obj_draw_order(0),
     obj_position(),
-    obj_messages(),
     obj_groups()
 {}
 
@@ -52,69 +51,69 @@ GMObject::GMObject(GMStringId name_id):
     return *this;
 }
 
-void GMObject::gm_handle_message(const GMMessage &message) {
+void GMObject::gm_handle_message(const GMObjectMessage &message) {
     switch (message.msg_type) {
-        case GMMessageType::SetActive:
+        case GMObjectMessageType::SetActive:
             obj_active = std::any_cast<bool>(message.msg_data);
         break;
 
-        case GMMessageType::GetActive:
-            //return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::Active, obj_active);
+        case GMObjectMessageType::GetActive:
+            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetActiveResult, obj_active);
         break;
 
-        case GMMessageType::ToggleActive:
+        case GMObjectMessageType::ToggleActive:
             obj_active = !obj_active;
         break;
 
-        case GMMessageType::SetUpdateOrder:
+        case GMObjectMessageType::SetUpdateOrder:
             obj_update_order = std::any_cast<int16_t>(message.msg_data);
         break;
 
-        case GMMessageType::GetUpdateOrder:
-            //return GMHandleResult(obj_name, message.msg_sender, GMHandleResultType::UpdateOrder, obj_update_order);
+        case GMObjectMessageType::GetUpdateOrder:
+            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetUpdateOrderResult, obj_update_order);
         break;
 
-        case GMMessageType::AddGroup:
+        case GMObjectMessageType::AddGroup:
             gm_add_group(std::any_cast<GMStringId>(message.msg_data));
         break;
 
-        case GMMessageType::RemoveGroup:
+        case GMObjectMessageType::RemoveGroup:
             gm_remove_group(std::any_cast<GMStringId>(message.msg_data));
         break;
 
-        case GMMessageType::ClearGroups:
+        case GMObjectMessageType::ClearGroups:
             gm_clear_groups();
         break;
 
-        case GMMessageType::SetVisible:
+        case GMObjectMessageType::SetVisible:
             obj_visible = std::any_cast<bool>(message.msg_data);
         break;
 
-        case GMMessageType::GetVisible:
-            // TODO
+        case GMObjectMessageType::GetVisible:
+            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetVisibleResult, obj_visible);
         break;
 
-        case GMMessageType::ToggleVisible:
+        case GMObjectMessageType::ToggleVisible:
             obj_visible = !obj_visible;
         break;
 
-        case GMMessageType::SetDrawOrder:
+        case GMObjectMessageType::SetDrawOrder:
             obj_draw_order = std::any_cast<int16_t>(message.msg_data);
         break;
 
-        case GMMessageType::GetDrawOrder:
-            // TODO
+        case GMObjectMessageType::GetDrawOrder:
+            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetDrawOrderResult, obj_draw_order);
         break;
 
-        case GMMessageType::SetPosition:
+        case GMObjectMessageType::SetPosition:
             obj_position = std::any_cast<GMVec2D>(message.msg_data);
         break;
 
-        case GMMessageType::GetPosition:
-            // TODO
+        case GMObjectMessageType::GetPosition:
+            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetPositionResult, obj_position);
         break;
 
-        case GMMessageType::AddPosition:
+        case GMObjectMessageType::AddPosition:
             obj_position += std::any_cast<GMVec2D>(message.msg_data);
         break;
 
@@ -124,16 +123,12 @@ void GMObject::gm_handle_message(const GMMessage &message) {
     }
 }
 
-void GMObject::gm_send_message(const GMMessage message) {
-    obj_messages.push_back(message);
-}
-
 void GMObject::gm_update() {
-    // TODO: throw exception
+    throw GMMethodNotImplemented("GMObject::gm_update", obj_name_id);
 }
 
 void GMObject::gm_draw() {
-    // TODO: throw exception
+    throw GMMethodNotImplemented("GMObject::gm_draw", obj_name_id);
 }
 
 void GMObject::gm_add_group(const GMStringId grp) {
@@ -181,20 +176,8 @@ void GMObjectManager::gm_update() {
         return obj1->obj_update_order < obj2->obj_update_order;
     });
 
-    std::vector<GMMessage> messages;
-
-    for (auto &obj: objects) {
-        if (obj->obj_active) {
-            obj->gm_update();
-        }
-
-        // Process outgoing messages from current object:
-        messages = std::move(obj->obj_messages);
-
-        for (auto &message: messages) {
-            gm_send_message(message);
-        }
-    }
+    std::vector<GMObjectMessage> messages;
+    // TODO
 }
 
 void GMObjectManager::gm_draw() {
@@ -214,7 +197,7 @@ void GMObjectManager::gm_draw() {
 void GMObjectManager::gm_add_object(GMObject new_obj) {
     for (auto &obj: objects) {
         if (obj->obj_name_id == new_obj.obj_name_id) {
-            throw GMObjectNameDuplicate("GMObjectManager::gm_add_object", obj->obj_name_id);
+            throw GMItemNameDuplicate("GMObjectManager::gm_add_object", obj->obj_name_id);
         }
     }
 
@@ -224,88 +207,60 @@ void GMObjectManager::gm_add_object(GMObject new_obj) {
 void GMObjectManager::gm_remove_object(GMStringId name_id) {
     for (size_t i = 0; i < objects.size(); i++) {
         if (objects[i]->obj_name_id == name_id) {
-            // TODO: remove object
+            std::swap(objects[i], objects.back());
+            objects.pop_back();
             return;
         }
     }
 
-    throw GMObjectNotFound("GMObjectManager::gm_remove_object", name_id);
+    throw GMItemNotFound("GMObjectManager::gm_remove_object", name_id);
 }
 
-void GMObjectManager::gm_replace_object(GMStringId name_id, GMObject new_obj) {
+void GMObjectManager::gm_replace_object(GMObject new_obj) {
     for (size_t i = 0; i < objects.size(); i++) {
-        if (objects[i]->obj_name_id == name_id) {
+        if (objects[i]->obj_name_id == new_obj.obj_name_id) {
             objects[i] = std::make_unique<GMObject>(new_obj);
             return;
         }
     }
 
-    throw GMObjectNotFound("GMObjectManager::gm_replace_object", name_id);
+    throw GMItemNotFound("GMObjectManager::gm_replace_object", new_obj.obj_name_id);
 }
 
 void GMObjectManager::gm_clear_objects() {
     objects.clear();
 }
 
-void GMObjectManager::gm_send_message(const GMMessage &message) {
-    if (message.msg_receiver == GMID("ObjectManager")) {
-        gm_handle_message(message);
-    } else if (message.msg_receiver == GMID("SceneManager")) {
-        scene_messages.push_back(message);
-    } else {
-        if (message.msg_group) {
-            for (auto &obj: objects) {
-                if (obj->gm_is_in_group(message.msg_receiver)) {
-                    obj->gm_handle_message(message);
-                }
-            }
-        } else {
-            for (auto &obj: objects) {
-                if (obj->obj_name_id == message.msg_receiver) {
-                    obj->gm_send_message(message);
-                    return;
-                }
-            }
-
-            throw GMObjectNotFound("GMObjectManager::gm_send_message", message.msg_receiver);
+void GMObjectManager::gm_handle_message(const GMObjMgrMessage &message) {
+    switch (message.msg_type) {
+        case GMObjMgrMessageType::AddObject:
+        {
+            GMObject new_object = std::any_cast<GMObject>(message.msg_data);
+            gm_add_object(new_object);
         }
-    }
-}
+        break;
 
-void GMObjectManager::gm_handle_message(const GMMessage &message) {
-    if (message.msg_receiver == GMID("ObjectManager")) {
-        switch (message.msg_type) {
-            case GMMessageType::AddObject:
-            {
-                GMObject new_object = std::any_cast<GMObject>(message.msg_data);
-                gm_add_object(new_object);
-            }
-            break;
-
-            case GMMessageType::RemoveObject:
-            {
-                GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
-                gm_remove_object(name_id);
-            }
-            break;
-
-            case GMMessageType::ReplaceObject:
-            {
-                auto [name_id, new_object] = std::any_cast<std::pair<GMStringId, GMObject>>(message.msg_data);
-                gm_replace_object(name_id, new_object);
-            }
-            break;
-
-            case GMMessageType::ClearObjects:
-                gm_clear_objects();
-            break;
-
-            default:
-                throw GMUnknownMessageType(message.msg_type, GMID("ObjectManager"));
-            break;
+        case GMObjMgrMessageType::RemoveObject:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_remove_object(name_id);
         }
-    } else {
-        throw GMInvalidReceiver("GMObjectManager::gm_handle_message", message.msg_receiver);
+        break;
+
+        case GMObjMgrMessageType::ReplaceObject:
+        {
+            GMObject new_object = std::any_cast<GMObject>(message.msg_data);
+            gm_replace_object(new_object);
+        }
+        break;
+
+        case GMObjMgrMessageType::ClearObjects:
+            gm_clear_objects();
+        break;
+
+        default:
+            throw GMUnknownMessageType(message.msg_type);
+        break;
     }
 }
 
@@ -317,7 +272,7 @@ void GMObjectManager::gm_apply(GMStringId name_id, std::function<void(GMObject &
         }
     }
 
-    throw GMObjectNotFound("GMObjectManager::gm_apply", name_id);
+    throw GMItemNotFound("GMObjectManager::gm_apply", name_id);
 }
 
 void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void(GMObject &)> fun) {

@@ -21,39 +21,50 @@
 #include "gm_string_id.hpp"
 
 namespace gm2d {
-class GMUnknownMessageType: public std::runtime_error {
+// General:
+class GMItemNotFound: public std::runtime_error {
 public:
-  GMUnknownMessageType(GMMessageType msg_type, GMStringId obj_name):
-    std::runtime_error(std::format("Unknown message type: {}, object id: {}", msg_type, obj_name.value)) { }
+  GMItemNotFound(std::string_view where, GMStringId item_name):
+    std::runtime_error(std::format("Item not found ({}): {}", where, item_name.value)) { }
 };
 
-class GMObjectNameDuplicate: public std::runtime_error {
+class GMItemNameDuplicate: public std::runtime_error {
 public:
-  GMObjectNameDuplicate(std::string_view where, GMStringId obj_name):
-    std::runtime_error(std::format("Object already exists ({}): {}", where, obj_name.value)) { }
+  GMItemNameDuplicate(std::string_view where, GMStringId item_name):
+    std::runtime_error(std::format("Item already exists ({}): {}", where, item_name.value)) { }
 };
 
-class GMObjectNotFound: public std::runtime_error {
+class GMMethodNotImplemented: public std::runtime_error {
 public:
-  GMObjectNotFound(std::string_view where, GMStringId obj_name):
-    std::runtime_error(std::format("Object not found ({}): {}", where, obj_name.value)) { }
+  GMMethodNotImplemented(std::string_view where, GMStringId obj_name):
+    std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name.value)) { }
 };
 
+/*
 class GMInvalidReceiver: public std::runtime_error {
 public:
   GMInvalidReceiver(std::string_view where, GMStringId receiver):
     std::runtime_error(std::format("Invalid receiver ({}): {}", where, receiver.value)) { }
 };
-
-/*
-class GMInvalidCategory: public std::runtime_error {
-public:
-  GMInvalidCategory(std::string_view where, GMMessageCategory category, std::string_view data):
-    std::runtime_error(std::format("Invalid category ({}): category: {}, data: {}", where, category, data)) { }
-  GMInvalidCategory(std::string_view where, GMMessageCategory category):
-    std::runtime_error(std::format("Invalid category ({}): category: {}", where, category)) { }
-};
 */
+
+// Messages:
+class GMUnknownMessageType: public std::runtime_error {
+public:
+  GMUnknownMessageType(GMObjectMessageType msg_type, GMStringId obj_name):
+    std::runtime_error(std::format("Unknown object message type: {}, object id: {}", msg_type, obj_name.value)) { }
+  GMUnknownMessageType(GMObjMgrMessageType msg_type):
+    std::runtime_error(std::format("Unknown object manager message type: {}", msg_type)) { }
+  GMUnknownMessageType(GMSceneMessageType msg_type, GMStringId scene_name):
+    std::runtime_error(std::format("Unknown scene message type: {}, scene id: {}", msg_type, scene_name.value)) { }
+  GMUnknownMessageType(GMSceneMgrMessageType msg_type):
+    std::runtime_error(std::format("Unknown scene manager message type: {}", msg_type)) { }
+};
+
+// Objects:
+
+// Scenes:
+
 
 }
 
