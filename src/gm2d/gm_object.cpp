@@ -51,14 +51,18 @@ GMObject::GMObject(GMStringId name_id):
     return *this;
 }
 
-void GMObject::gm_handle_message(const GMObjectMessage &message) {
+void GMObject::gm_handle_message(const GMObjectMessage &message, GMContext &context) {
     switch (message.msg_type) {
         case GMObjectMessageType::SetActive:
             obj_active = std::any_cast<bool>(message.msg_data);
         break;
 
         case GMObjectMessageType::GetActive:
-            //gm_reply_message(message.msg_sender, GMObjectMessageType::GetActiveResult, obj_active);
+        {
+            GMObjectMessage reply_message = GMObjectMessage(obj_name_id, message.msg_sender, GMObjectMessageType::GetActiveResult);
+            reply_message.msg_data = obj_active;
+            context.gm_send_object_message(reply_message);
+        }
         break;
 
         case GMObjectMessageType::ToggleActive:
@@ -123,11 +127,11 @@ void GMObject::gm_handle_message(const GMObjectMessage &message) {
     }
 }
 
-void GMObject::gm_update() {
+void GMObject::gm_update(GMContext &) {
     throw GMMethodNotImplemented("GMObject::gm_update", obj_name_id);
 }
 
-void GMObject::gm_draw() {
+void GMObject::gm_draw(GMContext &) {
     throw GMMethodNotImplemented("GMObject::gm_draw", obj_name_id);
 }
 
@@ -169,35 +173,79 @@ GMObjectManager::GMObjectManager():
     objects()
 {}
 
-void GMObjectManager::gm_update() {
+void GMObjectManager::gm_update(GMContext &context) {
+    std::vector<GMObjMgrMessage> objmgr_messages = std::move(context.objmgr_messages);
+
+    for (auto &message: objmgr_messages) {
+        gm_handle_message(message);
+    }
+
+    objmgr_messages.clear();
+
+    std::vector<GMObjectMessage> object_messages = std::move(context.object_messages);
+    bool object_found;
+
+    for (auto &message: object_messages) {
+        object_found = false;
+
+        for (auto &object: objects) {
+            if (message.msg_receiver == object->obj_name_id) {
+                object->gm_handle_message(message, context);
+                object_found = true;
+                break;
+            }
+        }
+
+        if (!object_found) {
+            throw GMItemNotFound("GMObjectManager::gm_update", message.msg_receiver);
+        }
+    }
+
+    object_messages.clear();
+
+    std::vector<GMObjectMessage> group_messages = std::move(context.group_messages);
+
+    for (auto &message: group_messages) {
+        for (auto &object: objects) {
+            if (object->gm_is_in_group(message.msg_receiver)) {
+                object->gm_handle_message(message, context);
+            }
+        }
+    }
+
+    group_messages.clear();
+
     std::sort(objects.begin(), objects.end(), [](
         const std::unique_ptr<GMObject> &obj1,
         const std::unique_ptr<GMObject> &obj2){
         return obj1->obj_update_order < obj2->obj_update_order;
     });
 
-    std::vector<GMObjectMessage> messages;
-    // TODO
+    for (auto &object: objects) {
+        if (object->obj_active) {
+            object->gm_update(context);
+        }
+    }
 }
 
-void GMObjectManager::gm_draw() {
+void GMObjectManager::gm_draw(GMContext &context) {
     std::sort(objects.begin(), objects.end(), [](
-        const std::unique_ptr<GMObject> &obj1,
-        const std::unique_ptr<GMObject> &obj2){
-        return obj1->obj_draw_order < obj2->obj_draw_order;
+        const std::unique_ptr<GMObject> &object1,
+        const std::unique_ptr<GMObject> &object2){
+        return object1->obj_draw_order < object2->obj_draw_order;
     });
 
-    for (auto &obj: objects) {
-        if (obj->obj_visible) {
-            obj->gm_draw();
+    for (auto &object: objects) {
+        if (object->obj_visible) {
+            object->gm_draw(context);
         }
     }
 }
 
 void GMObjectManager::gm_add_object(GMObject new_obj) {
-    for (auto &obj: objects) {
-        if (obj->obj_name_id == new_obj.obj_name_id) {
-            throw GMItemNameDuplicate("GMObjectManager::gm_add_object", obj->obj_name_id);
+    for (auto &object: objects) {
+        if (object->obj_name_id == new_obj.obj_name_id) {
+            throw GMItemNameDuplicate("GMObjectManager::gm_add_object", object->obj_name_id);
         }
     }
 
@@ -265,9 +313,9 @@ void GMObjectManager::gm_handle_message(const GMObjMgrMessage &message) {
 }
 
 void GMObjectManager::gm_apply(GMStringId name_id, std::function<void(GMObject &)> fun) {
-    for (auto &obj: objects) {
-        if (obj->obj_name_id == name_id) {
-            fun(*obj);
+    for (auto &object: objects) {
+        if (object->obj_name_id == name_id) {
+            fun(*object);
             return;
         }
     }
@@ -276,20 +324,29 @@ void GMObjectManager::gm_apply(GMStringId name_id, std::function<void(GMObject &
 }
 
 void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void(GMObject &)> fun) {
+    bool object_found;
+
     for (auto name_id: items) {
-        for (auto &obj: objects) {
-            if (obj->obj_name_id == name_id) {
-                fun(*obj);
+        object_found = false;
+
+        for (auto &object: objects) {
+            if (object->obj_name_id == name_id) {
+                fun(*object);
+                object_found = true;
                 break;
             }
+        }
+
+        if (!object_found) {
+            throw GMItemNotFound("GMObjectManager::gm_apply_n", name_id);
         }
     }
 }
 
 void GMObjectManager::gm_apply_group(GMStringId group, std::function<void(GMObject &)> fun) {
-    for (auto &obj: objects) {
-        if (obj->gm_is_in_group(group)) {
-            fun(*obj);
+    for (auto &object: objects) {
+        if (object->gm_is_in_group(group)) {
+            fun(*object);
         }
     }
 }

@@ -17,15 +17,15 @@ GMScene::GMScene(GMStringId scene_id):
     on_stack(false)
 {}
 
-void GMScene::gm_handle_message(const GMSceneMessage &) {
+void GMScene::gm_handle_message(const GMSceneMessage &, GMContext &) {
     throw GMMethodNotImplemented("GMScene::gm_handle_message", name_id);
 }
 
-void GMScene::gm_update() {
+void GMScene::gm_update(GMContext &) {
     throw GMMethodNotImplemented("GMScene::gm_update", name_id);
 }
 
-void GMScene::gm_draw() {
+void GMScene::gm_draw(GMContext &) {
     throw GMMethodNotImplemented("GMScene::gm_draw", name_id);
 }
 
@@ -33,24 +33,47 @@ void GMScene::gm_enter(GMStringId) {
     throw GMMethodNotImplemented("GMScene::gm_enter", name_id);
 }
 
-
-
-// throw GMMethodNotImplemented("GMScene::", name_id);
-
-
-
 GMSceneManager::GMSceneManager():
     scenes(),
     current_scene(),
     scene_stack()
 {}
 
-void GMSceneManager::gm_update() {
-    current_scene->gm_update();
+void GMSceneManager::gm_update(GMContext &context) {
+    std::vector<GMSceneMgrMessage> scenemgr_messages = std::move(context.scenemgr_messages);
+
+    for (auto &message: scenemgr_messages) {
+        gm_handle_message(message, context);
+    }
+
+    scenemgr_messages.clear();
+
+    std::vector<GMSceneMessage> scene_messages = std::move(context.scene_messages);
+    bool scene_found;
+
+    for (auto &message: scene_messages) {
+        scene_found = false;
+
+        for (auto &scene: scenes) {
+            if (message.msg_receiver == scene->name_id) {
+                scene->gm_handle_message(message, context);
+                scene_found = true;
+                break;
+            }
+        }
+
+        if (!scene_found) {
+            throw GMItemNotFound("GMSceneManager::gm_update", message.msg_receiver);
+        }
+    }
+
+    scene_messages.clear();
+
+    current_scene->gm_update(context);
 }
 
-void GMSceneManager::gm_draw() {
-    current_scene->gm_draw();
+void GMSceneManager::gm_draw(GMContext &context) {
+    current_scene->gm_draw(context);
 }
 
 void GMSceneManager::gm_add_scene(GMScene new_scene) {
@@ -123,18 +146,18 @@ void GMSceneManager::gm_set_start_scene(GMStringId name_id) {
     throw GMItemNotFound("GMSceneManager::gm_set_start_scene", name_id);
 }
 
-void GMSceneManager::gm_update_stack_top() {
-    scenes.back()->gm_update();
+void GMSceneManager::gm_update_stack_top(GMContext &context) {
+    scenes.back()->gm_update(context);
 }
 
-void GMSceneManager::gm_draw_stack_top() {
-    scenes.back()->gm_draw();
+void GMSceneManager::gm_draw_stack_top(GMContext &context) {
+    scenes.back()->gm_draw(context);
 }
 
-void GMSceneManager::gm_update_scene(GMStringId name_id) {
+void GMSceneManager::gm_update_scene(GMStringId name_id, GMContext &context) {
     for (auto &scene: scenes) {
         if (scene->name_id == name_id) {
-            scene->gm_update();
+            scene->gm_update(context);
             return;
         }
     }
@@ -142,10 +165,10 @@ void GMSceneManager::gm_update_scene(GMStringId name_id) {
     throw GMItemNotFound("GMSceneManager::gm_update_scene", name_id);
 }
 
-void GMSceneManager::gm_draw_scene(GMStringId name_id) {
+void GMSceneManager::gm_draw_scene(GMStringId name_id, GMContext &context) {
     for (auto &scene: scenes) {
         if (scene->name_id == name_id) {
-            scene->gm_draw();
+            scene->gm_draw(context);
             return;
         }
     }
@@ -153,9 +176,39 @@ void GMSceneManager::gm_draw_scene(GMStringId name_id) {
     throw GMItemNotFound("GMSceneManager::gm_draw_scene", name_id);
 }
 
-void GMSceneManager::gm_handle_message(const GMSceneMgrMessage &message) {
+void GMSceneManager::gm_handle_message(const GMSceneMgrMessage &message, GMContext &context) {
     switch (message.msg_type) {
         case GMSceneMgrMessageType::AddScene:
+        break;
+
+        // TODO
+
+        case GMSceneMgrMessageType::RemoveScene:
+        break;
+
+        case GMSceneMgrMessageType::ReplaceScene:
+        break;
+
+        case GMSceneMgrMessageType::ChangeToScene:
+        break;
+
+        case GMSceneMgrMessageType::PushAndChange:
+        break;
+
+        case GMSceneMgrMessageType::PopAndChange:
+        break;
+
+        case GMSceneMgrMessageType::UpdateStackTop:
+            gm_update_stack_top(context);
+        break;
+
+        case GMSceneMgrMessageType::DrawStackTop:
+        break;
+
+        case GMSceneMgrMessageType::UpdateScene:
+        break;
+
+        case GMSceneMgrMessageType::DrawScene:
         break;
 
         default:

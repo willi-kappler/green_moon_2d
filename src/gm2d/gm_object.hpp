@@ -25,6 +25,7 @@
 #include "gm_message.hpp"
 #include "gm_math.hpp"
 #include "gm_string_id.hpp"
+#include "gm_context.hpp"
 
 namespace gm2d {
 class GMObject {
@@ -41,11 +42,11 @@ class GMObject {
         [[nodiscard]] GMObject& with_position(GMVec2D) &;
 
         // Message:
-        virtual void gm_handle_message(const GMObjectMessage &);
+        virtual void gm_handle_message(const GMObjectMessage &, GMContext &);
 
         // Engine:
-        void virtual gm_update();
-        void virtual gm_draw();
+        void virtual gm_update(GMContext &);
+        void virtual gm_draw(GMContext &);
 
         // Group:
         void gm_add_group(const GMStringId);
@@ -69,8 +70,8 @@ class GMObjectManager {
     public:
         GMObjectManager();
 
-        void gm_update();
-        void gm_draw();
+        void gm_update(GMContext &);
+        void gm_draw(GMContext &);
         void gm_add_object(GMObject);
         void gm_remove_object(GMStringId);
         void gm_replace_object(GMObject);

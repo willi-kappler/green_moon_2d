@@ -25,19 +25,19 @@ namespace gm2d {
 class GMItemNotFound: public std::runtime_error {
 public:
   GMItemNotFound(std::string_view where, GMStringId item_name):
-    std::runtime_error(std::format("Item not found ({}): {}", where, item_name.value)) { }
+    std::runtime_error(std::format("Item not found ({}): {}", where, item_name)) { }
 };
 
 class GMItemNameDuplicate: public std::runtime_error {
 public:
   GMItemNameDuplicate(std::string_view where, GMStringId item_name):
-    std::runtime_error(std::format("Item already exists ({}): {}", where, item_name.value)) { }
+    std::runtime_error(std::format("Item already exists ({}): {}", where, item_name)) { }
 };
 
 class GMMethodNotImplemented: public std::runtime_error {
 public:
   GMMethodNotImplemented(std::string_view where, GMStringId obj_name):
-    std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name.value)) { }
+    std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name)) { }
 };
 
 /*

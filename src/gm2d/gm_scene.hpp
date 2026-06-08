@@ -18,6 +18,7 @@
 // Local includes:
 #include "gm_string_id.hpp"
 #include "gm_message.hpp"
+#include "gm_context.hpp"
 
 namespace gm2d {
 class GMScene {
@@ -25,9 +26,9 @@ class GMScene {
         GMScene(GMStringId);
         virtual ~GMScene() = default;
 
-        virtual void gm_handle_message(const GMSceneMessage &);
-        virtual void gm_update();
-        virtual void gm_draw();
+        virtual void gm_handle_message(const GMSceneMessage &, GMContext &);
+        virtual void gm_update(GMContext &);
+        virtual void gm_draw(GMContext &);
         virtual void gm_enter(GMStringId);
 
         GMStringId name_id;
@@ -40,8 +41,8 @@ class GMSceneManager {
     public:
         GMSceneManager();
 
-        void gm_update();
-        void gm_draw();
+        void gm_update(GMContext &);
+        void gm_draw(GMContext &);
         void gm_add_scene(GMScene);
         void gm_remove_scene(GMStringId);
         void gm_replace_scene(GMStringId);
@@ -49,12 +50,11 @@ class GMSceneManager {
         void gm_push_and_change(GMStringId);
         void gm_pop_and_change();
         void gm_set_start_scene(GMStringId);
-        void gm_update_stack_top();
-        void gm_draw_stack_top();
-        void gm_update_scene(GMStringId);
-        void gm_draw_scene(GMStringId);
-        void gm_send_message(const GMSceneMessage &);
-        void gm_handle_message(const GMSceneMgrMessage &);
+        void gm_update_stack_top(GMContext &);
+        void gm_draw_stack_top(GMContext &);
+        void gm_update_scene(GMStringId, GMContext &);
+        void gm_draw_scene(GMStringId, GMContext &);
+        void gm_handle_message(const GMSceneMgrMessage &, GMContext &);
 
     private:
         std::vector<std::shared_ptr<GMScene>> scenes;

@@ -12,6 +12,7 @@
 
 #include <string_view>
 #include <cstdint>
+#include <format>
 
 namespace gm2d {
 struct GMStringId {
@@ -34,5 +35,13 @@ constexpr GMStringId GMID(std::string_view str) {
     return GMStringId{ hash };
 }
 }
+
+template <>
+struct std::formatter<gm2d::GMStringId> : std::formatter<std::string_view> {
+    auto format(gm2d::GMStringId s, format_context& ctx) const {
+        std::string_view name = std::format("{}", s.value);
+        return std::formatter<std::string_view>::format(name, ctx);
+    }
+};
 
 #endif // FILE_GM_STRING_ID_HPP_INCLUDED
