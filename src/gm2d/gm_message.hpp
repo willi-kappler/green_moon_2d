@@ -26,8 +26,8 @@ class GMObjectMessage {
         GMObjectMessage(GMStringId, GMStringId, GMObjectMessageType);
 
         // Fluent builder pattern:
-        [[nodiscard]] GMObjectMessage& with_sender_type(GMMessageSenderType) &;
-        [[nodiscard]] GMObjectMessage& with_msg_data(std::any) &;
+        [[nodiscard]] GMObjectMessage& with_sender_type(GMMessageSenderType);
+        [[nodiscard]] GMObjectMessage& with_msg_data(std::any);
 
         const GMStringId msg_sender;
         const GMStringId msg_receiver;

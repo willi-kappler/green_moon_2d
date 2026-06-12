@@ -35,18 +35,18 @@ class GMObject {
         virtual ~GMObject() = default;
 
         // Fluent builder pattern:
-        [[nodiscard]] GMObject& with_active(bool) &;
-        [[nodiscard]] GMObject& with_visible(bool) &;
-        [[nodiscard]] GMObject& with_update_order(int16_t) &;
-        [[nodiscard]] GMObject& with_draw_order(int16_t) &;
-        [[nodiscard]] GMObject& with_position(GMVec2D) &;
+        [[nodiscard]] GMObject& with_active(bool);
+        [[nodiscard]] GMObject& with_visible(bool);
+        [[nodiscard]] GMObject& with_update_order(int16_t);
+        [[nodiscard]] GMObject& with_draw_order(int16_t);
+        [[nodiscard]] GMObject& with_position(GMVec2D);
 
         // Message:
         virtual void gm_handle_message(const GMObjectMessage &, GMContext &);
 
         // Engine:
-        void virtual gm_update(GMContext &);
-        void virtual gm_draw(GMContext &);
+        void virtual gm_update(GMContext &) = 0;
+        void virtual gm_draw(GMContext &) = 0;
 
         // Group:
         void gm_add_group(const GMStringId);
@@ -72,9 +72,11 @@ class GMObjectManager {
 
         void gm_update(GMContext &);
         void gm_draw(GMContext &);
-        void gm_add_object(GMObject);
+        void gm_add_object(std::unique_ptr<GMObject>);
+        void gm_add_object(const GMObject &);
         void gm_remove_object(GMStringId);
-        void gm_replace_object(GMObject);
+        void gm_replace_object(std::unique_ptr<GMObject>);
+        void gm_replace_object(const GMObject &);
         void gm_clear_objects();
         void gm_handle_message(const GMObjMgrMessage &);
         void gm_apply(GMStringId, std::function<void(GMObject &)>);

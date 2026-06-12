@@ -19,12 +19,12 @@ GMObjectMessage::GMObjectMessage(GMStringId sender, GMStringId receiver, GMObjec
     msg_data()
 {}
 
-[[nodiscard]] GMObjectMessage& GMObjectMessage::with_sender_type(GMMessageSenderType type) & {
+[[nodiscard]] GMObjectMessage& GMObjectMessage::with_sender_type(GMMessageSenderType type) {
     msg_sender_type = type;
     return *this;
 }
 
-[[nodiscard]] GMObjectMessage& GMObjectMessage::with_msg_data(std::any data) & {
+[[nodiscard]] GMObjectMessage& GMObjectMessage::with_msg_data(std::any data) {
     msg_data = data;
     return *this;
 }

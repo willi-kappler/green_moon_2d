@@ -26,10 +26,10 @@ class GMScene {
         GMScene(GMStringId);
         virtual ~GMScene() = default;
 
-        virtual void gm_handle_message(const GMSceneMessage &, GMContext &);
-        virtual void gm_update(GMContext &);
-        virtual void gm_draw(GMContext &);
-        virtual void gm_enter(GMStringId);
+        virtual void gm_handle_message(const GMSceneMessage &, GMContext &) = 0;
+        virtual void gm_update(GMContext &) = 0;
+        virtual void gm_draw(GMContext &) = 0;
+        virtual void gm_enter(GMStringId) = 0;
 
         GMStringId name_id;
         bool on_stack;
@@ -43,9 +43,11 @@ class GMSceneManager {
 
         void gm_update(GMContext &);
         void gm_draw(GMContext &);
-        void gm_add_scene(GMScene);
+        void gm_add_scene(std::shared_ptr<GMScene>);
+        void gm_add_scene(const GMScene &);
         void gm_remove_scene(GMStringId);
-        void gm_replace_scene(GMStringId);
+        void gm_replace_scene(std::shared_ptr<GMScene>);
+        void gm_replace_scene(const GMScene &);
         void gm_change_to_scene(GMStringId);
         void gm_push_and_change(GMStringId);
         void gm_pop_and_change();

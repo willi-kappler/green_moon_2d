@@ -17,22 +17,6 @@ GMScene::GMScene(GMStringId scene_id):
     on_stack(false)
 {}
 
-void GMScene::gm_handle_message(const GMSceneMessage &, GMContext &) {
-    throw GMMethodNotImplemented("GMScene::gm_handle_message", name_id);
-}
-
-void GMScene::gm_update(GMContext &) {
-    throw GMMethodNotImplemented("GMScene::gm_update", name_id);
-}
-
-void GMScene::gm_draw(GMContext &) {
-    throw GMMethodNotImplemented("GMScene::gm_draw", name_id);
-}
-
-void GMScene::gm_enter(GMStringId) {
-    throw GMMethodNotImplemented("GMScene::gm_enter", name_id);
-}
-
 GMSceneManager::GMSceneManager():
     scenes(),
     current_scene(),
@@ -76,14 +60,18 @@ void GMSceneManager::gm_draw(GMContext &context) {
     current_scene->gm_draw(context);
 }
 
-void GMSceneManager::gm_add_scene(GMScene new_scene) {
+void GMSceneManager::gm_add_scene(std::shared_ptr<GMScene> new_scene) {
     for (auto &scene: scenes) {
-        if (scene->name_id == new_scene.name_id) {
-            throw GMItemNameDuplicate("GMSceneManager::gm_add_scene", new_scene.name_id);
+        if (scene->name_id == new_scene->name_id) {
+            throw GMItemNameDuplicate("GMSceneManager::gm_add_scene", new_scene->name_id);
         }
     }
 
-    scenes.push_back(std::make_shared<GMScene>(new_scene));
+    scenes.push_back(new_scene);
+}
+
+void GMSceneManager::gm_add_scene(const GMScene &new_scene) {
+    gm_add_scene(std::make_shared<GMScene>(new_scene));
 }
 
 void GMSceneManager::gm_remove_scene(GMStringId name_id) {
@@ -96,6 +84,21 @@ void GMSceneManager::gm_remove_scene(GMStringId name_id) {
     }
 
     throw GMItemNotFound("GMSceneManager::gm_delete_scene", name_id);
+}
+
+void GMSceneManager::gm_replace_scene(std::shared_ptr<GMScene> new_scene) {
+    for (size_t i = 0; i < scenes.size(); i++) {
+        if (scenes[i]->name_id == new_scene->name_id) {
+            scenes[i] = new_scene;
+            return;
+        }
+    }
+
+    throw GMItemNotFound("GMSceneManager::gm_replace_scene", new_scene->name_id);
+}
+
+void GMSceneManager::gm_replace_scene(const GMScene &new_scene) {
+    gm_replace_scene(std::make_shared<GMScene>(new_scene));
 }
 
 void GMSceneManager::gm_change_to_scene(GMStringId name_id) {
@@ -179,23 +182,42 @@ void GMSceneManager::gm_draw_scene(GMStringId name_id, GMContext &context) {
 void GMSceneManager::gm_handle_message(const GMSceneMgrMessage &message, GMContext &context) {
     switch (message.msg_type) {
         case GMSceneMgrMessageType::AddScene:
+        {
+            std::shared_ptr<GMScene> new_scene = std::any_cast<std::shared_ptr<GMScene>>(message.msg_data);
+            gm_add_scene(new_scene);
+        }
         break;
 
-        // TODO
-
         case GMSceneMgrMessageType::RemoveScene:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_remove_scene(name_id);
+        }
         break;
 
         case GMSceneMgrMessageType::ReplaceScene:
+        {
+            std::shared_ptr<GMScene> new_scene = std::any_cast<std::shared_ptr<GMScene>>(message.msg_data);
+            gm_replace_scene(new_scene);
+        }
         break;
 
         case GMSceneMgrMessageType::ChangeToScene:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_change_to_scene(name_id);
+        }
         break;
 
         case GMSceneMgrMessageType::PushAndChange:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_push_and_change(name_id);
+        }
         break;
 
         case GMSceneMgrMessageType::PopAndChange:
+            gm_pop_and_change();
         break;
 
         case GMSceneMgrMessageType::UpdateStackTop:
@@ -203,12 +225,21 @@ void GMSceneManager::gm_handle_message(const GMSceneMgrMessage &message, GMConte
         break;
 
         case GMSceneMgrMessageType::DrawStackTop:
+            gm_draw_stack_top(context);
         break;
 
         case GMSceneMgrMessageType::UpdateScene:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_update_scene(name_id, context);
+        }
         break;
 
         case GMSceneMgrMessageType::DrawScene:
+        {
+            GMStringId name_id = std::any_cast<GMStringId>(message.msg_data);
+            gm_draw_scene(name_id, context);
+        }
         break;
 
         default:
