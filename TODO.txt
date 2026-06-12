@@ -1,4 +1,5 @@
 TODO:
     - Add logger
+    - Use brace init everywhere ?
 
 Done:
