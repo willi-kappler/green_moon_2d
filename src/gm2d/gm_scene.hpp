@@ -44,10 +44,8 @@ class GMSceneManager {
         void gm_update(GMContext &);
         void gm_draw(GMContext &);
         void gm_add_scene(std::shared_ptr<GMScene>);
-//        void gm_add_scene(const GMScene &);
         void gm_remove_scene(GMStringId);
         void gm_replace_scene(std::shared_ptr<GMScene>);
-//        void gm_replace_scene(const GMScene &);
         void gm_change_to_scene(GMStringId);
         void gm_push_and_change(GMStringId);
         void gm_pop_and_change();

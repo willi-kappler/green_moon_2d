@@ -224,8 +224,8 @@ void GMObjectManager::gm_update(GMContext &context) {
     group_messages.clear();
 
     std::sort(objects.begin(), objects.end(), [](
-        const std::unique_ptr<GMObject> &obj1,
-        const std::unique_ptr<GMObject> &obj2){
+        const std::shared_ptr<GMObject> &obj1,
+        const std::shared_ptr<GMObject> &obj2){
         return obj1->obj_update_order < obj2->obj_update_order;
     });
 
@@ -238,8 +238,8 @@ void GMObjectManager::gm_update(GMContext &context) {
 
 void GMObjectManager::gm_draw(GMContext &context) {
     std::sort(objects.begin(), objects.end(), [](
-        const std::unique_ptr<GMObject> &object1,
-        const std::unique_ptr<GMObject> &object2){
+        const std::shared_ptr<GMObject> &object1,
+        const std::shared_ptr<GMObject> &object2){
         return object1->obj_draw_order < object2->obj_draw_order;
     });
 
@@ -250,21 +250,15 @@ void GMObjectManager::gm_draw(GMContext &context) {
     }
 }
 
-void GMObjectManager::gm_add_object(std::unique_ptr<GMObject> new_obj) {
+void GMObjectManager::gm_add_object(std::shared_ptr<GMObject> new_obj) {
     for (auto &object: objects) {
         if (object->obj_name_id == new_obj->obj_name_id) {
             throw GMItemNameDuplicate("GMObjectManager::gm_add_object", object->obj_name_id);
         }
     }
 
-    objects.push_back(std::move(new_obj));
+    objects.push_back(new_obj);
 }
-
-/*
-void GMObjectManager::gm_add_object(const GMObject &new_obj) {
-    gm_add_object(std::make_unique<GMObject>(new_obj));
-}
-*/
 
 void GMObjectManager::gm_remove_object(GMStringId name_id) {
     for (size_t i = 0; i < objects.size(); i++) {
@@ -278,22 +272,16 @@ void GMObjectManager::gm_remove_object(GMStringId name_id) {
     throw GMItemNotFound("GMObjectManager::gm_remove_object", name_id);
 }
 
-void GMObjectManager::gm_replace_object(std::unique_ptr<GMObject> new_obj) {
+void GMObjectManager::gm_replace_object(std::shared_ptr<GMObject> new_obj) {
     for (size_t i = 0; i < objects.size(); i++) {
         if (objects[i]->obj_name_id == new_obj->obj_name_id) {
-            objects[i] = std::move(new_obj);
+            objects[i] = new_obj;
             return;
         }
     }
 
     throw GMItemNotFound("GMObjectManager::gm_replace_object", new_obj->obj_name_id);
 }
-
-/*
-void GMObjectManager::gm_replace_object(const GMObject &new_obj) {
-    gm_replace_object(std::make_unique<GMObject>(new_obj));
-}
-*/
 
 void GMObjectManager::gm_clear_objects() {
     objects.clear();
@@ -303,12 +291,8 @@ void GMObjectManager::gm_handle_message(GMObjMgrMessage &message) {
     switch (message.msg_type) {
         case GMObjMgrMessageType::AddObject:
         {
-            // auto new_obj = std::any_cast<GMObject *>(message.msg_data);
-            /*
-            if (auto* obj_ptr = std::any_cast<std::unique_ptr<GMObject>>(&message.msg_data)) {
-                gm_add_object(static_cast<std::unique_ptr<GMObject>&&>(*obj_ptr));
-            }
-            */
+            std::shared_ptr<GMObject> new_object = std::any_cast<std::shared_ptr<GMObject>>(message.msg_data);
+            gm_add_object(new_object);
         }
         break;
 
@@ -321,7 +305,8 @@ void GMObjectManager::gm_handle_message(GMObjMgrMessage &message) {
 
         case GMObjMgrMessageType::ReplaceObject:
         {
-            //gm_replace_object(std::any_cast<std::unique_ptr<GMObject>&&>(message.msg_data));
+            std::shared_ptr<GMObject> new_object = std::any_cast<std::shared_ptr<GMObject>>(message.msg_data);
+            gm_replace_object(new_object);
         }
         break;
 

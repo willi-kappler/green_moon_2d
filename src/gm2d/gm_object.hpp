@@ -72,11 +72,9 @@ class GMObjectManager {
 
         void gm_update(GMContext &);
         void gm_draw(GMContext &);
-        void gm_add_object(std::unique_ptr<GMObject>);
-        // void gm_add_object(const GMObject &);
+        void gm_add_object(std::shared_ptr<GMObject>);
         void gm_remove_object(GMStringId);
-        void gm_replace_object(std::unique_ptr<GMObject>);
-        // void gm_replace_object(const GMObject &);
+        void gm_replace_object(std::shared_ptr<GMObject>);
         void gm_clear_objects();
         void gm_handle_message(GMObjMgrMessage &);
         void gm_apply(GMStringId, std::function<void(GMObject &)>);
@@ -84,7 +82,7 @@ class GMObjectManager {
         void gm_apply_group(GMStringId, std::function<void(GMObject &)>);
 
     private:
-        std::vector<std::unique_ptr<GMObject>> objects;
+        std::vector<std::shared_ptr<GMObject>> objects;
 
 };
 }
