@@ -70,9 +70,11 @@ void GMSceneManager::gm_add_scene(std::shared_ptr<GMScene> new_scene) {
     scenes.push_back(new_scene);
 }
 
+/*
 void GMSceneManager::gm_add_scene(const GMScene &new_scene) {
     gm_add_scene(std::make_shared<GMScene>(new_scene));
 }
+*/
 
 void GMSceneManager::gm_remove_scene(GMStringId name_id) {
     for (size_t i = 0; i < scenes.size(); i++) {
@@ -97,9 +99,11 @@ void GMSceneManager::gm_replace_scene(std::shared_ptr<GMScene> new_scene) {
     throw GMItemNotFound("GMSceneManager::gm_replace_scene", new_scene->name_id);
 }
 
+/*
 void GMSceneManager::gm_replace_scene(const GMScene &new_scene) {
     gm_replace_scene(std::make_shared<GMScene>(new_scene));
 }
+*/
 
 void GMSceneManager::gm_change_to_scene(GMStringId name_id) {
     for (auto &scene: scenes) {

@@ -47,12 +47,12 @@ GMSceneMessage::GMSceneMessage(GMStringId sender, GMStringId receiver, GMSceneMe
     msg_data()
 {}
 
-[[nodiscard]] GMSceneMessage& GMSceneMessage::with_sender_type(GMMessageSenderType type) & {
+[[nodiscard]] GMSceneMessage& GMSceneMessage::with_sender_type(GMMessageSenderType type) {
     msg_sender_type = type;
     return *this;
 }
 
-[[nodiscard]] GMSceneMessage& GMSceneMessage::with_msg_data(std::any data) & {
+[[nodiscard]] GMSceneMessage& GMSceneMessage::with_msg_data(std::any data) {
     msg_data = data;
     return *this;
 }

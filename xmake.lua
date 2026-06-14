@@ -68,7 +68,8 @@ end
 add_requires("taocpp-json 2025.03.11")
 add_requires("snitch")
 add_requires("spdlog", {configs = {header_only = false}})
--- add_requires("raylib")
+-- add_requires("libsdl3")
+-- add_requires("libsdl3_image")
 -- add_requires("argparse")
 
 target("green_moon_2d")
@@ -79,7 +80,8 @@ target("green_moon_2d")
     add_files("src/gm2d/*.cpp")
     add_packages("taocpp-json")
     add_packages("spdlog")
-    -- add_packages("raylib")
+    -- add_packages("libsdl3")
+    -- add_packages("libsdl3_image")
     -- For spdlog, so that every object file sees the global logger:
     add_defines("SPDLOG_COMPILED_LIB", {public = true})
     -- Tell xmake which headers to give to the user when installing it:
@@ -97,6 +99,6 @@ target("gm2d_test")
     set_default(false) -- Don't build by default
 
 -- Test package locally in xmake repo:
--- xmake l scripts/test.lua --shallow -vD node_crunch2
--- xmake l scripts/test.lua --shallow -vD -k shared -m debug node_crunch2
--- xmake l scripts/test.lua --shallow -vD --runtimes=MD node_crunch2
+-- xmake l scripts/test.lua --shallow -vD green_moon_2d
+-- xmake l scripts/test.lua --shallow -vD -k shared -m debug green_moon_2d
+-- xmake l scripts/test.lua --shallow -vD --runtimes=MD green_moon_2d

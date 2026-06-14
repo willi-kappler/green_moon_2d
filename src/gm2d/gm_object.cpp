@@ -257,12 +257,14 @@ void GMObjectManager::gm_add_object(std::unique_ptr<GMObject> new_obj) {
         }
     }
 
-    objects.push_back(new_obj);
+    objects.push_back(std::move(new_obj));
 }
 
+/*
 void GMObjectManager::gm_add_object(const GMObject &new_obj) {
     gm_add_object(std::make_unique<GMObject>(new_obj));
 }
+*/
 
 void GMObjectManager::gm_remove_object(GMStringId name_id) {
     for (size_t i = 0; i < objects.size(); i++) {
@@ -287,20 +289,26 @@ void GMObjectManager::gm_replace_object(std::unique_ptr<GMObject> new_obj) {
     throw GMItemNotFound("GMObjectManager::gm_replace_object", new_obj->obj_name_id);
 }
 
+/*
 void GMObjectManager::gm_replace_object(const GMObject &new_obj) {
     gm_replace_object(std::make_unique<GMObject>(new_obj));
 }
+*/
 
 void GMObjectManager::gm_clear_objects() {
     objects.clear();
 }
 
-void GMObjectManager::gm_handle_message(const GMObjMgrMessage &message) {
+void GMObjectManager::gm_handle_message(GMObjMgrMessage &message) {
     switch (message.msg_type) {
         case GMObjMgrMessageType::AddObject:
         {
-            std::unique_ptr<GMObject> new_object = std::any_cast<std::unique_ptr<GMObject>>(message.msg_data);
-            gm_add_object(std::move(new_object));
+            // auto new_obj = std::any_cast<GMObject *>(message.msg_data);
+            /*
+            if (auto* obj_ptr = std::any_cast<std::unique_ptr<GMObject>>(&message.msg_data)) {
+                gm_add_object(static_cast<std::unique_ptr<GMObject>&&>(*obj_ptr));
+            }
+            */
         }
         break;
 
@@ -313,8 +321,7 @@ void GMObjectManager::gm_handle_message(const GMObjMgrMessage &message) {
 
         case GMObjMgrMessageType::ReplaceObject:
         {
-            std::unique_ptr<GMObject> new_object = std::any_cast<std::unique_ptr<GMObject>>(message.msg_data);
-            gm_replace_object(std::move(new_object));
+            //gm_replace_object(std::any_cast<std::unique_ptr<GMObject>&&>(message.msg_data));
         }
         break;
 

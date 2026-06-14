@@ -52,8 +52,8 @@ class GMSceneMessage {
         GMSceneMessage(GMStringId, GMStringId, GMSceneMessageType);
 
         // Fluent builder pattern:
-        [[nodiscard]] GMSceneMessage& with_sender_type(GMMessageSenderType) &;
-        [[nodiscard]] GMSceneMessage& with_msg_data(std::any) &;
+        [[nodiscard]] GMSceneMessage& with_sender_type(GMMessageSenderType);
+        [[nodiscard]] GMSceneMessage& with_msg_data(std::any);
 
         const GMStringId msg_sender;
         const GMStringId msg_receiver;
