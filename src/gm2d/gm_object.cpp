@@ -15,7 +15,7 @@
 #include "gm_exceptions.hpp"
 
 
-namespace gm2d{
+namespace gm2d {
 GMObject::GMObject(GMStringId name_id):
     obj_name_id(name_id),
     obj_active(false),
