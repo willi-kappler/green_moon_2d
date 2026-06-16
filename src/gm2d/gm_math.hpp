@@ -52,19 +52,18 @@ class GMVec2D {
         GMVec2D(const std::array<std::float32_t, 2> &);
 
         // Methods:
-        void add(const GMVec2D);
-        void add(const std::float32_t, const std::float32_t);
-        void mul(const std::float32_t);
+        void gm_add(const GMVec2D);
+        void gm_mul(const std::float32_t);
 
-        [[nodiscard]] std::float32_t len1();
-        [[nodiscard]] std::float32_t len2();
+        [[nodiscard]] std::float32_t gm_len1();
+        [[nodiscard]] std::float32_t gm_len2();
 
-        [[nodiscard]] GMVec2D norm1();
-        void norm2();
-        [[nodiscard]] std::float32_t dist(const GMVec2D &);
+        [[nodiscard]] GMVec2D gm_norm1();
+        void gm_norm2();
+        [[nodiscard]] std::float32_t gm_dist(const GMVec2D &);
 
-        [[nodiscard]] GMVec2D rotate1(const std::float32_t);
-        void rotate2(std::float32_t);
+        [[nodiscard]] GMVec2D gm_rotate1(const std::float32_t);
+        void gm_rotate2(std::float32_t);
 
         // Operators:
         void operator=(const GMVec2D);
@@ -89,16 +88,14 @@ class GMCircle {
         GMCircle();
         GMCircle(const std::float32_t, const std::float32_t, const std::float32_t);
         GMCircle(const GMVec2D &, const std::float32_t);
-        GMCircle(const std::pair<std::float32_t, std::float32_t> &, const std::float32_t);
-        GMCircle(const std::array<std::float32_t, 2> &, const std::float32_t);
 
         // Methods:
+        [[nodiscard]] bool gm_inside(const GMVec2D &);
 
         // Operators:
 
         // Members:
-        std::float32_t cx;
-        std::float32_t cy;
+        GMVec2D ctr;
         std::float32_t r;
 };
 
@@ -107,17 +104,17 @@ class GMRectangle {
         GMRectangle();
         GMRectangle(const std::float32_t, const std::float32_t, const std::float32_t, const std::float32_t);
         GMRectangle(const GMVec2D &, const GMVec2D &);
-        GMRectangle(const std::pair<std::float32_t, std::float32_t> &, const std::pair<std::float32_t, std::float32_t> &);
 
         // Methods:
+        [[nodiscard]] bool gm_inside(const GMVec2D &);
+        [[nodiscard]] std::float32_t gm_width();
+        [[nodiscard]] std::float32_t gm_height();
 
         // Operators:
 
         // Members:
-        std::float32_t x1;
-        std::float32_t y1;
-        std::float32_t x2;
-        std::float32_t y2;
+        GMVec2D v1;
+        GMVec2D v2;
 };
 
 [[nodiscard]] bool approx(std::float32_t, std::float32_t);
