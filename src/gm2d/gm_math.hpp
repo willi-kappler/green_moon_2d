@@ -15,6 +15,7 @@
 #include <stdfloat>
 #include <utility>
 #include <array>
+#include <optional>
 
 namespace gm2d {
 enum struct GMAlignment: uint8_t {
@@ -61,6 +62,7 @@ class GMVec2D {
         [[nodiscard]] GMVec2D gm_norm1();
         void gm_norm2();
         [[nodiscard]] std::float32_t gm_dist(const GMVec2D &);
+        [[nodiscard]] std::float32_t gm_angle();
 
         [[nodiscard]] GMVec2D gm_rotate1(const std::float32_t);
         void gm_rotate2(std::float32_t);
@@ -92,7 +94,7 @@ class GMCircle {
         // Methods:
         [[nodiscard]] bool gm_inside(const GMVec2D &);
         [[nodiscard]] bool gm_collides_with_circle1(const GMCircle &);
-        [[nodiscard]] GMVec2D gm_collides_with_circle2(const GMCircle &);
+        [[nodiscard]] std::optional<GMVec2D> gm_collides_with_circle2(const GMCircle &);
 
         // Operators:
 
@@ -108,9 +110,9 @@ class GMRectangle {
         GMRectangle(const GMVec2D &, const GMVec2D &);
 
         // Methods:
-        [[nodiscard]] bool gm_inside(const GMVec2D &);
         [[nodiscard]] std::float32_t gm_width();
         [[nodiscard]] std::float32_t gm_height();
+        [[nodiscard]] bool gm_inside(const GMVec2D &);
         [[nodiscard]] bool gm_collides_with_rectangle1(const GMRectangle &);
 
         // Operators:

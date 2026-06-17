@@ -83,6 +83,17 @@ void GMVec2D::gm_norm2() {
     return static_cast<std::float32_t>(hypot(x - other.x, y - other.y));
 }
 
+[[nodiscard]] std::float32_t GMVec2D::gm_angle() {
+    std::float32_t rad = std::atan2(x, y);
+    std::float32_t deg = static_cast<std::float32_t>(rad * 180.0f32 / M_PI);
+
+    if (deg < 0.0) {
+        deg += 360.0f32;
+    }
+
+    return deg;
+}
+
 [[nodiscard]] GMVec2D GMVec2D::gm_rotate1(std::float32_t a) {
     GMVec2D result = GMVec2D(x, y);
     result.gm_rotate2(a);
@@ -161,6 +172,21 @@ GMCircle::GMCircle(const GMVec2D &v, const std::float32_t radius):
     return ctr.gm_dist(v) < r;
 }
 
+[[nodiscard]] bool GMCircle::gm_collides_with_circle1(const GMCircle &c) {
+    return ctr.gm_dist(c.ctr) <= (r + c.r);
+}
+
+[[nodiscard]] std::optional<GMVec2D> GMCircle::gm_collides_with_circle2(const GMCircle &c) {
+    GMVec2D v = c.ctr - ctr;
+    std::float32_t d = v.gm_len1();
+
+    if (d > r + c.r) {
+        return {};
+    } else {
+        return v;
+    }
+}
+
 
 // GMRectangle:
 GMRectangle::GMRectangle():
@@ -178,10 +204,6 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     v2(u2)
 {}
 
-[[nodiscard]] bool GMRectangle::gm_inside(const GMVec2D &v) {
-    return ((v1.x - v.x) * (v2.x - v.x) < 0.0) && ((v1.y - v.y) * (v2.y - v.y) < 0.0);
-}
-
 [[nodiscard]] std::float32_t GMRectangle::gm_width() {
     return abs(v1.x - v2.x);
 }
@@ -190,6 +212,14 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     return abs(v1.y - v2.y);
 }
 
+[[nodiscard]] bool GMRectangle::gm_inside(const GMVec2D &v) {
+    return ((v1.x - v.x) * (v2.x - v.x) < 0.0) && ((v1.y - v.y) * (v2.y - v.y) < 0.0);
+}
+
+[[nodiscard]] bool GMRectangle::gm_collides_with_rectangle1(const GMRectangle &r) {
+    // TODO: finish / fix
+    return gm_inside(r.v1) || gm_inside(r.v2);
+}
 
 [[nodiscard]] bool approx(std::float32_t a, std::float32_t b) {
     return std::abs(a - b) <= 0.00001f32;
