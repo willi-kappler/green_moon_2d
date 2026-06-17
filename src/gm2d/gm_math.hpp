@@ -91,6 +91,8 @@ class GMCircle {
 
         // Methods:
         [[nodiscard]] bool gm_inside(const GMVec2D &);
+        [[nodiscard]] bool gm_collides_with_circle1(const GMCircle &);
+        [[nodiscard]] GMVec2D gm_collides_with_circle2(const GMCircle &);
 
         // Operators:
 
@@ -109,6 +111,7 @@ class GMRectangle {
         [[nodiscard]] bool gm_inside(const GMVec2D &);
         [[nodiscard]] std::float32_t gm_width();
         [[nodiscard]] std::float32_t gm_height();
+        [[nodiscard]] bool gm_collides_with_rectangle1(const GMRectangle &);
 
         // Operators:
 
