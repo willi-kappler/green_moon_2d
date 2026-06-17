@@ -1,5 +1,6 @@
 TODO:
     - Add logger
     - Use brace init everywhere ?
+    - Add velocity to GMObject
 
 Done:
