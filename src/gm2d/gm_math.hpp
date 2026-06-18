@@ -59,16 +59,16 @@ class GMVec2D {
         void gm_add(const GMVec2D);
         void gm_mul(const std::float32_t);
 
-        [[nodiscard]] std::float32_t gm_len1();
-        [[nodiscard]] std::float32_t gm_len2();
+        [[nodiscard]] std::float32_t gm_len1() const;
+        [[nodiscard]] std::float32_t gm_len2() const;
 
-        [[nodiscard]] GMVec2D gm_norm1();
+        [[nodiscard]] GMVec2D gm_norm1() const;
         void gm_norm2();
-        [[nodiscard]] std::float32_t gm_dist(const GMVec2D &);
-        [[nodiscard]] std::float32_t gm_angle();
-        [[nodiscard]] std::float32_t gm_cross(const GMVec2D &);
+        [[nodiscard]] std::float32_t gm_dist(const GMVec2D &) const;
+        [[nodiscard]] std::float32_t gm_angle() const;
+        [[nodiscard]] std::float32_t gm_cross(const GMVec2D &) const;
 
-        [[nodiscard]] GMVec2D gm_rotate1(const std::float32_t);
+        [[nodiscard]] GMVec2D gm_rotate1(const std::float32_t) const;
         void gm_rotate2(std::float32_t);
 
         // Operators:
@@ -137,11 +137,12 @@ class GMRectangle {
         GMVec2D v2;
 };
 
-[[nodiscard]] bool approx(std::float32_t, std::float32_t);
 
 // Helper functions:
+[[nodiscard]] bool gm_approx(std::float32_t, std::float32_t);
 [[nodiscard]] bool gm_is_on_segment(const GMVec2D &, const GMVec2D &, const GMVec2D &);
 [[nodiscard]] uint8_t gm_orientation(const GMVec2D &, const GMVec2D &, const GMVec2D &);
+[[nodiscard]] bool gm_between(std::float32_t, std::float32_t, std::float32_t);
 
 [[nodiscard]] bool gm_intersect_line_point(const GMLine &, const GMVec2D &);
 [[nodiscard]] bool gm_intersect_line_line1(const GMLine &, const GMLine &);
