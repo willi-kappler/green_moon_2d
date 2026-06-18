@@ -16,6 +16,7 @@
 #include <utility>
 #include <array>
 #include <optional>
+#include <vector>
 
 namespace gm2d {
 enum struct GMAlignment: uint8_t {
@@ -42,6 +43,8 @@ enum struct GMRepetition: uint8_t {
     PINGPONG_B
 };
 
+const std::float32_t GM_EPSILON = 0.00001f32;
+
 class GMVec2D {
     public:
         // Constructor:
@@ -63,6 +66,7 @@ class GMVec2D {
         void gm_norm2();
         [[nodiscard]] std::float32_t gm_dist(const GMVec2D &);
         [[nodiscard]] std::float32_t gm_angle();
+        [[nodiscard]] std::float32_t gm_cross(const GMVec2D &);
 
         [[nodiscard]] GMVec2D gm_rotate1(const std::float32_t);
         void gm_rotate2(std::float32_t);
@@ -85,16 +89,26 @@ class GMVec2D {
         std::float32_t y;
 };
 
+class GMLine {
+    public:
+        // Constructor:
+        GMLine();
+        GMLine(const std::float32_t, const std::float32_t, const std::float32_t, const std::float32_t);
+        GMLine(const GMVec2D &, const GMVec2D &);
+
+        // Members:
+        GMVec2D v1;
+        GMVec2D v2;
+};
+
 class GMCircle {
+    public:
         // Constructor:
         GMCircle();
         GMCircle(const std::float32_t, const std::float32_t, const std::float32_t);
         GMCircle(const GMVec2D &, const std::float32_t);
 
         // Methods:
-        [[nodiscard]] bool gm_inside(const GMVec2D &);
-        [[nodiscard]] bool gm_collides_with_circle1(const GMCircle &);
-        [[nodiscard]] std::optional<GMVec2D> gm_collides_with_circle2(const GMCircle &);
 
         // Operators:
 
@@ -104,6 +118,7 @@ class GMCircle {
 };
 
 class GMRectangle {
+    public:
         // Constructor:
         GMRectangle();
         GMRectangle(const std::float32_t, const std::float32_t, const std::float32_t, const std::float32_t);
@@ -112,8 +127,8 @@ class GMRectangle {
         // Methods:
         [[nodiscard]] std::float32_t gm_width();
         [[nodiscard]] std::float32_t gm_height();
-        [[nodiscard]] bool gm_inside(const GMVec2D &);
-        [[nodiscard]] bool gm_collides_with_rectangle1(const GMRectangle &);
+        [[nodiscard]] GMVec2D gm_min_point() const;
+        [[nodiscard]] GMVec2D gm_max_point() const;
 
         // Operators:
 
@@ -123,6 +138,27 @@ class GMRectangle {
 };
 
 [[nodiscard]] bool approx(std::float32_t, std::float32_t);
+
+// Helper functions:
+[[nodiscard]] bool gm_is_on_segment(const GMVec2D &, const GMVec2D &, const GMVec2D &);
+[[nodiscard]] uint8_t gm_orientation(const GMVec2D &, const GMVec2D &, const GMVec2D &);
+
+[[nodiscard]] bool gm_intersect_line_point(const GMLine &, const GMVec2D &);
+[[nodiscard]] bool gm_intersect_line_line1(const GMLine &, const GMLine &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_line_line2(const GMLine &, const GMLine &);
+[[nodiscard]] bool gm_intersect_circle_point(const GMCircle &, const GMVec2D &);
+[[nodiscard]] bool gm_intersect_circle_line1(const GMCircle &, const GMLine &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_circle_line2(const GMCircle &, const GMLine &);
+[[nodiscard]] bool gm_intersect_circle_circle1(const GMCircle &, const GMCircle &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_circle_circle2(const GMCircle &, const GMCircle &);
+[[nodiscard]] bool gm_intersect_circle_rectangle1(const GMCircle &, const GMRectangle &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_circle_rectangle2(const GMCircle &, const GMRectangle &);
+[[nodiscard]] bool gm_intersect_rectangle_point(const GMRectangle &, const GMVec2D &);
+[[nodiscard]] bool gm_intersect_rectangle_line1(const GMRectangle &, const GMLine &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_rectangle_line2(const GMRectangle &, const GMLine &);
+[[nodiscard]] bool gm_intersect_rectangle_rectangle1(const GMRectangle &, const GMRectangle &);
+[[nodiscard]] std::vector<GMVec2D> gm_intersect_rectangle_rectangle2(const GMRectangle &, const GMRectangle &);
+
 
 }
 #endif // FILE_GM_MATH_HPP_INCLUDED
