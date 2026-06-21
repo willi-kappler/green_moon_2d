@@ -58,13 +58,15 @@ class GMVec2D {
         // Methods:
         void gm_add(const GMVec2D);
         void gm_mul(const std::float32_t);
+        void gm_div(const std::float32_t);
 
         [[nodiscard]] std::float32_t gm_len1() const;
         [[nodiscard]] std::float32_t gm_len2() const;
 
         [[nodiscard]] GMVec2D gm_norm1() const;
         void gm_norm2();
-        [[nodiscard]] std::float32_t gm_dist(const GMVec2D &) const;
+        [[nodiscard]] std::float32_t gm_dist1(const GMVec2D &) const;
+        [[nodiscard]] std::float32_t gm_dist2(const GMVec2D &) const;
         [[nodiscard]] std::float32_t gm_angle() const;
         [[nodiscard]] std::float32_t gm_cross(const GMVec2D &) const;
 
@@ -76,7 +78,7 @@ class GMVec2D {
         void operator+=(const GMVec2D);
         void operator-=(const GMVec2D);
 
-        [[nodiscard]] GMVec2D operator*(const std::float32_t);
+        [[nodiscard]] GMVec2D operator*(const std::float32_t) const;
         void operator*=(const std::float32_t);
 
         friend bool operator==(const GMVec2D, const GMVec2D);
@@ -143,6 +145,7 @@ class GMRectangle {
 [[nodiscard]] bool gm_is_on_segment(const GMVec2D &, const GMVec2D &, const GMVec2D &);
 [[nodiscard]] uint8_t gm_orientation(const GMVec2D &, const GMVec2D &, const GMVec2D &);
 [[nodiscard]] bool gm_between(std::float32_t, std::float32_t, std::float32_t);
+[[nodiscard]] GMVec2D gm_closest_point_on_segment(const GMLine&, const GMVec2D&);
 
 [[nodiscard]] bool gm_intersect_line_point(const GMLine &, const GMVec2D &);
 [[nodiscard]] bool gm_intersect_line_line1(const GMLine &, const GMLine &);
