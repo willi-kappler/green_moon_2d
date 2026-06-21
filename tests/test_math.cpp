@@ -6,7 +6,7 @@
 
     This file contains the tests for the math functions and classes.
 
-    Run only configuration tests:
+    Run only math tests:
     xmake run -w ./ gm2d_test [math]
 */
 
@@ -43,6 +43,12 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
     REQUIRE(gm_approx(v1.gm_len1(), 6.414047f32));
     REQUIRE(gm_approx(v1.gm_len2(), 41.14000f32));
 
+    v1 = {15.0f32, 20.0f32};
+    v1.gm_div(10.0f32);
+
+    REQUIRE(gm_approx(v1.x, 1.5f32) && gm_approx(v1.y, 2.0f32));
+
+    v1 = {5.5f32, 3.3f32};
     v2 = v1.gm_norm1();
     REQUIRE(gm_approx(v1.x, 5.5f32) && gm_approx(v1.y, 3.3f32));
     REQUIRE(gm_approx(v2.x, 0.8574929f32) && gm_approx(v2.y, 0.5144958f32));
@@ -51,6 +57,16 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
     v3.gm_norm2();
     REQUIRE(gm_approx(v3.x, 0.3671665f32) && gm_approx(v3.y, 0.9301552f32));
     REQUIRE(gm_approx(v3.gm_len1(), 1.0f32));
+
+    v1 = {50.0f32, 20.0f32};
+    v2 = {80.0f32, 60.0f32};
+    REQUIRE(gm_approx(v1.gm_dist1(v2), 50.0f32));
+    REQUIRE(gm_approx(v1.gm_dist2(v2), 2500.0f32));
+
+    REQUIRE(gm_approx(v1.gm_angle(), 68.19859f32));
+    REQUIRE(gm_approx(v2.gm_angle(), 53.13010f32));
+    REQUIRE(gm_approx(v1.gm_cross(v2), 1400.0f32));
+    REQUIRE(gm_approx(v1.gm_cross(v1), 0.0f32));
 
     v1 = {5.0f32, 0.0f32};
     v2 = v1.gm_rotate1(90.0f32);
@@ -110,6 +126,33 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
     REQUIRE(gm_approx(v1.x, 2.5f32) && gm_approx(v1.y, 7.5f32));
 
     // INFO("v3x: ", v3.x, ", v3y: ", v3.y);
+}
 
+TEST_CASE("Create and use GMLine", "[math]" ) {
+    GMLine l1{};
+    GMLine l2{};
+    GMVec2D v1{};
+    // TODO: implement test cases.
+}
 
+TEST_CASE("Create and use GMCircle", "[math]" ) {
+    GMCircle c1{};
+    GMCircle c2{};
+    GMVec2D v1{};
+    // TODO: implement test cases.
+}
+
+TEST_CASE("Create and use GMRectangle", "[math]" ) {
+    GMRectangle r1{};
+    GMRectangle r2{};
+    GMVec2D v1{};
+    // TODO: implement test cases.
+}
+
+TEST_CASE("Test helper functions", "[math]" ) {
+    // TODO: implement test cases.
+}
+
+TEST_CASE("Test intersect functions", "[math]" ) {
+    // TODO: implement test cases.
 }
