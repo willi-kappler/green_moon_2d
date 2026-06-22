@@ -97,9 +97,9 @@ void GMVec2D::gm_norm2() {
 
 [[nodiscard]] std::float32_t GMVec2D::gm_angle() const {
     std::float32_t rad = std::atan2(x, y);
-    std::float32_t deg = static_cast<std::float32_t>(rad * 180.0f32 / M_PI);
+    std::float32_t deg = static_cast<std::float32_t>(90.0 - (rad * 180.0 / M_PI));
 
-    if (deg < 0.0) {
+    if (deg < 0.0 - GM_EPSILON) {
         deg += 360.0f32;
     }
 
@@ -184,6 +184,40 @@ GMLine::GMLine(const GMVec2D &, const GMVec2D &):
     v2()
 {}
 
+[[nodiscard]] std::float32_t GMLine::gm_len1() const {
+    return v1.gm_dist1(v2);
+}
+
+[[nodiscard]] std::float32_t GMLine::gm_len2() const {
+    return v1.gm_dist2(v2);
+}
+
+[[nodiscard]] std::float32_t GMLine::gm_angle() const {
+    GMVec2D line_dir = v2 - v1;
+    return line_dir.gm_angle();
+}
+
+void GMLine::gm_rotate(std::float32_t angle) {
+    GMVec2D line_dir = v2 - v1;
+    line_dir.gm_rotate2(angle);
+    v2 = v1 + line_dir;
+}
+
+void GMLine::gm_scale(std::float32_t s) {
+    GMVec2D line_dir = v2 - v1;
+    line_dir *= s;
+    v2 = v1 + line_dir;
+}
+
+bool GMLine::operator==(const GMLine &l) {
+    return gm_approx(v1, l.v1) && gm_approx(v2, l.v2);
+}
+
+bool GMLine::operator!=(const GMLine &l) {
+    return (v1 != l.v1) || (v2 != l.v2);
+}
+
+
 // GMCircle:
 GMCircle::GMCircle():
     ctr(),
@@ -199,6 +233,19 @@ GMCircle::GMCircle(const GMVec2D &v, const std::float32_t radius):
     ctr(v),
     r(radius)
 {}
+
+void GMCircle::gm_scale(std::float32_t s) {
+    r *= s;
+}
+
+bool GMCircle::operator==(const GMCircle &c) {
+    return gm_approx(r, c.r) && gm_approx(ctr, c.ctr);
+}
+
+bool GMCircle::operator!=(const GMCircle &c) {
+    return (r != c.r) || (ctr != c.ctr);
+}
+
 
 // GMRectangle:
 GMRectangle::GMRectangle():
@@ -216,12 +263,22 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     v2(u2)
 {}
 
-[[nodiscard]] std::float32_t GMRectangle::gm_width() {
+[[nodiscard]] std::float32_t GMRectangle::gm_width() const {
     return abs(v1.x - v2.x);
 }
 
-[[nodiscard]] std::float32_t GMRectangle::gm_height() {
+[[nodiscard]] std::float32_t GMRectangle::gm_height() const {
     return abs(v1.y - v2.y);
+}
+
+[[nodiscard]] std::float32_t GMRectangle::gm_diagonal1() const {
+    GMVec2D diagonal = v2 - v1;
+    return diagonal.gm_len1();
+}
+
+[[nodiscard]] std::float32_t GMRectangle::gm_diagonal2() const {
+    GMVec2D diagonal = v2 - v1;
+    return diagonal.gm_len2();
 }
 
 [[nodiscard]] GMVec2D GMRectangle::gm_min_point() const {
@@ -232,9 +289,28 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     return GMVec2D(std::max(v1.x, v2.x), std::max(v1.y, v2.y));
 }
 
+void GMRectangle::gm_scale(std::float32_t s) {
+    GMVec2D diagonal = v2 - v1;
+    diagonal *= s;
+    v2 = v1 + diagonal;
+}
+
+bool GMRectangle::operator==(const GMRectangle &r) {
+    return gm_approx(v1, r.v1) && gm_approx(v2, r.v2);
+}
+
+bool GMRectangle::operator!=(const GMRectangle &r) {
+    return (v1 != r.v1) || (v2 != r.v2);
+}
+
+
 // Helper functions:
 [[nodiscard]] bool gm_approx(std::float32_t a, std::float32_t b) {
     return std::abs(a - b) <= GM_EPSILON;
+}
+
+[[nodiscard]] bool gm_approx(const GMVec2D &v1, const GMVec2D &v2) {
+    return gm_approx(v1.x, v2.x) && gm_approx(v1.y, v2.y);
 }
 
 [[nodiscard]] bool gm_is_on_segment(const GMVec2D &p, const GMVec2D &a, const GMVec2D &b) {
