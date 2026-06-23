@@ -205,6 +205,11 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(gm_is_on_segment(GMVec2D(2.0f32, 2.0f32), GMVec2D(1.0f32, 1.0f32), GMVec2D(7.0f32, 7.0f32)));
 
     // gm_orientation
+    GMVec2D v1{};
+    GMVec2D v2{};
+    GMVec2D v3{};
+    REQUIRE(gm_orientation(v1, v2, v3) == 0);
+
 
     // gm_between
 
