@@ -272,6 +272,45 @@ TEST_CASE("Test intersect line functions", "[math]" ) {
 }
 
 TEST_CASE("Test intersect circle functions", "[math]" ) {
+    GMCircle c1{5.0, 5.0, 2.0};
+    GMVec2D v1{5.0, 5.0};
+    REQUIRE(gm_intersect_circle_point(c1, v1));
+
+    v1 = {5.0, 0.0};
+    REQUIRE(!gm_intersect_circle_point(c1, v1));
+
+    GMLine l1{0.0, 0.0, 7.0, 0.0};
+    REQUIRE(!gm_intersect_circle_line1(c1, l1));
+
+    l1 = {0.0, 4.0, 7.0, 4.0};
+    REQUIRE(gm_intersect_circle_line1(c1, l1));
+
+    l1 = {0.0, 0.0, 7.0, 0.0};
+    std::vector<GMVec2D> res = gm_intersect_circle_line2(c1, l1);
+    REQUIRE(res.size() == 0);
+
+    l1 = {0.0, 4.0, 7.0, 4.0};
+    res = gm_intersect_circle_line2(c1, l1);
+    REQUIRE(res.size() == 2);
+    REQUIRE(gm_approx(res[0].x, 6.732051) && gm_approx(res[0].y, 4.0));
+    REQUIRE(gm_approx(res[1].x, 3.267949) && gm_approx(res[1].y, 4.0));
+
+    GMCircle c2{9.0, 5.0, 1.0};
+    REQUIRE(!gm_intersect_circle_circle1(c1, c2));
+
+    c2 = {8.0, 5.0, 2.0};
+    REQUIRE(gm_intersect_circle_circle1(c1, c2));
+
+    c2 = {9.0, 5.0, 1.0};
+    res = gm_intersect_circle_circle2(c1, c2);
+    REQUIRE(res.size() == 0);
+
+    c2 = {8.0, 5.0, 2.0};
+    res = gm_intersect_circle_circle2(c1, c2);
+    REQUIRE(res.size() == 2);
+
+    REQUIRE(gm_approx(res[0].x, 6.5) && gm_approx(res[0].y, 6.322875));
+    REQUIRE(gm_approx(res[1].x, 6.5) && gm_approx(res[1].y, 3.677125));
 }
 
 TEST_CASE("Test intersect rectangle functions", "[math]" ) {
