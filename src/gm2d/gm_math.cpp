@@ -11,6 +11,7 @@
 #include <cmath>
 #include <numbers>
 #include <algorithm>
+#include <print>
 
 // Local includes:
 #include "gm_math.hpp"
@@ -538,6 +539,9 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     const std::float32_t dist2 = c.ctr.gm_dist2(closest);
     const std::float32_t radius2 = c.r * c.r;
 
+    //std::println("closest: {}, {}", closest.x, closest.y);
+    //std::println("dist2: {}, radius2: {}"", dist2, radius2);
+
     // Tangent intersection (1 point):
     if (gm_approx(dist2, radius2)) {
         intersections.push_back(closest);
@@ -552,6 +556,9 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     GMVec2D line_dir = l.v2 - l.v1;
     const std::float32_t line_len = line_dir.gm_len1();
 
+    //std::println("line_dir: {}, {}", line_dir.x, line_dir.y);
+    //std::println("line_len: {}", line_len);
+
     // Degraded line:
     if (line_len < GM_EPSILON) {
         return intersections;
@@ -560,17 +567,25 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     // Normalize vector:
     line_dir.gm_div(line_len);
 
+    //std::println("line_dir norm: {}, {}", line_dir.x, line_dir.y);
+
     const std::float32_t dt = std::sqrt(radius2 - dist2);
+
+    //std::println("dt: {}", dt);
 
     // Calculate the two possible points on the infinite line:
     const GMVec2D p1 = closest + (line_dir * dt);
     const GMVec2D p2 = closest - (line_dir * dt);
 
+    //std::println("p1: {}, {}", p1.x, p1.y);
+    //std::println("p2: {}, {}", p2.x, p2.y);
+
     // Verify if the points actually lie on the finite line segment:
-    if (gm_is_on_segment(l.v1, p1, l.v2)) {
+    if (gm_is_on_segment(p1, l.v1, l.v2)) {
         intersections.push_back(p1);
     }
-    if (gm_is_on_segment(l.v1, p2, l.v2)) {
+
+    if (gm_is_on_segment(p2, l.v1, l.v2)) {
         // Prevent duplicate entry if p1 and p2 happen to crash into the same boundary due to precision:
         if (intersections.empty() || p1 != p2) {
             intersections.push_back(p2);
@@ -588,8 +603,8 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     std::vector<GMVec2D> intersections;
 
     // Calculate distance between centers:
-    const std::float32_t dx = c1.ctr.x - c2.ctr.x;
-    const std::float32_t dy = c1.ctr.y - c2.ctr.y;
+    const std::float32_t dx = std::abs(c1.ctr.x - c2.ctr.x);
+    const std::float32_t dy = std::abs(c1.ctr.y - c2.ctr.y);
     const std::float32_t d = std::hypot(dx, dy);
 
     // No intersection points:
@@ -601,13 +616,21 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
         return intersections;
     }
 
+    // std::println("dx: {}, dy: {}, d: {}", dx, dy, d);
+
     // Unit vector in direction of center points:
     const GMVec2D uv1 = GMVec2D(dx / d, dy / d);
     // Perpendicular unit vector:
     const GMVec2D uv2 = GMVec2D(-dy / d, dx / d);
 
+    // std::println("uv1: {}, {}", uv1.x, uv1.y);
+    // std::println("uv2: {}, {}", uv2.x, uv2.y);
+
     const std::float32_t a = (c1.r * c1.r  - c2.r * c2.r + d * d) / (2.0f32 * d);
     const GMVec2D p1 = c1.ctr + (uv1 * a);
+
+    // std::println("a: {}", a);
+    // std::println("p1: {}, {}", p1.x, p1.y);
 
     // One intersection point:
     if (gm_approx(d, c1.r + c2.r) || gm_approx(d, std::abs(c1.r - c2.r))) {
@@ -617,10 +640,19 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
     // Two intersection points:
     const std::float32_t h = std::sqrt(c1.r * c1.r - a * a);
+
+    std::println("h: {}", h);
+
     const GMVec2D p2 = p1 + (uv2 * h);
+
+    // std::println("p2: {}, {}", p2.x, p2.y);
+
     intersections.push_back(p2);
 
     const GMVec2D p3 = p1 - (uv2 * h);
+
+    // std::println("p3: {}, {}", p3.x, p3.y);
+
     intersections.push_back(p3);
 
     return intersections;
