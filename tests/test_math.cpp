@@ -194,6 +194,10 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(gm_approx(2.5, 2.500000001));
     REQUIRE(!gm_approx(2.5, 2.51));
 
+    REQUIRE(gm_approx(3.9f32, 3.9f32));
+    REQUIRE(gm_approx(3.9f32, 3.900000000001f32));
+    REQUIRE(!gm_approx(3.9f32, 3.8f32));
+
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.2)));
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.20000001)));
     REQUIRE(!gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.21)));
@@ -204,7 +208,6 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(!gm_is_on_segment(GMVec2D(2.0, 3.0), GMVec2D(1.0, 4.0), GMVec2D(7.0, 4.0)));
     REQUIRE(gm_is_on_segment(GMVec2D(2.0, 2.0), GMVec2D(1.0, 1.0), GMVec2D(7.0, 7.0)));
 
-    // gm_orientation
     GMVec2D v1{0.0, 0.0};
     GMVec2D v2{0.0, 0.0};
     GMVec2D v3{0.0, 0.0};
@@ -213,18 +216,63 @@ TEST_CASE("Test helper functions", "[math]" ) {
     v1 = {0.0, 5.0};
     v2 = {5.0, 4.0};
     v3 = {2.0, 2.0};
-    REQUIRE(gm_orientation(v1, v2, v3) == 1);
+    REQUIRE(gm_orientation(v1, v2, v3) == 2);
 
     v1 = {5.0, 5.0};
     v2 = {1.0, 4.0};
     v3 = {2.0, 2.0};
-    REQUIRE(gm_orientation(v1, v2, v3) == 0);
+    REQUIRE(gm_orientation(v1, v2, v3) == 1);
 
-    // gm_between
+    REQUIRE(gm_between(0.5, 0.4, 0.6));
+    REQUIRE(gm_between(1.1f32, 1.0f32, 1.2f32));
+    REQUIRE(!gm_between(0.2, 0.4, 0.6));
+    REQUIRE(!gm_between(0.8, 0.4, 0.6));
 
-    // gm_closest_point_on_segment
+    GMLine l1{0.0, 0.0, 10.0, 0.0};
+    v1 = {5.0, 1.0};
+    v2 = gm_closest_point_on_segment(l1, v1);
+    REQUIRE(gm_approx(v2.x, 5.0) && gm_approx(v2.y, 0.0));
+
+    l1 = {1.0, 1.0, 8.0, 8.0};
+    v1 = {3.0, 5.0};
+    v2 = gm_closest_point_on_segment(l1, v1);
+    REQUIRE(gm_approx(v2.x, 4.0) && gm_approx(v2.y, 4.0));
 }
 
-TEST_CASE("Test intersect functions", "[math]" ) {
-    // TODO: implement test cases.
+TEST_CASE("Test intersect line functions", "[math]" ) {
+    GMLine l1{0.0, 0.0, 10.0, 0.0};
+    GMVec2D v1{3.0, 0.0};
+    REQUIRE(gm_intersect_line_point(l1, v1));
+
+    v1 = {3.0, 1.0};
+    REQUIRE(!gm_intersect_line_point(l1, v1));
+
+    l1 = {1.0, 1.0, 6.0, 6.0};
+    v1 = {3.0, 3.0};
+    REQUIRE(gm_intersect_line_point(l1, v1));
+
+    v1 = {3.0, 5.0};
+    REQUIRE(!gm_intersect_line_point(l1, v1));
+
+    l1 = {0.0, 0.0, 7.0, 0.0};
+    GMLine l2{0.0, 1.0, 4.0, 1.0};
+    REQUIRE(!gm_intersect_line_line1(l1, l2));
+
+    l2 = {4.0, 2.0, 4.0, -2.0};
+    REQUIRE(gm_intersect_line_line1(l1, l2));
+
+    l2 = {0.0, 1.0, 4.0, 1.0};
+    std::vector<GMVec2D> res = gm_intersect_line_line2(l1, l2);
+    REQUIRE(res.size() == 0);
+
+    l2 = {4.0, 2.0, 4.0, -2.0};
+    res = gm_intersect_line_line2(l1, l2);
+    REQUIRE(res.size() == 1);
+    REQUIRE(gm_approx(res[0].x, 4.0) && gm_approx(res[0].y, 0.0));
+}
+
+TEST_CASE("Test intersect circle functions", "[math]" ) {
+}
+
+TEST_CASE("Test intersect rectangle functions", "[math]" ) {
 }
