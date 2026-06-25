@@ -179,6 +179,8 @@ class GMRectangle {
 
 // Helper functions:
 [[nodiscard]] bool gm_approx(std::float32_t, std::float32_t);
+[[nodiscard]] bool gm_approx(std::float32_t, std::float64_t);
+[[nodiscard]] bool gm_approx(std::float64_t, std::float32_t);
 [[nodiscard]] bool gm_approx(std::float64_t, std::float64_t);
 [[nodiscard]] bool gm_approx(const GMVec2D &, const GMVec2D &);
 [[nodiscard]] bool gm_is_on_segment(const GMVec2D &, const GMVec2D &, const GMVec2D &);

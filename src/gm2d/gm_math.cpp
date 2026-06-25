@@ -395,6 +395,14 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     return std::abs(a - b) <= GM_EPSILON;
 }
 
+[[nodiscard]] bool gm_approx(std::float32_t a, std::float64_t b) {
+    return gm_approx(a, static_cast<std::float32_t>(b));
+}
+
+[[nodiscard]] bool gm_approx(std::float64_t a, std::float32_t b) {
+    return gm_approx(static_cast<std::float32_t>(a), b);
+}
+
 [[nodiscard]] bool gm_approx(std::float64_t a, std::float64_t b) {
     return gm_approx(static_cast<std::float32_t>(a), static_cast<std::float32_t>(b));
 }
@@ -411,10 +419,12 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 [[nodiscard]] uint8_t gm_orientation(const GMVec2D &a, const GMVec2D &b, const GMVec2D &c) {
     std::float32_t v = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
 
-    if (v < GM_EPSILON) {
-        return 0;
-    } else {
+    if (v < -GM_EPSILON) {
         return 1;
+    } else if (v > GM_EPSILON) {
+        return 2;
+    } else {
+        return 0;
     }
 }
 
