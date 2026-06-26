@@ -155,15 +155,14 @@ class GMRectangle {
         GMRectangle();
         GMRectangle(const std::float32_t, const std::float32_t, const std::float32_t, const std::float32_t);
         GMRectangle(const std::float64_t, const std::float64_t, const std::float64_t, const std::float64_t);
+        GMRectangle(const GMVec2D &, const std::float32_t, const std::float32_t);
+        GMRectangle(const GMVec2D &, const std::float64_t, const std::float64_t);
         GMRectangle(const GMVec2D &, const GMVec2D &);
 
         // Methods:
-        [[nodiscard]] std::float32_t gm_width() const;
-        [[nodiscard]] std::float32_t gm_height() const;
         [[nodiscard]] std::float32_t gm_diagonal1() const;
         [[nodiscard]] std::float32_t gm_diagonal2() const;
-        [[nodiscard]] GMVec2D gm_min_point() const;
-        [[nodiscard]] GMVec2D gm_max_point() const;
+        [[nodiscard]] GMVec2D gm_opposite() const;
         void gm_scale(std::float32_t);
         void gm_scale(std::float64_t);
 
@@ -172,8 +171,9 @@ class GMRectangle {
         bool operator!=(const GMRectangle &);
 
         // Members:
-        GMVec2D v1;
-        GMVec2D v2;
+        GMVec2D v;
+        std::float32_t w;
+        std::float32_t h;
 };
 
 

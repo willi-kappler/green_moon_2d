@@ -235,9 +235,9 @@ GMLine::GMLine(const std::float64_t x1, const std::float64_t y1, const std::floa
     v2(static_cast<std::float32_t>(x2), static_cast<std::float32_t>(y2))
 {}
 
-GMLine::GMLine(const GMVec2D &, const GMVec2D &):
-    v1(),
-    v2()
+GMLine::GMLine(const GMVec2D &u1, const GMVec2D &u2):
+    v1(u1),
+    v2(u2)
 {}
 
 [[nodiscard]] std::float32_t GMLine::gm_len1() const {
@@ -327,55 +327,56 @@ bool GMCircle::operator!=(const GMCircle &c) {
 
 // GMRectangle:
 GMRectangle::GMRectangle():
-    v1(),
-    v2()
+    v(),
+    w(),
+    h()
 {}
 
-GMRectangle::GMRectangle(const std::float32_t x1, const std::float32_t y1, const std::float32_t x2, const std::float32_t y2):
-    v1(x1, y1),
-    v2(x2, y2)
+GMRectangle::GMRectangle(const std::float32_t x1, const std::float32_t y1, const std::float32_t width, const std::float32_t height):
+    v(x1, y1),
+    w(width),
+    h(height)
 {}
 
-GMRectangle::GMRectangle(const std::float64_t x1, const std::float64_t y1, const std::float64_t x2, const std::float64_t y2):
-    v1(static_cast<std::float32_t>(x1), static_cast<std::float32_t>(y1)),
-    v2(static_cast<std::float32_t>(x2), static_cast<std::float32_t>(y2))
+GMRectangle::GMRectangle(const std::float64_t x1, const std::float64_t y1, const std::float64_t width, const std::float64_t height):
+    v(static_cast<std::float32_t>(x1), static_cast<std::float32_t>(y1)),
+    w(static_cast<std::float32_t>(width)),
+    h(static_cast<std::float32_t>(height))
+{}
+
+GMRectangle::GMRectangle(const GMVec2D &u, const std::float32_t width, const std::float32_t height):
+    v(u),
+    w(width),
+    h(height)
+{}
+
+GMRectangle::GMRectangle(const GMVec2D &u, const std::float64_t width, const std::float64_t height):
+    v(u),
+    w(static_cast<std::float32_t>(width)),
+    h(static_cast<std::float32_t>(height))
 {}
 
 GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
-    v1(u1),
-    v2(u2)
+    v(u1),
+    w(u2.x - u1.x),
+    h(u2.y - u1.y)
 {}
 
-[[nodiscard]] std::float32_t GMRectangle::gm_width() const {
-    return abs(v1.x - v2.x);
-}
-
-[[nodiscard]] std::float32_t GMRectangle::gm_height() const {
-    return abs(v1.y - v2.y);
-}
-
 [[nodiscard]] std::float32_t GMRectangle::gm_diagonal1() const {
-    GMVec2D diagonal = v2 - v1;
-    return diagonal.gm_len1();
+    return std::hypot(w, h);
 }
 
 [[nodiscard]] std::float32_t GMRectangle::gm_diagonal2() const {
-    GMVec2D diagonal = v2 - v1;
-    return diagonal.gm_len2();
+    return ((w * w) + (h * h));
 }
 
-[[nodiscard]] GMVec2D GMRectangle::gm_min_point() const {
-    return GMVec2D(std::min(v1.x, v2.x), std::min(v1.y, v2.y));
-}
-
-[[nodiscard]] GMVec2D GMRectangle::gm_max_point() const {
-    return GMVec2D(std::max(v1.x, v2.x), std::max(v1.y, v2.y));
+[[nodiscard]] GMVec2D GMRectangle::gm_opposite() const {
+    return GMVec2D(v.x + w, v.y + h);
 }
 
 void GMRectangle::gm_scale(std::float32_t s) {
-    GMVec2D diagonal = v2 - v1;
-    diagonal *= s;
-    v2 = v1 + diagonal;
+    w *= s;
+    h *= s;
 }
 
 void GMRectangle::gm_scale(std::float64_t s) {
@@ -383,11 +384,11 @@ void GMRectangle::gm_scale(std::float64_t s) {
 }
 
 bool GMRectangle::operator==(const GMRectangle &r) {
-    return gm_approx(v1, r.v1) && gm_approx(v2, r.v2);
+    return gm_approx(v, r.v) && gm_approx(w, r.w) && gm_approx(h, r.h);
 }
 
 bool GMRectangle::operator!=(const GMRectangle &r) {
-    return (v1 != r.v1) || (v2 != r.v2);
+    return (v != r.v) || (w != r.w) || (h != r.h);
 }
 
 
@@ -539,8 +540,8 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     const std::float32_t dist2 = c.ctr.gm_dist2(closest);
     const std::float32_t radius2 = c.r * c.r;
 
-    //std::println("closest: {}, {}", closest.x, closest.y);
-    //std::println("dist2: {}, radius2: {}"", dist2, radius2);
+    //std::println("gm_intersect_circle_line2, closest: {}, {}", closest.x, closest.y);
+    //std::println("gm_intersect_circle_line2, dist2: {}, radius2: {}", dist2, radius2);
 
     // Tangent intersection (1 point):
     if (gm_approx(dist2, radius2)) {
@@ -556,8 +557,8 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     GMVec2D line_dir = l.v2 - l.v1;
     const std::float32_t line_len = line_dir.gm_len1();
 
-    //std::println("line_dir: {}, {}", line_dir.x, line_dir.y);
-    //std::println("line_len: {}", line_len);
+    //std::println("gm_intersect_circle_line2, line_dir: {}, {}", line_dir.x, line_dir.y);
+    //std::println("gm_intersect_circle_line2, line_len: {}", line_len);
 
     // Degraded line:
     if (line_len < GM_EPSILON) {
@@ -567,18 +568,18 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     // Normalize vector:
     line_dir.gm_div(line_len);
 
-    //std::println("line_dir norm: {}, {}", line_dir.x, line_dir.y);
+    //std::println("gm_intersect_circle_line2, line_dir norm: {}, {}", line_dir.x, line_dir.y);
 
     const std::float32_t dt = std::sqrt(radius2 - dist2);
 
-    //std::println("dt: {}", dt);
+    //std::println("gm_intersect_circle_line2, dt: {}", dt);
 
     // Calculate the two possible points on the infinite line:
     const GMVec2D p1 = closest + (line_dir * dt);
     const GMVec2D p2 = closest - (line_dir * dt);
 
-    //std::println("p1: {}, {}", p1.x, p1.y);
-    //std::println("p2: {}, {}", p2.x, p2.y);
+    //std::println("gm_intersect_circle_line2, p1: {}, {}", p1.x, p1.y);
+    //std::println("gm_intersect_circle_line2, p2: {}, {}", p2.x, p2.y);
 
     // Verify if the points actually lie on the finite line segment:
     if (gm_is_on_segment(p1, l.v1, l.v2)) {
@@ -641,7 +642,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     // Two intersection points:
     const std::float32_t h = std::sqrt(c1.r * c1.r - a * a);
 
-    std::println("h: {}", h);
+    // std::println("h: {}", h);
 
     const GMVec2D p2 = p1 + (uv2 * h);
 
@@ -658,14 +659,10 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     return intersections;
 }
 
-
 [[nodiscard]] bool gm_intersect_circle_rectangle1(const GMCircle &c, const GMRectangle &r) {
-    const GMVec2D min_p = r.gm_min_point();
-    const GMVec2D max_p = r.gm_max_point();
-
     // Clamp the circle's center to the rectangle's boundaries to find the closest point:
-    const std::float32_t closest_x = std::clamp(c.ctr.x, min_p.x, max_p.x);
-    const std::float32_t closest_y = std::clamp(c.ctr.y, min_p.y, max_p.y);
+    const std::float32_t closest_x = std::clamp(c.ctr.x, r.v.x, r.v.x + r.w);
+    const std::float32_t closest_y = std::clamp(c.ctr.y, r.v.y, r.v.y + r.h);
     const GMVec2D closest_point(closest_x, closest_y);
 
     // If the squared distance to the closest point is <= radius^2, they intersect.
@@ -677,14 +674,16 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     std::vector<GMVec2D> intersections;
     intersections.reserve(8); // A circle can intersect a rectangle at most 8 times
 
-    const GMVec2D min_p = r.gm_min_point();
-    const GMVec2D max_p = r.gm_max_point();
-
     // Define the 4 corners of the rectangle:
-    const GMVec2D top_left(min_p.x, max_p.y);
-    const GMVec2D top_right(max_p.x, max_p.y);
-    const GMVec2D bottom_right(max_p.x, min_p.y);
-    const GMVec2D bottom_left(min_p.x, min_p.y);
+    const GMVec2D top_left(r.v.x, r.v.y + r.h);
+    const GMVec2D top_right(r.v.x + r.w, r.v.y + r.h);
+    const GMVec2D bottom_left(r.v.x, r.v.y);
+    const GMVec2D bottom_right(r.v.x + r.w, r.v.y);
+
+    //std::println("gm_intersect_circle_rectangle2, top_left: {}, {}", top_left.x, top_left.y);
+    //std::println("gm_intersect_circle_rectangle2, top_right: {}, {}", top_right.x, top_right.y);
+    //std::println("gm_intersect_circle_rectangle2, bottom_left: {}, {}", bottom_left.x, bottom_left.y);
+    //std::println("gm_intersect_circle_rectangle2, bottom_right: {}, {}", bottom_right.x, bottom_right.y);
 
     // Create the 4 bounding line segments:
     const std::array<GMLine, 4> edges = {
@@ -699,8 +698,10 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
         for (const auto& p : points) {
             bool duplicate = false;
 
+            //std::println("gm_intersect_circle_rectangle2, p: {}, {}", p.x, p.y);
+
             for (const auto& existing: intersections) {
-                if (p.gm_dist2(existing) < GM_EPSILON) {
+                if (gm_approx(p, existing)) {
                     duplicate = true;
                     break;
                 }
@@ -714,7 +715,10 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
     // Check intersections against all 4 edges:
     for (const auto& edge: edges) {
+        //std::println("gm_intersect_circle_rectangle2, edge: {}, {}, {}, {}", edge.v1.x, edge.v1.y, edge.v2.x, edge.v2.y);
         std::vector<GMVec2D> line_intersections = gm_intersect_circle_line2(c, edge);
+        //std::println("gm_intersect_circle_rectangle2, line_intersections: {}", line_intersections.size());
+
         if (!line_intersections.empty()) {
             add_unique_points(line_intersections);
         }
@@ -724,7 +728,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 }
 
 [[nodiscard]] bool gm_intersect_rectangle_point(const GMRectangle &r, const GMVec2D &v) {
-    return ((r.v1.x - v.x) * (r.v2.x - v.x) < 0.0) && ((r.v1.y - v.y) * (r.v2.y - v.y) < 0.0);
+    return (r.v.x <= v.x) && (v.x <= r.v.x + r.w) && (r.v.y <= v.y) && (v.y <= r.v.y + r.h);
 }
 
 
@@ -733,14 +737,11 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
         return true;
     }
 
-    const GMVec2D min_p = r.gm_min_point();
-    const GMVec2D max_p = r.gm_max_point();
-
     // Define the 4 edges of the rectangle:
-    const GMVec2D top_left(min_p.x, max_p.y);
-    const GMVec2D top_right(max_p.x, max_p.y);
-    const GMVec2D bottom_right(max_p.x, min_p.y);
-    const GMVec2D bottom_left(min_p.x, min_p.y);
+    const GMVec2D top_left(r.v.x, r.v.y + r.h);
+    const GMVec2D top_right(r.v.x + r.w, r.v.y + r.h);
+    const GMVec2D bottom_right(r.v.x + r.w, r.v.y);
+    const GMVec2D bottom_left(r.v.x, r.v.y);
 
     const std::array<GMLine, 4> edges = {
         GMLine(top_left, top_right),
@@ -761,13 +762,11 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
 [[nodiscard]] std::vector<GMVec2D> gm_intersect_rectangle_line2(const GMRectangle &r, const GMLine &l) {
     std::vector<GMVec2D> intersections;
-    const GMVec2D min_p = r.gm_min_point();
-    const GMVec2D max_p = r.gm_max_point();
 
-    const GMVec2D top_left(min_p.x, max_p.y);
-    const GMVec2D top_right(max_p.x, max_p.y);
-    const GMVec2D bottom_right(max_p.x, min_p.y);
-    const GMVec2D bottom_left(min_p.x, min_p.y);
+    const GMVec2D top_left(r.v.x, r.v.y + r.h);
+    const GMVec2D top_right(r.v.x + r.w, r.v.y + r.h);
+    const GMVec2D bottom_right(r.v.x + r.w, r.v.y);
+    const GMVec2D bottom_left(r.v.x, r.v.y);
 
     const std::array<GMLine, 4> edges = {
         GMLine(top_left, top_right),
@@ -796,16 +795,11 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 }
 
 [[nodiscard]] bool gm_intersect_rectangle_rectangle1(const GMRectangle &r1, const GMRectangle &r2) {
-    const GMVec2D min1 = r1.gm_min_point();
-    const GMVec2D max1 = r1.gm_max_point();
-    const GMVec2D min2 = r2.gm_min_point();
-    const GMVec2D max2 = r2.gm_max_point();
-
     // Check X-axis overlap:
-    const bool overlap_x = (max1.x >= min2.x - GM_EPSILON) && (min1.x <= max2.x + GM_EPSILON);
+    const bool overlap_x = (r1.v.x + r1.w >= r2.v.x) && (r1.v.x <= r2.v.x + r2.w);
 
     // Check Y-axis overlap:
-    const bool overlap_y = (max1.y >= min2.y - GM_EPSILON) && (min1.y <= max2.y + GM_EPSILON);
+    const bool overlap_y = (r1.v.y + r1.h >= r2.v.y) && (r1.v.y <= r2.v.y + r2.h);
 
     // It is an intersection if they overlap on BOTH axes:
     return overlap_x && overlap_y;
@@ -814,17 +808,11 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 [[nodiscard]] std::vector<GMVec2D> gm_intersect_rectangle_rectangle2(const GMRectangle &r1, const GMRectangle &r2) {
     std::vector<GMVec2D> intersections;
 
-    // Get normalized min/max coordinates for both rectangles:
-    const GMVec2D r1_min = r1.gm_min_point();
-    const GMVec2D r1_max = r1.gm_max_point();
-    const GMVec2D r2_min = r2.gm_min_point();
-    const GMVec2D r2_max = r2.gm_max_point();
-
     // Find the overlapping region boundaries:
-    const std::float32_t inter_min_x = std::max(r1_min.x, r2_min.x);
-    const std::float32_t inter_min_y = std::max(r1_min.y, r2_min.y);
-    const std::float32_t inter_max_x = std::min(r1_max.x, r2_max.x);
-    const std::float32_t inter_max_y = std::min(r1_max.y, r2_max.y);
+    const std::float32_t inter_min_x = std::max(r1.v.x, r2.v.x);
+    const std::float32_t inter_min_y = std::max(r1.v.y, r2.v.y);
+    const std::float32_t inter_max_x = std::min(r1.v.x + r1.w, r2.v.x + r2.w);
+    const std::float32_t inter_max_y = std::min(r1.v.y + r1.h, r2.v.y + r2.h);
 
     // Check if an actual overlap exists.
     // If min is greater than max on either axis, they don't overlap:
