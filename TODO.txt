@@ -2,6 +2,7 @@ TODO:
     - Add logger
     - Use brace init everywhere ?
     - Add velocity to GMObject
-    - Add gm_approx(32, 64), gm_approx(64, 32)
+    - Test all constructors!
 
 Done:
+    # Add gm_approx(32, 64), gm_approx(64, 32)
