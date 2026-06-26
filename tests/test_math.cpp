@@ -168,23 +168,32 @@ TEST_CASE("Create and use GMCircle", "[math]" ) {
 }
 
 TEST_CASE("Create and use GMRectangle", "[math]" ) {
-    GMRectangle r1{10.0, 10.0, 50.0, 40.0};
-    GMRectangle r2{20.0, 30.0, 60.0, 150.0};
+    GMRectangle r1{10.0, 10.0, 40.0, 30.0};
+    GMRectangle r2{GMVec2D(12.0, 15.0), 30.0, 50.0};
+    GMRectangle r3{GMVec2D(12.0, 15.0), GMVec2D(22.0, 35.0)};
 
-    REQUIRE(r1.gm_width() == 40.0);
-    REQUIRE(r1.gm_height() == 30.0);
+    REQUIRE((r1.v.x == 10.0) && (r1.v.y == 10.0));
+    REQUIRE((r1.w == 40.0) && (r1.h == 30.0));
+
+    REQUIRE((r2.v.x == 12.0) && (r2.v.y == 15.0));
+    REQUIRE((r2.w == 30.0) && (r2.h == 50.0));
+
+    REQUIRE((r3.v.x == 12.0) && (r3.v.y == 15.0));
+    REQUIRE((r3.w == 10.0) && (r3.h == 20.0));
+
     REQUIRE(r1.gm_diagonal1() == 50.0);
     REQUIRE(r1.gm_diagonal2() == 2500.0);
-    REQUIRE(r1.gm_min_point() == GMVec2D(10.0, 10.0));
-    REQUIRE(r1.gm_max_point() == GMVec2D(50.0, 40.0));
-    r1.gm_scale(2.0);
-    REQUIRE(r1.gm_width() == 80.0);
-    REQUIRE(r1.gm_height() == 60.0);
-    REQUIRE(r1.gm_diagonal1() == 100.0);
-    REQUIRE((r1.v1.x == 10.0) && (r1.v1.y == 10.0));
-    REQUIRE((r1.v2.x == 90.0) && (r1.v2.y == 70.0));
 
-    GMRectangle r3{10.0, 10.0, 90.0, 70.0};
+    GMVec2D op = r1.gm_opposite();
+    REQUIRE((op.x == 50.0) && (op.y == 40.0));
+
+    r1.gm_scale(2.0);
+    REQUIRE(r1.gm_diagonal1() == 100.0);
+    REQUIRE((r1.v.x == 10.0) && (r1.v.y == 10.0));
+    REQUIRE((r1.w == 80.0) && (r1.h == 60.0));
+
+    r1 = {10.0, 10.0, 90.0, 70.0};
+    r3 = {10.0, 10.0, 90.0, 70.0};
     REQUIRE(r1 != r2);
     REQUIRE(r1 == r3);
 }
@@ -272,7 +281,7 @@ TEST_CASE("Test intersect line functions", "[math]" ) {
 }
 
 TEST_CASE("Test intersect circle functions", "[math]" ) {
-    GMCircle c1{5.0, 5.0, 2.0};
+    const GMCircle c1{5.0, 5.0, 2.0};
     GMVec2D v1{5.0, 5.0};
     REQUIRE(gm_intersect_circle_point(c1, v1));
 
@@ -311,6 +320,21 @@ TEST_CASE("Test intersect circle functions", "[math]" ) {
 
     REQUIRE(gm_approx(res[0].x, 6.5) && gm_approx(res[0].y, 6.322875));
     REQUIRE(gm_approx(res[1].x, 6.5) && gm_approx(res[1].y, 3.677125));
+
+    GMRectangle r1{8.0, 1.0, 4.0, 3.0};
+    REQUIRE(!gm_intersect_circle_rectangle1(c1, r1));
+
+    r1 = {1.0, 3.0, 8.0, 3.0};
+    REQUIRE(gm_intersect_circle_rectangle1(c1, r1));
+
+    r1 = {8.0, 1.0, 4.0, 3.0};
+    res = gm_intersect_circle_rectangle2(c1, r1);
+    REQUIRE(res.size() == 0);
+
+    r1 = {1.0, 1.0, 8.0, 3.0};
+    res = gm_intersect_circle_rectangle2(c1, r1);
+    REQUIRE(res.size() == 2);
+
 }
 
 TEST_CASE("Test intersect rectangle functions", "[math]" ) {
