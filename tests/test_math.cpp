@@ -331,10 +331,21 @@ TEST_CASE("Test intersect circle functions", "[math]" ) {
     res = gm_intersect_circle_rectangle2(c1, r1);
     REQUIRE(res.size() == 0);
 
-    r1 = {1.0, 1.0, 8.0, 3.0};
+    r1 = {1.0, 2.0, 8.0, 2.0};
     res = gm_intersect_circle_rectangle2(c1, r1);
     REQUIRE(res.size() == 2);
+    REQUIRE(gm_approx(res[0].x, 6.732051) && res[0].y == 4.0);
+    REQUIRE(gm_approx(res[1].x, 3.267949) && res[1].y == 4.0);
 
+    r1 = {1.0, 4.0, 8.0, 2.0};
+    res = gm_intersect_circle_rectangle2(c1, r1);
+    REQUIRE(res.size() == 4);
+    REQUIRE(gm_approx(res[0].x, 6.732051) && res[0].y == 6.0);
+    REQUIRE(gm_approx(res[1].x, 3.267949) && res[1].y == 6.0);
+    REQUIRE(gm_approx(res[2].x, 3.267949) && res[2].y == 4.0);
+    REQUIRE(gm_approx(res[3].x, 6.732051) && res[3].y == 4.0);
+
+    // TODO: 8 intersections
 }
 
 TEST_CASE("Test intersect rectangle functions", "[math]" ) {
