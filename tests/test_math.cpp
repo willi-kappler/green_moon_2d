@@ -137,11 +137,15 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
 TEST_CASE("Create and use GMLine", "[math]" ) {
     GMLine l1{10.0, 5.0, 40.0, 45.0};
     GMLine l2{10.0, 10.0, 60.0, 60.0};
+    GMLine l3{GMVec2D(-5.5, 1.2), GMVec2D(7.8, 9.9)};
 
     REQUIRE(l1.gm_len1() == 50.0);
     REQUIRE(l1.gm_len2() == 2500.0);
 
     REQUIRE(l2.gm_len1() == 70.71068f32);
+
+    REQUIRE(gm_approx(l3.v1, {-5.5, 1.2}));
+    REQUIRE(gm_approx(l3.v2, {7.8, 9.9}));
 
     l2.gm_scale(0.1414213562373095);
     REQUIRE(l2.gm_len1() == 10.0);
@@ -153,18 +157,22 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
     REQUIRE((l2.v2.x == 10.0) && (l2.v2.y == 20.0));
     REQUIRE(l2.gm_angle() == 90.00);
 
-    GMLine l3{10.0, 10.0, 10.0, 20.0};
+    GMLine l4{10.0, 10.0, 10.0, 20.0};
     REQUIRE(l1 != l2);
-    REQUIRE(l2 == l3);
+    REQUIRE(l2 == l4);
 }
 
 TEST_CASE("Create and use GMCircle", "[math]" ) {
     GMCircle c1{10.0, 10.0, 5.0};
     GMCircle c2{10.0, 10.0, 15.0};
+    GMCircle c3{GMVec2D(-1.4, 5.6), 2.7};
 
     REQUIRE(c1 != c2);
     c1.gm_scale(3.0);
     REQUIRE(c1 == c2);
+
+    REQUIRE(gm_approx(c3.ctr, {-1.4, 5.6}));
+    REQUIRE(gm_approx(c3.r, 2.7));
 }
 
 TEST_CASE("Create and use GMRectangle", "[math]" ) {
