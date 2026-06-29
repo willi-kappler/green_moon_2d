@@ -20,25 +20,25 @@ using namespace gm2d;
 
 TEST_CASE("Create and use GMVec2D", "[math]" ) {
     GMVec2D v1, v2(-5.5), v3(1.5, 3.8);
-    REQUIRE((v1.x == 0.0f32) && (v1.y == 0.0f32));
-    REQUIRE((v2.x == -5.5f32) && (v2.y == -5.5f32));
-    REQUIRE((v3.x == 1.5f32) && (v3.y == 3.8f32));
+    REQUIRE(gm_approx(v1, 0.0, 0.0));
+    REQUIRE(gm_approx(v2, -5.5, -5.50));
+    REQUIRE(gm_approx(v3, 1.5, 3.8));
 
     GMVec2D v4(v3);
-    REQUIRE((v3.x == 1.5f32) && (v3.y == 3.8f32));
-    REQUIRE((v4.x == 1.5f32) && (v4.y == 3.8f32));
+    REQUIRE(gm_approx(v3, 1.5, 3.8));
+    REQUIRE(gm_approx(v4, 1.5, 3.8));
 
     v1.gm_add(1.2);
-    REQUIRE((v1.x == 1.2f32) && (v1.y == 1.2f32));
+    REQUIRE(gm_approx(v1, 1.2, 1.2));
 
     v1.gm_add({1.8, 2.8});
-    REQUIRE((v1.x == 3.0f32) && (v1.y == 4.0f32));
+    REQUIRE(gm_approx(v1, 3.0, 4.0));
 
     v1.gm_add(v2);
-    REQUIRE((v1.x == -2.5f32) && (v1.y == -1.5f32));
+    REQUIRE(gm_approx(v1, -2.5, -1.5));
 
     v1.gm_mul(-2.2);
-    REQUIRE(gm_approx(v1.x, 5.5) && gm_approx(v1.y, 3.3));
+    REQUIRE(gm_approx(v1, 5.5, 3.3));
 
     REQUIRE(gm_approx(v1.gm_len1(), 6.414047));
     REQUIRE(gm_approx(v1.gm_len2(), 41.14000));
@@ -50,12 +50,12 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
 
     v1 = {5.5, 3.3};
     v2 = v1.gm_norm1();
-    REQUIRE(gm_approx(v1.x, 5.5) && gm_approx(v1.y, 3.3));
-    REQUIRE(gm_approx(v2.x, 0.8574929) && gm_approx(v2.y, 0.5144958));
+    REQUIRE(gm_approx(v1, 5.5, 3.3));
+    REQUIRE(gm_approx(v2, 0.8574929, 0.5144958));
     REQUIRE(gm_approx(v2.gm_len1(), 1.0));
 
     v3.gm_norm2();
-    REQUIRE(gm_approx(v3.x, 0.3671665) && gm_approx(v3.y, 0.9301552));
+    REQUIRE(gm_approx(v3, 0.3671665, 0.9301552));
     REQUIRE(gm_approx(v3.gm_len1(), 1.0));
 
     v1 = {50.0, 20.0};
@@ -76,13 +76,13 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
 
     v1 = {5.0, 0.0};
     v2 = v1.gm_rotate1(90.0);
-    REQUIRE(gm_approx(v1.x, 5.0) && gm_approx(v1.y, 0.0));
-    REQUIRE(gm_approx(v2.x, 0.0) && gm_approx(v2.y, 5.0));
+    REQUIRE(gm_approx(v1, 5.0, 0.0));
+    REQUIRE(gm_approx(v2, 0.0, 5.0));
 
     v3 = v1;
     v3.gm_rotate2(90.0);
-    REQUIRE(gm_approx(v1.x, 5.0) && gm_approx(v1.y, 0.0));
-    REQUIRE(gm_approx(v3.x, 0.0) && gm_approx(v3.y, 5.0));
+    REQUIRE(gm_approx(v1, 5.0, 0.0));
+    REQUIRE(gm_approx(v3, 0.0, 5.0));
 
     v1 = {2.5, 5.0};
     v2 = {2.5, 5.0};
@@ -91,45 +91,45 @@ TEST_CASE("Create and use GMVec2D", "[math]" ) {
     REQUIRE(v1 != v3);
 
     v2 = v1 + v3;
-    REQUIRE(gm_approx(v1.x, 2.5) && gm_approx(v1.y, 5.0));
-    REQUIRE(gm_approx(v2.x, 1.3) && gm_approx(v2.y, 12.8));
-    REQUIRE(gm_approx(v3.x, -1.2) && gm_approx(v3.y, 7.8));
+    REQUIRE(gm_approx(v1, 2.5, 5.0));
+    REQUIRE(gm_approx(v2, 1.3, 12.8));
+    REQUIRE(gm_approx(v3, -1.2, 7.8));
 
     v2 = v1 + 10.0;
-    REQUIRE(gm_approx(v1.x, 2.5) && gm_approx(v1.y, 5.0));
-    REQUIRE(gm_approx(v2.x, 12.5) && gm_approx(v2.y, 15.0));
+    REQUIRE(gm_approx(v1, 2.5, 5.0));
+    REQUIRE(gm_approx(v2, 12.5, 15.0));
 
     v1 += v3;
-    REQUIRE(gm_approx(v1.x, 1.3) && gm_approx(v1.y, 12.8));
-    REQUIRE(gm_approx(v3.x, -1.2) && gm_approx(v3.y, 7.8));
+    REQUIRE(gm_approx(v1, 1.3, 12.8));
+    REQUIRE(gm_approx(v3, -1.2, 7.8));
 
     v1 += 5.0;
-    REQUIRE(gm_approx(v1.x, 6.3) && gm_approx(v1.y, 17.8));
+    REQUIRE(gm_approx(v1, 6.3, 17.8));
 
     v1 = {2.5, 5.0};
     v2 = {1.5, 3.0};
     v3 = v1 - v2;
-    REQUIRE(gm_approx(v1.x, 2.5) && gm_approx(v1.y, 5.0));
-    REQUIRE(gm_approx(v2.x, 1.5) && gm_approx(v2.y, 3.0));
-    REQUIRE(gm_approx(v3.x, 1.0) && gm_approx(v3.y, 2.0));
+    REQUIRE(gm_approx(v1, 2.5, 5.0));
+    REQUIRE(gm_approx(v2, 1.5, 3.0));
+    REQUIRE(gm_approx(v3, 1.0, 2.0));
 
     v3 = v1 - 1.0;
-    REQUIRE(gm_approx(v1.x, 2.5) && gm_approx(v1.y, 5.0));
-    REQUIRE(gm_approx(v3.x, 1.5) && gm_approx(v3.y, 4.0));
+    REQUIRE(gm_approx(v1, 2.5, 5.0));
+    REQUIRE(gm_approx(v3, 1.5, 4.0));
 
     v1 -= v2;
-    REQUIRE(gm_approx(v1.x, 1.0) && gm_approx(v1.y, 2.0));
-    REQUIRE(gm_approx(v2.x, 1.5) && gm_approx(v2.y, 3.0));
+    REQUIRE(gm_approx(v1, 1.0, 2.0));
+    REQUIRE(gm_approx(v2, 1.5, 3.0));
 
     v1 -= 0.5;
-    REQUIRE(gm_approx(v1.x, 0.5) && gm_approx(v1.y, 1.5));
+    REQUIRE(gm_approx(v1, 0.5, 1.5));
 
     v2 = v1 * 10.0;
-    REQUIRE(gm_approx(v1.x, 0.5) && gm_approx(v1.y, 1.5));
-    REQUIRE(gm_approx(v2.x, 5.0) && gm_approx(v2.y, 15.0));
+    REQUIRE(gm_approx(v1, 0.5, 1.5));
+    REQUIRE(gm_approx(v2, 5.0, 15.0));
 
     v1 *= 5.0;
-    REQUIRE(gm_approx(v1.x, 2.5) && gm_approx(v1.y, 7.5));
+    REQUIRE(gm_approx(v1, 2.5, 7.5));
 
     // INFO("v3x: ", v3.x, ", v3y: ", v3.y);
 }
@@ -144,8 +144,8 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
 
     REQUIRE(l2.gm_len1() == 70.71068f32);
 
-    REQUIRE(gm_approx(l3.v1, {-5.5, 1.2}));
-    REQUIRE(gm_approx(l3.v2, {7.8, 9.9}));
+    REQUIRE(gm_approx(l3.v1, -5.5, 1.2));
+    REQUIRE(gm_approx(l3.v2, 7.8, 9.9));
 
     l2.gm_scale(0.1414213562373095);
     REQUIRE(l2.gm_len1() == 10.0);
@@ -153,8 +153,8 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
 
     l2.gm_rotate(45.0);
 
-    REQUIRE((l2.v1.x == 10.0) && (l2.v1.y == 10.0));
-    REQUIRE((l2.v2.x == 10.0) && (l2.v2.y == 20.0));
+    REQUIRE(gm_approx(l2.v1, 10.0, 10.0));
+    REQUIRE(gm_approx(l2.v2, 10.0, 20.0));
     REQUIRE(l2.gm_angle() == 90.00);
 
     GMLine l4{10.0, 10.0, 10.0, 20.0};
@@ -171,7 +171,7 @@ TEST_CASE("Create and use GMCircle", "[math]" ) {
     c1.gm_scale(3.0);
     REQUIRE(c1 == c2);
 
-    REQUIRE(gm_approx(c3.ctr, {-1.4, 5.6}));
+    REQUIRE(gm_approx(c3.ctr, -1.4, 5.6));
     REQUIRE(gm_approx(c3.r, 2.7));
 }
 
@@ -180,13 +180,13 @@ TEST_CASE("Create and use GMRectangle", "[math]" ) {
     GMRectangle r2{GMVec2D(12.0, 15.0), 30.0, 50.0};
     GMRectangle r3{GMVec2D(12.0, 15.0), GMVec2D(22.0, 35.0)};
 
-    REQUIRE((r1.v.x == 10.0) && (r1.v.y == 10.0));
+    REQUIRE(gm_approx(r1.v, 10.0, 10.0));
     REQUIRE((r1.w == 40.0) && (r1.h == 30.0));
 
-    REQUIRE((r2.v.x == 12.0) && (r2.v.y == 15.0));
+    REQUIRE(gm_approx(r2.v, 12.0, 15.0));
     REQUIRE((r2.w == 30.0) && (r2.h == 50.0));
 
-    REQUIRE((r3.v.x == 12.0) && (r3.v.y == 15.0));
+    REQUIRE(gm_approx(r3.v, 12.0, 15.0));
     REQUIRE((r3.w == 10.0) && (r3.h == 20.0));
 
     REQUIRE(r1.gm_diagonal1() == 50.0);
@@ -197,7 +197,7 @@ TEST_CASE("Create and use GMRectangle", "[math]" ) {
 
     r1.gm_scale(2.0);
     REQUIRE(r1.gm_diagonal1() == 100.0);
-    REQUIRE((r1.v.x == 10.0) && (r1.v.y == 10.0));
+    REQUIRE(gm_approx(r1.v, 10.0, 10.0));
     REQUIRE((r1.w == 80.0) && (r1.h == 60.0));
 
     r1 = {10.0, 10.0, 90.0, 70.0};
@@ -218,6 +218,10 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.2)));
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.20000001)));
     REQUIRE(!gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.21)));
+
+    REQUIRE(gm_approx(GMVec2D(5.9, -3.3), 5.9, -3.3));
+    REQUIRE(gm_approx(GMVec2D(5.9, -3.3), 5.9, -3.30000001));
+    REQUIRE(!gm_approx(GMVec2D(5.9, -3.3), 5.9, -3.4));
 
     REQUIRE(gm_is_on_segment(GMVec2D(2.0, 4.0), GMVec2D(1.0, 4.0), GMVec2D(7.0, 4.0)));
     REQUIRE(!gm_is_on_segment(GMVec2D(0.5, 4.0), GMVec2D(1.0, 4.0), GMVec2D(7.0, 4.0)));
@@ -248,12 +252,12 @@ TEST_CASE("Test helper functions", "[math]" ) {
     GMLine l1{0.0, 0.0, 10.0, 0.0};
     v1 = {5.0, 1.0};
     v2 = gm_closest_point_on_segment(l1, v1);
-    REQUIRE(gm_approx(v2.x, 5.0) && gm_approx(v2.y, 0.0));
+    REQUIRE(gm_approx(v2, 5.0, 0.0));
 
     l1 = {1.0, 1.0, 8.0, 8.0};
     v1 = {3.0, 5.0};
     v2 = gm_closest_point_on_segment(l1, v1);
-    REQUIRE(gm_approx(v2.x, 4.0) && gm_approx(v2.y, 4.0));
+    REQUIRE(gm_approx(v2, 4.0, 4.0));
 }
 
 TEST_CASE("Test intersect line functions", "[math]" ) {
@@ -285,7 +289,7 @@ TEST_CASE("Test intersect line functions", "[math]" ) {
     l2 = {4.0, 2.0, 4.0, -2.0};
     res = gm_intersect_line_line2(l1, l2);
     REQUIRE(res.size() == 1);
-    REQUIRE(gm_approx(res[0].x, 4.0) && gm_approx(res[0].y, 0.0));
+    REQUIRE(gm_approx(res[0], 4.0, 0.0));
 }
 
 TEST_CASE("Test intersect circle functions", "[math]" ) {
@@ -309,8 +313,8 @@ TEST_CASE("Test intersect circle functions", "[math]" ) {
     l1 = {0.0, 4.0, 7.0, 4.0};
     res = gm_intersect_circle_line2(c1, l1);
     REQUIRE(res.size() == 2);
-    REQUIRE(gm_approx(res[0].x, 6.732051) && gm_approx(res[0].y, 4.0));
-    REQUIRE(gm_approx(res[1].x, 3.267949) && gm_approx(res[1].y, 4.0));
+    REQUIRE(gm_approx(res[0], 6.732051, 4.0));
+    REQUIRE(gm_approx(res[1], 3.267949, 4.0));
 
     GMCircle c2{9.0, 5.0, 1.0};
     REQUIRE(!gm_intersect_circle_circle1(c1, c2));
@@ -326,8 +330,8 @@ TEST_CASE("Test intersect circle functions", "[math]" ) {
     res = gm_intersect_circle_circle2(c1, c2);
     REQUIRE(res.size() == 2);
 
-    REQUIRE(gm_approx(res[0].x, 6.5) && gm_approx(res[0].y, 6.322875));
-    REQUIRE(gm_approx(res[1].x, 6.5) && gm_approx(res[1].y, 3.677125));
+    REQUIRE(gm_approx(res[0], 6.5, 6.322875));
+    REQUIRE(gm_approx(res[1], 6.5, 3.677125));
 
     GMRectangle r1{8.0, 1.0, 4.0, 3.0};
     REQUIRE(!gm_intersect_circle_rectangle1(c1, r1));
@@ -342,19 +346,69 @@ TEST_CASE("Test intersect circle functions", "[math]" ) {
     r1 = {1.0, 2.0, 8.0, 2.0};
     res = gm_intersect_circle_rectangle2(c1, r1);
     REQUIRE(res.size() == 2);
-    REQUIRE(gm_approx(res[0].x, 6.732051) && res[0].y == 4.0);
-    REQUIRE(gm_approx(res[1].x, 3.267949) && res[1].y == 4.0);
+    REQUIRE(gm_approx(res[0], 6.732051, 4.0));
+    REQUIRE(gm_approx(res[1], 3.267949, 4.0));
 
     r1 = {1.0, 4.0, 8.0, 2.0};
     res = gm_intersect_circle_rectangle2(c1, r1);
     REQUIRE(res.size() == 4);
-    REQUIRE(gm_approx(res[0].x, 6.732051) && res[0].y == 6.0);
-    REQUIRE(gm_approx(res[1].x, 3.267949) && res[1].y == 6.0);
-    REQUIRE(gm_approx(res[2].x, 3.267949) && res[2].y == 4.0);
-    REQUIRE(gm_approx(res[3].x, 6.732051) && res[3].y == 4.0);
+    REQUIRE(gm_approx(res[0], 6.732051, 6.0));
+    REQUIRE(gm_approx(res[1], 3.267949, 6.0));
+    REQUIRE(gm_approx(res[2], 3.267949, 4.0));
+    REQUIRE(gm_approx(res[3], 6.732051, 4.0));
 
-    // TODO: 8 intersections
+    r1 = {3.5, 3.5, 3, 3};
+    res = gm_intersect_circle_rectangle2(c1, r1);
+    REQUIRE(res.size() == 8);
+    REQUIRE(gm_approx(res[0], 6.32287, 6.5));
+    REQUIRE(gm_approx(res[1], 3.677125, 6.5));
+    REQUIRE(gm_approx(res[2], 6.5, 3.677125));
+    REQUIRE(gm_approx(res[3], 6.5, 6.32287));
+    REQUIRE(gm_approx(res[4], 3.677125, 3.5));
+    REQUIRE(gm_approx(res[5], 6.32287, 3.5));
+    REQUIRE(gm_approx(res[6], 3.5, 6.32287));
+    REQUIRE(gm_approx(res[7], 3.5, 3.677125));
 }
 
 TEST_CASE("Test intersect rectangle functions", "[math]" ) {
+    GMRectangle r1{2.0, 1.0, 4.0, 3.0};
+    GMVec2D v1{2.5, 1.5};
+
+    REQUIRE(gm_intersect_rectangle_point(r1, v1));
+
+    v1 = {1.0, 1.5};
+    REQUIRE(!gm_intersect_rectangle_point(r1, v1));
+
+    GMLine l1{1.0, 3.0, 7.0, 1.0};
+    REQUIRE(gm_intersect_rectangle_line1(r1, l1));
+
+    l1 = {1.0, 5.0, 7.0, 8.0};
+    REQUIRE(!gm_intersect_rectangle_line1(r1, l1));
+    std::vector<GMVec2D> res = gm_intersect_rectangle_line2(r1, l1);
+    REQUIRE(res.size() == 0);
+
+    l1 = {3.0, 3.0, 7.0, 3.0};
+    res = gm_intersect_rectangle_line2(r1, l1);
+    REQUIRE(res.size() == 1);
+    REQUIRE(gm_approx(res[0], 6.0, 3.0));
+
+    l1 = {1.0, 3.0, 7.0, 3.0};
+    res = gm_intersect_rectangle_line2(r1, l1);
+    REQUIRE(res.size() == 2);
+    REQUIRE(gm_approx(res[0], 6.0, 3.0));
+    REQUIRE(gm_approx(res[1], 2.0, 3.0));
+
+    GMRectangle r2{3.0, 3.0, 6.0, 5.0};
+    REQUIRE(gm_intersect_rectangle_rectangle1(r1, r2));
+
+    r2 = {11.0, 12.0, 4.0, 4.0};
+    REQUIRE(!gm_intersect_rectangle_rectangle1(r1, r2));
+    res = gm_intersect_rectangle_rectangle2(r1, r2);
+    REQUIRE(res.size() == 0);
+
+    r2 = {3.0, 3.0, 6.0, 5.0};
+    res = gm_intersect_rectangle_rectangle2(r1, r2);
+    REQUIRE(res.size() == 2);
+    REQUIRE(gm_approx(res[0], 3.0, 4.0));
+    REQUIRE(gm_approx(res[1], 6.0, 3.0));
 }

@@ -413,6 +413,14 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     return gm_approx(v1.x, v2.x) && gm_approx(v1.y, v2.y);
 }
 
+[[nodiscard]] bool gm_approx(const GMVec2D &v1, std::float32_t x, std::float32_t y) {
+    return gm_approx(v1.x, x) && gm_approx(v1.y, y);
+}
+
+[[nodiscard]] bool gm_approx(const GMVec2D &v1, std::float64_t x, std::float64_t y) {
+    return gm_approx(v1.x, x) && gm_approx(v1.y, y);
+}
+
 [[nodiscard]] bool gm_is_on_segment(const GMVec2D &p, const GMVec2D &a, const GMVec2D &b) {
     return (p.x >= std::min(a.x, b.x)) && (p.x <= std::max(a.x, b.x)) &&
         (p.y >= std::min(a.y, b.y)) && (p.y <= std::max(a.y, b.y));
@@ -821,10 +829,9 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     }
 
     // Return the two points defining the intersecting rectangle:
-    intersections.push_back(GMVec2D(inter_min_x, inter_min_y));
-    intersections.push_back(GMVec2D(inter_max_x, inter_max_y));
+    intersections.push_back(GMVec2D(inter_min_x, inter_max_y));
+    intersections.push_back(GMVec2D(inter_max_x, inter_min_y));
 
     return intersections;
 }
-
 }
