@@ -10,8 +10,39 @@
 #ifndef FILE_GM_ANIMATION_HPP_INCLUDED
 #define FILE_GM_ANIMATION_HPP_INCLUDED
 
-namespace gm2d {
+// STD includes:
+#include <cstdint>
+//#include <stdfloat>
+#include <utility>
+#include <array>
+//#include <optional>
+#include <vector>
+#include <initializer_list>
 
+// Local includes:
+#include "gm_math.hpp"
+
+namespace gm2d {
+class GMAnimation {
+    // Constructor:
+    GMAnimation();
+    GMAnimation(const std::vector<std::pair<uint16_t, uint16_t>> &);
+    GMAnimation(std::vector<std::pair<uint16_t, uint16_t>> &&);
+    GMAnimation(std::initializer_list<std::pair<uint16_t, uint16_t>>);
+
+    size_t current_frame;
+    GMRepetition repetition;
+    std::vector<std::pair<uint16_t, uint16_t>> frames;
+    // timer;
+    bool active;
+
+    // Methods
+    void gm_update();
+    bool gm_finished();
+    void gm_change_repetition(GMRepetition);
+    uint16_t gm_get_frame_index();
+    void gm_set_timer_duration();
+};
 }
 
 #endif // FILE_GM_ANIMATION_HPP_INCLUDED
