@@ -4,7 +4,7 @@
     Written by Willi Kappler, MIT License
     https://github.com/willi-kappler/green_moon_2d
 
-    This file contains the tests for the timer classes.
+    This file contains the tests for the timer class.
 
     Run only configuration tests:
     xmake run -w ./ gm2d_test [timer]
