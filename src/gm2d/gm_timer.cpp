@@ -28,7 +28,7 @@ bool GMTimer::gm_finished() {
     if (active) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time);
-        return elapsed.count() > duration;
+        return elapsed.count() >= duration;
     } else {
         return false;
     }

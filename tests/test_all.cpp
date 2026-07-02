@@ -13,4 +13,3 @@
 
 #define SNITCH_IMPLEMENTATION
 #include <snitch/snitch.hpp>
-//#include <snitch_all.hpp>
