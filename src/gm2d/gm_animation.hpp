@@ -21,27 +21,31 @@
 
 // Local includes:
 #include "gm_math.hpp"
+#include "gm_timer.hpp"
 
 namespace gm2d {
 class GMAnimation {
-    // Constructor:
-    GMAnimation();
-    GMAnimation(const std::vector<std::pair<uint16_t, uint16_t>> &);
-    GMAnimation(std::vector<std::pair<uint16_t, uint16_t>> &&);
-    GMAnimation(std::initializer_list<std::pair<uint16_t, uint16_t>>);
+    public:
+        // Constructor:
+        GMAnimation();
+        GMAnimation(const std::vector<std::pair<uint16_t, uint16_t>> &);
+        GMAnimation(std::vector<std::pair<uint16_t, uint16_t>> &&);
+        GMAnimation(std::initializer_list<std::pair<uint16_t, uint16_t>>);
 
-    size_t current_frame;
-    GMRepetition repetition;
-    std::vector<std::pair<uint16_t, uint16_t>> frames;
-    // timer;
-    bool active;
+        // Methods
+        void gm_update();
+        bool gm_finished();
+        void gm_change_repetition(GMRepetition);
+        uint16_t gm_get_frame_index();
+        void gm_set_timer_duration();
+        void gm_set_active(bool);
 
-    // Methods
-    void gm_update();
-    bool gm_finished();
-    void gm_change_repetition(GMRepetition);
-    uint16_t gm_get_frame_index();
-    void gm_set_timer_duration();
+    private:
+        size_t current_frame;
+        GMRepetition repetition;
+        std::vector<std::pair<uint16_t, uint16_t>> frames;
+        GMTimer timer;
+        bool active;
 };
 }
 

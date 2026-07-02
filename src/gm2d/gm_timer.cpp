@@ -15,7 +15,7 @@ namespace gm2d {
 GMTimer::GMTimer():
     duration(0),
     start_time(std::chrono::steady_clock::now()),
-    active(false)
+    active(true)
 {}
 
 GMTimer::GMTimer(uint32_t d):
@@ -48,4 +48,7 @@ void GMTimer::gm_restart() {
     active = true;
 }
 
+void GMTimer::gm_set_active(bool act) {
+    active = act;
+}
 }

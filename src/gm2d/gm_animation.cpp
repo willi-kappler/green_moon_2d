@@ -16,6 +16,7 @@ GMAnimation::GMAnimation():
     current_frame(0),
     repetition(GMRepetition::FIXED),
     frames(),
+    timer(),
     active(false)
 {}
 
@@ -23,6 +24,7 @@ GMAnimation::GMAnimation(const std::vector<std::pair<uint16_t, uint16_t>> &data)
     current_frame(0),
     repetition(GMRepetition::FIXED),
     frames(data),
+    timer(),
     active(false)
 {}
 
@@ -30,6 +32,7 @@ GMAnimation::GMAnimation(std::vector<std::pair<uint16_t, uint16_t>> &&data):
     current_frame(0),
     repetition(GMRepetition::FIXED),
     frames(data),
+    timer(),
     active(false)
 {}
 
@@ -37,72 +40,73 @@ GMAnimation::GMAnimation(std::initializer_list<std::pair<uint16_t, uint16_t>> da
     current_frame(0),
     repetition(GMRepetition::FIXED),
     frames(data),
+    timer(),
     active(false)
 {}
 
 void GMAnimation::gm_update() {
-    // if self.active and self.timer.finished():
+    if (active && timer.gm_finished()) {
+        const size_t last_frame = frames.size() - 1;
 
-    const size_t last_frame = frames.size() - 1;
+        switch(repetition) {
+            case GMRepetition::FIXED:
+                // Nothing to do...
+            break;
+            case GMRepetition::FORWARD:
+                if (current_frame < last_frame) {
+                    current_frame++;
+                    gm_set_timer_duration();
+                } else {
+                    active = false;
+                }
+            break;
+            case GMRepetition::BACKWARD:
+                if (current_frame > 0) {
+                    current_frame--;
+                    gm_set_timer_duration();
+                } else {
+                    active = false;
+                }
+            break;
+            case GMRepetition::FORWARD_LOOP:
+                if (current_frame < last_frame) {
+                    current_frame++;
+                } else {
+                    current_frame = 0;
+                }
 
-    switch(repetition) {
-        case GMRepetition::FIXED:
-            // Nothing to do...
-        break;
-        case GMRepetition::FORWARD:
-            if (current_frame < last_frame) {
-                current_frame++;
                 gm_set_timer_duration();
-            } else {
-                active = false;
-            }
-        break;
-        case GMRepetition::BACKWARD:
-            if (current_frame > 0) {
-                current_frame--;
+            break;
+            case GMRepetition::BACKWARD_LOOP:
+                if (current_frame > 0) {
+                    current_frame--;
+                } else {
+                    current_frame = last_frame;
+                }
+
                 gm_set_timer_duration();
-            } else {
-                active = false;
-            }
-        break;
-        case GMRepetition::FORWARD_LOOP:
-            if (current_frame < last_frame) {
-                current_frame++;
-            } else {
-                current_frame = 0;
-            }
+            break;
+            case GMRepetition::PINGPONG_F:
+                if (current_frame < last_frame) {
+                    current_frame++;
+                } else {
+                    current_frame--;
+                    repetition = GMRepetition::PINGPONG_B;
+                }
 
-            gm_set_timer_duration();
-        break;
-        case GMRepetition::BACKWARD_LOOP:
-            if (current_frame > 0) {
-                current_frame--;
-            } else {
-                current_frame = last_frame;
-            }
+                gm_set_timer_duration();
+            break;
+            case GMRepetition::PINGPONG_B:
+                if (current_frame > 0) {
+                    current_frame--;
+                } else {
+                    current_frame++;
+                    repetition = GMRepetition::PINGPONG_F;
+                }
 
-            gm_set_timer_duration();
-        break;
-        case GMRepetition::PINGPONG_F:
-            if (current_frame < last_frame) {
-                current_frame++;
-            } else {
-                current_frame--;
-                repetition = GMRepetition::PINGPONG_B;
-            }
-
-            gm_set_timer_duration();
-        break;
-        case GMRepetition::PINGPONG_B:
-            if (current_frame > 0) {
-                current_frame--;
-            } else {
-                current_frame++;
-                repetition = GMRepetition::PINGPONG_F;
-            }
-
-            gm_set_timer_duration();
-        break;
+                gm_set_timer_duration();
+            break;
+        }
     }
 }
 
@@ -160,8 +164,12 @@ uint16_t GMAnimation::gm_get_frame_index() {
 }
 
 void GMAnimation::gm_set_timer_duration() {
-    [[maybe_unused]] uint16_t new_duration = frames[current_frame].second;
-    // timer.set_duration_restart(new_duration);
+    uint16_t new_duration = frames[current_frame].second;
+    timer.gm_set_duration_restart(new_duration);
+}
+
+void GMAnimation::gm_set_active(bool act) {
+    active = act;
 }
 
 }

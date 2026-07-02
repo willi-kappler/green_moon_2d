@@ -16,19 +16,22 @@
 
 namespace gm2d {
 class GMTimer {
-    // Constructor:
-    GMTimer();
-    GMTimer(uint32_t);
+    public:
+        // Constructor:
+        GMTimer();
+        GMTimer(uint32_t);
 
-    uint32_t duration;
-    std::chrono::time_point<std::chrono::steady_clock> start_time;
-    bool active;
+        // Methods:
+        bool gm_finished();
+        void gm_set_duration(uint32_t);
+        void gm_set_duration_restart(uint32_t);
+        void gm_restart();
+        void gm_set_active(bool);
 
-    // Methods:
-    bool gm_finished();
-    void gm_set_duration(uint32_t);
-    void gm_set_duration_restart(uint32_t);
-    void gm_restart();
+    private:
+        uint32_t duration;
+        std::chrono::time_point<std::chrono::steady_clock> start_time;
+        bool active;
 };
 }
 
