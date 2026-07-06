@@ -171,5 +171,4 @@ void GMAnimation::gm_set_timer_duration() {
 void GMAnimation::gm_set_active(bool act) {
     active = act;
 }
-
 }
