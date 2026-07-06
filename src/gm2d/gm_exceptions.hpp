@@ -40,14 +40,6 @@ public:
     std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name)) { }
 };
 
-/*
-class GMInvalidReceiver: public std::runtime_error {
-public:
-  GMInvalidReceiver(std::string_view where, GMStringId receiver):
-    std::runtime_error(std::format("Invalid receiver ({}): {}", where, receiver.value)) { }
-};
-*/
-
 // Messages:
 class GMUnknownMessageType: public std::runtime_error {
 public:
@@ -64,6 +56,13 @@ public:
 // Objects:
 
 // Scenes:
+
+// Config:
+class GMConfigurationException: public std::runtime_error {
+public:
+  GMConfigurationException(std::string_view msg):
+    std::runtime_error(std::format("Configuration exception: {}", msg)) { }
+};
 
 
 }
