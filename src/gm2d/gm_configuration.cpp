@@ -112,5 +112,6 @@ void gm_save_config(GMConfiguration gm_config) {
 void gm_save_config(GMConfiguration gm_config, std::filesystem::path file_path) {
     std::cout << gm_config.config_file << std::endl;
     std::cout << file_path << std::endl;
+    // TODO: write config to json file.
 }
 }
