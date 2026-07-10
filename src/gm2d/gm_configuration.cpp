@@ -10,6 +10,7 @@
 // STD includes:
 #include <fstream>
 #include <iostream>
+#include <print>
 
 // Local includes:
 #include "gm_configuration.hpp"
@@ -91,7 +92,7 @@ GMConfiguration::GMConfiguration():
         std::string file_contents {std::istreambuf_iterator<char>(in_file), std::istreambuf_iterator<char>()};
         return file_contents;
     } else {
-        throw GMConfigurationException("Open file error");
+        throw GMConfigurationException("Open file error, read config");
     }
 }
 
@@ -110,8 +111,27 @@ void gm_save_config(GMConfiguration gm_config) {
 }
 
 void gm_save_config(GMConfiguration gm_config, std::filesystem::path file_path) {
-    std::cout << gm_config.config_file << std::endl;
-    std::cout << file_path << std::endl;
-    // TODO: write config to json file.
+    // std::cout << gm_config.config_file << std::endl;
+    // std::cout << file_path << std::endl;
+
+    const tao::json::value json_data = {
+        {"config_file", gm_config.config_file},
+        {"fps", gm_config.fps},
+        {"fullscreen", gm_config.fullscreen},
+        {"resource_file", gm_config.resource_file},
+        {"screen_width", gm_config.screen_width},
+        {"screen_height", gm_config.screen_height},
+        {"window_title", gm_config.window_title}
+    };
+
+    const std::string serialized = tao::json::to_string(json_data);
+
+    std::ofstream out_file(file_path);
+
+    if (out_file.is_open()) {
+        std::print(out_file, "{}", serialized);
+    } else {
+        throw GMConfigurationException("Open file error, write config");
+    }
 }
 }
