@@ -13,6 +13,8 @@
 // STD includes:
 #include <cstdint>
 #include <stdfloat>
+#include <memory>
+#include <string>
 
 // External includes:
 #include <SDL3/SDL.h>
@@ -20,7 +22,7 @@
 namespace gm2d {
 class GMTexture {
     public:
-        GMTexture(SDL_Texture *, SDL_Renderer *, uint16_t, uint16_t);
+        GMTexture(std::string, std::shared_ptr<SDL_Texture>, SDL_Renderer *, uint16_t, uint16_t);
 
         void gm_draw(std::float32_t, std::float32_t, uint16_t);
         void gm_draw_opt(std::float32_t, std::float32_t, uint16_t, std::float32_t);
@@ -34,7 +36,8 @@ class GMTexture {
         void gm_set_src_rect(uint16_t);
         void gm_set_dst_rect(std::float32_t, std::float32_t);
 
-        SDL_Texture *texture;
+        std::string name;
+        std::shared_ptr<SDL_Texture> texture;
         SDL_Renderer *renderer;
         SDL_FRect src_rect;
         SDL_FRect dst_rect;

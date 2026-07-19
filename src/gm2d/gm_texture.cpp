@@ -11,7 +11,8 @@
 #include "gm_texture.hpp"
 
 namespace gm2d {
-GMTexture::GMTexture(SDL_Texture *tex, SDL_Renderer *rend, uint16_t w, uint16_t h):
+GMTexture::GMTexture(std::string tex_name, std::shared_ptr<SDL_Texture> tex, SDL_Renderer *rend, uint16_t w, uint16_t h):
+    name(tex_name),
     texture(tex),
     renderer(rend),
     src_rect(0, 0, w, h),
@@ -21,7 +22,7 @@ GMTexture::GMTexture(SDL_Texture *tex, SDL_Renderer *rend, uint16_t w, uint16_t 
     unit_height(h),
     columns(tex->w / unit_width)
 {
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+    SDL_SetTextureScaleMode(texture.get(), SDL_SCALEMODE_LINEAR);
 }
 
 void GMTexture::gm_set_src_rect(uint16_t index) {
@@ -32,8 +33,8 @@ void GMTexture::gm_set_src_rect(uint16_t index) {
 }
 
 void GMTexture::gm_set_dst_rect(std::float32_t x, std::float32_t y) {
-    std::float32_t uw = static_cast<std::float32_t>(unit_width) / 2.0;
-    std::float32_t uh = static_cast<std::float32_t>(unit_height) / 2.0;
+    std::float32_t uw = static_cast<std::float32_t>(unit_width) / 2.0f32;
+    std::float32_t uh = static_cast<std::float32_t>(unit_height) / 2.0f32;
     dst_rect.x = x - uw;
     dst_rect.y = y - uh;
 }
@@ -41,14 +42,14 @@ void GMTexture::gm_set_dst_rect(std::float32_t x, std::float32_t y) {
 void GMTexture::gm_draw(std::float32_t x, std::float32_t y, uint16_t index) {
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
-    SDL_RenderTexture(renderer, texture, &src_rect, &dst_rect);
+    SDL_RenderTexture(renderer, texture.get(), &src_rect, &dst_rect);
 }
 
 void GMTexture::gm_draw_opt(std::float32_t x, std::float32_t y, uint16_t index, std::float32_t angle) {
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
 
-    SDL_RenderTextureRotated(renderer, texture, &src_rect, &dst_rect, angle, NULL, flip_mode);
+    SDL_RenderTextureRotated(renderer, texture.get(), &src_rect, &dst_rect, angle, NULL, flip_mode);
 }
 
 void GMTexture::gm_set_scale(std::float32_t sx, std::float32_t sy) {
@@ -60,7 +61,7 @@ void GMTexture::gm_flip_x(bool flip_x) {
     if (flip_x) {
         flip_mode = static_cast<SDL_FlipMode>(flip_mode | SDL_FLIP_HORIZONTAL);
     } else {
-
+        flip_mode = static_cast<SDL_FlipMode>(flip_mode & ~SDL_FLIP_HORIZONTAL);
     }
 }
 
@@ -68,7 +69,7 @@ void GMTexture::gm_flip_y(bool flip_y) {
     if (flip_y) {
         flip_mode = static_cast<SDL_FlipMode>(flip_mode | SDL_FLIP_VERTICAL);
     } else {
-
+        flip_mode = static_cast<SDL_FlipMode>(flip_mode & ~SDL_FLIP_VERTICAL);
     }
 }
 
