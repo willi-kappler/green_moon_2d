@@ -19,13 +19,16 @@
 // External includes:
 #include <SDL3/SDL.h>
 
+// Internal includes:
+#include "gm_context.hpp"
+
 namespace gm2d {
 class GMTexture {
     public:
-        GMTexture(std::string, std::shared_ptr<SDL_Texture>, SDL_Renderer *, uint16_t, uint16_t);
+        GMTexture(std::string, std::shared_ptr<SDL_Texture>, uint16_t, uint16_t);
 
-        void gm_draw(std::float32_t, std::float32_t, uint16_t);
-        void gm_draw_opt(std::float32_t, std::float32_t, uint16_t, std::float32_t);
+        void gm_draw(GMContext &, const std::float32_t, const std::float32_t, const uint16_t);
+        void gm_draw_opt(GMContext &, const std::float32_t, const std::float32_t, const uint16_t, const std::float32_t);
         void gm_set_scale(std::float32_t, std::float32_t);
         void gm_flip_x(bool);
         void gm_flip_y(bool);
@@ -36,16 +39,15 @@ class GMTexture {
         void gm_set_src_rect(uint16_t);
         void gm_set_dst_rect(std::float32_t, std::float32_t);
 
-        std::string name;
-        std::shared_ptr<SDL_Texture> texture;
-        SDL_Renderer *renderer;
+        const std::string name;
+        const std::shared_ptr<SDL_Texture> texture;
         SDL_FRect src_rect;
         SDL_FRect dst_rect;
         SDL_FlipMode flip_mode;
 
-        uint16_t unit_width;
-        uint16_t unit_height;
-        uint16_t columns;
+        const uint16_t unit_width;
+        const uint16_t unit_height;
+        const uint16_t columns;
 };
 
 }

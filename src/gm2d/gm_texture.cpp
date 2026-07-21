@@ -11,10 +11,9 @@
 #include "gm_texture.hpp"
 
 namespace gm2d {
-GMTexture::GMTexture(std::string tex_name, std::shared_ptr<SDL_Texture> tex, SDL_Renderer *rend, uint16_t w, uint16_t h):
+GMTexture::GMTexture(std::string tex_name, std::shared_ptr<SDL_Texture> tex, uint16_t w, uint16_t h):
     name(tex_name),
     texture(tex),
-    renderer(rend),
     src_rect(0, 0, w, h),
     dst_rect(0, 0, w, h),
     flip_mode(),
@@ -39,17 +38,17 @@ void GMTexture::gm_set_dst_rect(std::float32_t x, std::float32_t y) {
     dst_rect.y = y - uh;
 }
 
-void GMTexture::gm_draw(std::float32_t x, std::float32_t y, uint16_t index) {
+void GMTexture::gm_draw(GMContext &context, const std::float32_t x, const std::float32_t y, const uint16_t index) {
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
-    SDL_RenderTexture(renderer, texture.get(), &src_rect, &dst_rect);
+    SDL_RenderTexture(context.gm_renderer, texture.get(), &src_rect, &dst_rect);
 }
 
-void GMTexture::gm_draw_opt(std::float32_t x, std::float32_t y, uint16_t index, std::float32_t angle) {
+void GMTexture::gm_draw_opt(GMContext &context, const std::float32_t x, const std::float32_t y, const uint16_t index, const std::float32_t angle) {
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
 
-    SDL_RenderTextureRotated(renderer, texture.get(), &src_rect, &dst_rect, angle, NULL, flip_mode);
+    SDL_RenderTextureRotated(context.gm_renderer, texture.get(), &src_rect, &dst_rect, angle, NULL, flip_mode);
 }
 
 void GMTexture::gm_set_scale(std::float32_t sx, std::float32_t sy) {
