@@ -14,22 +14,27 @@
 #include <string>
 #include <stdfloat>
 #include <cstdint>
+#include <memory>
 #include <flat_map>
 
 // Local includes:
 #include "gm_texture.hpp"
 #include "gm_context.hpp"
+#include "gm_math.hpp"
 
 namespace gm2d {
 class GMBitmapFont {
     public:
-        GMBitmapFont(std::string, GMTexture, std::flat_map<char, uint16_t>);
+        GMBitmapFont(std::string, std::shared_ptr<GMTexture>, std::flat_map<char, uint16_t>);
 
         void gm_draw(GMContext &, const std::float32_t, const std::float32_t, const char);
+        void gm_draw(GMContext &, const GMVec2D, const char);
+        [[nodiscard]] uint16_t gm_char_width();
+        [[nodiscard]] uint16_t gm_char_height();
 
     private:
         const std::string name;
-        GMTexture texture;
+        std::shared_ptr<GMTexture> texture;
         const std::flat_map<char, uint16_t> mapping;
 };
 }

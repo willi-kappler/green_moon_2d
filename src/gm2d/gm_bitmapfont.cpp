@@ -11,7 +11,7 @@
 #include "gm_bitmapfont.hpp"
 
 namespace gm2d {
-GMBitmapFont::GMBitmapFont(std::string font_name, GMTexture font_texture, std::flat_map<char, uint16_t> font_mapping):
+GMBitmapFont::GMBitmapFont(std::string font_name, std::shared_ptr<GMTexture> font_texture, std::flat_map<char, uint16_t> font_mapping):
     name(font_name),
     texture(font_texture),
     mapping(font_mapping)
@@ -19,7 +19,19 @@ GMBitmapFont::GMBitmapFont(std::string font_name, GMTexture font_texture, std::f
 
 void GMBitmapFont::gm_draw(GMContext &context, const std::float32_t x, const std::float32_t y, const char c) {
     if (auto it = mapping.find(c); it != mapping.end()) {
-        texture.gm_draw(context, x, y, it->second);
+        texture->gm_draw(context, x, y, it->second);
     }
+}
+
+void GMBitmapFont::gm_draw(GMContext &context, const GMVec2D pos, const char c) {
+    gm_draw(context, pos.x, pos.y, c);
+}
+
+[[nodiscard]] uint16_t GMBitmapFont::gm_char_width() {
+    return texture->gm_unit_width;
+}
+
+[[nodiscard]] uint16_t GMBitmapFont::gm_char_height() {
+    return texture->gm_unit_height;
 }
 }
