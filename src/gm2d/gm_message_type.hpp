@@ -53,6 +53,16 @@ enum struct GMObjectMessageType: uint16_t {
     GetPositionResult,
     AddPosition,
 
+    // BitmapText:
+    SetText,
+    GetText,
+    GetTextResult,
+    SetFont,
+    SetHorizontal,
+    SetSineEffect,
+    SetShakeEffect,
+    SetRotationEffect,
+
     // Special messages:
     MessageToChild,
     MultiMessage,
