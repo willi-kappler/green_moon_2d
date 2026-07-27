@@ -30,14 +30,6 @@ GMConfiguration::GMConfiguration():
 [[nodiscard]] GMConfiguration gm_config_from_json(const tao::json::value json_config) {
     GMConfiguration gm_config;
 
-    if (auto v = json_config.find("config_file"); v != nullptr) {
-        gm_config.config_file = v->as<std::string>();
-
-        if (gm_config.config_file.size() == 0) {
-            throw GMConfigurationException("config_file is empty!");
-        }
-    }
-
     if (auto v = json_config.find("fps"); v != nullptr) {
         gm_config.fps = v->as<uint8_t>();
 
@@ -103,7 +95,9 @@ GMConfiguration::GMConfiguration():
 }
 
 [[nodiscard]] GMConfiguration gm_config_from_file(std::filesystem::path file_path) {
-    return gm_config_from_string(gm_file_to_string(file_path));
+    GMConfiguration config = gm_config_from_string(gm_file_to_string(file_path));
+    config.config_file = file_path.generic_string();
+    return config;
 }
 
 void gm_save_config(GMConfiguration gm_config) {
@@ -115,7 +109,6 @@ void gm_save_config(GMConfiguration gm_config, std::filesystem::path file_path) 
     // std::cout << file_path << std::endl;
 
     const tao::json::value json_data = {
-        {"config_file", gm_config.config_file},
         {"fps", gm_config.fps},
         {"fullscreen", gm_config.fullscreen},
         {"resource_file", gm_config.resource_file},
