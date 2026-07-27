@@ -22,7 +22,7 @@ class GMTimer {
         GMTimer(uint32_t);
 
         // Methods:
-        bool gm_finished();
+        [[nodiscard]] bool gm_finished();
         void gm_set_duration(uint32_t);
         void gm_set_duration_restart(uint32_t);
         void gm_restart();
