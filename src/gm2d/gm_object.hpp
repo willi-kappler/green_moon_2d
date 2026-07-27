@@ -45,8 +45,8 @@ class GMObject {
         virtual void gm_handle_message(const GMObjectMessage &, GMContext &);
 
         // Engine:
-        void virtual gm_update(GMContext &) = 0;
-        void virtual gm_draw(GMContext &) = 0;
+        virtual void gm_update(GMContext &) = 0;
+        virtual void gm_draw(GMContext &) = 0;
 
         // Group:
         void gm_add_group(const GMStringId);
@@ -61,6 +61,7 @@ class GMObject {
         int16_t obj_update_order;
         int16_t obj_draw_order;
         GMVec2D obj_position;
+        GMVec2D obj_pos_delta;
 
     private:
         std::vector<GMStringId> obj_groups;

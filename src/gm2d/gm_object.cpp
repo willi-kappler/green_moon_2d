@@ -23,6 +23,7 @@ GMObject::GMObject(GMStringId name_id):
     obj_update_order(0),
     obj_draw_order(0),
     obj_position(),
+    obj_pos_delta(),
     obj_groups()
 {}
 
@@ -176,6 +177,9 @@ void GMObject::gm_clear_groups() {
 
     return false;
 }
+
+
+// Object manager:
 
 GMObjectManager::GMObjectManager():
     objects()
