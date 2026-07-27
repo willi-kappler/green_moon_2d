@@ -17,6 +17,9 @@ GMScene::GMScene(GMStringId scene_id):
     on_stack(false)
 {}
 
+
+// Scene manager:
+
 GMSceneManager::GMSceneManager():
     scenes(),
     current_scene(),
