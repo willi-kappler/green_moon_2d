@@ -21,36 +21,55 @@
 #include "gm_string_id.hpp"
 
 namespace gm2d {
+// SDL:
+class GMSDLInitFailed: public std::runtime_error {
+public:
+  GMSDLInitFailed(std::string_view reason):
+    std::runtime_error(std::format("SDL init failed: {}", reason)) {}
+};
+
+class GMSDLWindowFailed: public std::runtime_error {
+public:
+  GMSDLWindowFailed(std::string_view reason):
+    std::runtime_error(std::format("SDL window failed: {}", reason)) {}
+};
+
+class GMSDLRendererFailed: public std::runtime_error {
+public:
+  GMSDLRendererFailed(std::string_view reason):
+    std::runtime_error(std::format("SDL window failed: {}", reason)) {}
+};
+
 // General:
 class GMItemNotFound: public std::runtime_error {
 public:
   GMItemNotFound(std::string_view where, GMStringId item_name):
-    std::runtime_error(std::format("Item not found ({}): {}", where, item_name)) { }
+    std::runtime_error(std::format("Item not found ({}): {}", where, item_name)) {}
 };
 
 class GMItemNameDuplicate: public std::runtime_error {
 public:
   GMItemNameDuplicate(std::string_view where, GMStringId item_name):
-    std::runtime_error(std::format("Item already exists ({}): {}", where, item_name)) { }
+    std::runtime_error(std::format("Item already exists ({}): {}", where, item_name)) {}
 };
 
 class GMMethodNotImplemented: public std::runtime_error {
 public:
   GMMethodNotImplemented(std::string_view where, GMStringId obj_name):
-    std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name)) { }
+    std::runtime_error(std::format("Method not implemented ({}): {}", where, obj_name)) {}
 };
 
 // Messages:
 class GMUnknownMessageType: public std::runtime_error {
 public:
   GMUnknownMessageType(GMObjectMessageType msg_type, GMStringId obj_name):
-    std::runtime_error(std::format("Unknown object message type: {}, object id: {}", msg_type, obj_name.value)) { }
+    std::runtime_error(std::format("Unknown object message type: {}, object id: {}", msg_type, obj_name.value)) {}
   GMUnknownMessageType(GMObjMgrMessageType msg_type):
-    std::runtime_error(std::format("Unknown object manager message type: {}", msg_type)) { }
+    std::runtime_error(std::format("Unknown object manager message type: {}", msg_type)) {}
   GMUnknownMessageType(GMSceneMessageType msg_type, GMStringId scene_name):
-    std::runtime_error(std::format("Unknown scene message type: {}, scene id: {}", msg_type, scene_name.value)) { }
+    std::runtime_error(std::format("Unknown scene message type: {}, scene id: {}", msg_type, scene_name.value)) {}
   GMUnknownMessageType(GMSceneMgrMessageType msg_type):
-    std::runtime_error(std::format("Unknown scene manager message type: {}", msg_type)) { }
+    std::runtime_error(std::format("Unknown scene manager message type: {}", msg_type)) {}
 };
 
 // Objects:
@@ -61,7 +80,7 @@ public:
 class GMConfigurationException: public std::runtime_error {
 public:
   GMConfigurationException(std::string_view msg):
-    std::runtime_error(std::format("Configuration exception: {}", msg)) { }
+    std::runtime_error(std::format("Configuration exception: {}", msg)) {}
 };
 
 
