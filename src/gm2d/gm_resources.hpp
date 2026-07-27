@@ -11,7 +11,7 @@
 #define FILE_GM_RESOURCES_HPP_INCLUDED
 
 // Local includes:
-#include "gm_font.hpp"
+#include "gm_bitmapfont.hpp"
 #include "gm_texture.hpp"
 
 namespace gm2d {
