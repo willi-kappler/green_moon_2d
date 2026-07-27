@@ -34,9 +34,9 @@ class GMAnimation {
 
         // Methods
         void gm_update();
-        bool gm_finished();
+        [[nodiscard]] bool gm_finished();
         void gm_change_repetition(GMRepetition);
-        uint16_t gm_get_frame_index();
+        [[nodiscard]] uint16_t gm_get_frame_index();
         void gm_set_timer_duration();
         void gm_set_active(bool);
 
