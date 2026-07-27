@@ -10,8 +10,36 @@
 #ifndef FILE_GM_GM2D_HPP_INCLUDED
 #define FILE_GM_GM2D_HPP_INCLUDED
 
-namespace gm2d {
+// STD include:
+#include <string_view>
+#include <filesystem>
+#include <memory>
 
+// External include:
+#include <SDL3/SDL.h>
+
+// Local include:
+#include "gm_configuration.hpp"
+#include "gm_string_id.hpp"
+#include "gm_scene.hpp"
+#include "gm_context.hpp"
+
+namespace gm2d {
+class GM2D {
+    public:
+        GM2D();
+        GM2D(std::filesystem::path);
+        GM2D(GMConfiguration);
+
+        void gm_add_scene(std::shared_ptr<GMScene>);
+        void gm_set_start_scene(GMStringId);
+        void gm_run();
+
+    private:
+        GMConfiguration configuration;
+        GMSceneManager scn_manager;
+        GMContext context;
+};
 }
 
 
