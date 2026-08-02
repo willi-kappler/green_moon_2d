@@ -1,0 +1,104 @@
+// Set application info:
+SDL_SetAppMetadata();
+
+// Allow to ypply color tint:
+SDL_SetTextureColorModFloat()
+
+// Use xmake with git to integrate SDL_mixer:
+https://github.com/libsdl-org/SDL_mixer
+
+
+
+
+
+// Delta frame time:
+Uint64 last_ticks = SDL_GetTicks();
+bool running = true;
+
+while (running) {
+    Uint64 current_ticks = SDL_GetTicks();
+    Uint64 delta_ticks = current_ticks - last_ticks;
+    last_ticks = current_ticks;
+
+    // delta_ticks now contains the milliseconds since the last frame
+    float delta_time_sec = (float)delta_ticks / 1000.0f;
+
+    // Handle events, update game logic, and render...
+}
+
+
+
+
+
+
+
+// Framerate independent movement:
+#include <SDL3/SDL.h>
+#include <stdbool.h>
+
+int main(int argc, char* argv[]) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
+        return -1;
+    }
+
+    SDL_Window* window = SDL_CreateWindow("Framerate Independent Movement", 800, 600, 0);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+
+    // Object variables (using float for smooth, precise sub-pixel movement)
+    float player_x = 100.0f;
+    float player_y = 250.0f;
+    float speed_per_second = 300.0f; // Move 300 pixels per second
+
+    // High-resolution timing variables (using Nanoseconds for maximum precision)
+    Uint64 last_ticks = SDL_GetTicksNS();
+    bool running = true;
+    SDL_Event event;
+
+    while (running) {
+        // 1. Handle Events
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;
+            }
+        }
+
+        // 2. Calculate Delta Time (in seconds)
+        Uint64 current_ticks = SDL_GetTicksNS();
+        Uint64 delta_ns = current_ticks - last_ticks;
+        last_ticks = current_ticks;
+
+        // Convert nanoseconds to float seconds (1,000,000,000 ns = 1 s)
+        float delta_time = (float)delta_ns / 1000000000.0f;
+
+        // 3. Update Logic (Framerate Independent)
+        // If delta_time is small (high FPS), player moves a tiny bit.
+        // If delta_time is large (low FPS), player moves a larger chunk.
+        player_x += speed_per_second * delta_time;
+
+        // Screen wrap if player goes off screen
+        if (player_x > 800.0f) {
+            player_x = -50.0f;
+        }
+
+        // 4. Render
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear to Black
+        SDL_RenderClear(renderer);
+
+        SDL_FRect player_rect = { player_x, player_y, 50.0f, 50.0f };
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Draw Red Square
+        SDL_RenderFillRect(renderer, &player_rect);
+
+        SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
+}
+
+
+
+
