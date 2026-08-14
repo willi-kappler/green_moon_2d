@@ -74,10 +74,16 @@ enum struct GMObjectMessageType: uint16_t {
 
 enum struct GMObjMgrMessageType: uint8_t {
     // Object manager messages:
-    AddObject = 0,
+    AddLayer = 0,
+    RemoveLayer,
+    ClearLayer,
+    ClearAllLayers,
+    AddObject,
     RemoveObject,
     ReplaceObject,
-    ClearObjects
+    ClearAllObjects,
+    MoveToLayer1,
+    MoveToLayer2
 };
 
 enum struct GMSceneMessageType: uint8_t {
@@ -264,6 +270,22 @@ struct std::formatter<gm2d::GMObjMgrMessageType> : std::formatter<std::string_vi
         std::string_view name;
 
         switch (m) {
+            case gm2d::GMObjMgrMessageType::AddLayer:
+                name = "AddLayer";
+            break;
+
+            case gm2d::GMObjMgrMessageType::RemoveLayer:
+                name = "RemoveLayer";
+            break;
+
+            case gm2d::GMObjMgrMessageType::ClearLayer:
+                name = "ClearLayer";
+            break;
+
+            case gm2d::GMObjMgrMessageType::ClearAllLayers:
+                name = "ClearAllLayers";
+            break;
+
             case gm2d::GMObjMgrMessageType::AddObject:
                 name = "AddObject";
             break;
@@ -276,8 +298,16 @@ struct std::formatter<gm2d::GMObjMgrMessageType> : std::formatter<std::string_vi
                 name = "ReplaceObject";
             break;
 
-            case gm2d::GMObjMgrMessageType::ClearObjects:
-                name = "ClearObjects";
+            case gm2d::GMObjMgrMessageType::ClearAllObjects:
+                name = "ClearAllObjects";
+            break;
+
+            case gm2d::GMObjMgrMessageType::MoveToLayer1:
+                name = "MoveToLayer1";
+            break;
+
+            case gm2d::GMObjMgrMessageType::MoveToLayer2:
+                name = "MoveToLayer2";
             break;
 
             default:

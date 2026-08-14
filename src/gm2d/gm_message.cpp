@@ -14,6 +14,16 @@ namespace gm2d {
 GMObjectMessage::GMObjectMessage(GMStringId sender, GMStringId receiver, GMObjectMessageType type):
     msg_sender(sender),
     msg_receiver(receiver),
+    msg_layer(std::nullopt),
+    msg_type(type),
+    msg_sender_type(GMMessageSenderType::Object),
+    msg_data()
+{}
+
+GMObjectMessage::GMObjectMessage(GMStringId sender, GMStringId receiver, uint8_t layer, GMObjectMessageType type):
+    msg_sender(sender),
+    msg_receiver(receiver),
+    msg_layer(layer),
     msg_type(type),
     msg_sender_type(GMMessageSenderType::Object),
     msg_data()

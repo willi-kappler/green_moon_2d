@@ -69,21 +69,29 @@ class GMObject {
 
 class GMObjectManager {
     public:
-        GMObjectManager();
+        GMObjectManager(uint8_t);
 
+        void gm_add_layer();
+        void gm_remove_layer(uint8_t);
+        void gm_clear_layer(uint8_t);
+        void gm_clear_all_layers();
         void gm_update(GMContext &);
         void gm_draw(GMContext &);
-        void gm_add_object(std::shared_ptr<GMObject>);
-        void gm_remove_object(GMStringId);
-        void gm_replace_object(std::shared_ptr<GMObject>);
-        void gm_clear_objects();
+        void gm_add_object(std::shared_ptr<GMObject>, uint8_t);
+        void gm_remove_object(GMStringId, uint8_t);
+        void gm_replace_object(std::shared_ptr<GMObject>, uint8_t);
+        void gm_clear_all_objects();
+        void gm_move_to_layer1(GMStringId, uint8_t);
+        void gm_move_to_layer2(GMStringId, uint8_t, uint8_t);
         void gm_handle_message(GMObjMgrMessage &);
-        void gm_apply(GMStringId, std::function<void(GMObject &)>);
+        void gm_apply(GMStringId, std::function<void(GMObject &)>, uint8_t);
+        void gm_apply_n(std::span<GMStringId>, std::function<void(GMObject &)>, uint8_t);
         void gm_apply_n(std::span<GMStringId>, std::function<void(GMObject &)>);
+        void gm_apply_group(GMStringId, std::function<void(GMObject &)>, uint8_t);
         void gm_apply_group(GMStringId, std::function<void(GMObject &)>);
 
     private:
-        std::vector<std::shared_ptr<GMObject>> objects;
+        std::vector<std::vector<std::shared_ptr<GMObject>>> layers;
 
 };
 }

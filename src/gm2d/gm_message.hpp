@@ -13,6 +13,7 @@
 // STD includes:
 #include <cstdint>
 #include <any>
+#include <optional>
 // #include <string>
 
 // Local includes:
@@ -24,6 +25,7 @@ class GMObjectMessage {
     public:
         // Constructors:
         GMObjectMessage(GMStringId, GMStringId, GMObjectMessageType);
+        GMObjectMessage(GMStringId, GMStringId, uint8_t, GMObjectMessageType);
 
         // Fluent builder pattern:
         [[nodiscard]] GMObjectMessage& with_sender_type(GMMessageSenderType);
@@ -31,6 +33,7 @@ class GMObjectMessage {
 
         const GMStringId msg_sender;
         const GMStringId msg_receiver;
+        const std::optional<uint8_t> msg_layer;
         const GMObjectMessageType msg_type;
         GMMessageSenderType msg_sender_type;
         std::any msg_data;

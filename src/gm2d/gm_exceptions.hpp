@@ -73,6 +73,11 @@ public:
 };
 
 // Objects:
+class GMLayerIndexInvalid: public std::runtime_error {
+public:
+  GMLayerIndexInvalid(std::string_view where, uint8_t index):
+    std::runtime_error(std::format("Layer index invalid ({}): {}", where, index)) {}
+};
 
 // Scenes:
 
