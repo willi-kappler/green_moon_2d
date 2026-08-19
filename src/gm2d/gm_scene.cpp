@@ -27,7 +27,7 @@ GMSceneManager::GMSceneManager():
 {}
 
 void GMSceneManager::gm_update(GMContext &context) {
-    std::vector<GMSceneMgrMessage> scenemgr_messages = std::move(context.scenemgr_messages);
+    std::vector<GMSceneMgrMessage> scenemgr_messages = context.gm_get_scenemgr_messages();
 
     for (auto &message: scenemgr_messages) {
         gm_handle_message(message, context);
@@ -35,7 +35,7 @@ void GMSceneManager::gm_update(GMContext &context) {
 
     scenemgr_messages.clear();
 
-    std::vector<GMSceneMessage> scene_messages = std::move(context.scene_messages);
+    std::vector<GMSceneMessage> scene_messages = context.gm_get_scene_messages();
     bool scene_found;
 
     for (auto &message: scene_messages) {

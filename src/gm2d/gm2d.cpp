@@ -22,27 +22,37 @@ GM2D::GM2D(std::filesystem::path config_file):
 
 GM2D::GM2D(GMConfiguration config):
     configuration(config),
-    context(NULL, NULL)
+    scn_manager(),
+    context()
 {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDL_Init Error: %s", SDL_GetError());
+        SDL_Quit();
         throw GMSDLInitFailed(SDL_GetError());
     }
 
-    context.gm_window = SDL_CreateWindow(config.window_title.c_str(), config.screen_width, config.screen_height, 0);
-    if (context.gm_window) {
+    SDL_Window *sdl_window = SDL_CreateWindow(config.window_title.c_str(), config.screen_width, config.screen_height, 0);
+    if (!sdl_window) {
         SDL_Log("Window creation failed: %s", SDL_GetError());
         SDL_Quit();
         throw GMSDLWindowFailed(SDL_GetError());
     }
 
-    context.gm_renderer = SDL_CreateRenderer(context.gm_window, NULL);
-    if (!context.gm_renderer) {
+    context.gm_set_window(sdl_window);
+
+    SDL_Renderer *sdl_renderer = SDL_CreateRenderer(context.gm_get_window(), NULL);
+    if (!sdl_renderer) {
         SDL_Log("Renderer creation failed: %s", SDL_GetError());
-        SDL_DestroyWindow(context.gm_window);
+        context.gm_destroy_window();
         SDL_Quit();
         throw GMSDLRendererFailed(SDL_GetError());
     }
+
+    context.gm_set_renderer(sdl_renderer);
+}
+
+GM2D::~GM2D() {
+    gm_clean_up();
 }
 
 void GM2D::gm_add_scene(std::shared_ptr<GMScene> new_scene) {
@@ -56,10 +66,10 @@ void GM2D::gm_set_start_scene(GMStringId start_id) {
 void GM2D::gm_run() {
     SDL_Event event;
 
-    while (!context.gm_quit) {
+    while (!context.gm_game_running()) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
-                context.gm_quit = true;
+                context.gm_quit_game();
             }
         }
 
@@ -67,12 +77,15 @@ void GM2D::gm_run() {
         scn_manager.gm_draw(context);
     }
 
-
-    SDL_Log("Game quit");
-    SDL_DestroyRenderer(context.gm_renderer);
-    SDL_DestroyWindow(context.gm_window);
-    SDL_Quit();
+    gm_clean_up();
 }
 
+void GM2D::gm_clean_up() {
+    SDL_Log("Game quit");
 
+    context.gm_destroy_renderer();
+    context.gm_destroy_window();
+
+    SDL_Quit();
+}
 }

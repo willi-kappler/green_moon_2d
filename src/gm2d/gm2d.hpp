@@ -30,6 +30,7 @@ class GM2D {
         GM2D();
         GM2D(std::filesystem::path);
         GM2D(GMConfiguration);
+        ~GM2D();
 
         void gm_add_scene(std::shared_ptr<GMScene>);
         void gm_set_start_scene(GMStringId);
@@ -39,7 +40,9 @@ class GM2D {
         GMConfiguration configuration;
         GMSceneManager scn_manager;
         GMContext context;
-};
+
+        void gm_clean_up();
+    };
 }
 
 

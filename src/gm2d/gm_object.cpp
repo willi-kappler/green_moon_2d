@@ -216,7 +216,7 @@ void GMObjectManager::gm_clear_all_layers() {
 
 void GMObjectManager::gm_update(GMContext &context) {
     // Need to move to local variable, since gm_handle_message could add more messages to context.
-    std::vector<GMObjMgrMessage> objmgr_messages = std::move(context.objmgr_messages);
+    std::vector<GMObjMgrMessage> objmgr_messages = context.gm_get_objmgr_messages();
 
     for (auto &message: objmgr_messages) {
         gm_handle_message(message);
@@ -224,7 +224,7 @@ void GMObjectManager::gm_update(GMContext &context) {
 
     objmgr_messages.clear();
 
-    std::vector<GMObjectMessage> object_messages = std::move(context.object_messages);
+    std::vector<GMObjectMessage> object_messages = context.gm_get_object_messages();
     bool object_found;
     uint8_t layer_index;
 
@@ -268,7 +268,7 @@ void GMObjectManager::gm_update(GMContext &context) {
 
     object_messages.clear();
 
-    std::vector<GMObjectMessage> group_messages = std::move(context.group_messages);
+    std::vector<GMObjectMessage> group_messages = context.gm_get_group_messages();
 
     for (auto &message: group_messages) {
         for (auto &layer: layers) {
@@ -497,6 +497,8 @@ void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void
     if (layer_index < layers.size()) {
         bool object_found;
 
+        // First iterate through all names, then all objects.
+        // If a name was not found -> throw an exception.
         for (auto name_id: items) {
             object_found = false;
 
@@ -520,6 +522,8 @@ void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void
 void GMObjectManager::gm_apply_n(std::span<GMStringId> items, std::function<void(GMObject &)> fun) {
     bool object_found;
 
+    // First iterate through all names, then all objects.
+    // If a name was not found -> throw an exception.
     for (auto name_id: items) {
         object_found = false;
 
