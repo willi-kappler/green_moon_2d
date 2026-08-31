@@ -2,7 +2,14 @@
 
 Green Moon 2D - a collection of useful data structures and functions for game development.
 
-TODO:
-- GMCollisionManager
-- GMGameManager
-- GMMessageManager
+## BUILD:
+
+To build the library just use the corresponding shell_*.nix environment.
+For example:
+
+```bash
+nix-shell shell_gcc.nix
+xmake -a -r
+```
+
+This will download and install all dependencies automatically.

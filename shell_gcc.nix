@@ -5,21 +5,27 @@ pkgs.mkShell {
     gnumake
     cmake
     pkg-config
+    vcpkg
     xmake
+    ninja
   ];
 
   buildInputs = with pkgs; [
     libGL
     libGL.dev
-    xorg.libX11
-    xorg.libXrandr
-    xorg.libXinerama
-    xorg.libXcursor
-    xorg.libXi
+    libX11
+    libXrandr
+    libXinerama
+    libXcursor
+    libXi
+    sdl3
+    sdl3-image
+    sdl3-mixer
+    spdlog
   ];
 
   shellHook = ''
-    echo "Development environment loaded for xmake + raylib!"
+    echo "Development environment loaded for c++ and SDL3!"
   '';
 }
 
