@@ -2,6 +2,7 @@
 url = https://github.com/taocpp/json.git
 revision = main
 depth = 1
+clone-recursive = true
 
 [provide]
 taocpp-json = tao_json_dep
