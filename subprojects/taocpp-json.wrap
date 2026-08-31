@@ -2,7 +2,6 @@
 url = https://github.com/taocpp/json.git
 revision = main
 depth = 1
-patch_directory = taocpp-json
 
 [provide]
 taocpp-json = tao_json_dep
