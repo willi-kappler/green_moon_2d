@@ -2,8 +2,30 @@ project(
   'green_moon_2d',
   'cpp',
   version: '0.0.1',
-  default_options: ['cpp_std=c++23', 'warning_level=3']
+  default_options: ['cpp_std=c++23', 'warning_level=3', 'buildtype=release']
 )
+
+
+
+# Define custom warning or optimization flags
+# TODO: copy from xmake.lua
+extra_flags = [
+  '-Wshadow',
+  '-Wnon-virtual-dtor',
+  '-Wold-style-cast',
+  '-Wcast-align',
+  '-Wunused',
+  '-Wconversion',
+  '-Wsign-conversion'
+]
+
+# Safely check which flags are supported by the active compiler
+# supported_flags = cpp_compiler.get_supported_arguments(extra_flags)
+
+# Pass them globally to all targets...
+# add_project_arguments(supported_flags, language: 'cpp')
+
+
 
 # Import the CMake module
 cmake = import('cmake')
@@ -53,6 +75,8 @@ lib = shared_library(
     sdl3_dep,
     sdl3_image_dep
   ],
+  override_options: ['werror=true'],
+  #cpp_args: supported_flags,
   install: true
 )
 
@@ -74,7 +98,8 @@ test_exe = executable(
   dependencies: [
     green_moon_2d_dep,
     snitch_dep
-  ]
+  ],
+  override_options: ['werror=true']
 )
 
 test('unit tests', test_exe)
