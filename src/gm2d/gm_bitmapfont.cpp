@@ -17,7 +17,7 @@ GMBitmapFont::GMBitmapFont(std::string font_name, std::shared_ptr<GMTexture> fon
     mapping(font_mapping)
 {}
 
-void GMBitmapFont::gm_draw(GMContext &context, const std::float32_t x, const std::float32_t y, const char c) {
+void GMBitmapFont::gm_draw(GMContext &context, const float x, const float y, const char c) {
     if (auto it = mapping.find(c); it != mapping.end()) {
         texture->gm_draw(context, x, y, it->second);
     }

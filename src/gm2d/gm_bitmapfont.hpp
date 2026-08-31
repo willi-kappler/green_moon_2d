@@ -12,7 +12,6 @@
 
 // STD includes:
 #include <string>
-#include <stdfloat>
 #include <cstdint>
 #include <memory>
 #include <flat_map>
@@ -27,7 +26,7 @@ class GMBitmapFont {
     public:
         GMBitmapFont(std::string, std::shared_ptr<GMTexture>, std::flat_map<char, uint16_t>);
 
-        void gm_draw(GMContext &, const std::float32_t, const std::float32_t, const char);
+        void gm_draw(GMContext &, const float, const float, const char);
         void gm_draw(GMContext &, const GMVec2D, const char);
         [[nodiscard]] uint16_t gm_char_width();
         [[nodiscard]] uint16_t gm_char_height();

@@ -72,10 +72,10 @@ void GMBitmapText::gm_update([[maybe_unused]] GMContext &context) {
 }
 
 void GMBitmapText::gm_draw(GMContext &context) {
-    std::float32_t current_x = obj_position.x + obj_pos_delta.x;
-    std::float32_t current_y = obj_position.y + obj_pos_delta.y;
-    std::float32_t char_width = static_cast<std::float32_t>(bm_font->gm_char_width());
-    std::float32_t char_height = static_cast<std::float32_t>(bm_font->gm_char_height());
+    float current_x = obj_position.x + obj_pos_delta.x;
+    float current_y = obj_position.y + obj_pos_delta.y;
+    float char_width = static_cast<float>(bm_font->gm_char_width());
+    float char_height = static_cast<float>(bm_font->gm_char_height());
 
     if (obj_visible) {
         if (bm_horizontal) {
@@ -89,8 +89,8 @@ void GMBitmapText::gm_draw(GMContext &context) {
         }
     }
 
-    obj_pos_delta.x = 0.0f32;
-    obj_pos_delta.y = 0.0f32;
+    obj_pos_delta.x = 0.0f;
+    obj_pos_delta.y = 0.0f;
 }
 
 void GMBitmapText::gm_set_horizontal(bool horizontal) {

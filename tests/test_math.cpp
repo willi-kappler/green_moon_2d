@@ -142,7 +142,7 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
     REQUIRE(l1.gm_len1() == 50.0);
     REQUIRE(l1.gm_len2() == 2500.0);
 
-    REQUIRE(l2.gm_len1() == 70.71068f32);
+    REQUIRE(l2.gm_len1() == 70.71068f);
 
     REQUIRE(gm_approx(l3.v1, -5.5, 1.2));
     REQUIRE(gm_approx(l3.v2, 7.8, 9.9));
@@ -181,24 +181,24 @@ TEST_CASE("Create and use GMRectangle", "[math]" ) {
     GMRectangle r3{GMVec2D(12.0, 15.0), GMVec2D(22.0, 35.0)};
 
     REQUIRE(gm_approx(r1.v, 10.0, 10.0));
-    REQUIRE((r1.w == 40.0) && (r1.h == 30.0));
+    REQUIRE((r1.w == 40.0f) && (r1.h == 30.0f));
 
     REQUIRE(gm_approx(r2.v, 12.0, 15.0));
-    REQUIRE((r2.w == 30.0) && (r2.h == 50.0));
+    REQUIRE((r2.w == 30.0f) && (r2.h == 50.0f));
 
     REQUIRE(gm_approx(r3.v, 12.0, 15.0));
-    REQUIRE((r3.w == 10.0) && (r3.h == 20.0));
+    REQUIRE((r3.w == 10.0f) && (r3.h == 20.0f));
 
     REQUIRE(r1.gm_diagonal1() == 50.0);
     REQUIRE(r1.gm_diagonal2() == 2500.0);
 
     GMVec2D op = r1.gm_opposite();
-    REQUIRE((op.x == 50.0) && (op.y == 40.0));
+    REQUIRE((op.x == 50.0f) && (op.y == 40.0f));
 
     r1.gm_scale(2.0);
     REQUIRE(r1.gm_diagonal1() == 100.0);
     REQUIRE(gm_approx(r1.v, 10.0, 10.0));
-    REQUIRE((r1.w == 80.0) && (r1.h == 60.0));
+    REQUIRE((r1.w == 80.0f) && (r1.h == 60.0f));
 
     r1 = {10.0, 10.0, 90.0, 70.0};
     r3 = {10.0, 10.0, 90.0, 70.0};
@@ -211,9 +211,9 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(gm_approx(2.5, 2.500000001));
     REQUIRE(!gm_approx(2.5, 2.51));
 
-    REQUIRE(gm_approx(3.9f32, 3.9f32));
-    REQUIRE(gm_approx(3.9f32, 3.900000000001f32));
-    REQUIRE(!gm_approx(3.9f32, 3.8f32));
+    REQUIRE(gm_approx(3.9f, 3.9f));
+    REQUIRE(gm_approx(3.9f, 3.900000000001f));
+    REQUIRE(!gm_approx(3.9f, 3.8f));
 
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.2)));
     REQUIRE(gm_approx(GMVec2D(1.5, 3.2), GMVec2D(1.5, 3.20000001)));
@@ -245,7 +245,7 @@ TEST_CASE("Test helper functions", "[math]" ) {
     REQUIRE(gm_orientation(v1, v2, v3) == 1);
 
     REQUIRE(gm_between(0.5, 0.4, 0.6));
-    REQUIRE(gm_between(1.1f32, 1.0f32, 1.2f32));
+    REQUIRE(gm_between(1.1f, 1.0f, 1.2f));
     REQUIRE(!gm_between(0.2, 0.4, 0.6));
     REQUIRE(!gm_between(0.8, 0.4, 0.6));
 

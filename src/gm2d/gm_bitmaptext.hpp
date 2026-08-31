@@ -12,7 +12,6 @@
 
 // STD includes:
 #include <string>
-#include <stdfloat>
 #include <memory>
 #include <cstdint>
 

@@ -12,7 +12,6 @@
 
 // STD includes:
 #include <cstdint>
-#include <stdfloat>
 #include <memory>
 #include <string>
 
@@ -28,11 +27,11 @@ class GMTexture {
     public:
         GMTexture(std::string, std::shared_ptr<SDL_Texture>, uint16_t, uint16_t);
 
-        void gm_draw(GMContext &, const std::float32_t, const std::float32_t, const uint16_t);
+        void gm_draw(GMContext &, const float, const float, const uint16_t);
         void gm_draw(GMContext &, const GMVec2D, const uint16_t);
-        void gm_draw_opt(GMContext &, const std::float32_t, const std::float32_t, const uint16_t, const std::float32_t);
-        void gm_draw_opt(GMContext &, const GMVec2D, const uint16_t, const std::float32_t);
-        void gm_set_scale(std::float32_t, std::float32_t);
+        void gm_draw_opt(GMContext &, const float, const float, const uint16_t, const float);
+        void gm_draw_opt(GMContext &, const GMVec2D, const uint16_t, const float);
+        void gm_set_scale(float, float);
         void gm_flip_x(bool);
         void gm_flip_y(bool);
         void gm_flip_xy(bool, bool);
@@ -43,7 +42,7 @@ class GMTexture {
 
     private:
         void gm_set_src_rect(uint16_t);
-        void gm_set_dst_rect(std::float32_t, std::float32_t);
+        void gm_set_dst_rect(float, float);
 
         const std::string name;
         const std::shared_ptr<SDL_Texture> texture;

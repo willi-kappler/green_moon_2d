@@ -12,7 +12,6 @@
 
 // STD includes:
 #include <vector>
-#include <stdfloat>
 #include <unordered_map>
 #include <string>
 #include <any>
@@ -75,7 +74,7 @@ class GMContext {
         std::vector<GMEngineMessage> engine_messages;
 
         bool gm_quit;
-        std::float32_t gm_dt;
+        float gm_dt;
         SDL_Window *gm_window;
         bool gm_is_fullscreen;
         SDL_Renderer *gm_renderer;

@@ -20,28 +20,28 @@ namespace gm2d {
 
 // GMVec2D:
 GMVec2D::GMVec2D():
-    x(0.0f32),
-    y(0.0f32)
+    x(0.0f),
+    y(0.0f)
 {}
 
-GMVec2D::GMVec2D(std::float32_t a):
+GMVec2D::GMVec2D(float a):
     x(a),
     y(a)
 {}
 
-GMVec2D::GMVec2D(std::float64_t a):
-    x(static_cast<std::float32_t>(a)),
-    y(static_cast<std::float32_t>(a))
+GMVec2D::GMVec2D(double a):
+    x(static_cast<float>(a)),
+    y(static_cast<float>(a))
 {}
 
-GMVec2D::GMVec2D(std::float32_t a, std::float32_t b):
+GMVec2D::GMVec2D(float a, float b):
     x(a),
     y(b)
 {}
 
-GMVec2D::GMVec2D(std::float64_t a, std::float64_t b):
-    x(static_cast<std::float32_t>(a)),
-    y(static_cast<std::float32_t>(b))
+GMVec2D::GMVec2D(double a, double b):
+    x(static_cast<float>(a)),
+    y(static_cast<float>(b))
 {}
 
 GMVec2D::GMVec2D(const GMVec2D &other):
@@ -49,24 +49,24 @@ GMVec2D::GMVec2D(const GMVec2D &other):
     y(other.y)
 {}
 
-GMVec2D::GMVec2D(const std::pair<std::float32_t, std::float32_t> &p):
+GMVec2D::GMVec2D(const std::pair<float, float> &p):
     x(p.first),
     y(p.second)
 {}
 
-GMVec2D::GMVec2D(const std::pair<std::float64_t, std::float64_t> &p):
-    x(static_cast<std::float32_t>(p.first)),
-    y(static_cast<std::float32_t>(p.second))
+GMVec2D::GMVec2D(const std::pair<double, double> &p):
+    x(static_cast<float>(p.first)),
+    y(static_cast<float>(p.second))
 {}
 
-GMVec2D::GMVec2D(const std::array<std::float32_t, 2> &a):
+GMVec2D::GMVec2D(const std::array<float, 2> &a):
     x(a[0]),
     y(a[1])
 {}
 
-GMVec2D::GMVec2D(const std::array<std::float64_t, 2> &a):
-    x(static_cast<std::float32_t>(a[0])),
-    y(static_cast<std::float32_t>(a[1]))
+GMVec2D::GMVec2D(const std::array<double, 2> &a):
+    x(static_cast<float>(a[0])),
+    y(static_cast<float>(a[1]))
 {}
 
 void GMVec2D::gm_add(const GMVec2D other) {
@@ -74,33 +74,33 @@ void GMVec2D::gm_add(const GMVec2D other) {
     y += other.y;
 }
 
-void GMVec2D::gm_mul(std::float32_t a) {
+void GMVec2D::gm_mul(float a) {
     x *= a;
     y *= a;
 }
 
-void GMVec2D::gm_mul(std::float64_t a) {
-    std::float32_t b = static_cast<std::float32_t>(a);
+void GMVec2D::gm_mul(double a) {
+    float b = static_cast<float>(a);
     x *= b;
     y *= b;
 }
 
-void GMVec2D::gm_div(std::float32_t a) {
+void GMVec2D::gm_div(float a) {
     x /= a;
     y /= a;
 }
 
-void GMVec2D::gm_div(std::float64_t a) {
-    std::float32_t b = static_cast<std::float32_t>(a);
+void GMVec2D::gm_div(double a) {
+    float b = static_cast<float>(a);
     x /= b;
     y /= b;
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_len1() const {
-    return static_cast<std::float32_t>(std::hypot(x, y));
+[[nodiscard]] float GMVec2D::gm_len1() const {
+    return static_cast<float>(std::hypot(x, y));
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_len2() const {
+[[nodiscard]] float GMVec2D::gm_len2() const {
     return (x * x) + (y * y);
 }
 
@@ -112,60 +112,60 @@ void GMVec2D::gm_div(std::float64_t a) {
 }
 
 void GMVec2D::gm_norm2() {
-    std::float32_t l = static_cast<std::float32_t>(std::hypot(x, y));
+    float l = static_cast<float>(std::hypot(x, y));
     x = x / l;
     y = y / l;
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_dist1(const GMVec2D &other) const {
-    return static_cast<std::float32_t>(std::hypot(x - other.x, y - other.y));
+[[nodiscard]] float GMVec2D::gm_dist1(const GMVec2D &other) const {
+    return static_cast<float>(std::hypot(x - other.x, y - other.y));
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_dist2(const GMVec2D &other) const {
-    std::float32_t dx = x - other.x;
-    std::float32_t dy = y - other.y;
+[[nodiscard]] float GMVec2D::gm_dist2(const GMVec2D &other) const {
+    float dx = x - other.x;
+    float dy = y - other.y;
     return (dx * dx) + (dy * dy);
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_angle() const {
-    std::float32_t rad = std::atan2(x, y);
-    std::float32_t deg = static_cast<std::float32_t>(90.0 - (rad * 180.0 / M_PI));
+[[nodiscard]] float GMVec2D::gm_angle() const {
+    float rad = std::atan2(x, y);
+    float deg = static_cast<float>(90.0f - (rad * 180.0f / std::numbers::pi_v<float>));
 
-    if (deg < 0.0 - GM_EPSILON) {
-        deg += 360.0f32;
+    if (deg < 0.0f - GM_EPSILON) {
+        deg += 360.0f;
     }
 
     return deg;
 }
 
-[[nodiscard]] std::float32_t GMVec2D::gm_cross(const GMVec2D &v) const {
+[[nodiscard]] float GMVec2D::gm_cross(const GMVec2D &v) const {
     return x * v.y - y * v.x;
 }
 
-[[nodiscard]] GMVec2D GMVec2D::gm_rotate1(std::float32_t a) const {
+[[nodiscard]] GMVec2D GMVec2D::gm_rotate1(float a) const {
     GMVec2D result = GMVec2D(x, y);
     result.gm_rotate2(a);
 
     return result;
 }
 
-[[nodiscard]] GMVec2D GMVec2D::gm_rotate1(std::float64_t a) const {
-    return gm_rotate1(static_cast<std::float32_t>(a));
+[[nodiscard]] GMVec2D GMVec2D::gm_rotate1(double a) const {
+    return gm_rotate1(static_cast<float>(a));
 }
 
-void GMVec2D::gm_rotate2(std::float32_t a) {
-    std::float32_t rad = static_cast<std::float32_t>(std::numbers::pi * a / 180.0);
-    std::float32_t x2, y2;
+void GMVec2D::gm_rotate2(float a) {
+    float rad = static_cast<float>(std::numbers::pi_v<float> * a / 180.0f);
+    float x2, y2;
 
-    x2 = static_cast<std::float32_t>(x * std::cos(rad) - y * std::sin(rad));
-    y2 = static_cast<std::float32_t>(x * std::sin(rad) + y * std::cos(rad));
+    x2 = static_cast<float>(x * std::cos(rad) - y * std::sin(rad));
+    y2 = static_cast<float>(x * std::sin(rad) + y * std::cos(rad));
 
     x = x2;
     y = y2;
 }
 
-void GMVec2D::gm_rotate2(std::float64_t a) {
-    gm_rotate2(static_cast<std::float32_t>(a));
+void GMVec2D::gm_rotate2(double a) {
+    gm_rotate2(static_cast<float>(a));
 }
 
 void GMVec2D::operator=(const GMVec2D other) {
@@ -183,22 +183,22 @@ void GMVec2D::operator-=(const GMVec2D other) {
     y -= other.y;
 }
 
-[[nodiscard]] GMVec2D GMVec2D::operator*(const std::float32_t a) const {
+[[nodiscard]] GMVec2D GMVec2D::operator*(const float a) const {
     return GMVec2D(x * a, y * a);
 }
 
-[[nodiscard]] GMVec2D GMVec2D::operator*(const std::float64_t a) const {
-    std::float32_t b = static_cast<std::float32_t>(a);
+[[nodiscard]] GMVec2D GMVec2D::operator*(const double a) const {
+    float b = static_cast<float>(a);
     return GMVec2D(x * b, y * b);
 }
 
-void GMVec2D::operator*=(const std::float32_t a) {
+void GMVec2D::operator*=(const float a) {
     x *= a;
     y *= a;
 }
 
-void GMVec2D::operator*=(const std::float64_t a) {
-    std::float32_t b = static_cast<std::float32_t>(a);
+void GMVec2D::operator*=(const double a) {
+    float b = static_cast<float>(a);
     x *= b;
     y *= b;
 }
@@ -225,14 +225,14 @@ GMLine::GMLine():
     v2()
 {}
 
-GMLine::GMLine(const std::float32_t x1, const std::float32_t y1, const std::float32_t x2, const std::float32_t y2):
+GMLine::GMLine(const float x1, const float y1, const float x2, const float y2):
     v1(x1, y1),
     v2(x2, y2)
 {}
 
-GMLine::GMLine(const std::float64_t x1, const std::float64_t y1, const std::float64_t x2, const std::float64_t y2):
-    v1(static_cast<std::float32_t>(x1), static_cast<std::float32_t>(y1)),
-    v2(static_cast<std::float32_t>(x2), static_cast<std::float32_t>(y2))
+GMLine::GMLine(const double x1, const double y1, const double x2, const double y2):
+    v1(static_cast<float>(x1), static_cast<float>(y1)),
+    v2(static_cast<float>(x2), static_cast<float>(y2))
 {}
 
 GMLine::GMLine(const GMVec2D &u1, const GMVec2D &u2):
@@ -240,37 +240,37 @@ GMLine::GMLine(const GMVec2D &u1, const GMVec2D &u2):
     v2(u2)
 {}
 
-[[nodiscard]] std::float32_t GMLine::gm_len1() const {
+[[nodiscard]] float GMLine::gm_len1() const {
     return v1.gm_dist1(v2);
 }
 
-[[nodiscard]] std::float32_t GMLine::gm_len2() const {
+[[nodiscard]] float GMLine::gm_len2() const {
     return v1.gm_dist2(v2);
 }
 
-[[nodiscard]] std::float32_t GMLine::gm_angle() const {
+[[nodiscard]] float GMLine::gm_angle() const {
     GMVec2D line_dir = v2 - v1;
     return line_dir.gm_angle();
 }
 
-void GMLine::gm_rotate(std::float32_t angle) {
+void GMLine::gm_rotate(float angle) {
     GMVec2D line_dir = v2 - v1;
     line_dir.gm_rotate2(angle);
     v2 = v1 + line_dir;
 }
 
-void GMLine::gm_rotate(std::float64_t angle) {
-    gm_rotate(static_cast<std::float32_t>(angle));
+void GMLine::gm_rotate(double angle) {
+    gm_rotate(static_cast<float>(angle));
 }
 
-void GMLine::gm_scale(std::float32_t s) {
+void GMLine::gm_scale(float s) {
     GMVec2D line_dir = v2 - v1;
     line_dir *= s;
     v2 = v1 + line_dir;
 }
 
-void GMLine::gm_scale(std::float64_t s) {
-    gm_scale(static_cast<std::float32_t>(s));
+void GMLine::gm_scale(double s) {
+    gm_scale(static_cast<float>(s));
 }
 
 bool GMLine::operator==(const GMLine &l) {
@@ -285,35 +285,35 @@ bool GMLine::operator!=(const GMLine &l) {
 // GMCircle:
 GMCircle::GMCircle():
     ctr(),
-    r(0.0f32)
+    r(0.0f)
 {}
 
-GMCircle::GMCircle(const std::float32_t x, const std::float32_t y, const std::float32_t radius):
+GMCircle::GMCircle(const float x, const float y, const float radius):
     ctr(x, y),
     r(radius)
 {}
 
-GMCircle::GMCircle(const std::float64_t x, const std::float64_t y, const std::float64_t radius):
-    ctr(static_cast<std::float32_t>(x), static_cast<std::float32_t>(y)),
-    r(static_cast<std::float32_t>(radius))
+GMCircle::GMCircle(const double x, const double y, const double radius):
+    ctr(static_cast<float>(x), static_cast<float>(y)),
+    r(static_cast<float>(radius))
 {}
 
-GMCircle::GMCircle(const GMVec2D &v, const std::float32_t radius):
+GMCircle::GMCircle(const GMVec2D &v, const float radius):
     ctr(v),
     r(radius)
 {}
 
-GMCircle::GMCircle(const GMVec2D &v, const std::float64_t radius):
+GMCircle::GMCircle(const GMVec2D &v, const double radius):
     ctr(v),
-    r(static_cast<std::float32_t>(radius))
+    r(static_cast<float>(radius))
 {}
 
-void GMCircle::gm_scale(std::float32_t s) {
+void GMCircle::gm_scale(float s) {
     r *= s;
 }
 
-void GMCircle::gm_scale(std::float64_t s) {
-    r *= static_cast<std::float32_t>(s);
+void GMCircle::gm_scale(double s) {
+    r *= static_cast<float>(s);
 }
 
 bool GMCircle::operator==(const GMCircle &c) {
@@ -332,28 +332,28 @@ GMRectangle::GMRectangle():
     h()
 {}
 
-GMRectangle::GMRectangle(const std::float32_t x1, const std::float32_t y1, const std::float32_t width, const std::float32_t height):
+GMRectangle::GMRectangle(const float x1, const float y1, const float width, const float height):
     v(x1, y1),
     w(width),
     h(height)
 {}
 
-GMRectangle::GMRectangle(const std::float64_t x1, const std::float64_t y1, const std::float64_t width, const std::float64_t height):
-    v(static_cast<std::float32_t>(x1), static_cast<std::float32_t>(y1)),
-    w(static_cast<std::float32_t>(width)),
-    h(static_cast<std::float32_t>(height))
+GMRectangle::GMRectangle(const double x1, const double y1, const double width, const double height):
+    v(static_cast<float>(x1), static_cast<float>(y1)),
+    w(static_cast<float>(width)),
+    h(static_cast<float>(height))
 {}
 
-GMRectangle::GMRectangle(const GMVec2D &u, const std::float32_t width, const std::float32_t height):
+GMRectangle::GMRectangle(const GMVec2D &u, const float width, const float height):
     v(u),
     w(width),
     h(height)
 {}
 
-GMRectangle::GMRectangle(const GMVec2D &u, const std::float64_t width, const std::float64_t height):
+GMRectangle::GMRectangle(const GMVec2D &u, const double width, const double height):
     v(u),
-    w(static_cast<std::float32_t>(width)),
-    h(static_cast<std::float32_t>(height))
+    w(static_cast<float>(width)),
+    h(static_cast<float>(height))
 {}
 
 GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
@@ -362,11 +362,11 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     h(u2.y - u1.y)
 {}
 
-[[nodiscard]] std::float32_t GMRectangle::gm_diagonal1() const {
+[[nodiscard]] float GMRectangle::gm_diagonal1() const {
     return std::hypot(w, h);
 }
 
-[[nodiscard]] std::float32_t GMRectangle::gm_diagonal2() const {
+[[nodiscard]] float GMRectangle::gm_diagonal2() const {
     return ((w * w) + (h * h));
 }
 
@@ -374,13 +374,13 @@ GMRectangle::GMRectangle(const GMVec2D &u1, const GMVec2D &u2):
     return GMVec2D(v.x + w, v.y + h);
 }
 
-void GMRectangle::gm_scale(std::float32_t s) {
+void GMRectangle::gm_scale(float s) {
     w *= s;
     h *= s;
 }
 
-void GMRectangle::gm_scale(std::float64_t s) {
-    gm_scale(static_cast<std::float32_t>(s));
+void GMRectangle::gm_scale(double s) {
+    gm_scale(static_cast<float>(s));
 }
 
 bool GMRectangle::operator==(const GMRectangle &r) {
@@ -393,31 +393,31 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
 
 // Helper functions:
-[[nodiscard]] bool gm_approx(std::float32_t a, std::float32_t b) {
+[[nodiscard]] bool gm_approx(float a, float b) {
     return std::abs(a - b) <= GM_EPSILON;
 }
 
-[[nodiscard]] bool gm_approx(std::float32_t a, std::float64_t b) {
-    return gm_approx(a, static_cast<std::float32_t>(b));
+[[nodiscard]] bool gm_approx(float a, double b) {
+    return gm_approx(a, static_cast<float>(b));
 }
 
-[[nodiscard]] bool gm_approx(std::float64_t a, std::float32_t b) {
-    return gm_approx(static_cast<std::float32_t>(a), b);
+[[nodiscard]] bool gm_approx(double a, float b) {
+    return gm_approx(static_cast<float>(a), b);
 }
 
-[[nodiscard]] bool gm_approx(std::float64_t a, std::float64_t b) {
-    return gm_approx(static_cast<std::float32_t>(a), static_cast<std::float32_t>(b));
+[[nodiscard]] bool gm_approx(double a, double b) {
+    return gm_approx(static_cast<float>(a), static_cast<float>(b));
 }
 
 [[nodiscard]] bool gm_approx(const GMVec2D &v1, const GMVec2D &v2) {
     return gm_approx(v1.x, v2.x) && gm_approx(v1.y, v2.y);
 }
 
-[[nodiscard]] bool gm_approx(const GMVec2D &v1, std::float32_t x, std::float32_t y) {
+[[nodiscard]] bool gm_approx(const GMVec2D &v1, float x, float y) {
     return gm_approx(v1.x, x) && gm_approx(v1.y, y);
 }
 
-[[nodiscard]] bool gm_approx(const GMVec2D &v1, std::float64_t x, std::float64_t y) {
+[[nodiscard]] bool gm_approx(const GMVec2D &v1, double x, double y) {
     return gm_approx(v1.x, x) && gm_approx(v1.y, y);
 }
 
@@ -427,7 +427,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 }
 
 [[nodiscard]] uint8_t gm_orientation(const GMVec2D &a, const GMVec2D &b, const GMVec2D &c) {
-    std::float32_t v = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+    float v = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
 
     if (v < -GM_EPSILON) {
         return 1;
@@ -438,28 +438,28 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     }
 }
 
-[[nodiscard]] bool gm_between(std::float32_t val, std::float32_t low, std::float32_t high) {
+[[nodiscard]] bool gm_between(float val, float low, float high) {
     return (low <= val) && (val <= high);
 }
 
-[[nodiscard]] bool gm_between(std::float64_t val, std::float64_t low, std::float64_t high) {
-    return gm_between(static_cast<std::float32_t>(val),
-        static_cast<std::float32_t>(low),
-        static_cast<std::float32_t>(high));
+[[nodiscard]] bool gm_between(double val, double low, double high) {
+    return gm_between(static_cast<float>(val),
+        static_cast<float>(low),
+        static_cast<float>(high));
 }
 
 [[nodiscard]] GMVec2D gm_closest_point_on_segment(const GMLine& line, const GMVec2D& point) {
     const GMVec2D ab = line.v2 - line.v1;
     const GMVec2D ac = point - line.v1;
 
-    const std::float32_t ab_len2 = ab.gm_len2();
+    const float ab_len2 = ab.gm_len2();
 
     if (ab_len2 < GM_EPSILON) {
         return line.v1;
     }
 
-    std::float32_t t = (ac.x * ab.x + ac.y * ab.y) / ab_len2;
-    t = std::clamp(t, 0.0f32, 1.0f32);
+    float t = (ac.x * ab.x + ac.y * ab.y) / ab_len2;
+    t = std::clamp(t, 0.0f, 1.0f);
 
     return line.v1 + ab * t;
 }
@@ -498,9 +498,9 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
     const GMVec2D r = { l1.v2.x - l1.v1.x, l1.v2.y - l1.v1.y };
     const GMVec2D s = { l2.v2.x - l2.v1.x, l2.v2.y - l2.v1.y };
-    const std::float32_t r_cross_s = r.gm_cross(s);
+    const float r_cross_s = r.gm_cross(s);
     const GMVec2D l2_minus_l1 = GMVec2D(l2.v1.x - l1.v1.x, l2.v1.y - l1.v1.y);
-    const std::float32_t l2_minus_l1_cross_r = l2_minus_l1.gm_cross(r);
+    const float l2_minus_l1_cross_r = l2_minus_l1.gm_cross(r);
 
     if (std::abs(r_cross_s) < GM_EPSILON) {
         if (std::abs(l2_minus_l1_cross_r) < GM_EPSILON) {
@@ -519,10 +519,10 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
         return intersections;
     }
 
-    const std::float32_t t = l2_minus_l1.gm_cross(s) / r_cross_s;
-    const std::float32_t u = l2_minus_l1_cross_r / r_cross_s;
+    const float t = l2_minus_l1.gm_cross(s) / r_cross_s;
+    const float u = l2_minus_l1_cross_r / r_cross_s;
 
-    if (gm_between(t, 0.0f32, 1.0f32) && gm_between(u, 0.0f32, 1.0f32)) {
+    if (gm_between(t, 0.0f, 1.0f) && gm_between(u, 0.0f, 1.0f)) {
         intersections.push_back(GMVec2D(l1.v1.x + t * r.x, l1.v1.y + t * r.y));
     }
 
@@ -537,7 +537,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 [[nodiscard]] bool gm_intersect_circle_line1(const GMCircle &c, const GMLine &l) {
     const GMVec2D closest = gm_closest_point_on_segment(l, c.ctr);
 
-    const std::float32_t dist2 = c.ctr.gm_dist2(closest);
+    const float dist2 = c.ctr.gm_dist2(closest);
     return dist2 <= (c.r * c.r);
 }
 
@@ -545,8 +545,8 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     std::vector<GMVec2D> intersections;
 
     const GMVec2D closest = gm_closest_point_on_segment(l, c.ctr);
-    const std::float32_t dist2 = c.ctr.gm_dist2(closest);
-    const std::float32_t radius2 = c.r * c.r;
+    const float dist2 = c.ctr.gm_dist2(closest);
+    const float radius2 = c.r * c.r;
 
     //std::println("gm_intersect_circle_line2, closest: {}, {}", closest.x, closest.y);
     //std::println("gm_intersect_circle_line2, dist2: {}, radius2: {}", dist2, radius2);
@@ -563,7 +563,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     }
 
     GMVec2D line_dir = l.v2 - l.v1;
-    const std::float32_t line_len = line_dir.gm_len1();
+    const float line_len = line_dir.gm_len1();
 
     //std::println("gm_intersect_circle_line2, line_dir: {}, {}", line_dir.x, line_dir.y);
     //std::println("gm_intersect_circle_line2, line_len: {}", line_len);
@@ -578,7 +578,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
     //std::println("gm_intersect_circle_line2, line_dir norm: {}, {}", line_dir.x, line_dir.y);
 
-    const std::float32_t dt = std::sqrt(radius2 - dist2);
+    const float dt = std::sqrt(radius2 - dist2);
 
     //std::println("gm_intersect_circle_line2, dt: {}", dt);
 
@@ -612,9 +612,9 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     std::vector<GMVec2D> intersections;
 
     // Calculate distance between centers:
-    const std::float32_t dx = std::abs(c1.ctr.x - c2.ctr.x);
-    const std::float32_t dy = std::abs(c1.ctr.y - c2.ctr.y);
-    const std::float32_t d = std::hypot(dx, dy);
+    const float dx = std::abs(c1.ctr.x - c2.ctr.x);
+    const float dy = std::abs(c1.ctr.y - c2.ctr.y);
+    const float d = std::hypot(dx, dy);
 
     // No intersection points:
     if (d > c1.r + c2.r) {
@@ -635,7 +635,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     // std::println("uv1: {}, {}", uv1.x, uv1.y);
     // std::println("uv2: {}, {}", uv2.x, uv2.y);
 
-    const std::float32_t a = (c1.r * c1.r  - c2.r * c2.r + d * d) / (2.0f32 * d);
+    const float a = (c1.r * c1.r  - c2.r * c2.r + d * d) / (2.0f * d);
     const GMVec2D p1 = c1.ctr + (uv1 * a);
 
     // std::println("a: {}", a);
@@ -648,7 +648,7 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     }
 
     // Two intersection points:
-    const std::float32_t h = std::sqrt(c1.r * c1.r - a * a);
+    const float h = std::sqrt(c1.r * c1.r - a * a);
 
     // std::println("h: {}", h);
 
@@ -669,8 +669,8 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
 
 [[nodiscard]] bool gm_intersect_circle_rectangle1(const GMCircle &c, const GMRectangle &r) {
     // Clamp the circle's center to the rectangle's boundaries to find the closest point:
-    const std::float32_t closest_x = std::clamp(c.ctr.x, r.v.x, r.v.x + r.w);
-    const std::float32_t closest_y = std::clamp(c.ctr.y, r.v.y, r.v.y + r.h);
+    const float closest_x = std::clamp(c.ctr.x, r.v.x, r.v.x + r.w);
+    const float closest_y = std::clamp(c.ctr.y, r.v.y, r.v.y + r.h);
     const GMVec2D closest_point(closest_x, closest_y);
 
     // If the squared distance to the closest point is <= radius^2, they intersect.
@@ -817,10 +817,10 @@ bool GMRectangle::operator!=(const GMRectangle &r) {
     std::vector<GMVec2D> intersections;
 
     // Find the overlapping region boundaries:
-    const std::float32_t inter_min_x = std::max(r1.v.x, r2.v.x);
-    const std::float32_t inter_min_y = std::max(r1.v.y, r2.v.y);
-    const std::float32_t inter_max_x = std::min(r1.v.x + r1.w, r2.v.x + r2.w);
-    const std::float32_t inter_max_y = std::min(r1.v.y + r1.h, r2.v.y + r2.h);
+    const float inter_min_x = std::max(r1.v.x, r2.v.x);
+    const float inter_min_y = std::max(r1.v.y, r2.v.y);
+    const float inter_max_x = std::min(r1.v.x + r1.w, r2.v.x + r2.w);
+    const float inter_max_y = std::min(r1.v.y + r1.h, r2.v.y + r2.h);
 
     // Check if an actual overlap exists.
     // If min is greater than max on either axis, they don't overlap:

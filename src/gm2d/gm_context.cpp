@@ -20,7 +20,7 @@ GMContext::GMContext():
     scenemgr_messages(),
     engine_messages(),
     gm_quit(false),
-    gm_dt(0.0f32),
+    gm_dt(0.0f),
     gm_window(nullptr),
     gm_is_fullscreen(true),
     gm_renderer(nullptr),
