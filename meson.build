@@ -1,0 +1,59 @@
+project(
+  'green_moon_2d',
+  'cpp',
+  version: '0.0.1',
+  default_options: ['cpp_std=c++23', 'warning_level=3']
+)
+
+# Point the include directory to 'src'
+inc_dir = include_directories('src/gm2d')
+
+# Source files
+sources = files(
+  'src/gm2d/gm2d.cpp',
+  'src/gm2d/gm_animation.cpp',
+  'src/gm2d/gm_bitmapfont.cpp',
+  'src/gm2d/gm_bitmaptext.cpp',
+  'src/gm2d/gm_configuration.cpp',
+  'src/gm2d/gm_context.cpp',
+  'src/gm2d/gm_math.cpp',
+  'src/gm2d/gm_message.cpp',
+  'src/gm2d/gm_object.cpp',
+  'src/gm2d/gm_resources.cpp',
+  'src/gm2d/gm_scene.cpp',
+  'src/gm2d/gm_sprite.cpp',
+  'src/gm2d/gm_texture.cpp',
+  'src/gm2d/gm_timer.cpp'
+)
+
+# External dependencies:
+tao_json_dep = dependency('taocpp-json', fallback: ['taocpp-json', 'tao_json_dep'])
+
+# Build the library
+lib = shared_library(
+  'green_moon_2d',
+  sources,
+  include_directories: inc_dir,
+  dependencies: [tao_json_dep],
+  install: true
+)
+
+# Declare dependency for other targets/projects
+green_moon_2d_dep = declare_dependency(
+  include_directories: inc_dir,
+  link_with: lib
+)
+
+# Explicitly list header files to install them to system paths
+install_headers(
+  'src/gm2d/gm2d.hpp'
+)
+
+# Unit test configuration
+test_exe = executable(
+  'lib_tests',
+  'tests/test_all.cpp',
+  dependencies: green_moon_2d_dep
+)
+
+test('unit tests', test_exe)

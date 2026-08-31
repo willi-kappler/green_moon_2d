@@ -4,6 +4,7 @@ pkgs.mkShell.override { stdenv = pkgs.llvmPackages_23.stdenv; } {
   nativeBuildInputs = with pkgs; [
     gnumake
     cmake
+    meson
     pkg-config
     vcpkg
     xmake
