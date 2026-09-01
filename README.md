@@ -12,4 +12,17 @@ nix-shell shell_gcc.nix
 xmake -a -r
 ```
 
+```bash
+nix-shell shell_gcc.nix
+meson setup builddir
+meson compile -C builddir
+```
+
 This will download and install all dependencies automatically.
+
+To run the tests:
+
+```bash
+nix-shell shell_gcc.nix
+meson test -C builddir --v
+```
