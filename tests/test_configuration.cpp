@@ -41,7 +41,7 @@ TEST_CASE("Create configuration from string", "[configuration]" ) {
         })json";
 
     GMConfiguration config1 = gm_config_from_string(config_string);
-    REQUIRE(config1.config_file == "foo_bar_config.json");
+    REQUIRE(config1.config_file == "config.json");
     REQUIRE(config1.fps == 70);
     REQUIRE(config1.fullscreen == true);
     REQUIRE(config1.resource_file == "xxx_resource.json");
