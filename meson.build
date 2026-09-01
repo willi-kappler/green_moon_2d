@@ -88,18 +88,45 @@ green_moon_2d_dep = declare_dependency(
 
 # Explicitly list header files to install them to system paths
 install_headers(
-  'src/gm2d/gm2d.hpp'
+  'src/gm2d/gm2d.hpp',
+  'src/gm2d/gm_animation.hpp',
+  'src/gm2d/gm_bitmapfont.hpp',
+  'src/gm2d/gm_bitmaptext.hpp',
+  'src/gm2d/gm_configuration.hpp',
+  'src/gm2d/gm_context.hpp',
+  'src/gm2d/gm_exceptions.hpp',
+  'src/gm2d/gm_math.hpp',
+  'src/gm2d/gm_message.hpp',
+  'src/gm2d/gm_message_type.hpp',
+  'src/gm2d/gm_object.hpp',
+  'src/gm2d/gm_resources.hpp',
+  'src/gm2d/gm_scene.hpp',
+  'src/gm2d/gm_sprite.hpp',
+  'src/gm2d/gm_string_id.hpp',
+  'src/gm2d/gm_texture.hpp',
+  'src/gm2d/gm_timer.hpp'
 )
 
 # Unit test configuration
+test_sources = files(
+  'tests/test_animation.cpp',
+  'tests/test_configuration.cpp',
+  'tests/test_math.cpp',
+  'tests/test_string_id.cpp',
+  'tests/test_timer.cpp'
+)
+
 test_exe = executable(
-  'lib_tests',
-  'tests/test_all.cpp',
+  'green_moon_2d_tests',
+  test_sources,
+  #include_directories: inc_dir,
+  include_directories: include_directories('src'),
   dependencies: [
     green_moon_2d_dep,
-    snitch_dep
+    snitch_dep,
+    tao_json_dep
   ],
   override_options: ['werror=true']
 )
 
-test('unit tests', test_exe)
+test('all unit tests', test_exe)
