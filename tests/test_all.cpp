@@ -12,4 +12,5 @@
 */
 
 #define SNITCH_IMPLEMENTATION
+// #define SNITCH_DEFINE_MAIN
 #include <snitch/snitch.hpp>
