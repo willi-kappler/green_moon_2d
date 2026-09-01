@@ -46,6 +46,7 @@ build/
 src/old/
 examples/old/
 builddir/
+subprojects/.wraplock
 subprojects/libpng-1.6.58/
 subprojects/packagecache/
 subprojects/SDL3_image-3.2.4/
