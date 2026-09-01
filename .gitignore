@@ -50,6 +50,7 @@ subprojects/.wraplock
 subprojects/libpng-1.6.58/
 subprojects/packagecache/
 subprojects/SDL3_image-3.2.4/
+subprojects/SDL3-3.4.12/
 subprojects/snitch-1.3.2/
 subprojects/zlib-1.3.2/
 subprojects/taocpp-json/
