@@ -39,7 +39,7 @@ constexpr GMStringId GMID(std::string_view str) {
 template <>
 struct std::formatter<gm2d::GMStringId> : std::formatter<std::string_view> {
     auto format(gm2d::GMStringId s, format_context& ctx) const {
-        std::string_view name = std::format("{}", s.value);
+        std::string name = std::format("{}", s.value);
         return std::formatter<std::string_view>::format(name, ctx);
     }
 };

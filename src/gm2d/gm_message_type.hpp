@@ -121,7 +121,7 @@ enum struct GMEngineMessageType: uint8_t {
 template <>
 struct std::formatter<gm2d::GMMessageSenderType> : std::formatter<std::string_view> {
     auto format(gm2d::GMMessageSenderType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMMessageSenderType::Object:
@@ -152,7 +152,7 @@ struct std::formatter<gm2d::GMMessageSenderType> : std::formatter<std::string_vi
 template <>
 struct std::formatter<gm2d::GMObjectMessageType> : std::formatter<std::string_view> {
     auto format(gm2d::GMObjectMessageType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMObjectMessageType::SetActive:
@@ -267,7 +267,7 @@ struct std::formatter<gm2d::GMObjectMessageType> : std::formatter<std::string_vi
 template <>
 struct std::formatter<gm2d::GMObjMgrMessageType> : std::formatter<std::string_view> {
     auto format(gm2d::GMObjMgrMessageType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMObjMgrMessageType::AddLayer:
@@ -322,7 +322,7 @@ struct std::formatter<gm2d::GMObjMgrMessageType> : std::formatter<std::string_vi
 template <>
 struct std::formatter<gm2d::GMSceneMessageType> : std::formatter<std::string_view> {
     auto format(gm2d::GMSceneMessageType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMSceneMessageType::Custom:
@@ -345,7 +345,7 @@ struct std::formatter<gm2d::GMSceneMessageType> : std::formatter<std::string_vie
 template <>
 struct std::formatter<gm2d::GMSceneMgrMessageType> : std::formatter<std::string_view> {
     auto format(gm2d::GMSceneMgrMessageType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMSceneMgrMessageType::AddScene:
@@ -400,7 +400,7 @@ struct std::formatter<gm2d::GMSceneMgrMessageType> : std::formatter<std::string_
 template <>
 struct std::formatter<gm2d::GMEngineMessageType> : std::formatter<std::string_view> {
     auto format(gm2d::GMEngineMessageType m, format_context& ctx) const {
-        std::string_view name;
+        std::string name;
 
         switch (m) {
             case gm2d::GMEngineMessageType::Quit:
