@@ -140,4 +140,7 @@ void GMContext::gm_set_fullscreen(bool fullscreen) {
     gm_is_fullscreen = fullscreen;
     SDL_SetWindowFullscreen(gm_window, fullscreen);
 }
+float GMContext::gm_get_dt() {
+    return gm_dt;
+}
 }

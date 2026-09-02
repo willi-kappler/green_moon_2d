@@ -65,6 +65,8 @@ class GMContext {
         void gm_toggle_fullscreen();
         void gm_set_fullscreen(bool);
 
+        float gm_get_dt();
+
     private:
         std::vector<GMObjectMessage> object_messages;
         std::vector<GMObjectMessage> group_messages;
