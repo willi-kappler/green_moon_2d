@@ -6,21 +6,9 @@ project(
 )
 
 # Define custom warning or optimization flags
-extra_flags_lib = [
-  # GCC / Clang:
-  # Speed:
-  '-Ofast',
+extra_flags_gcc_clang = [
   '-march=native',
 
-  # Just clang:
-  '-Wimplicit-fallthrough',
-
-  # Just GCC:
-  '-Walloca',
-  '-Wcast-align=strict',
-  '-Wimplicit-fallthrough=5',
-
-  # Both:
   '-Wdouble-promotion',
   '-Wformat=2',
   '-Wundef',
@@ -38,7 +26,35 @@ extra_flags_lib = [
   '-Wconversion',
   '-Wsign-conversion',
 
-  # MSVC:
+  '-Wextra-semi',
+  '-Wctor-dtor-privacy',
+  '-Wzero-as-null-pointer-constant',
+  '-Wlogical-op',
+  #'-Wfloat-equal',
+  '-Wpessimizing-move',
+  '-Wredundant-move'
+]
+
+extra_flags_gcc = [
+  '-Ofast',
+  '-Walloca',
+  '-Wcast-align=strict',
+  '-Wimplicit-fallthrough=5',
+  '-Wduplicated-cond',
+  '-Wduplicated-branches',
+  # '-Wuseless-cast',
+  '-Wtrampolines'
+]
+
+extra_flags_clang = [
+  '-O3 -ffast-math',
+  '-Wimplicit-fallthrough',
+  '-Wshadow-field',
+  '-Wabstract-final-class',
+  '-Wheader-hygiene'
+]
+
+extra_flags_msvc = [
   '/Wall',
   '/W4',
   '/w14242',
@@ -47,12 +63,19 @@ extra_flags_lib = [
   '/we4289',
   '/w14296',
   '/w14311',
-  '/utf-8',
+  '/utf-8'
 ]
 
 # Safely check which flags are supported by the active compiler
 cpp_compiler = meson.get_compiler('cpp')
-supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_lib)
+
+if cpp_compiler.get_id() == 'gcc'
+  supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_gcc_clang + extra_flags_gcc)
+elif cpp_compiler.get_id() == 'clang'
+  supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_gcc_clang + extra_flags_clang)
+elif cpp_compiler.get_id() == 'msvc'
+  supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_msvc)
+endif
 
 # Point the include directory to 'src'
 inc_dir = include_directories('src/gm2d')
