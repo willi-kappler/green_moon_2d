@@ -52,7 +52,7 @@ void GMTexture::gm_draw_opt(GMContext &context, const float x, const float y, co
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
 
-    SDL_RenderTextureRotated(context.gm_get_renderer(), texture.get(), &src_rect, &dst_rect, angle, NULL, flip_mode);
+    SDL_RenderTextureRotated(context.gm_get_renderer(), texture.get(), &src_rect, &dst_rect, static_cast<double>(angle), NULL, flip_mode);
 }
 
 void GMTexture::gm_draw_opt(GMContext &context, const GMVec2D pos, const uint16_t index, const float angle) {
