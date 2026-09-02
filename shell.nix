@@ -10,7 +10,6 @@ pkgs.mkShell {
     meson
     pkg-config
     vcpkg
-    xmake
     ninja
   ];
 
