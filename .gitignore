@@ -40,9 +40,6 @@
 # debug information files
 *.dwo
 
-.xmake/
-build/
-
 src/old/
 examples/old/
 builddir/

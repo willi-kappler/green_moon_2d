@@ -5,8 +5,6 @@ project(
   default_options: ['cpp_std=c++23', 'warning_level=3', 'buildtype=release']
 )
 
-
-
 # Define custom warning or optimization flags
 extra_flags_lib = [
   # GCC / Clang:
@@ -55,9 +53,6 @@ extra_flags_lib = [
 # Safely check which flags are supported by the active compiler
 cpp_compiler = meson.get_compiler('cpp')
 supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_lib)
-
-# Pass them globally to all targets...
-# add_project_arguments(supported_flags, language: 'cpp')
 
 # Point the include directory to 'src'
 inc_dir = include_directories('src/gm2d')
