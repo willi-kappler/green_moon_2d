@@ -10,6 +10,7 @@
 // Local includes:
 #include "gm2d.hpp"
 #include "gm_exceptions.hpp"
+#include "gm_resources.hpp"
 
 namespace gm2d {
 GM2D::GM2D():
@@ -22,7 +23,7 @@ GM2D::GM2D(std::filesystem::path config_file):
 
 GM2D::GM2D(GMConfiguration config):
     configuration(config),
-    scn_manager(),
+    scene_manager(),
     context()
 {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -30,6 +31,8 @@ GM2D::GM2D(GMConfiguration config):
         SDL_Quit();
         throw GMSDLInitFailed(SDL_GetError());
     }
+
+    // TODO: move create window into context class
 
     SDL_Window *sdl_window = SDL_CreateWindow(config.window_title.c_str(), config.screen_width, config.screen_height, 0);
     if (!sdl_window) {
@@ -39,6 +42,8 @@ GM2D::GM2D(GMConfiguration config):
     }
 
     context.gm_set_window(sdl_window);
+
+    // TODO: move create renderer into context class
 
     SDL_Renderer *sdl_renderer = SDL_CreateRenderer(context.gm_get_window(), NULL);
     if (!sdl_renderer) {
@@ -56,15 +61,16 @@ GM2D::~GM2D() {
 }
 
 void GM2D::gm_add_scene(std::shared_ptr<GMScene> new_scene) {
-    scn_manager.gm_add_scene(new_scene);
+    scene_manager.gm_add_scene(new_scene);
 }
 
 void GM2D::gm_set_start_scene(GMStringId start_id) {
-    scn_manager.gm_set_start_scene(start_id);
+    scene_manager.gm_set_start_scene(start_id);
 }
 
 void GM2D::gm_run() {
     SDL_Event event;
+    GMResourceManager resource_manager;
 
     while (!context.gm_game_running()) {
         while (SDL_PollEvent(&event)) {
@@ -73,8 +79,8 @@ void GM2D::gm_run() {
             }
         }
 
-        scn_manager.gm_update(context);
-        scn_manager.gm_draw(context);
+        scene_manager.gm_update(context);
+        scene_manager.gm_draw(context);
     }
 
     gm_clean_up();

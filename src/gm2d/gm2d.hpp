@@ -38,7 +38,7 @@ class GM2D {
 
     private:
         GMConfiguration configuration;
-        GMSceneManager scn_manager;
+        GMSceneManager scene_manager;
         GMContext context;
 
         void gm_clean_up();
