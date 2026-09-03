@@ -32,28 +32,7 @@ GM2D::GM2D(GMConfiguration config):
         throw GMSDLInitFailed(SDL_GetError());
     }
 
-    // TODO: move create window into context class
-
-    SDL_Window *sdl_window = SDL_CreateWindow(config.window_title.c_str(), config.screen_width, config.screen_height, 0);
-    if (!sdl_window) {
-        SDL_Log("Window creation failed: %s", SDL_GetError());
-        SDL_Quit();
-        throw GMSDLWindowFailed(SDL_GetError());
-    }
-
-    context.gm_set_window(sdl_window);
-
-    // TODO: move create renderer into context class
-
-    SDL_Renderer *sdl_renderer = SDL_CreateRenderer(context.gm_get_window(), NULL);
-    if (!sdl_renderer) {
-        SDL_Log("Renderer creation failed: %s", SDL_GetError());
-        context.gm_destroy_window();
-        SDL_Quit();
-        throw GMSDLRendererFailed(SDL_GetError());
-    }
-
-    context.gm_set_renderer(sdl_renderer);
+    context.gm_init_context(config);
 }
 
 GM2D::~GM2D() {

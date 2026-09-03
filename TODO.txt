@@ -6,8 +6,8 @@ TODO:
     - Add GMResource base class (for GMBitmapFont, GMTexture, ...)
     - Add text effects for GMBitmapText.
     - Add prefix to member variables.
-    - Move create window and create renderer into context class.
 
 Done:
     # Add gm_approx(32, 64), gm_approx(64, 32)
     # Move SDL_Draw_() into context class.
+    # Move create window and create renderer into context class.

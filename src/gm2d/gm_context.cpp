@@ -10,6 +10,7 @@
 
 // Local includes:
 #include "gm_context.hpp"
+#include "gm_exceptions.hpp"
 
 namespace gm2d {
 GMContext::GMContext():
@@ -32,12 +33,22 @@ GMContext::~GMContext() {
     gm_destroy_window();
 }
 
-void GMContext::gm_set_window(SDL_Window *sdl_window) {
-    gm_window = sdl_window;
-}
+void GMContext::gm_init_context(GMConfiguration &config) {
+    gm_window = SDL_CreateWindow(config.window_title.c_str(), config.screen_width, config.screen_height, 0);
 
-SDL_Window *GMContext::gm_get_window() const {
-    return gm_window;
+    if (!gm_window) {
+        SDL_Log("Window creation failed: %s", SDL_GetError());
+        SDL_Quit();
+        throw GMSDLWindowFailed(SDL_GetError());
+    }
+
+    gm_renderer = SDL_CreateRenderer(gm_window, NULL);
+    if (!gm_renderer) {
+        SDL_Log("Renderer creation failed: %s", SDL_GetError());
+        gm_destroy_window();
+        SDL_Quit();
+        throw GMSDLRendererFailed(SDL_GetError());
+    }
 }
 
 void GMContext::gm_destroy_window() {
@@ -45,10 +56,6 @@ void GMContext::gm_destroy_window() {
         SDL_DestroyWindow(gm_window);
         gm_window = nullptr;
     }
-}
-
-void GMContext::gm_set_renderer(SDL_Renderer *sdl_renderer) {
-    gm_renderer = sdl_renderer;
 }
 
 void GMContext::gm_destroy_renderer() {

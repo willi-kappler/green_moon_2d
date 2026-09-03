@@ -23,7 +23,7 @@
 
 // Local includes:
 #include "gm_message.hpp"
-
+#include "gm_configuration.hpp"
 
 namespace gm2d {
 class GMContext {
@@ -31,10 +31,9 @@ class GMContext {
         GMContext();
         ~GMContext();
 
-        void gm_set_window(SDL_Window *);
-        SDL_Window *gm_get_window() const;
+        void gm_init_context(GMConfiguration &);
+
         void gm_destroy_window();
-        void gm_set_renderer(SDL_Renderer *);
         void gm_destroy_renderer();
 
         void gm_quit_game();
