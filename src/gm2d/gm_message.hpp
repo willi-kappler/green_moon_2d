@@ -14,7 +14,6 @@
 #include <cstdint>
 #include <any>
 #include <optional>
-// #include <string>
 
 // Local includes:
 #include "gm_message_type.hpp"
