@@ -16,11 +16,7 @@
 #include <string>
 #include <any>
 #include <cstdint>
-
-// STD includes:
-// #include <string_view>
-// #include <memory>
-
+#include <memory>
 
 // External includes:
 #include <SDL3/SDL.h>
@@ -39,7 +35,6 @@ class GMContext {
         SDL_Window *gm_get_window() const;
         void gm_destroy_window();
         void gm_set_renderer(SDL_Renderer *);
-        SDL_Renderer *gm_get_renderer() const;
         void gm_destroy_renderer();
 
         void gm_quit_game();
@@ -67,6 +62,9 @@ class GMContext {
 
         float gm_get_dt();
 
+        void gm_draw_tex(std::shared_ptr<SDL_Texture>, SDL_FRect &, SDL_FRect &);
+        void gm_draw_tex_opt(std::shared_ptr<SDL_Texture>, SDL_FRect &, SDL_FRect &, const float, SDL_FlipMode);
+
     private:
         std::vector<GMObjectMessage> object_messages;
         std::vector<GMObjectMessage> group_messages;
@@ -75,12 +73,12 @@ class GMContext {
         std::vector<GMSceneMgrMessage> scenemgr_messages;
         std::vector<GMEngineMessage> engine_messages;
 
-        bool gm_quit;
-        float gm_dt;
+        bool quit;
+        float dt;
         SDL_Window *gm_window;
-        bool gm_is_fullscreen;
+        bool is_fullscreen;
         SDL_Renderer *gm_renderer;
-        std::unordered_map<std::string, std::any> gm_game_properties;
+        std::unordered_map<std::string, std::any> game_properties;
 };
 }
 

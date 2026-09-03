@@ -19,12 +19,12 @@ GMContext::GMContext():
     scene_messages(),
     scenemgr_messages(),
     engine_messages(),
-    gm_quit(false),
-    gm_dt(0.0f),
+    quit(false),
+    dt(0.0f),
     gm_window(nullptr),
-    gm_is_fullscreen(true),
+    is_fullscreen(true),
     gm_renderer(nullptr),
-    gm_game_properties()
+    game_properties()
 {}
 
 GMContext::~GMContext() {
@@ -51,10 +51,6 @@ void GMContext::gm_set_renderer(SDL_Renderer *sdl_renderer) {
     gm_renderer = sdl_renderer;
 }
 
-SDL_Renderer *GMContext::gm_get_renderer() const {
-    return gm_renderer;
-}
-
 void GMContext::gm_destroy_renderer() {
     if (gm_renderer) {
         SDL_DestroyRenderer(gm_renderer);
@@ -63,11 +59,11 @@ void GMContext::gm_destroy_renderer() {
 }
 
 void GMContext::gm_quit_game() {
-    gm_quit = true;
+    quit = true;
 }
 
 bool GMContext::gm_game_running() const {
-    return gm_quit;
+    return quit;
 }
 
 void GMContext::gm_send_object_message(const GMObjectMessage &message) {
@@ -132,15 +128,24 @@ void GMContext::gm_set_background_color(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void GMContext::gm_toggle_fullscreen() {
-    gm_is_fullscreen = !gm_is_fullscreen;
-    SDL_SetWindowFullscreen(gm_window, gm_is_fullscreen);
+    is_fullscreen = !is_fullscreen;
+    SDL_SetWindowFullscreen(gm_window, is_fullscreen);
 }
 
 void GMContext::gm_set_fullscreen(bool fullscreen) {
-    gm_is_fullscreen = fullscreen;
+    is_fullscreen = fullscreen;
     SDL_SetWindowFullscreen(gm_window, fullscreen);
 }
 float GMContext::gm_get_dt() {
-    return gm_dt;
+    return dt;
 }
+
+void GMContext::gm_draw_tex(std::shared_ptr<SDL_Texture> texture, SDL_FRect &src_rect, SDL_FRect &dst_rect) {
+    SDL_RenderTexture(gm_renderer, texture.get(), &src_rect, &dst_rect);
+}
+
+void GMContext::gm_draw_tex_opt(std::shared_ptr<SDL_Texture> texture, SDL_FRect &src_rect, SDL_FRect &dst_rect, const float angle, SDL_FlipMode flip_mode) {
+    SDL_RenderTextureRotated(gm_renderer, texture.get(), &src_rect, &dst_rect, static_cast<double>(angle), NULL, flip_mode);
+}
+
 }
