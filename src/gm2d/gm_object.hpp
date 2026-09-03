@@ -11,9 +11,7 @@
 #define FILE_GM_OBJECT_HPP_INCLUDED
 
 // STD includes:
-//#include <string>
 #include <cstdint>
-//#include <string_view>
 #include <vector>
 #include <memory>
 #include <utility>
