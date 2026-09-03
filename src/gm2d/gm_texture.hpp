@@ -50,6 +50,8 @@ class GMTexture {
         SDL_FRect dst_rect;
         SDL_FlipMode flip_mode;
 
+        const float gm_unit_width2;
+        const float gm_unit_height2;
 };
 }
 

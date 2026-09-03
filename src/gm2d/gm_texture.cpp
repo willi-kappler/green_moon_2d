@@ -19,7 +19,9 @@ GMTexture::GMTexture(std::string tex_name, std::shared_ptr<SDL_Texture> tex, uin
     texture(tex),
     src_rect(0, 0, w, h),
     dst_rect(0, 0, w, h),
-    flip_mode()
+    flip_mode(),
+    gm_unit_width2(static_cast<float>(gm_unit_width) / 2.0f),
+    gm_unit_height2(static_cast<float>(gm_unit_height) / 2.0f)
 {
     SDL_SetTextureScaleMode(texture.get(), SDL_SCALEMODE_LINEAR);
 }
@@ -32,16 +34,15 @@ void GMTexture::gm_set_src_rect(uint16_t index) {
 }
 
 void GMTexture::gm_set_dst_rect(float x, float y) {
-    float uw = static_cast<float>(gm_unit_width) / 2.0f;
-    float uh = static_cast<float>(gm_unit_height) / 2.0f;
-    dst_rect.x = x - uw;
-    dst_rect.y = y - uh;
+    dst_rect.x = x - gm_unit_width2;
+    dst_rect.y = y - gm_unit_height2;
 }
 
 void GMTexture::gm_draw(GMContext &context, const float x, const float y, const uint16_t index) {
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
-    SDL_RenderTexture(context.gm_get_renderer(), texture.get(), &src_rect, &dst_rect);
+
+    context.gm_draw_tex(texture, src_rect, dst_rect);
 }
 
 void GMTexture::gm_draw(GMContext &context, const GMVec2D pos, const uint16_t index) {
@@ -52,7 +53,7 @@ void GMTexture::gm_draw_opt(GMContext &context, const float x, const float y, co
     gm_set_src_rect(index);
     gm_set_dst_rect(x, y);
 
-    SDL_RenderTextureRotated(context.gm_get_renderer(), texture.get(), &src_rect, &dst_rect, static_cast<double>(angle), NULL, flip_mode);
+    context.gm_draw_tex_opt(texture, src_rect, dst_rect, angle, flip_mode);
 }
 
 void GMTexture::gm_draw_opt(GMContext &context, const GMVec2D pos, const uint16_t index, const float angle) {
