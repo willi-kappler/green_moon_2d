@@ -11,5 +11,7 @@
 #include "gm_resources.hpp"
 
 namespace gm2d {
-
+GMResourceManager::GMResourceManager() {
+    
+}
 }
