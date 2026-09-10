@@ -2,13 +2,18 @@ project(
   'green_moon_2d',
   'cpp',
   version: '0.0.1',
-  default_options: ['cpp_std=c++23', 'warning_level=3', 'buildtype=release']
+  default_options: ['cpp_std=c++23', 'buildtype=release']
 )
 
 # Define custom warning or optimization flags
 extra_flags_gcc_clang = [
   '-march=native',
+  #'-flto',
 
+  #'-Werror',
+  '-Wall',
+  '-Wextra',
+  '-Wpedantic',
   '-Wdouble-promotion',
   '-Wformat=2',
   '-Wundef',
@@ -77,8 +82,11 @@ elif cpp_compiler.get_id() == 'msvc'
   supported_flags_lib = cpp_compiler.get_supported_arguments(extra_flags_msvc)
 endif
 
+# Only apply flags to current project
+add_project_arguments(supported_flags_lib, language: 'cpp')
+
 # Point the include directory to 'src'
-inc_dir = include_directories('src/gm2d')
+inc_dir = include_directories('src')
 
 # Source files
 sources = files(
@@ -116,12 +124,10 @@ sdl3_image_dep = dependency('sdl3_image', fallback: ['sdl3_image', 'sdl3_image_d
 snitch_dep = dependency('snitch', fallback: ['snitch', 'snitch_dep'])
 
 # Build the library
-lib = shared_library(
+gm2d_lib = shared_library(
   'green_moon_2d',
   sources,
   include_directories: inc_dir,
-  override_options: ['werror=true', 'b_lto=true'],
-  cpp_args: supported_flags_lib,
   dependencies: [tao_json_dep, sdl3_dep, sdl3_image_dep],
   install: true
 )
@@ -129,8 +135,12 @@ lib = shared_library(
 # Declare dependency for other targets/projects
 green_moon_2d_dep = declare_dependency(
   include_directories: inc_dir,
-  link_with: lib
+  link_with: gm2d_lib,
+  dependencies: [tao_json_dep, sdl3_dep, sdl3_image_dep]
 )
+
+# Register the dependency
+meson.override_dependency('green_moon_2d', green_moon_2d_dep)
 
 # Explicitly list header files to install them to system paths
 install_headers(
@@ -166,10 +176,7 @@ test_sources = files(
 test_exe = executable(
   'green_moon_2d_tests',
   test_sources,
-  include_directories: include_directories('src'),
-  dependencies: [green_moon_2d_dep, snitch_dep, tao_json_dep],
-  # override_options: ['werror=true'],
-  cpp_args: supported_flags_lib
+  dependencies: [green_moon_2d_dep, snitch_dep],
 )
 
 test('all unit tests', test_exe)
