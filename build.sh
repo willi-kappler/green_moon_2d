@@ -30,10 +30,14 @@ done
 if [[ $CLEAN_BUILD -eq 1 ]]; then
     echo "Clean build!"
     rm -rf builddir
-    meson setup builddir
+    meson setup builddir > build_setup.log
 fi
 
-meson compile -C builddir
+if [ ! -d "builddir" ]; then
+  meson setup builddir > build_setup.log
+fi
+
+meson compile -C builddir > build_compile.log
 
 if [[ $RUN_TEST -eq 1 ]]; then
     echo "Run test cases!"
