@@ -52,7 +52,8 @@ extra_flags_gcc = [
 ]
 
 extra_flags_clang = [
-  '-O3 -ffast-math',
+  '-O3',
+  '-ffast-math',
   '-Wimplicit-fallthrough',
   '-Wshadow-field',
   '-Wabstract-final-class',
