@@ -1,7 +1,7 @@
 project(
   'green_moon_2d',
   'cpp',
-  version: '0.0.1',
+  version: '0.1',
   default_options: ['cpp_std=c++23', 'buildtype=release']
 )
 
