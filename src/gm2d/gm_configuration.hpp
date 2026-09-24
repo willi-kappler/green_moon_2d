@@ -17,7 +17,7 @@
 #include <filesystem>
 
 // External includes:
-#include <tao/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace gm2d {
 class GMConfiguration {
@@ -39,7 +39,7 @@ class GMConfiguration {
         // input_config_file: string
 };
 
-[[nodiscard]] GMConfiguration gm_config_from_json(const tao::json::value);
+[[nodiscard]] GMConfiguration gm_config_from_json(const nlohmann::json);
 
 [[nodiscard]] std::string gm_file_to_string(std::filesystem::path);
 

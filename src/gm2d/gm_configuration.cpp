@@ -27,7 +27,7 @@ GMConfiguration::GMConfiguration():
     window_title("Made with GreenMoon2D")
 {}
 
-[[nodiscard]] GMConfiguration gm_config_from_json(const tao::json::value json_config) {
+[[nodiscard]] GMConfiguration gm_config_from_json(const nlohmann::json json_config) {
     GMConfiguration gm_config;
 
     if (auto v = json_config.find("fps"); v != nullptr) {
@@ -89,7 +89,7 @@ GMConfiguration::GMConfiguration():
 }
 
 [[nodiscard]] GMConfiguration gm_config_from_string(std::string_view config_as_string) {
-    const tao::json::value json_config = tao::json::from_string(config_as_string);
+    const nlohmann::json json_config = nlohmann::json::parse(config_as_string);
 
     return gm_config_from_json(json_config);
 }
@@ -108,7 +108,7 @@ void gm_save_config(GMConfiguration gm_config, std::filesystem::path file_path) 
     // std::cout << gm_config.config_file << std::endl;
     // std::cout << file_path << std::endl;
 
-    const tao::json::value json_data = {
+    const nlohmann::json json_data = {
         {"fps", gm_config.fps},
         {"fullscreen", gm_config.fullscreen},
         {"resource_file", gm_config.resource_file},
@@ -117,7 +117,7 @@ void gm_save_config(GMConfiguration gm_config, std::filesystem::path file_path) 
         {"window_title", gm_config.window_title}
     };
 
-    const std::string serialized = tao::json::to_string(json_data);
+    const std::string serialized = json_data.dump();
 
     std::ofstream out_file(file_path);
 
