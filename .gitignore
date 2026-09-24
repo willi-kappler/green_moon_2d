@@ -40,6 +40,7 @@
 # debug information files
 *.dwo
 
+*.log
 src/old/
 examples/old/
 builddir/
@@ -50,4 +51,4 @@ subprojects/SDL3_image-3.2.4/
 subprojects/SDL3-3.4.12/
 subprojects/snitch-1.3.2/
 subprojects/zlib-1.3.2/
-subprojects/taocpp-json/
+subprojects/nlohmann_json-3.12.0/
