@@ -3,6 +3,7 @@
 CLEAN_BUILD=0
 RUN_TEST=0
 SHOW_LOG=0
+export NIX_ENFORCE_NO_NATIVE=0
 
 for flag in "$@"
 do
