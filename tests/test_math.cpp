@@ -139,8 +139,8 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
     GMLine l2{10.0, 10.0, 60.0, 60.0};
     GMLine l3{GMVec2D(-5.5, 1.2), GMVec2D(7.8, 9.9)};
 
-    REQUIRE(l1.gm_len1() == 50.0);
-    REQUIRE(l1.gm_len2() == 2500.0);
+    REQUIRE(l1.gm_len1() == 50.0f);
+    REQUIRE(l1.gm_len2() == 2500.0f);
 
     REQUIRE(l2.gm_len1() == 70.71068f);
 
@@ -148,14 +148,14 @@ TEST_CASE("Create and use GMLine", "[math]" ) {
     REQUIRE(gm_approx(l3.v2, 7.8, 9.9));
 
     l2.gm_scale(0.1414213562373095);
-    REQUIRE(l2.gm_len1() == 10.0);
-    REQUIRE(l2.gm_angle() == 45.00);
+    REQUIRE(l2.gm_len1() == 10.0f);
+    REQUIRE(l2.gm_angle() == 45.00f);
 
     l2.gm_rotate(45.0);
 
-    REQUIRE(gm_approx(l2.v1, 10.0, 10.0));
-    REQUIRE(gm_approx(l2.v2, 10.0, 20.0));
-    REQUIRE(l2.gm_angle() == 90.00);
+    REQUIRE(gm_approx(l2.v1, 10.0f, 10.0f));
+    REQUIRE(gm_approx(l2.v2, 10.0f, 20.0f));
+    REQUIRE(gm_approx(l2.gm_angle(), 90.00f));
 
     GMLine l4{10.0, 10.0, 10.0, 20.0};
     REQUIRE(l1 != l2);
@@ -189,15 +189,15 @@ TEST_CASE("Create and use GMRectangle", "[math]" ) {
     REQUIRE(gm_approx(r3.v, 12.0, 15.0));
     REQUIRE((r3.w == 10.0f) && (r3.h == 20.0f));
 
-    REQUIRE(r1.gm_diagonal1() == 50.0);
-    REQUIRE(r1.gm_diagonal2() == 2500.0);
+    REQUIRE(r1.gm_diagonal1() == 50.0f);
+    REQUIRE(r1.gm_diagonal2() == 2500.0f);
 
     GMVec2D op = r1.gm_opposite();
     REQUIRE((op.x == 50.0f) && (op.y == 40.0f));
 
     r1.gm_scale(2.0);
-    REQUIRE(r1.gm_diagonal1() == 100.0);
-    REQUIRE(gm_approx(r1.v, 10.0, 10.0));
+    REQUIRE(r1.gm_diagonal1() == 100.0f);
+    REQUIRE(gm_approx(r1.v, 10.0f, 10.0f));
     REQUIRE((r1.w == 80.0f) && (r1.h == 60.0f));
 
     r1 = {10.0, 10.0, 90.0, 70.0};
