@@ -30,6 +30,8 @@ done
 
 if [[ $CLEAN_BUILD -eq 1 ]]; then
     echo "Clean build!"
+    rm -f build_compile.log
+    rm -f build_setup.log
     rm -rf builddir
     meson setup builddir > build_setup.log
 fi
