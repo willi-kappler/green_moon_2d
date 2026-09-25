@@ -30,44 +30,44 @@ GMConfiguration::GMConfiguration():
 [[nodiscard]] GMConfiguration gm_config_from_json(const nlohmann::json json_config) {
     GMConfiguration gm_config;
 
-    if (auto v = json_config.find("fps"); v != nullptr) {
-        gm_config.fps = v->as<uint8_t>();
+    if (json_config.contains("fps")) {
+        gm_config.fps = json_config["fps"].get<uint8_t>();
 
         if (gm_config.fps < 10) {
             throw GMConfigurationException("fps < 10!");
         }
     }
 
-    if (auto v = json_config.find("fullscreen"); v != nullptr) {
-        gm_config.fullscreen = v->as<bool>();
+    if (json_config.contains("fullscreen")) {
+        gm_config.fullscreen = json_config["fullscreen"].get<bool>();
     }
 
-    if (auto v = json_config.find("resource_file"); v != nullptr) {
-        gm_config.resource_file = v->as<std::string>();
+    if (json_config.contains("resource_file")) {
+        gm_config.resource_file = json_config["resource_file"].get<std::string>();
 
         if (gm_config.resource_file.size() == 0) {
             throw GMConfigurationException("resource_file is empty!");
         }
     }
 
-    if (auto v = json_config.find("screen_width"); v != nullptr) {
-        gm_config.screen_width = v->as<uint16_t>();
+    if (json_config.contains("screen_width")) {
+        gm_config.screen_width = json_config["screen_width"].get<uint16_t>();
 
         if (gm_config.screen_width < 320) {
             throw GMConfigurationException("screen_width < 320!");
         }
     }
 
-    if (auto v = json_config.find("screen_height"); v != nullptr) {
-        gm_config.screen_height = v->as<uint16_t>();
+    if (json_config.contains("screen_height")) {
+        gm_config.screen_height = json_config["screen_height"].get<uint16_t>();
 
         if (gm_config.screen_height < 240) {
             throw GMConfigurationException("screen_height < 240!");
         }
     }
 
-    if (auto v = json_config.find("window_title"); v != nullptr) {
-        gm_config.window_title = v->as<std::string>();
+    if (json_config.contains("window_title")) {
+        gm_config.window_title = json_config["window_title"].get<std::string>();
 
         if (gm_config.window_title.size() == 0) {
             throw GMConfigurationException("window_title is empty!");
