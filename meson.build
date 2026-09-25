@@ -8,7 +8,7 @@ project(
 # Define custom warning or optimization flags
 extra_flags_gcc_clang = [
   '-march=native',
-  '-flto',
+  #'-flto',
 
   #'-Werror',
   '-Wall',
@@ -30,7 +30,6 @@ extra_flags_gcc_clang = [
   '-Wunused',
   '-Wconversion',
   #'-Wsign-conversion',
-
   '-Wextra-semi',
   '-Wctor-dtor-privacy',
   '-Wzero-as-null-pointer-constant',
@@ -110,7 +109,7 @@ sources = files(
 # External dependencies:
 
 # JSON:
-nlohmann_json_dep = dependency('nlohmann_json', fallback: ['nlohmann_json', 'nlohmann_json_dep'])
+nlohmann_json_dep = dependency('nlohmann_json', fallback: ['nlohmann_json', 'nlohmann_json_dep'], include_type: 'system')
 
 # SDL3:
 sdl3_dep = dependency('sdl3', fallback: ['sdl3', 'sdl3_dep'])
