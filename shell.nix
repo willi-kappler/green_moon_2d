@@ -14,6 +14,7 @@ pkgs.mkShell {
   ];
 
   buildInputs = with pkgs; [
+    systemd
     libGL
     libGL.dev
     libX11
