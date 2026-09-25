@@ -8,7 +8,6 @@ project(
 # Define custom warning or optimization flags
 extra_flags_gcc_clang = [
   '-march=native',
-  #'-flto',
 
   #'-Werror',
   '-Wall',
@@ -40,6 +39,7 @@ extra_flags_gcc_clang = [
 ]
 
 extra_flags_gcc = [
+  '-flto',
   '-Ofast',
   '-Walloca',
   '-Wcast-align=strict',
@@ -56,7 +56,8 @@ extra_flags_clang = [
   '-Wimplicit-fallthrough',
   '-Wshadow-field',
   '-Wabstract-final-class',
-  '-Wheader-hygiene'
+  '-Wheader-hygiene',
+  '-Wno-sign-conversion'
 ]
 
 extra_flags_msvc = [
