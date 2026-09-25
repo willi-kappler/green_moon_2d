@@ -3,8 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${userHome}/.xmake/packages/**"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/run/current-system/sw/bin/g++",
