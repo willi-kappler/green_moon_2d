@@ -1,13 +1,23 @@
 TODO:
-    - Add logger
-    - Use brace init everywhere ?
-    - Add velocity to GMObject
-    - Test all constructors!
-    - Add GMResource base class (for GMBitmapFont, GMTexture, ...)
-    - Add text effects for GMBitmapText.
-    - Add prefix to member variables.
+    - add logger
+    - use brace init everywhere ?
+    - add velocity to GMObject
+    - test all constructors!
+    - add GMResource base class (for GMBitmapFont, GMTexture, ...)
+    - add text effects for GMBitmapText.
+    - add prefix to member variables.
+    - add documentation
+    - add [[nodiscard]], noexcept, ... when needed.
+    - use constexpr when possible.
+    - use std::initializer_list overload when possible.
+    - use final instead of override when possible.
+    - add GCC flag "-fhardened" and fix warnings.
+    - fix clang warnings and errors.
+    - compile and test on MacOS.
+    - compile and test on Windows.
+
 
 Done:
-    # Add gm_approx(32, 64), gm_approx(64, 32)
-    # Move SDL_Draw_() into context class.
-    # Move create window and create renderer into context class.
+    # add gm_approx(32, 64), gm_approx(64, 32)
+    # move SDL_Draw_() into context class.
+    # move create window and create renderer into context class.
