@@ -15,6 +15,7 @@ TODO:
     - fix clang warnings and errors.
     - compile and test on MacOS.
     - compile and test on Windows.
+    - Change float back to std::float32_t.
 
 
 Done:
