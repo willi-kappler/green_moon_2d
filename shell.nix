@@ -5,27 +5,30 @@
 # pkgs.mkShell.override { stdenv = pkgs.gcc16Stdenv; } {
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
-    gnumake
     cmake
+    gnumake
     meson
+    ninja
     pkg-config
     vcpkg
-    ninja
   ];
 
   buildInputs = with pkgs; [
-    systemd
     libGL
     libGL.dev
+    libpng
     libX11
-    libXrandr
-    libXinerama
     libXcursor
     libXi
+    libXinerama
+    libXrandr
+    nlohmann_json
     sdl3
     sdl3-image
     sdl3-mixer
     spdlog
+    systemd
+    zlib
   ];
 
   shellHook = ''
