@@ -8,8 +8,6 @@ project(
 # Define custom warning or optimization flags
 extra_flags_gcc_clang = [
   '-march=native',
-
-  #'-Werror',
   '-Wall',
   '-Wextra',
   '-Wpedantic',
@@ -22,7 +20,6 @@ extra_flags_gcc_clang = [
   '-Winit-self',
   '-Wredundant-decls',
   '-Wsuggest-override',
-  '-Wshadow',
   '-Wnon-virtual-dtor',
   '-Wold-style-cast',
   '-Wcast-align',
@@ -39,19 +36,28 @@ extra_flags_gcc_clang = [
 ]
 
 extra_flags_gcc = [
+  '-Werror',
   '-flto',
-  '-Ofast',
+  #'-Ofast',
   '-Walloca',
   '-Wcast-align=strict',
   '-Wimplicit-fallthrough=5',
   '-Wduplicated-cond',
   '-Wduplicated-branches',
   # '-Wuseless-cast',
-  '-Wtrampolines'
+  '-Wtrampolines',
+  '-Wshadow',
+  '-D_FORTIFY_SOURCE=3',
+  '-D_GLIBCXX_ASSERTIONS',
+  '-fstack-protector-strong',
+  '-ftrivial-auto-var-init=zero',
+  '-fPIE',
+  '-pie',
+  '-fstack-clash-protection',
+  '-fcf-protection=full'
 ]
 
 extra_flags_clang = [
-  '-O3',
   '-ffast-math',
   '-Wimplicit-fallthrough',
   '-Wshadow-field',
